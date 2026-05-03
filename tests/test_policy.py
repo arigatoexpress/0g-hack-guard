@@ -1,7 +1,7 @@
 """Tests for policy engine."""
 import pytest
 
-from zg_hack_guard.policy import evaluate_intent
+from guard0.policy import evaluate_intent
 
 
 def test_allow_readonly_rpc():

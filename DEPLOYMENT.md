@@ -221,7 +221,7 @@ Set these in your shell, `.env` file, or deployment platform:
 | `ZGG_CHAIN_ID` | `16601` | `16661` |
 | `ZGG_RECEIPT_CONTRACT` | `0xYOUR_TESTNET_CONTRACT_ADDRESS` | `0xYOUR_MAINNET_CONTRACT_ADDRESS` |
 
-### 5.2 Update `src/zg_hack_guard/zg_chain.py`
+### 5.2 Update `src/guard0/chain.py`
 
 The app currently defaults to placeholder values. After deployment, update **or** override via env vars:
 
@@ -232,7 +232,7 @@ export ZGG_CHAIN_ID=16601
 export ZGG_RECEIPT_CONTRACT="0xYOUR_DEPLOYED_CONTRACT_ADDRESS"
 ```
 
-If you want to hardcode defaults for a specific environment, edit `src/zg_hack_guard/zg_chain.py`:
+If you want to hardcode defaults for a specific environment, edit `src/guard0/chain.py`:
 
 ```python
 # Example: hardcoded testnet defaults
@@ -249,7 +249,7 @@ ZGG_RECEIPT_CONTRACT = os.getenv(
 Restart the app and confirm the health endpoint reflects the new contract:
 
 ```bash
-python3 -m zg_hack_guard.cli serve --port 8109 &
+python3 -m guard0.cli serve --port 8109 &
 curl http://127.0.0.1:8109/api/health
 ```
 
@@ -325,7 +325,7 @@ When you're ready to move from testnet to mainnet, complete this checklist:
 | `contracts/PolicyReceiptAnchor.sol` | Solidity source |
 | `contracts/PolicyReceiptAnchor.json` | Compiled ABI + bytecode |
 | `scripts/deploy_0g.py` | Python deployment script |
-| `src/zg_hack_guard/zg_chain.py` | App integration point (env vars) |
+| `src/guard0/chain.py` | App integration point (env vars) |
 | `foundry/foundry.toml` | Foundry config (default chain_id = 16601) |
 
 ---

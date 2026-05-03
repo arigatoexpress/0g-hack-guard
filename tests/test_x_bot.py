@@ -1,4 +1,4 @@
-"""Tests for zg_hack_guard.x_bot."""
+"""Tests for guard0.x_bot."""
 from __future__ import annotations
 
 import os
@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from zg_hack_guard.x_bot import (
+from guard0.x_bot import (
     XBot,
     XBotConfigError,
     XBotPostError,
@@ -54,9 +54,9 @@ def fake_creds():
 @pytest.fixture
 def mock_tweepy():
     """Patch both tweepy.Client and tweepy.API/tweepy.OAuth1UserHandler."""
-    with patch("zg_hack_guard.x_bot.tweepy.Client") as MockClient, \
-         patch("zg_hack_guard.x_bot.tweepy.API") as MockAPI, \
-         patch("zg_hack_guard.x_bot.tweepy.OAuth1UserHandler") as MockAuth:
+    with patch("guard0.x_bot.tweepy.Client") as MockClient, \
+         patch("guard0.x_bot.tweepy.API") as MockAPI, \
+         patch("guard0.x_bot.tweepy.OAuth1UserHandler") as MockAuth:
 
         client_instance = MagicMock()
         api_instance = MagicMock()

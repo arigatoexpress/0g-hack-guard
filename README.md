@@ -1,15 +1,15 @@
-# 🔒 0G Hack Guard
+# 🔒 0guard
 
 > **AI Agent Firewall + Signature/Behavioral Detection for Crypto Hacks**  
 > Built on [0G](https://0g.ai) — the first decentralized AI operating system.
 
-[![CI](https://github.com/arigatoexpress/0g-hack-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/arigatoexpress/0g-hack-guard/actions)
+[![CI](https://github.com/arigatoexpress/0guard/actions/workflows/ci.yml/badge.svg)](https://github.com/arigatoexpress/0guard/actions)
 
 ---
 
 ## One-Sentence Pitch
 
-0G Hack Guard is a read-only, pre-wallet safety layer that uses real exploit signatures from April 2026 (the worst month on record for DeFi hacks) to detect and block crypto hacks before an AI agent ever reaches a signing key.
+0guard is a read-only, pre-wallet safety layer that uses real exploit signatures from April 2026 (the worst month on record for DeFi hacks) to detect and block crypto hacks before an AI agent ever reaches a signing key.
 
 ---
 
@@ -22,7 +22,7 @@
 
 ## Solution
 
-0G Hack Guard gives every AI agent a **pre-wallet security copilot**:
+0guard gives every AI agent a **pre-wallet security copilot**:
 
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
@@ -50,7 +50,7 @@
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   AI Agent      │────▶│  0G Hack Guard   │────▶│  Wallet / RPC   │
+│   AI Agent      │────▶│  0guard   │────▶│  Wallet / RPC   │
 │  (OpenClaw,     │     │  (Intent Eval)   │     │  (only if allow)│
 │   LangChain)    │     └──────────────────┘     └─────────────────┘
 └─────────────────┘              │
@@ -76,12 +76,12 @@
 ## Quickstart
 
 ```bash
-git clone https://github.com/arigatoexpress/0g-hack-guard.git
-cd 0g-hack-guard
+git clone https://github.com/arigatoexpress/0guard.git
+cd 0guard
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -e '.[dev]'
-python3 -m zg_hack_guard.app
+python3 -m guard0.app
 ```
 
 Open `http://127.0.0.1:8109` for the dashboard.
@@ -92,15 +92,15 @@ Open `http://127.0.0.1:8109` for the dashboard.
 
 ```bash
 # Evaluate an intent
-python3 -m zg_hack_guard.cli evaluate \
+python3 -m guard0.cli evaluate \
   --intent-json '{"action":"swap","mode":"live_transaction","value_eth":0.05,"requires_signature":true}'
 
 # Run hack-signature check only
-python3 -m zg_hack_guard.cli hack-check \
+python3 -m guard0.cli hack-check \
   --intent-json '{"action":"approve","calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}'
 
 # Start API server
-python3 -m zg_hack_guard.cli serve --port 8109
+python3 -m guard0.cli serve --port 8109
 ```
 
 ---
@@ -152,7 +152,7 @@ curl -X POST http://127.0.0.1:8109/api/evaluate \
 
 ## Real-World Signatures Built-In
 
-| April 2026 Incident | Signature in 0G Hack Guard |
+| April 2026 Incident | Signature in 0guard |
 |---|---|
 | **Drift Protocol** ($285M) — Durable nonce social engineering | `durable_nonce_admin_transfer` blocker |
 | **Kelp DAO** ($293M) — LayerZero 1-of-1 DVN bridge forgery | `single_dvn_bridge` warning |

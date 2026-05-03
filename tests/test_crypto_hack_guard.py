@@ -1,7 +1,7 @@
 """Tests for crypto_hack_guard signature detection."""
 import pytest
 
-from zg_hack_guard.crypto_hack_guard import (
+from guard0.crypto_hack_guard import (
     check_crypto_hack_signatures,
     KNOWN_MALICIOUS_ADDRESSES,
 )

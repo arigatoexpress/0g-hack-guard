@@ -20,7 +20,7 @@ import os
 # Ensure src is on path when run directly
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from zg_hack_guard.content_engine import generate_content, generate_batch, batch_to_json
+from guard0.content_engine import generate_content, generate_batch, batch_to_json
 
 
 def load_incidents(path: str) -> list[dict]:
@@ -111,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.protocol:
             incidents = [i for i in incidents if i.get("protocol") == args.protocol]
         if args.severity:
-            from zg_hack_guard.content_engine import _get_severity
+            from guard0.content_engine import _get_severity
 
             incidents = [i for i in incidents if _get_severity(float(i.get("loss_usd", 0))) == args.severity]
         outputs = generate_batch(incidents)

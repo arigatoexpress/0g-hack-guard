@@ -39,7 +39,7 @@ import logging
 import sys
 from pathlib import Path
 
-from zg_hack_guard.x_bot import XBot, XBotConfigError
+from guard0.x_bot import XBot, XBotConfigError
 
 logger = logging.getLogger("x_post")
 

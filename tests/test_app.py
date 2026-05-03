@@ -1,7 +1,7 @@
 """Smoke tests for Flask app."""
 import pytest
 
-from zg_hack_guard.app import app
+from guard0.app import app
 
 
 @pytest.fixture

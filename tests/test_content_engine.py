@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from zg_hack_guard.content_engine import (
+from guard0.content_engine import (
     generate_content,
     generate_batch,
     batch_to_json,

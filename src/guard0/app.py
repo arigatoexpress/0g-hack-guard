@@ -15,10 +15,10 @@ from typing import Any
 
 from flask import Flask, jsonify, request, render_template_string
 
-from zg_hack_guard.policy import evaluate_intent
-from zg_hack_guard.crypto_hack_guard import check_crypto_hack_signatures, HackCheckResult
-from zg_hack_guard.zg_storage import store_threat_intel, fetch_threat_intel
-from zg_hack_guard.zg_chain import anchor_receipt
+from guard0.policy import evaluate_intent
+from guard0.crypto_hack_guard import check_crypto_hack_signatures, HackCheckResult
+from guard0.storage import store_threat_intel, fetch_threat_intel
+from guard0.chain import anchor_receipt
 
 app = Flask(__name__)
 
@@ -107,7 +107,7 @@ def api_evaluate():
 @app.route("/api/hack-check", methods=["POST"])
 def api_hack_check():
     payload = request.get_json(silent=True) or {}
-    from zg_hack_guard.policy import normalize_intent
+    from guard0.policy import normalize_intent
     result = check_crypto_hack_signatures(normalize_intent(payload))
     return jsonify(result.to_dict())
 

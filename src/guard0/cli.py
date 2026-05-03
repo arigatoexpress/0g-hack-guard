@@ -13,11 +13,11 @@ import argparse
 import json
 import sys
 
-from zg_hack_guard.policy import evaluate_intent
-from zg_hack_guard.crypto_hack_guard import check_crypto_hack_signatures
-from zg_hack_guard.zg_storage import store_threat_intel
-from zg_hack_guard.zg_chain import anchor_receipt
-from zg_hack_guard.app import app
+from guard0.policy import evaluate_intent
+from guard0.crypto_hack_guard import check_crypto_hack_signatures
+from guard0.storage import store_threat_intel
+from guard0.chain import anchor_receipt
+from guard0.app import app
 
 
 def _print_json(obj: dict) -> None:
@@ -38,7 +38,7 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
 
 
 def cmd_hack_check(args: argparse.Namespace) -> int:
-    from zg_hack_guard.policy import normalize_intent
+    from guard0.policy import normalize_intent
     intent = json.loads(args.intent_json)
     result = check_crypto_hack_signatures(normalize_intent(intent))
     _print_json(result.to_dict())
@@ -46,7 +46,7 @@ def cmd_hack_check(args: argparse.Namespace) -> int:
 
 
 def cmd_health(_args: argparse.Namespace) -> int:
-    from zg_hack_guard.app import api_health
+    from guard0.app import api_health
     with app.test_client() as client:
         resp = client.get("/api/health")
         _print_json(resp.get_json())

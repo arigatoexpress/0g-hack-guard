@@ -13,7 +13,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from zg_hack_guard.policy import evaluate_intent
+from guard0.policy import evaluate_intent
 
 
 def banner(title: str) -> None:

@@ -13,9 +13,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from zg_hack_guard.crypto_hack_guard import check_crypto_hack_signatures
-from zg_hack_guard.zg_chain import anchor_receipt
-from zg_hack_guard.zg_storage import store_threat_intel
+from guard0.crypto_hack_guard import check_crypto_hack_signatures
+from guard0.chain import anchor_receipt
+from guard0.storage import store_threat_intel
 
 
 # ── Constants ────────────────────────────────────────────────────────────────

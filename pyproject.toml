@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zg-hack-guard"
+name = "0guard"
 version = "0.1.0"
 description = "0G-native agent guard with signature & behavioral detection for crypto hacks"
 readme = "README.md"
@@ -34,7 +34,7 @@ dev = [
 ]
 
 [project.scripts]
-zg-guard = "zg_hack_guard.cli:main"
+0guard = "guard0.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
