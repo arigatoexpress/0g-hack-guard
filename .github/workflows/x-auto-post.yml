@@ -1,0 +1,40 @@
+name: Auto-Post Threat Intel to X
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'src/guard0/crypto_hack_guard.py'
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    if: github.repository == 'arigatoexpress/0guard'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+      - name: Generate content for latest incident
+        run: |
+          python scripts/generate_content.py --file data/april_2026_incidents.json --severity critical --out /tmp/tweets.json
+      - name: Post to X
+        env:
+          X_CONSUMER_KEY: ${{ secrets.X_CONSUMER_KEY }}
+          X_CONSUMER_SECRET: ${{ secrets.X_CONSUMER_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: |
+          # Only post if not a dry run — set to true for testing
+          if [ "${{ vars.X_AUTO_POST_ENABLED }}" = "true" ]; then
+            python scripts/x_post.py --file /tmp/tweets.json --thread
+          else
+            echo "Auto-post disabled. Set X_AUTO_POST_ENABLED=true to enable."
+            python scripts/x_post.py --file /tmp/tweets.json --thread --dry-run
+          fi

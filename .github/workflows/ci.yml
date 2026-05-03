@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   test:
@@ -24,3 +24,18 @@ jobs:
         run: pytest -q
       - name: Compile check
         run: python -m compileall src scripts
+      - name: Demo script smoke test
+        run: python scripts/demo_april_2026.py | head -20
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t 0guard:test .
+      - name: Test Docker health
+        run: |
+          docker run -d -p 8109:8109 --name guard-test 0guard:test
+          sleep 5
+          curl -f http://localhost:8109/api/health || exit 1
+          docker stop guard-test

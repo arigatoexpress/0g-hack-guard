@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  guard:
+    build: .
+    ports:
+      - "8109:8109"
+    environment:
+      - ZGG_CHAIN_RPC=${ZGG_CHAIN_RPC:-https://evmrpc-testnet.0g.ai}
+      - ZGG_CHAIN_ID=${ZGG_CHAIN_ID:-16601}
+      - ZGG_RECEIPT_CONTRACT=${ZGG_RECEIPT_CONTRACT}
+      - ZGS_NODE_URL=${ZGS_NODE_URL}
+      - X_CONSUMER_KEY=${X_CONSUMER_KEY}
+      - X_CONSUMER_SECRET=${X_CONSUMER_SECRET}
+      - X_ACCESS_TOKEN=${X_ACCESS_TOKEN}
+      - X_ACCESS_TOKEN_SECRET=${X_ACCESS_TOKEN_SECRET}
+    volumes:
+      - ./data:/app/data
+      - ./content:/app/content
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8109/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
