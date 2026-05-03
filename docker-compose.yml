@@ -14,6 +14,8 @@ services:
       - X_CONSUMER_SECRET=${X_CONSUMER_SECRET}
       - X_ACCESS_TOKEN=${X_ACCESS_TOKEN}
       - X_ACCESS_TOKEN_SECRET=${X_ACCESS_TOKEN_SECRET}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
       - ./data:/app/data
       - ./content:/app/content

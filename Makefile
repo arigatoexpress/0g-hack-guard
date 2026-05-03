@@ -24,6 +24,12 @@ content:
 x-post:
 	python3 scripts/x_post.py --file content/hack_guard_thread.json --thread --dry-run
 
+telegram-post:
+	python3 scripts/telegram_post.py --file content/hack_guard_thread.json --thread --dry-run
+
+telegram-health:
+	python3 scripts/telegram_post.py --health
+
 deploy:
 	python3 scripts/deploy_0g.py --network testnet
 
