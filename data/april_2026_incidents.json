@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "month": "April 2026",
+    "total_incidents": 28,
+    "total_loss_usd": 635240000,
+    "source": "DeFi Llama, Rekt News, SlowMist, CertiK, Chainalysis, BlockSec Phalcon"
+  },
+  "incidents": [
+    {
+      "id": 1,
+      "date": "2026-04-01",
+      "protocol": "Drift Protocol",
+      "loss_usd": 285000000,
+      "chain": "Solana",
+      "attack_vector": "social engineering",
+      "description": "Attackers posed as a quant firm for 3 weeks, socially engineering Drift's Security Council into pre-signing durable nonce transactions. Fake CVT token whitelisted as collateral, vaults drained in 12 minutes.",
+      "attribution": "Lazarus Group (DPRK)",
+      "lesson": "Durable nonce pre-signing is a fatal attack surface. Never pre-sign admin transactions for unverified counterparties."
+    },
+    {
+      "id": 2,
+      "date": "2026-04-03",
+      "protocol": "Silo V2",
+      "loss_usd": 392000,
+      "chain": "Ethereum",
+      "attack_vector": "oracle misconfiguration",
+      "description": "Misconfigured oracle allowed attacker to borrow at inflated collateral prices, draining isolated markets.",
+      "attribution": "Unknown",
+      "lesson": "Oracle configs must be validated in production. Use multiple independent price sources."
+    },
+    {
+      "id": 3,
+      "date": "2026-04-04",
+      "protocol": "TMM",
+      "loss_usd": 1670000,
+      "chain": "BSC",
+      "attack_vector": "reserve manipulation",
+      "description": "Attacker manipulated protocol reserves to mint unbacked tokens and dump them on open markets.",
+      "attribution": "Unknown",
+      "lesson": "Reserve ratios must be continuously monitored and bounded by on-chain sanity checks."
+    },
+    {
+      "id": 4,
+      "date": "2026-04-05",
+      "protocol": "Denaria Finance",
+      "loss_usd": 165000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Team acknowledged an exploit but has not publicly disclosed the root cause.",
+      "attribution": "Unknown",
+      "lesson": "Transparency in post-incident disclosure is essential for community trust and collective defense."
+    },
+    {
+      "id": 5,
+      "date": "2026-04-09",
+      "protocol": "Aethir",
+      "loss_usd": 423000,
+      "chain": "Ethereum",
+      "attack_vector": "access control exploit",
+      "description": "Malicious actor targeted ETH cross-chain bridge contract controlling GPU-cloud collateral. Team isolated the contract rapidly.",
+      "attribution": "Unknown",
+      "lesson": "Bridge contracts need circuit breakers and real-time anomaly detection for rapid response."
+    },
+    {
+      "id": 6,
+      "date": "2026-04-12",
+      "protocol": "Hyperbridge",
+      "loss_usd": 2500000,
+      "chain": "Multi-chain",
+      "attack_vector": "fake state proof",
+      "description": "Attacker forged cross-chain messages via a Merkle Mountain Range (MMR) proof replay, minting 1B bridged DOT tokens and dumping them.",
+      "attribution": "Unknown",
+      "lesson": "Bridge verification must reject replayed state proofs and enforce strict nonce uniqueness."
+    },
+    {
+      "id": 7,
+      "date": "2026-04-12",
+      "protocol": "SubQuery Network",
+      "loss_usd": 60000,
+      "chain": "Ethereum",
+      "attack_vector": "access control exploit",
+      "description": "Broken permission model allowed unauthorized withdrawal from a treasury contract.",
+      "attribution": "Unknown",
+      "lesson": "Treasury contracts should require multi-sig and timelocks for any outbound transfers."
+    },
+    {
+      "id": 8,
+      "date": "2026-04-13",
+      "protocol": "Dango",
+      "loss_usd": 410000,
+      "chain": "Multi-chain",
+      "attack_vector": "donate negative amounts",
+      "description": "Bridge aggregator allowed 'donation' of negative amounts, crediting the attacker with tokens they never deposited.",
+      "attribution": "Unknown",
+      "lesson": "Never trust unsigned input amounts. Validate donation parameters with strict lower bounds."
+    },
+    {
+      "id": 9,
+      "date": "2026-04-13",
+      "protocol": "MONA",
+      "loss_usd": 61000,
+      "chain": "Ethereum",
+      "attack_vector": "burnaddress accounting bug",
+      "description": "BurnAddress accounting bug allowed attacker to manipulate token balances and extract excess value.",
+      "attribution": "Unknown",
+      "lesson": "Accounting around burn/mint addresses must be audited as a first-class invariant."
+    },
+    {
+      "id": 10,
+      "date": "2026-04-14",
+      "protocol": "Zerion Wallet",
+      "loss_usd": 100000,
+      "chain": "Ethereum",
+      "attack_vector": "hot wallet compromise",
+      "description": "Hot wallet social-engineering incident led to unauthorized outbound transfers.",
+      "attribution": "Unknown",
+      "lesson": "Hot wallets should be rate-limited and require dual approval for large transfers."
+    },
+    {
+      "id": 11,
+      "date": "2026-04-16",
+      "protocol": "Rhea Finance",
+      "loss_usd": 18400000,
+      "chain": "NEAR",
+      "attack_vector": "flash loan oracle manipulation",
+      "description": "Attacker prepared 423 wallets and 8 fake liquidity pools 2 days in advance to manipulate oracles, then used flash loans to extract $18.4M.",
+      "attribution": "Unknown",
+      "lesson": "Oracle manipulation requires deep liquidity monitoring. Fake pool detection should be part of oracle risk models."
+    },
+    {
+      "id": 12,
+      "date": "2026-04-16",
+      "protocol": "Grinex",
+      "loss_usd": 15000000,
+      "chain": "TRON",
+      "attack_vector": "hot wallet compromise",
+      "description": "54 hot wallets drained in a coordinated attack. Platform suspended operations immediately.",
+      "attribution": "Unknown (suspected exit scam)",
+      "lesson": "Exchange operational security must include HSMs, withdrawal limits, and geographic signing distribution."
+    },
+    {
+      "id": 13,
+      "date": "2026-04-18",
+      "protocol": "Kelp DAO",
+      "loss_usd": 293000000,
+      "chain": "Multi-chain",
+      "attack_vector": "bridge message forgery",
+      "description": "Attacker drained 116,500 rsETH via LayerZero OFT bridge with a 1-of-1 DVN configuration. Stolen rsETH deposited into Aave as collateral, borrowing $236M in real WETH.",
+      "attribution": "Lazarus Group (DPRK)",
+      "lesson": "Single-DVN bridge configs are catastrophically fragile. Require >=2 independent verifiers and monitor DVN health."
+    },
+    {
+      "id": 14,
+      "date": "2026-04-20",
+      "protocol": "Juicebox V3",
+      "loss_usd": 52000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Small-scale exploit of a Juicebox V3 treasury. Root cause not publicly disclosed.",
+      "attribution": "Unknown",
+      "lesson": "Even small treasuries benefit from multi-sig, timelocks, and on-chain spending limits."
+    },
+    {
+      "id": 15,
+      "date": "2026-04-20",
+      "protocol": "Thetanuts Finance",
+      "loss_usd": 50000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Options vault protocol suffered an undisclosed exploit resulting in moderate losses.",
+      "attribution": "Unknown",
+      "lesson": "Options and structured products need continuous Greeks monitoring and circuit breakers."
+    },
+    {
+      "id": 16,
+      "date": "2026-04-21",
+      "protocol": "Volo Protocol",
+      "loss_usd": 3500000,
+      "chain": "Sui",
+      "attack_vector": "admin key compromise",
+      "description": "Admin key leak led to unauthorized contract upgrades and fund extraction.",
+      "attribution": "Unknown",
+      "lesson": "Admin keys must be stored in HSMs or hardware wallets. Single-EOA admin is indefensible."
+    },
+    {
+      "id": 17,
+      "date": "2026-04-22",
+      "protocol": "Kipseli",
+      "loss_usd": 80000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Small lending protocol incident. Limited user impact due to low TVL.",
+      "attribution": "Unknown",
+      "lesson": "Low-TVL protocols are not immune; attackers often use them as testing grounds."
+    },
+    {
+      "id": 18,
+      "date": "2026-04-23",
+      "protocol": "Giddy Finance",
+      "loss_usd": 1300000,
+      "chain": "Ethereum",
+      "attack_vector": "signature replay",
+      "description": "EIP-712 signature replay combined with unlimited ERC-20 approval drained user wallets.",
+      "attribution": "Unknown",
+      "lesson": "Signatures must be strictly non-replayable with chainId, contract address, and nonce binding."
+    },
+    {
+      "id": 19,
+      "date": "2026-04-25",
+      "protocol": "Purrlend",
+      "loss_usd": 1500000,
+      "chain": "Solana",
+      "attack_vector": "undisclosed",
+      "description": "Solana lending protocol exploit. Limited details available at time of recording.",
+      "attribution": "Unknown",
+      "lesson": "Solana programs need the same rigor as EVM contracts: formal verification, audits, and fuzzing."
+    },
+    {
+      "id": 20,
+      "date": "2026-04-26",
+      "protocol": "Scallop",
+      "loss_usd": 150000,
+      "chain": "Solana",
+      "attack_vector": "undisclosed",
+      "description": "Minor exploit on Scallop lending markets. Quickly contained by the team.",
+      "attribution": "Unknown",
+      "lesson": "Rapid incident response and contract pausing can limit losses significantly."
+    },
+    {
+      "id": 21,
+      "date": "2026-04-27",
+      "protocol": "Singularity Finance",
+      "loss_usd": 413000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Cross-chain yield protocol incident resulting in moderate losses.",
+      "attribution": "Unknown",
+      "lesson": "Cross-chain yield strategies multiply attack surface — each bridge is a potential failure point."
+    },
+    {
+      "id": 22,
+      "date": "2026-04-27",
+      "protocol": "ZetaChain",
+      "loss_usd": 300000,
+      "chain": "Multi-chain",
+      "attack_vector": "smart contract bug",
+      "description": "GatewayEVM smart contract exploit forced a halt of all cross-chain activity while the team patched.",
+      "attribution": "Unknown",
+      "lesson": "Gateway contracts should be pausable with a security council that can act in minutes, not hours."
+    },
+    {
+      "id": 23,
+      "date": "2026-04-28",
+      "protocol": "JuDAO",
+      "loss_usd": 228000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "DAO treasury drained via undisclosed vector. Governance token dumped sharply post-incident.",
+      "attribution": "Unknown",
+      "lesson": "DAO treasuries should require on-chain voting + timelock for any non-routine outbound transfers."
+    },
+    {
+      "id": 24,
+      "date": "2026-04-28",
+      "protocol": "Quant",
+      "loss_usd": 138000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Over-the-counter settlement protocol incident. Limited public details.",
+      "attribution": "Unknown",
+      "lesson": "OTC settlement needs atomic swaps or escrow — never trust-based finality."
+    },
+    {
+      "id": 25,
+      "date": "2026-04-29",
+      "protocol": "Aftermath Perps",
+      "loss_usd": 1140000,
+      "chain": "Sui",
+      "attack_vector": "smart contract bug",
+      "description": "Signedness mismatch in perpetuals settlement math allowed attacker to extract excess collateral.",
+      "attribution": "Unknown",
+      "lesson": "Numeric type safety (signed vs unsigned) is critical in financial contracts. Use checked math."
+    },
+    {
+      "id": 26,
+      "date": "2026-04-29",
+      "protocol": "Sweat Foundation",
+      "loss_usd": 3500000,
+      "chain": "NEAR",
+      "attack_vector": "smart contract bug",
+      "description": "Refund logic drain exploited a flaw in reward distribution, allowing repeated claims.",
+      "attribution": "Unknown",
+      "lesson": "Refund and reward loops must be strictly idempotent and bounded by claim windows."
+    },
+    {
+      "id": 27,
+      "date": "2026-04-29",
+      "protocol": "Syndicate",
+      "loss_usd": 330000,
+      "chain": "Ethereum",
+      "attack_vector": "undisclosed",
+      "description": "Investment syndicate smart contract incident. Limited user funds affected.",
+      "attribution": "Unknown",
+      "lesson": "Investment pools should enforce deposit caps and withdrawal cooldowns to limit exploit blast radius."
+    },
+    {
+      "id": 28,
+      "date": "2026-04-30",
+      "protocol": "Wasabi Protocol",
+      "loss_usd": 5000000,
+      "chain": "Multi-chain",
+      "attack_vector": "admin key compromise",
+      "description": "Single EOA admin key (wasabideployer.eth) compromised across Ethereum, Base, Berachain, and Blast. Attacker granted admin role, upgraded UUPS proxies, and drained vaults in ~2 hours.",
+      "attribution": "Unknown",
+      "lesson": "Single-EOA admin keys are indefensible. Multisig + timelock on all admin and upgrade functions is the baseline."
+    }
+  ]
+}

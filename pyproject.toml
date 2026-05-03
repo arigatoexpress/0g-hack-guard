@@ -24,6 +24,7 @@ dependencies = [
     "requests>=2.31",
     "web3>=7.0",
     "eth-utils>=5.0",
+    "tweepy>=4.14",
 ]
 
 [project.optional-dependencies]
