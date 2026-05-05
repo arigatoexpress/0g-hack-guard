@@ -14,10 +14,8 @@ import hashlib
 import json
 import os
 import time
-from dataclasses import asdict
 from typing import Any
 
-import requests
 
 ZGS_NODE_URL = os.getenv("ZGS_NODE_URL", "https://storage.0g.ai")
 ZGS_INDEXER_URL = os.getenv("ZGS_INDEXER_URL", "https://indexer.0g.ai")

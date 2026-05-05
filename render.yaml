@@ -1,0 +1,14 @@
+# Render Blueprint for 0guard
+# Deploy: https://dashboard.render.com/blueprint
+
+services:
+  - type: web
+    name: 0guard
+    runtime: docker
+    repo: https://github.com/arigatoexpress/0guard
+    branch: main
+    plan: standard
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8109

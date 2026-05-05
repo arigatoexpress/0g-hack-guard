@@ -1,5 +1,4 @@
 """Tests for policy engine."""
-import pytest
 
 from guard0.policy import evaluate_intent
 

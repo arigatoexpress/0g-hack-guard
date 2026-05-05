@@ -15,8 +15,6 @@ from guard0.content_engine import (
     _match_signatures,
     _derive_attack_vector_from_signatures,
     ContentOutput,
-    SEVERITY_CRITICAL,
-    SEVERITY_MAJOR,
 )
 
 

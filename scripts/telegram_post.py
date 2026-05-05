@@ -21,7 +21,6 @@ from guard0.telegram_bot import (
     send_message,
     send_thread,
     get_me,
-    TelegramConfig,
 )
 
 

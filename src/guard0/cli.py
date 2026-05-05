@@ -15,8 +15,6 @@ import sys
 
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
-from guard0.storage import store_threat_intel
-from guard0.chain import anchor_receipt
 from guard0.app import app
 
 
@@ -46,7 +44,6 @@ def cmd_hack_check(args: argparse.Namespace) -> int:
 
 
 def cmd_health(_args: argparse.Namespace) -> int:
-    from guard0.app import api_health
     with app.test_client() as client:
         resp = client.get("/api/health")
         _print_json(resp.get_json())

@@ -11,14 +11,11 @@ Endpoints:
 from __future__ import annotations
 
 import os
-from typing import Any
 
 from flask import Flask, jsonify, request, render_template_string
 
 from guard0.policy import evaluate_intent
-from guard0.crypto_hack_guard import check_crypto_hack_signatures, HackCheckResult
-from guard0.storage import store_threat_intel, fetch_threat_intel
-from guard0.chain import anchor_receipt
+from guard0.crypto_hack_guard import check_crypto_hack_signatures
 
 app = Flask(__name__)
 

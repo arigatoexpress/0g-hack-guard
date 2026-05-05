@@ -20,7 +20,7 @@ import os
 # Ensure src is on path when run directly
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from guard0.content_engine import generate_content, generate_batch, batch_to_json
+from guard0.content_engine import generate_content, generate_batch
 
 
 def load_incidents(path: str) -> list[dict]:
