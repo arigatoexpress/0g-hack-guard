@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0guard Workbench</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <nav aria-label="Workbench sections">
+      <div class="brand">0guard</div>
+      <p class="mini">Read-only agent firewall for 0G hack signatures.</p>
+      <button class="nav-item active" id="nav-intent" type="button">Intent Firewall</button>
+      <button class="nav-item" id="nav-signatures" type="button">Hack Signatures</button>
+      <button class="nav-item" id="nav-domain" type="button">Domain Guard</button>
+      <div class="rail-list">
+        <span class="pill deny" id="mode-pill">no signing</span>
+        <span class="pill deny" id="send-pill">external sends blocked</span>
+        <span class="pill review" id="chain-pill">0G preflight only</span>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div>
+          <h1>0G Hack Guard</h1>
+          <p class="muted">Evaluate wallet-adjacent agent intents before they reach a signing key.</p>
+        </div>
+        <span class="pill deny" id="decision-pill">default deny</span>
+      </section>
+
+      <section class="grid">
+        <div class="stack">
+          <div class="card">
+            <h2>Intent Firewall</h2>
+            <textarea id="intent-input" rows="10">{
+  "action": "swap",
+  "mode": "live_transaction",
+  "value_eth": 0.05,
+  "calldata": "0x095ea7b3000000000000000000000000a0b86a33e6776808dc56eb68bb0a0f74ff38ffff",
+  "requires_signature": true
+}</textarea>
+            <div class="actions">
+              <button id="run-evaluate" type="button">Evaluate</button>
+              <button id="load-deny-sample" class="secondary" type="button">Deny sample</button>
+              <button id="load-allow-sample" class="secondary" type="button">Simulation sample</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Hack Signature Check</h2>
+            <textarea id="hack-input" rows="6">{
+  "action": "approve",
+  "calldata": "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+}</textarea>
+            <div class="actions">
+              <button id="run-hack-check" type="button">Run hack check</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Domain Guard</h2>
+            <input id="domain-input" value="https://docs.0g.ai">
+            <div class="actions">
+              <button id="run-domain-check" type="button">Check URL</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <h2>Decision Output</h2>
+            <pre id="result-output">Awaiting evaluation.</pre>
+          </div>
+          <div class="card">
+            <h2>External Action Contract</h2>
+            <pre id="contract-output">Loading contract.</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="inspector" aria-label="Safety posture">
+      <h2>Safety Inspector</h2>
+      <div class="status"><span>Wallet signatures</span><strong id="wallet-status">blocked</strong></div>
+      <div class="status"><span>Transactions</span><strong id="tx-status">blocked</strong></div>
+      <div class="status"><span>X posting</span><strong id="x-status">dry-run default</strong></div>
+      <div class="status"><span>Telegram sends</span><strong id="telegram-status">dry-run default</strong></div>
+      <div class="status"><span>0G deploys</span><strong id="deploy-status">CLI confirm only</strong></div>
+      <div class="status"><span>Secrets</span><strong id="secret-status">not displayed</strong></div>
+      <p class="mini safety-note">Live external actions require explicit local CLI confirmation and are not reachable from this workbench.</p>
+    </aside>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

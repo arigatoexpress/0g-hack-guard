@@ -1,0 +1,65 @@
+const denySample = {
+  action: 'swap',
+  mode: 'live_transaction',
+  value_eth: 0.05,
+  calldata: '0x095ea7b3000000000000000000000000a0b86a33e6776808dc56eb68bb0a0f74ff38ffff',
+  requires_signature: true
+};
+const allowSample = {
+  action: 'simulate',
+  mode: 'simulation',
+  value_eth: 0,
+  method: 'eth_call',
+  requires_signature: false
+};
+
+function writeJson(id, value){
+  document.getElementById(id).textContent = JSON.stringify(value, null, 2);
+}
+function updateDecision(decision){
+  const pill = document.getElementById('decision-pill');
+  pill.className = 'pill ' + (decision || 'review');
+  pill.textContent = decision || 'review';
+}
+async function evaluateIntent(){
+  const body = JSON.parse(document.getElementById('intent-input').value);
+  const r = await fetch('/api/evaluate', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({intent: body})
+  });
+  const j = await r.json();
+  updateDecision(j.decision);
+  writeJson('result-output', j);
+}
+async function hackCheck(){
+  const body = JSON.parse(document.getElementById('hack-input').value);
+  const r = await fetch('/api/hack-check', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  const j = await r.json();
+  writeJson('result-output', j);
+}
+async function domainCheck(){
+  const url = encodeURIComponent(document.getElementById('domain-input').value);
+  const r = await fetch('/api/domain?url=' + url);
+  const j = await r.json();
+  writeJson('result-output', j);
+}
+async function loadContracts(){
+  const r = await fetch('/api/external-action-contracts');
+  const j = await r.json();
+  writeJson('contract-output', j);
+}
+document.getElementById('run-evaluate').addEventListener('click', evaluateIntent);
+document.getElementById('run-hack-check').addEventListener('click', hackCheck);
+document.getElementById('run-domain-check').addEventListener('click', domainCheck);
+document.getElementById('load-deny-sample').addEventListener('click', () => {
+  document.getElementById('intent-input').value = JSON.stringify(denySample, null, 2);
+});
+document.getElementById('load-allow-sample').addEventListener('click', () => {
+  document.getElementById('intent-input').value = JSON.stringify(allowSample, null, 2);
+});
+loadContracts();

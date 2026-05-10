@@ -3,86 +3,166 @@ Flask API & Dashboard for 0G Hack Guard
 ========================================
 Endpoints:
   GET  /api/health
-  GET  /api/catalog
+  GET  /api/frontend-contract
+  GET  /api/external-action-contracts
   POST /api/evaluate
   POST /api/hack-check
   GET  /api/domain
 """
+
 from __future__ import annotations
 
 import os
 
-from flask import Flask, jsonify, request, render_template_string
+from flask import Flask, Response, jsonify, render_template, request
 
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
 
 app = Flask(__name__)
 
-HTML_DASHBOARD = """
-<!doctype html>
-<html>
-<head><title>0G Hack Guard</title>
-<style>
-  body{font-family:system-ui,sans-serif;max-width:960px;margin:40px auto;padding:0 20px;background:#0b0c10;color:#c5c6c7}
-  h1{color:#66fcf1} h2{color:#45a29e}
-  .card{background:#1f2833;border-radius:8px;padding:20px;margin:16px 0}
-  .badge{display:inline-block;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700;text-transform:uppercase}
-  .allow{background:#2e7d32;color:#fff} .review{background:#f9a825;color:#000}
-  .deny{background:#c62828;color:#fff} .critical{background:#ad1457;color:#fff}
-  pre{background:#0b0c10;padding:12px;border-radius:6px;overflow-x:auto}
-  button{background:#66fcf1;color:#0b0c10;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:700}
-  textarea{width:100%;background:#1f2833;color:#c5c6c7;border:1px solid #45a29e;border-radius:6px;padding:12px;font-family:monospace}
-</style>
-</head>
-<body>
-  <h1>🔒 0G Hack Guard</h1>
-  <p>Signature & behavioral detection for crypto hacks — powered by <strong>0G</strong>.</p>
-  <div class="card">
-    <h2>Evaluate Intent</h2>
-    <textarea id="intent" rows="8">{\n  "action": "swap",\n  "mode": "live_transaction",\n  "value_eth": 0.05,\n  "calldata": "0x095ea7b3000000000000000000000000a0b86a33e6776808dc56eb68bb0a0f74ff38ffff",\n  "requires_signature": true\n}</textarea><br><br>
-    <button onclick="evaluateIntent()">Evaluate</button>
-    <pre id="result"></pre>
-  </div>
-  <div class="card">
-    <h2>Hack Check Only</h2>
-    <textarea id="hackintent" rows="6">{\n  "action": "approve",\n  "calldata": "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"\n}</textarea><br><br>
-    <button onclick="hackCheck()">Run Hack Check</button>
-    <pre id="hackresult"></pre>
-  </div>
-  <script>
-    async function evaluateIntent(){
-      const body = JSON.parse(document.getElementById('intent').value);
-      const r = await fetch('/api/evaluate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({intent:body})});
-      const j = await r.json();
-      document.getElementById('result').textContent = JSON.stringify(j,null,2);
+FRONTEND_REQUIRED_SELECTORS = (
+    "#nav-intent",
+    "#nav-signatures",
+    "#nav-domain",
+    "#mode-pill",
+    "#send-pill",
+    "#chain-pill",
+    "#decision-pill",
+    "#intent-input",
+    "#run-evaluate",
+    "#load-deny-sample",
+    "#load-allow-sample",
+    "#hack-input",
+    "#run-hack-check",
+    "#domain-input",
+    "#run-domain-check",
+    "#result-output",
+    "#contract-output",
+    "#wallet-status",
+    "#telegram-status",
+    "#deploy-status",
+)
+
+
+def external_action_contracts_payload() -> dict:
+    """Return the non-mutating external action posture for the workbench."""
+    return {
+        "schema": "0guard.external_action_contracts.v1",
+        "defaultMode": "dry_run",
+        "workbenchCanTriggerLiveActions": False,
+        "livePostingEnabled": False,
+        "telegramSendsEnabled": False,
+        "transactionSigningEnabled": False,
+        "transactionBroadcastingEnabled": False,
+        "moneyMovementEnabled": False,
+        "secretDisplayEnabled": False,
+        "actions": [
+            {
+                "id": "x-post",
+                "script": "scripts/x_post.py",
+                "default": "dry_run",
+                "liveConfirmationFlag": "--live-post-confirm POST_TO_X_FROM_0GUARD",
+                "reachableFromWorkbench": False,
+            },
+            {
+                "id": "telegram-post",
+                "script": "scripts/telegram_post.py",
+                "default": "dry_run",
+                "liveConfirmationFlag": "--live-send-confirm SEND_TO_TELEGRAM_FROM_0GUARD",
+                "reachableFromWorkbench": False,
+            },
+            {
+                "id": "0g-contract-deploy",
+                "script": "scripts/deploy_0g.py",
+                "default": "blocked_from_workbench",
+                "liveConfirmationFlag": "local CLI only with PRIVATE_KEY and explicit operator review",
+                "reachableFromWorkbench": False,
+            },
+        ],
+        "blockedCapabilities": [
+            "wallet signature requests",
+            "raw transaction broadcasting",
+            "X/Telegram posting from the browser",
+            "secret display or echo",
+            "fund movement",
+            "production deploys",
+        ],
     }
-    async function hackCheck(){
-      const body = JSON.parse(document.getElementById('hackintent').value);
-      const r = await fetch('/api/hack-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      const j = await r.json();
-      document.getElementById('hackresult').textContent = JSON.stringify(j,null,2);
-    }
-  </script>
-</body>
-</html>
-"""
 
 
 @app.route("/")
 def index():
-    return render_template_string(HTML_DASHBOARD)
+    return render_template("index.html")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return Response(status=204)
+
+
+@app.route("/api/frontend-contract", methods=["GET"])
+def api_frontend_contract():
+    return jsonify(
+        {
+            "schema": "0guard.frontend_contract.v1",
+            "route": "/",
+            "mode": "read_only_pre_wallet",
+            "network": "0g",
+            "chainId": int(os.getenv("ZGG_CHAIN_ID", "16600")),
+            "requiredText": [
+                "0G Hack Guard",
+                "Intent Firewall",
+                "Hack Signature Check",
+                "Domain Guard",
+                "External Action Contract",
+                "Safety Inspector",
+                "no signing",
+                "external sends blocked",
+            ],
+            "requiredSelectors": list(FRONTEND_REQUIRED_SELECTORS),
+            "apiRoutes": [
+                "/api/health",
+                "/api/external-action-contracts",
+                "/api/evaluate",
+                "/api/hack-check",
+                "/api/domain?url=https%3A%2F%2Fdocs.0g.ai",
+            ],
+            "primaryActions": [
+                "evaluate-intent",
+                "load-deny-sample",
+                "load-simulation-sample",
+                "run-hack-check",
+                "run-domain-check",
+            ],
+            "safety": external_action_contracts_payload(),
+        }
+    )
+
+
+@app.route("/api/external-action-contracts", methods=["GET"])
+def api_external_action_contracts():
+    return jsonify(external_action_contracts_payload())
 
 
 @app.route("/api/health", methods=["GET"])
 def api_health():
-    return jsonify({
-        "service": "zg-hack-guard",
-        "version": "0.1.0",
-        "0g_chain_id": int(os.getenv("ZGG_CHAIN_ID", "16600")),
-        "0g_storage_node": os.getenv("ZGS_NODE_URL", "not_configured"),
-        "safety_flags": {"read_only": True, "wallet_signatures_blocked": True},
-    })
+    return jsonify(
+        {
+            "service": "zg-hack-guard",
+            "version": "0.1.0",
+            "0g_chain_id": int(os.getenv("ZGG_CHAIN_ID", "16600")),
+            "0g_storage_node": os.getenv("ZGS_NODE_URL", "not_configured"),
+            "safety_flags": {
+                "read_only": True,
+                "wallet_signatures_blocked": True,
+                "external_sends_blocked_from_workbench": True,
+                "live_posting_enabled": False,
+                "telegram_sends_enabled": False,
+                "money_movement_enabled": False,
+            },
+        }
+    )
 
 
 @app.route("/api/evaluate", methods=["POST"])
@@ -105,6 +185,7 @@ def api_evaluate():
 def api_hack_check():
     payload = request.get_json(silent=True) or {}
     from guard0.policy import normalize_intent
+
     result = check_crypto_hack_signatures(normalize_intent(payload))
     return jsonify(result.to_dict())
 
@@ -117,11 +198,13 @@ def api_domain():
     # Simple domain guard — can be expanded
     allowed = ["0g.ai", "hackquest.io", "github.com", "docs.0g.ai"]
     is_allowed = any(a in url.lower() for a in allowed)
-    return jsonify({
-        "url": url,
-        "decision": "allow" if is_allowed else "review",
-        "reasons": [] if is_allowed else ["Domain not in curated allowlist"],
-    })
+    return jsonify(
+        {
+            "url": url,
+            "decision": "allow" if is_allowed else "review",
+            "reasons": [] if is_allowed else ["Domain not in curated allowlist"],
+        }
+    )
 
 
 def main() -> None:
