@@ -27,10 +27,16 @@ Dry-run (validate but do not post)::
 
     python scripts/x_post.py --file content/thread.json --thread --dry-run
 
+Live post with explicit operator confirmation::
+
+    python scripts/x_post.py --file content/thread.json --thread \
+      --live-post-confirm POST_TO_X_FROM_0GUARD
+
 With media::
 
     python scripts/x_post.py --file content/tweet.json --media docs/assets/diagram.png
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,9 +45,8 @@ import logging
 import sys
 from pathlib import Path
 
-from guard0.x_bot import XBot, XBotConfigError
-
 logger = logging.getLogger("x_post")
+LIVE_POST_CONFIRMATION = "POST_TO_X_FROM_0GUARD"
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -93,6 +98,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--thread", action="store_true", help="Post as a thread")
     parser.add_argument("--media", "-m", nargs="+", help="Media file paths to attach")
     parser.add_argument("--dry-run", action="store_true", help="Validate only, do not post")
+    parser.add_argument(
+        "--live-post-confirm",
+        default="",
+        help=f"Required exact value for live posting: {LIVE_POST_CONFIRMATION}",
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable debug logging")
     args = parser.parse_args(argv)
 
@@ -129,6 +139,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         logger.info("Dry-run complete. No posts sent.")
         return 0
+
+    if args.live_post_confirm != LIVE_POST_CONFIRMATION:
+        logger.error(
+            "Live X posting requires --live-post-confirm %s. "
+            "Re-run with --dry-run to validate without posting.",
+            LIVE_POST_CONFIRMATION,
+        )
+        return 2
+
+    from guard0.x_bot import XBot, XBotConfigError
 
     # Initialize bot from environment
     try:

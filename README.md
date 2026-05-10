@@ -110,6 +110,8 @@ python3 -m guard0.cli serve --port 8109
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
+| `GET`  | `/api/frontend-contract` | Browser smoke contract, selectors, and safety posture |
+| `GET`  | `/api/external-action-contracts` | Dry-run/default contract for X, Telegram, deploy, and signing paths |
 | `POST` | `/api/evaluate` | Full intent evaluation |
 | `POST` | `/api/hack-check` | Hack signature check only |
 | `GET`  | `/api/domain?url=...` | Domain allowlist check |
@@ -183,6 +185,10 @@ gitleaks detect --no-git --source . --redact --verbose
 - **No transaction signing** or broadcasting.
 - **No real fund movements** — read-only and evaluative only.
 - Live mode calls public HTTP endpoints and read-only RPC methods.
+- X and Telegram posting CLIs default to dry-run unless the operator supplies
+  the exact live confirmation flag.
+- The browser workbench cannot trigger external sends, deploys, signatures, or
+  transaction broadcasts.
 
 ---
 

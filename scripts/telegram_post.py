@@ -5,10 +5,11 @@ CLI for posting hack alerts to Telegram.
 Usage:
     export TELEGRAM_BOT_TOKEN=...
     export TELEGRAM_CHAT_ID=...
-    python scripts/telegram_post.py --text "Critical alert"
-    python scripts/telegram_post.py --file content/hack_guard_thread.json --thread
-    python scripts/telegram_post.py --health
+    python scripts/telegram_post.py --text "Critical alert" --dry-run
+    python scripts/telegram_post.py --file content/hack_guard_thread.json --thread --dry-run
+    python scripts/telegram_post.py --health --live-send-confirm SEND_TO_TELEGRAM_FROM_0GUARD
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,19 +19,42 @@ import sys
 sys.path.insert(0, "src")
 
 from guard0.telegram_bot import (
+    get_me,
     send_message,
     send_thread,
-    get_me,
 )
+
+LIVE_SEND_CONFIRMATION = "SEND_TO_TELEGRAM_FROM_0GUARD"
+
+
+def _live_send_confirmed(args: argparse.Namespace) -> bool:
+    return args.live_send_confirm == LIVE_SEND_CONFIRMATION
 
 
 def cmd_post(args: argparse.Namespace) -> int:
     if args.health:
+        if not _live_send_confirmed(args):
+            print(
+                "Live Telegram health checks require "
+                f"--live-send-confirm {LIVE_SEND_CONFIRMATION}.",
+                file=sys.stderr,
+            )
+            return 2
         info = get_me()
         print(json.dumps(info, indent=2))
         return 0
 
     if args.text:
+        if args.dry_run:
+            print("[DRY RUN] Would post 1 message to Telegram:")
+            print(f"\n--- Message 1 ---\n{args.text}\n")
+            return 0
+        if not _live_send_confirmed(args):
+            print(
+                f"Live Telegram sends require --live-send-confirm {LIVE_SEND_CONFIRMATION}.",
+                file=sys.stderr,
+            )
+            return 2
         result = send_message(args.text)
         print(json.dumps(result, indent=2))
         return 0
@@ -41,17 +65,35 @@ def cmd_post(args: argparse.Namespace) -> int:
 
         if args.thread:
             tweets = data if isinstance(data, list) else data.get("tweets", data.get("thread", []))
-            messages = [t if isinstance(t, str) else t.get("text", t.get("content", "")) for t in tweets]
+            messages = [
+                t if isinstance(t, str) else t.get("text", t.get("content", "")) for t in tweets
+            ]
             if args.dry_run:
                 print(f"[DRY RUN] Would post {len(messages)} messages to Telegram:")
                 for i, msg in enumerate(messages, 1):
                     print(f"\n--- Message {i} ---\n{msg}\n")
                 return 0
+            if not _live_send_confirmed(args):
+                print(
+                    f"Live Telegram sends require --live-send-confirm {LIVE_SEND_CONFIRMATION}.",
+                    file=sys.stderr,
+                )
+                return 2
             results = send_thread(messages)
             print(f"Posted {len(results)} messages")
             return 0
         else:
             text = data if isinstance(data, str) else json.dumps(data, indent=2)
+            if args.dry_run:
+                print("[DRY RUN] Would post 1 message to Telegram:")
+                print(f"\n--- Message 1 ---\n{text}\n")
+                return 0
+            if not _live_send_confirmed(args):
+                print(
+                    f"Live Telegram sends require --live-send-confirm {LIVE_SEND_CONFIRMATION}.",
+                    file=sys.stderr,
+                )
+                return 2
             result = send_message(text)
             print(json.dumps(result, indent=2))
             return 0
@@ -61,12 +103,19 @@ def cmd_post(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="telegram-post", description="Post threat intel to Telegram")
+    parser = argparse.ArgumentParser(
+        prog="telegram-post", description="Post threat intel to Telegram"
+    )
     parser.add_argument("--text", help="Single message text (supports HTML)")
     parser.add_argument("--file", help="JSON file with tweet/thread content")
     parser.add_argument("--thread", action="store_true", help="Post as threaded messages")
     parser.add_argument("--dry-run", action="store_true", help="Print without sending")
     parser.add_argument("--health", action="store_true", help="Check bot connection")
+    parser.add_argument(
+        "--live-send-confirm",
+        default="",
+        help=f"Required exact value for live Telegram calls: {LIVE_SEND_CONFIRMATION}",
+    )
     args = parser.parse_args(argv)
     return cmd_post(args)
 

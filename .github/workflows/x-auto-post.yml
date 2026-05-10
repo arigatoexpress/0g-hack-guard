@@ -1,12 +1,12 @@
 name: Auto-Post Threat Intel to X
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'data/**'
-      - 'src/guard0/crypto_hack_guard.py'
   workflow_dispatch:
+    inputs:
+      live_post_confirm:
+        description: "Exact confirmation required for live X posting"
+        required: false
+        default: "dry-run"
 
 jobs:
   post:
@@ -31,10 +31,9 @@ jobs:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
         run: |
-          # Only post if not a dry run — set to true for testing
-          if [ "${{ vars.X_AUTO_POST_ENABLED }}" = "true" ]; then
-            python scripts/x_post.py --file /tmp/tweets.json --thread
+          if [ "${{ vars.X_AUTO_POST_ENABLED }}" = "true" ] && [ "${{ inputs.live_post_confirm }}" = "POST_TO_X_FROM_0GUARD" ]; then
+            python scripts/x_post.py --file /tmp/tweets.json --thread --live-post-confirm POST_TO_X_FROM_0GUARD
           else
-            echo "Auto-post disabled. Set X_AUTO_POST_ENABLED=true to enable."
+            echo "Auto-post dry-run. Set X_AUTO_POST_ENABLED=true and pass the exact workflow confirmation to enable."
             python scripts/x_post.py --file /tmp/tweets.json --thread --dry-run
           fi
