@@ -1,0 +1,175 @@
+"""Browser smoke for the 0guard workbench.
+
+The smoke starts the local Flask app, clicks the safe browser controls, and
+readbacks the external-action contract. It never signs transactions, broadcasts
+raw calls, posts to X, sends Telegram messages, deploys contracts, or exposes
+secrets.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from collections.abc import Iterator
+from contextlib import contextmanager
+
+from playwright.sync_api import Page, expect, sync_playwright
+
+PORT = int(os.environ.get("ZEROGUARD_BROWSER_SMOKE_PORT", "8139"))
+BASE_URL = f"http://127.0.0.1:{PORT}"
+
+
+def main() -> int:
+    env = {**os.environ, "PORT": str(PORT)}
+    with run_server(env):
+        run_browser_smoke()
+    return 0
+
+
+@contextmanager
+def run_server(env: dict[str, str]) -> Iterator[None]:
+    process = subprocess.Popen(
+        [sys.executable, "-m", "guard0.app"],
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    try:
+        wait_for_health(process)
+        yield
+    finally:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=5)
+
+
+def wait_for_health(process: subprocess.Popen[str]) -> None:
+    deadline = time.monotonic() + 20
+    last_error = "server did not start"
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            output = process.stdout.read() if process.stdout else ""
+            raise RuntimeError(f"server exited early with {process.returncode}: {output}")
+        try:
+            with urllib.request.urlopen(f"{BASE_URL}/api/health", timeout=1) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, TimeoutError) as exc:
+            last_error = str(exc)
+        time.sleep(0.2)
+    raise TimeoutError(f"Timed out waiting for {BASE_URL}/api/health: {last_error}")
+
+
+def run_browser_smoke() -> None:
+    console_errors: list[str] = []
+
+    def record_console_error(message) -> None:
+        if message.type == "error":
+            console_errors.append(message.text)
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page()
+        page.on("console", record_console_error)
+        page.on("pageerror", lambda exc: console_errors.append(str(exc)))
+        try:
+            exercise_workbench(page)
+        finally:
+            browser.close()
+    if console_errors:
+        raise AssertionError(f"browser console/page errors: {console_errors}")
+
+
+def exercise_workbench(page: Page) -> None:
+    page.goto(BASE_URL)
+
+    expect(page).to_have_title("0guard Workbench")
+    expect(page.locator("body")).to_contain_text("0G Hack Guard")
+    expect(page.locator("body")).to_contain_text("Intent Firewall")
+    expect(page.locator("body")).to_contain_text("Hack Signature Check")
+    expect(page.locator("body")).to_contain_text("Domain Guard")
+    expect(page.locator("#mode-pill")).to_contain_text("no signing")
+    expect(page.locator("#send-pill")).to_contain_text("external sends blocked")
+    expect(page.locator("#contract-output")).to_contain_text("workbenchCanTriggerLiveActions")
+    expect(page.locator("#contract-output")).to_contain_text('"livePostingEnabled": false')
+    expect(page.locator("#contract-output")).to_contain_text('"telegramSendsEnabled": false')
+
+    page.locator("#load-deny-sample").click()
+    page.locator("#run-evaluate").click()
+    expect(page.locator("#decision-pill")).to_contain_text("deny")
+    expect(page.locator("#result-output")).to_contain_text('"decision": "deny"')
+    expect(page.locator("#result-output")).to_contain_text("Intent requires a wallet signature")
+
+    page.locator("#load-allow-sample").click()
+    page.locator("#run-evaluate").click()
+    expect(page.locator("#decision-pill")).to_contain_text("allow")
+    expect(page.locator("#result-output")).to_contain_text('"decision": "allow"')
+    expect(page.locator("#result-output")).to_contain_text('"mode": "simulation"')
+
+    page.locator("#run-hack-check").click()
+    expect(page.locator("#result-output")).to_contain_text("Unlimited ERC-20 approval")
+
+    page.locator("#domain-input").fill("https://untrusted.example/phish")
+    page.locator("#run-domain-check").click()
+    expect(page.locator("#result-output")).to_contain_text('"decision": "review"')
+    expect(page.locator("#result-output")).to_contain_text("Domain not in curated allowlist")
+
+    health = page.request.get(f"{BASE_URL}/api/health")
+    assert health.ok
+    health_body = health.json()
+    assert health_body["safety_flags"]["wallet_signatures_blocked"] is True
+    assert health_body["safety_flags"]["external_sends_blocked_from_workbench"] is True
+    assert health_body["safety_flags"]["live_posting_enabled"] is False
+    assert health_body["safety_flags"]["telegram_sends_enabled"] is False
+    assert health_body["safety_flags"]["money_movement_enabled"] is False
+
+    frontend_contract = page.request.get(f"{BASE_URL}/api/frontend-contract")
+    assert frontend_contract.ok
+    frontend_body = frontend_contract.json()
+    assert frontend_body["schema"] == "0guard.frontend_contract.v1"
+    assert frontend_body["mode"] == "read_only_pre_wallet"
+    assert frontend_body["safety"]["workbenchCanTriggerLiveActions"] is False
+    assert frontend_body["safety"]["transactionSigningEnabled"] is False
+    assert frontend_body["safety"]["moneyMovementEnabled"] is False
+
+    external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
+    assert external_contract.ok
+    external_body = external_contract.json()
+    assert external_body["defaultMode"] == "dry_run"
+    assert external_body["livePostingEnabled"] is False
+    assert external_body["telegramSendsEnabled"] is False
+    assert external_body["transactionSigningEnabled"] is False
+    assert external_body["workbenchCanTriggerLiveActions"] is False
+    assert "X/Telegram posting from the browser" in external_body["blockedCapabilities"]
+
+    evaluate = page.request.post(
+        f"{BASE_URL}/api/evaluate",
+        data=json.dumps(
+            {
+                "intent": {
+                    "action": "send_eth",
+                    "mode": "live_transaction",
+                    "requires_signature": True,
+                    "value_eth": 0.01,
+                }
+            }
+        ),
+        headers={"content-type": "application/json"},
+    )
+    assert evaluate.ok
+    evaluate_body = evaluate.json()
+    assert evaluate_body["decision"] == "deny"
+    assert any("wallet signature" in blocker.lower() for blocker in evaluate_body["blockers"])
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
