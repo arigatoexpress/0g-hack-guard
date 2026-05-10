@@ -208,7 +208,9 @@ def api_domain():
 
 
 def main() -> None:
-    app.run(host="127.0.0.1", port=8109, debug=False)
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "8109"))
+    app.run(host=host, port=port, debug=False)
 
 
 if __name__ == "__main__":

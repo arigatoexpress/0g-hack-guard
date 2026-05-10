@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+import guard0.app as app_module
 from guard0.app import app
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +26,21 @@ def test_health(client):
     assert data["service"] == "zg-hack-guard"
     assert data["safety_flags"]["external_sends_blocked_from_workbench"] is True
     assert data["safety_flags"]["money_movement_enabled"] is False
+
+
+def test_module_entrypoint_honors_container_host_env(monkeypatch):
+    run_args = {}
+
+    def fake_run(**kwargs):
+        run_args.update(kwargs)
+
+    monkeypatch.setenv("HOST", "0.0.0.0")
+    monkeypatch.setenv("PORT", "8110")
+    monkeypatch.setattr(app_module.app, "run", fake_run)
+
+    app_module.main()
+
+    assert run_args == {"host": "0.0.0.0", "port": 8110, "debug": False}
 
 
 def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
