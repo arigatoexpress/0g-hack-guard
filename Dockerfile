@@ -23,6 +23,9 @@ COPY tests/ ./tests/
 # Expose Flask port
 EXPOSE 8109
 
+ENV HOST=0.0.0.0
+ENV PORT=8109
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8109/api/health || exit 1
