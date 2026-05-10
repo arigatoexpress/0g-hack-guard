@@ -40,5 +40,8 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+guard0 = ["templates/*.html", "static/*.css", "static/*.js"]
+
 [tool.ruff]
 line-length = 100

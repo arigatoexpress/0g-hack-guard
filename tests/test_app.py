@@ -51,6 +51,18 @@ def test_frontend_contract_selectors_match_static_shell(client):
         assert f'id="{selector.removeprefix("#")}"' in html
     for expected_text in contract["requiredText"]:
         assert expected_text in html
+    assert 'href="/static/styles.css"' in html
+    assert 'src="/static/app.js"' in html
+
+
+def test_frontend_uses_packaged_template_and_static_assets():
+    package_root = REPO_ROOT / "src" / "guard0"
+    source = (package_root / "app.py").read_text()
+    assert "render_template_string" not in source
+    assert "HTML_DASHBOARD" not in source
+    assert (package_root / "templates" / "index.html").read_text().startswith("<!doctype html>")
+    assert "run-evaluate" in (package_root / "static" / "app.js").read_text()
+    assert ".shell" in (package_root / "static" / "styles.css").read_text()
 
 
 def test_external_action_contracts_keep_live_paths_out_of_workbench(client):
