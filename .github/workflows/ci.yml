@@ -32,6 +32,23 @@ jobs:
       - name: Demo script smoke test
         run: python scripts/demo_april_2026.py | head -20
 
+  browser-smoke:
+    name: browser smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+      - name: Install Playwright browser
+        run: python -m playwright install --with-deps chromium
+      - name: Browser smoke
+        run: python scripts/browser_smoke.py
+
   docker:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -174,6 +174,7 @@ curl -X POST http://127.0.0.1:8109/api/evaluate \
 pytest -q
 python3 -m compileall src scripts
 ruff check src tests scripts
+python3 scripts/browser_smoke.py
 gitleaks detect --no-git --source . --redact --verbose
 ```
 

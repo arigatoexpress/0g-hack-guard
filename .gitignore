@@ -7,5 +7,7 @@ build/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+.coverage
+coverage.xml
 .DS_Store
 cache/
