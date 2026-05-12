@@ -112,6 +112,9 @@ python3 -m guard0.cli serve --port 8109
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
 | `GET`  | `/api/0g/status` | Live read-only 0G Galileo RPC proof, chain ID, latest block, and receipt-anchor config |
+| `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
+| `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
+| `GET`  | `/api/data/detection-coverage` | Runs incident-derived seeds through the signature engine and reports coverage |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
@@ -174,6 +177,21 @@ Check live 0G RPC proof without any private key:
 curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
 ```
 
+### Incident Data Flow
+
+The incident dataset is loaded from `data/april_2026_incidents.json`, validated
+against a required schema, fingerprinted, summarized, and run through the
+signature engine as detection-coverage seeds.
+
+```bash
+curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
+```
+
+The validator fails on bad totals, duplicate IDs, malformed dates, missing
+required fields, or invalid losses. It also reports provenance warnings when
+records lack per-incident source URLs.
+
 ### Telegram Mira Opt-In Preview
 
 Create a local registration challenge, complete a redacted opt-in record, and
@@ -194,6 +212,7 @@ For a real Telegram Mini App, send `window.Telegram.WebApp.initData` to
 data with `TELEGRAM_BOT_TOKEN` before trusting user identity.
 
 See also:
+- `docs/DATA_FLOWS.md`
 - `docs/TELEGRAM_MIRA_INTEGRATION.md`
 - `docs/MARKET_POSITIONING.md`
 

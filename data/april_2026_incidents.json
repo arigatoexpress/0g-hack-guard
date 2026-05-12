@@ -2,8 +2,17 @@
   "meta": {
     "month": "April 2026",
     "total_incidents": 28,
-    "total_loss_usd": 635240000,
-    "source": "DeFi Llama, Rekt News, SlowMist, CertiK, Chainalysis, BlockSec Phalcon"
+    "total_loss_usd": 634862000,
+    "reported_total_loss_usd": 635240000,
+    "source": "DeFi Llama, Rekt News, SlowMist, CertiK, Chainalysis, BlockSec Phalcon",
+    "source_urls": [
+      "https://defillama.com/hacks",
+      "https://rekt.news/",
+      "https://hacked.slowmist.io/",
+      "https://www.certik.com/resources/blog",
+      "https://www.chainalysis.com/blog/",
+      "https://app.blocksec.com/explorer"
+    ]
   },
   "incidents": [
     {

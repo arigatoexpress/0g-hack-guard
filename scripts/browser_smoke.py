@@ -105,6 +105,8 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_status.v1")
     expect(page.locator("#zg-status-output")).to_contain_text('"privateKeyRequired": false')
     expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
+    expect(page.locator("#data-flow-output")).to_contain_text("0guard.incident_summary.v1")
+    expect(page.locator("#data-flow-output")).to_contain_text('"incidentCount": 28')
     expect(page.locator("#telegram-register-output")).to_contain_text(
         "0guard.telegram_mira_status.v1"
     )
@@ -131,6 +133,10 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#run-domain-check").click()
     expect(page.locator("#result-output")).to_contain_text('"decision": "review"')
     expect(page.locator("#result-output")).to_contain_text("Domain not in curated allowlist")
+
+    page.locator("#load-detection-coverage").click()
+    expect(page.locator("#data-flow-output")).to_contain_text("0guard.detection_coverage.v1")
+    expect(page.locator("#data-flow-output")).to_contain_text('"coverageRatio"')
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -168,6 +174,7 @@ def exercise_workbench(page: Page) -> None:
     assert frontend_body["safety"]["transactionSigningEnabled"] is False
     assert frontend_body["safety"]["moneyMovementEnabled"] is False
     assert "/api/0g/status" in frontend_body["apiRoutes"]
+    assert "/api/data/summary" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
@@ -186,6 +193,18 @@ def exercise_workbench(page: Page) -> None:
     assert telegram_body["schema"] == "0guard.telegram_mira_status.v1"
     assert telegram_body["safety"]["telegramSendsEnabled"] is False
     assert telegram_body["safety"]["networkCalls"] is False
+
+    data_summary = page.request.get(f"{BASE_URL}/api/data/summary")
+    assert data_summary.ok
+    data_summary_body = data_summary.json()
+    assert data_summary_body["schema"] == "0guard.incident_summary.v1"
+    assert data_summary_body["validation"]["ok"] is True
+
+    detection = page.request.get(f"{BASE_URL}/api/data/detection-coverage")
+    assert detection.ok
+    detection_body = detection.json()
+    assert detection_body["schema"] == "0guard.detection_coverage.v1"
+    assert detection_body["coveredCount"] >= 12
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok

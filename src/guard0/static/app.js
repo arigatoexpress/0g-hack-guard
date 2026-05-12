@@ -60,6 +60,16 @@ async function load0gStatus(){
   const j = await r.json();
   writeJson('zg-status-output', j);
 }
+async function loadDataSummary(){
+  const r = await fetch('/api/data/summary');
+  const j = await r.json();
+  writeJson('data-flow-output', j);
+}
+async function loadDetectionCoverage(){
+  const r = await fetch('/api/data/detection-coverage');
+  const j = await r.json();
+  writeJson('data-flow-output', j);
+}
 async function loadTelegramStatus(){
   const r = await fetch('/api/telegram/status');
   const j = await r.json();
@@ -115,6 +125,8 @@ async function runMiraPreview(){
 document.getElementById('run-evaluate').addEventListener('click', evaluateIntent);
 document.getElementById('run-hack-check').addEventListener('click', hackCheck);
 document.getElementById('run-domain-check').addEventListener('click', domainCheck);
+document.getElementById('load-data-summary').addEventListener('click', loadDataSummary);
+document.getElementById('load-detection-coverage').addEventListener('click', loadDetectionCoverage);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);
@@ -126,4 +138,5 @@ document.getElementById('load-allow-sample').addEventListener('click', () => {
 });
 loadContracts();
 load0gStatus();
+loadDataSummary();
 loadTelegramStatus();

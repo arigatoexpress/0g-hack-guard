@@ -76,10 +76,14 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert data["safety"]["moneyMovementEnabled"] is False
     assert "/api/external-action-contracts" in data["apiRoutes"]
     assert "/api/0g/status" in data["apiRoutes"]
+    assert "/api/data/summary" in data["apiRoutes"]
+    assert "/api/data/incidents" in data["apiRoutes"]
+    assert "/api/data/detection-coverage" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
     assert "#zg-status-output" in data["requiredSelectors"]
+    assert "#data-flow-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -126,6 +130,34 @@ def test_telegram_routes_do_not_import_live_send_helpers():
     assert "send_thread" not in source
     assert "get_me" not in source
     assert "setWebhook" not in source
+
+
+def test_data_summary_and_detection_coverage_are_read_only(client):
+    summary = client.get("/api/data/summary")
+    assert summary.status_code == 200
+    summary_body = summary.get_json()
+    assert summary_body["schema"] == "0guard.incident_summary.v1"
+    assert summary_body["validation"]["ok"] is True
+    assert summary_body["stats"]["incidentCount"] == 28
+
+    incidents = client.get("/api/data/incidents?chain=Ethereum&min_loss_usd=100000&limit=2")
+    assert incidents.status_code == 200
+    incident_body = incidents.get_json()
+    assert incident_body["schema"] == "0guard.incidents.v1"
+    assert len(incident_body["incidents"]) == 2
+    assert all(item["chain"] == "Ethereum" for item in incident_body["incidents"])
+
+    coverage = client.get("/api/data/detection-coverage")
+    assert coverage.status_code == 200
+    coverage_body = coverage.get_json()
+    assert coverage_body["schema"] == "0guard.detection_coverage.v1"
+    assert coverage_body["coveredCount"] >= 12
+
+
+def test_data_incident_filters_reject_bad_inputs(client):
+    assert client.get("/api/data/incidents?min_loss_usd=bad").status_code == 400
+    assert client.get("/api/data/incidents?limit=0").status_code == 400
+    assert client.get("/api/data/incidents?limit=201").status_code == 400
 
 
 def test_0g_status_is_read_only_and_reports_runtime_config(monkeypatch, client):

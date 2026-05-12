@@ -17,6 +17,7 @@ import secrets
 
 from flask import Flask, Response, jsonify, render_template, request
 
+from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.mira import build_mira_security_preview
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
@@ -58,6 +59,9 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#result-output",
     "#contract-output",
     "#zg-status-output",
+    "#data-flow-output",
+    "#load-data-summary",
+    "#load-detection-coverage",
     "#telegram-register-output",
     "#mira-output",
     "#telegram-user-label",
@@ -298,6 +302,7 @@ def api_frontend_contract():
                 "Intent Firewall",
                 "Hack Signature Check",
                 "Domain Guard",
+                "Data Flow",
                 "Telegram Mira Opt-In",
                 "Mira Telegram Preview",
                 "External Action Contract",
@@ -309,6 +314,9 @@ def api_frontend_contract():
             "apiRoutes": [
                 "/api/health",
                 "/api/0g/status",
+                "/api/data/summary",
+                "/api/data/incidents",
+                "/api/data/detection-coverage",
                 "/api/telegram/status",
                 "/api/external-action-contracts",
                 "/api/evaluate",
@@ -321,6 +329,8 @@ def api_frontend_contract():
                 "load-simulation-sample",
                 "run-hack-check",
                 "run-domain-check",
+                "load-data-summary",
+                "load-detection-coverage",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -330,6 +340,45 @@ def api_frontend_contract():
 @app.route("/api/external-action-contracts", methods=["GET"])
 def api_external_action_contracts():
     return jsonify(external_action_contracts_payload())
+
+
+@app.route("/api/data/summary", methods=["GET"])
+def api_data_summary():
+    return jsonify(incident_summary())
+
+
+@app.route("/api/data/incidents", methods=["GET"])
+def api_data_incidents():
+    min_loss = request.args.get("min_loss_usd")
+    try:
+        min_loss_usd = int(min_loss) if min_loss is not None else None
+    except ValueError:
+        return jsonify({"error": "min_loss_usd must be an integer"}), 400
+
+    limit = request.args.get("limit")
+    try:
+        limit_value = int(limit) if limit is not None else 50
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit_value < 1 or limit_value > 200:
+        return jsonify({"error": "limit must be between 1 and 200"}), 400
+
+    return jsonify(
+        {
+            "schema": "0guard.incidents.v1",
+            "incidents": filter_incidents(
+                chain=request.args.get("chain"),
+                attack_vector=request.args.get("attack_vector"),
+                min_loss_usd=min_loss_usd,
+                limit=limit_value,
+            ),
+        }
+    )
+
+
+@app.route("/api/data/detection-coverage", methods=["GET"])
+def api_data_detection_coverage():
+    return jsonify(detection_coverage())
 
 
 @app.route("/api/telegram/status", methods=["GET"])

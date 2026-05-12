@@ -68,6 +68,15 @@
           </div>
 
           <div class="card">
+            <h2>Data Flow</h2>
+            <div class="actions">
+              <button id="load-data-summary" type="button">Load data summary</button>
+              <button id="load-detection-coverage" class="secondary" type="button">Detection coverage</button>
+            </div>
+            <p class="mini">Validates the incident dataset, computes provenance fingerprints, and measures signature-engine coverage.</p>
+          </div>
+
+          <div class="card">
             <h2>Telegram Mira Opt-In</h2>
             <input id="telegram-user-label" value="demo-operator">
             <div class="actions">
@@ -98,6 +107,10 @@
           <div class="card">
             <h2>0G Network Proof</h2>
             <pre id="zg-status-output">Loading 0G status.</pre>
+          </div>
+          <div class="card">
+            <h2>Incident Data Flow</h2>
+            <pre id="data-flow-output">Loading incident data summary.</pre>
           </div>
           <div class="card">
             <h2>Telegram Registration</h2>
