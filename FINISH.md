@@ -14,7 +14,7 @@
 | 4 | [Post X thread](#4-post-x-thread) | 5 min | ☐ |
 | 5 | [Set up Telegram bot](#5-set-up-telegram-bot-optional) | 10 min | ☐ |
 | 6 | [Record demo video](#6-record-demo-video) | 2-3 hrs | ☐ |
-| 7 | [Enable GitHub Pages](#7-enable-github-pages) | 2 min | ☐ |
+| 7 | [Verify GitHub Pages](#7-verify-github-pages) | 30 sec | ✅ |
 | 8 | [Submit to HackQuest](#8-submit-to-hackquest) | 30 min | ☐ |
 
 **Total active time:** ~3.5 hours  
@@ -243,20 +243,19 @@ open http://127.0.0.1:8109
 
 ---
 
-## 7. Enable GitHub Pages
+## 7. Verify GitHub Pages
 
-**Why:** Landing page goes live automatically.
+**Why:** Landing page is already live and should answer before you record or submit.
 
-**Safe link:** https://github.com/arigatoexpress/0guard/settings/pages
+**Live link:** https://arigatoexpress.github.io/0guard/
 
 **Steps:**
-1. Go to `https://github.com/arigatoexpress/0guard/settings/pages`
-2. Under **"Build and deployment"**, select **Source: GitHub Actions**
-3. The workflow `.github/workflows/pages.yml` will auto-deploy on every push to `docs/`
-4. Wait 1-2 minutes
-5. Visit `https://arigatoexpress.github.io/0guard`
+1. Run `curl -I https://arigatoexpress.github.io/0guard/`
+2. Confirm the response is `HTTP/2 200`.
+3. Visit `https://arigatoexpress.github.io/0guard/`
+4. The workflow `.github/workflows/pages.yml` auto-deploys on every push to `docs/`
 
-**Time:** 2 minutes.
+**Time:** 30 seconds.
 
 ---
 

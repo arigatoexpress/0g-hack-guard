@@ -8,17 +8,17 @@
 
 | Component | Status | Lines/Tests |
 |-----------|--------|-------------|
-| **Core Engine** | ✅ | `guard0` package, 52 tests passing |
+| **Core Engine** | ✅ | `guard0` package, 67 tests passing |
 | **Hack Signatures** | ✅ | 60+ incidents (2020-2026), 10 attack vectors, 29 IOCs, 32 selectors |
-| **0G Chain** | ✅ | `PolicyReceiptAnchor.sol` compiled, deployment scripts ready |
-| **0G Storage** | ✅ | Threat intel persistence module |
-| **Content Engine** | ✅ | Auto-generates tweets/threads/summaries from incident data |
-| **X Bot** | ✅ | Posts tweets, threads, media via X API v2 |
-| **Landing Page** | ✅ | 1,192 lines, self-contained, animated, responsive |
-| **Flask API + Dashboard** | ✅ | `/api/evaluate`, `/api/hack-check`, `/api/health`, `/api/domain` |
+| **0G Chain** | ✅ | Live Galileo status endpoint, `PolicyReceiptAnchor.sol`, deployment scripts ready |
+| **0G Storage** | ✅ | Threat-intel payload/root-hash preparation; external writes opt-in |
+| **Content Engine** | ✅ | Generates tweets/threads/summaries from incident data |
+| **X Bot** | ✅ | Posts via explicit confirmation workflow; no surprise sends |
+| **Landing Page** | ✅ | GitHub Pages live, self-contained, animated, responsive |
+| **Flask API + Dashboard** | ✅ | `/api/evaluate`, `/api/hack-check`, `/api/health`, `/api/0g/status`, `/api/domain` |
 | **CLI** | ✅ | `0guard evaluate`, `hack-check`, `health`, `serve` |
 | **Docker** | ✅ | Dockerfile + docker-compose.yml |
-| **CI/CD** | ✅ | GitHub Actions (test, lint, Docker build, Pages deploy, X auto-post) |
+| **CI/CD** | ✅ | GitHub Actions (test, lint, browser smoke, Docker health, Pages deploy, confirmed X workflow) |
 | **Demo Script** | ✅ | `scripts/demo_april_2026.py` |
 | **Deployment Guide** | ✅ | `DEPLOYMENT.md` |
 | **Video Script** | ✅ | `docs/DEMO_VIDEO_SCRIPT.md` |
@@ -26,6 +26,7 @@
 | **X Thread Copy** | ✅ | 5-tweet thread ready to post |
 
 **Repo:** https://github.com/arigatoexpress/0guard
+**Live landing page:** https://arigatoexpress.github.io/0guard/
 
 ---
 
@@ -134,14 +135,16 @@ Follow `docs/DEMO_VIDEO_SCRIPT.md` step-by-step:
 
 ---
 
-### 5. Enable GitHub Pages
-**Why:** So the landing page goes live at `arigatoexpress.github.io/0guard`.
+### 5. Verify GitHub Pages
+**Why:** The landing page is already live at `https://arigatoexpress.github.io/0guard/`.
 
-1. Go to https://github.com/arigatoexpress/0guard/settings/pages
-2. Under "Build and deployment", select **GitHub Actions**
-3. The workflow `.github/workflows/pages.yml` will auto-deploy on every push
+```bash
+curl -I https://arigatoexpress.github.io/0guard/
+```
 
-**Time:** 2 minutes  
+The workflow `.github/workflows/pages.yml` auto-deploys on every push that changes `docs/**`.
+
+**Time:** 30 seconds
 **Blockers:** None
 
 ---
@@ -171,7 +174,7 @@ Go to https://hackquest.io/en/hackathons/0G-APAC-Hackathon
 | Task | Effort | Impact |
 |------|--------|--------|
 | Deploy contract on **0G mainnet** | 15 min | Higher credibility |
-| Set up **GitHub Secrets** for X auto-post | 5 min | Auto-publishes new signatures |
+| Set up **GitHub Secrets** for X workflow | 5 min | Enables explicit confirmed posts for new signatures |
 | Add **og-image.png** to docs/ | 30 min | Better social sharing |
 | Create a **pitch deck PDF** | 1-2 hrs | If judges request it |
 | Add **more historical incidents** to data/ | Ongoing | Better detection |

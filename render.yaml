@@ -7,7 +7,9 @@ services:
     runtime: docker
     repo: https://github.com/arigatoexpress/0guard
     branch: main
-    plan: standard
+    # Demo-safe default: no paid instance is provisioned from the Blueprint.
+    # Upgrade intentionally in the Render dashboard if sustained production uptime is needed.
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: PORT
