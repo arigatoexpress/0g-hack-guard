@@ -565,11 +565,11 @@
         </div>
         <div class="feature">
           <h4>🤖 X Bot</h4>
-          <p>Publishes threat intel automatically to X the moment a new exploit signature matches, with zero human latency.</p>
+          <p>Generates threat-intel drafts from matched signatures; live X posting stays behind explicit workflow confirmation.</p>
         </div>
         <div class="feature">
-          <h4>🔗 0G-Native Persistence</h4>
-          <p>Anchors policy receipts on <strong>0G Chain</strong> and persists threat intel to <strong>0G Storage</strong> for censorship-resistant defense.</p>
+          <h4>🔗 0G-Native Proofs</h4>
+          <p>Reads live <strong>0G Galileo</strong> status, prepares policy receipt hashes, and keeps chain/storage writes behind explicit operator configuration.</p>
         </div>
         <div class="feature">
           <h4>🛡️ Zero Trust by Default</h4>
@@ -915,11 +915,11 @@ $ <span class="cmd">0guard</span> eval tx.json --chain ethereum<br>
 [<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">WARN</span>  Matched: <span class="string">sequence_flash_swap_withdraw</span><br>
 [<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">WARN</span>  Historical match: <span class="string">Rhea Finance ($18.4M)</span><br>
 [<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">CRIT</span>  Verdict: <span class="string">DENY</span> — Flash-loan attack sequence detected<br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">INFO</span>  Receipt anchored: <span class="string">0x9c2b...f1a4</span> on 0G Chain<br>
-[<span class="num">2026-05-03T11:42:12Z</span>] <span class="key">INFO</span>  Alert published to X via 0guard Bot<br>
+[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">INFO</span>  0G Galileo RPC ok; observed chain id <span class="num">16602</span><br>
+[<span class="num">2026-05-03T11:42:12Z</span>] <span class="key">INFO</span>  Receipt prepared for 0G anchor; broadcast disabled<br>
 <br>
 <span class="comment"># Summary</span><br>
-Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span> | IOCs: <span class="num">1</span> | Receipt: <span class="string">0x9c2b...f1a4</span>
+Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span> | IOCs: <span class="num">1</span> | 0G Proof: <span class="string">preflight_sha256</span>
           </div>
         </div>
       </div>
@@ -930,7 +930,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
     <div class="inner">
       <h2 class="section-title reveal">Content Engine</h2>
       <p class="section-subtitle reveal">
-        Auto-generated threat intel from every detected signature. Tweets, threads, and summaries — zero human latency.
+        Draft threat intel from every detected signature: tweets, threads, and summaries ready for review or confirmed publish workflows.
       </p>
       <div class="reveal">
         <div class="content-tabs">
@@ -946,7 +946,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
             Matched signature: <span class="tag">sequence_flash_swap_withdraw</span><br>
             Historical precedent: <span class="amount">Rhea Finance ($18.4M)</span><br>
             Risk score: <span class="amount">94/100</span><br><br>
-            Intent blocked before signing. Receipt anchored on 0G Chain.<br><br>
+            Intent blocked before signing. Receipt prepared for 0G Chain anchoring; no live broadcast in demo mode.<br><br>
             <span class="tag">#0guard #DeFiSecurity #FlashLoan</span>
           </div>
         </div>
@@ -956,9 +956,9 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
             <span class="handle">🧵 Thread: How 0guard blocked this attack</span><br><br>
             1/ An AI agent attempted a high-value swap preceded by a flash-loan borrow. This exact sequence was used in the <span class="amount">Rhea Finance ($18.4M)</span> exploit.<br><br>
             2/ The Signature Engine matched <span class="tag">sequence_flash_swap_withdraw</span> within 12ms of intent submission.<br><br>
-            3/ The Content Engine auto-generated this thread. The X Bot published the alert at 09:23:14 UTC.<br><br>
-            4/ A policy receipt (SHA-256) was anchored on <span class="tag">0G Chain</span> at block <span class="tag">#4,892,113</span> for tamper-evident audit.<br><br>
-            5/ Threat intel was persisted to <span class="tag">0G Storage</span> for cross-agent sharing. No human intervention required.<br><br>
+            3/ The Content Engine generated this draft; live posting stays behind explicit workflow confirmation.<br><br>
+            4/ A SHA-256 policy receipt was produced locally with <span class="tag">anchor_status=preflight</span>. Once the operator deploys the receipt contract, the same hash can anchor on <span class="tag">0G Galileo</span>.<br><br>
+            5/ A deterministic storage payload/root hash was prepared for <span class="tag">0G Storage</span>; external writes remain opt-in for the demo.<br><br>
             <span class="tag">#0guard #ThreatIntel #AutonomousSecurity</span>
           </div>
         </div>
@@ -973,9 +973,9 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
             <strong>Historical Match:</strong> Rhea Finance ($18.4M)<br>
             <strong>Signatures Matched:</strong> sequence_flash_swap_withdraw, high_value_swap<br>
             <strong>Chain:</strong> Ethereum<br>
-            <strong>Receipt:</strong> <span class="tag">0x9c2b...f1a4</span> on 0G Chain<br>
-            <strong>Alert Channel:</strong> X via 0guard Bot<br><br>
-            The agent's intent was intercepted at the firewall layer. No signing key was exposed. Full forensic trace available via 0G Storage KV lookup.
+            <strong>Receipt:</strong> <span class="tag">preflight SHA-256 policy receipt</span>, ready for 0G Chain anchor<br>
+            <strong>Alert Channel:</strong> Draft only; no live X send in demo mode<br><br>
+            The agent's intent was intercepted at the firewall layer. No signing key was exposed. The forensic trace is serializable for 0G Storage once a storage node is configured.
           </div>
         </div>
       </div>
@@ -986,7 +986,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
     <div class="inner">
       <h2 class="section-title reveal">Built on 0G</h2>
       <p class="section-subtitle reveal">
-        0guard is natively integrated with the 0G decentralized AI operating system — chain, storage, and compute.
+        0guard integrates with the 0G Galileo testnet: live read-only RPC status today, with chain and storage write paths kept explicit and opt-in.
       </p>
       <div class="og-grid reveal">
         <div class="og-col">
@@ -994,7 +994,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
           </div>
           <h4>0G Chain</h4>
-          <p>EVM-compatible L1 that anchors SHA-256 policy receipt hashes on-chain for tamper-evident audit trails.</p>
+          <p>Live 0G Galileo RPC readback for chain id 16602, plus SHA-256 policy receipt hashes for an operator-deployed EVM anchor contract.</p>
           <span class="og-track">Agentic Infrastructure</span>
         </div>
         <div class="og-col">
@@ -1002,7 +1002,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
           </div>
           <h4>0G Storage</h4>
-          <p>Persists threat-intel signatures, IOCs, and incident receipts at ultra-low cost via decentralized KV + log storage.</p>
+          <p>Deterministic threat-intel payloads and root hashes prepared for 0G Storage once the storage endpoint is configured.</p>
           <span class="og-track">Privacy & Sovereign Infra</span>
         </div>
         <div class="og-col">
@@ -1021,7 +1021,7 @@ Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span
     <div class="inner">
       <h2 class="section-title reveal">Architecture</h2>
       <p class="section-subtitle reveal">
-        A single evaluation flow from AI agent intent to on-chain receipt anchoring, content generation, and public alerting — read-only, deterministic, and auditable.
+        A single evaluation flow from AI agent intent to policy decision, proof receipt, content draft, and explicit operator-controlled publish paths.
       </p>
       <div class="arch-diagram reveal">
         <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">

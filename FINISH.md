@@ -228,7 +228,7 @@ open http://127.0.0.1:8109
 | 0:50-1:20 | Demo 1: Block Drift-style attack | Dashboard → type prompt → DENY |
 | 1:20-1:50 | Demo 2: Block unlimited approval | Dashboard → approve → DENY |
 | 1:50-2:20 | Demo 3: CLI showing all April 2026 signatures | Terminal running demo |
-| 2:20-2:45 | 0G Integration: "Every receipt anchored on-chain" | Explorer + code |
+| 2:20-2:45 | 0G Integration: "Live Galileo RPC, preflight receipts, operator-controlled anchoring" | Status endpoint + code |
 | 2:45-3:00 | Close: "Autonomy without safety is chaos." | Black screen + GitHub link |
 
 **Recording tool:** OBS Studio (free) — `https://obsproject.com`
