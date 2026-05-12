@@ -19,7 +19,7 @@ Before you start, make sure you have the following ready:
 ### Quick Pre-Flight
 
 ```bash
-cd /Users/aribs/Code/0g-hack-guard
+cd /Users/aribs/Code/0guard
 
 # 1. Check Python
 python3 --version  # >= 3.10
@@ -33,7 +33,12 @@ ls contracts/PolicyReceiptAnchor.json
 # 4. Set your private key (DO NOT paste into committed files)
 export PRIVATE_KEY=0xYOUR_PRIVATE_KEY_HERE
 
-# 5. Check wallet balance (testnet example)
+# 5. Confirm live Galileo chain id from the RPC
+curl -s https://evmrpc-testnet.0g.ai \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+
+# 6. Check wallet balance (testnet example)
 python3 -c "
 from web3 import Web3
 w3 = Web3(Web3.HTTPProvider('https://evmrpc-testnet.0g.ai'))
@@ -52,7 +57,7 @@ The recommended deployment path uses the included Python script: `scripts/deploy
 ### 2.1 Deploy to Testnet (Galileo)
 
 ```bash
-cd /Users/aribs/Code/0g-hack-guard
+cd /Users/aribs/Code/0guard
 export PRIVATE_KEY=0xYOUR_PRIVATE_KEY_HERE
 
 python3 scripts/deploy_0g.py --network testnet
@@ -65,7 +70,7 @@ python3 scripts/deploy_0g.py --network testnet
   "tx_hash": "0x...",
   "explorer_url": "https://chainscan-galileo.0g.ai/tx/0x...",
   "network": "testnet",
-  "chain_id": 16601
+  "chain_id": 16602
 }
 ```
 
@@ -94,7 +99,7 @@ python3 scripts/deploy_0g.py --network mainnet
 3. Builds a deployment transaction with:
    - `gas: 800_000`
    - `gasPrice: 1 gwei`
-   - `chainId`: 16601 (testnet) or 16661 (mainnet)
+   - `chainId`: 16602 (testnet) or 16661 (mainnet)
 4. Signs and broadcasts the transaction.
 5. Waits up to 120 seconds for confirmation.
 6. Prints the deployed contract address + explorer link.
@@ -112,7 +117,7 @@ If you prefer Foundry (`forge`), you can deploy with a one-liner using the compi
 ### 3.1 Extract Bytecode from Artifact
 
 ```bash
-cd /Users/aribs/Code/0g-hack-guard
+cd /Users/aribs/Code/0guard
 
 # Extract the raw bytecode (strip leading "0x" if needed for forge)
 BYTECODE=$(python3 -c "import json; print(json.load(open('contracts/PolicyReceiptAnchor.json'))['bytecode']['object'])")
@@ -126,7 +131,7 @@ echo $BYTECODE
 forge create \
   --rpc-url https://evmrpc-testnet.0g.ai \
   --private-key $PRIVATE_KEY \
-  --chain-id 16601 \
+  --chain-id 16602 \
   --broadcast \
   contracts/PolicyReceiptAnchor.sol:PolicyReceiptAnchor
 ```
@@ -146,7 +151,7 @@ forge create \
 > forge create \
 >   --rpc-url https://evmrpc-testnet.0g.ai \
 >   --private-key $PRIVATE_KEY \
->   --chain-id 16601 \
+>   --chain-id 16602 \
 >   $(echo $BYTECODE | sed 's/^0x//')
 > ```
 
@@ -218,7 +223,7 @@ Set these in your shell, `.env` file, or deployment platform:
 | Variable | Testnet Value | Mainnet Value |
 |----------|---------------|---------------|
 | `ZGG_CHAIN_RPC` | `https://evmrpc-testnet.0g.ai` | `https://evmrpc.0g.ai` |
-| `ZGG_CHAIN_ID` | `16601` | `16661` |
+| `ZGG_CHAIN_ID` | `16602` | `16661` |
 | `ZGG_RECEIPT_CONTRACT` | `0xYOUR_TESTNET_CONTRACT_ADDRESS` | `0xYOUR_MAINNET_CONTRACT_ADDRESS` |
 
 ### 5.2 Update `src/guard0/chain.py`
@@ -228,7 +233,7 @@ The app currently defaults to placeholder values. After deployment, update **or*
 ```bash
 # Preferred: export env vars (no code change needed)
 export ZGG_CHAIN_RPC="https://evmrpc-testnet.0g.ai"
-export ZGG_CHAIN_ID=16601
+export ZGG_CHAIN_ID=16602
 export ZGG_RECEIPT_CONTRACT="0xYOUR_DEPLOYED_CONTRACT_ADDRESS"
 ```
 
@@ -237,7 +242,7 @@ If you want to hardcode defaults for a specific environment, edit `src/guard0/ch
 ```python
 # Example: hardcoded testnet defaults
 ZGG_CHAIN_RPC = os.getenv("ZGG_CHAIN_RPC", "https://evmrpc-testnet.0g.ai")
-ZGG_CHAIN_ID = int(os.getenv("ZGG_CHAIN_ID", "16601"))
+ZGG_CHAIN_ID = int(os.getenv("ZGG_CHAIN_ID", "16602"))
 ZGG_RECEIPT_CONTRACT = os.getenv(
     "ZGG_RECEIPT_CONTRACT",
     "0xYOUR_DEPLOYED_CONTRACT_ADDRESS",  # <-- replace placeholder
@@ -263,7 +268,7 @@ Expected response should show the correct `chain_id` and contract address in the
 |-----------------|--------------|-----|
 | `ERROR: Set PRIVATE_KEY env var` | `PRIVATE_KEY` not exported | `export PRIVATE_KEY=0x...` |
 | `insufficient funds for gas * price + value` | Wallet has < 0.1 0G | Visit [faucet.0g.ai](https://faucet.0g.ai) for testnet; fund wallet for mainnet. |
-| `wrong chain id` | `chainId` mismatch in tx vs. network | Ensure `--network` flag matches the RPC (testnet = 16601, mainnet = 16661). |
+| `wrong chain id` | `chainId` mismatch in tx vs. network | Ensure `--network` flag matches the RPC (testnet live RPC = 16602, mainnet = 16661). |
 | `RPC timeout` / `ConnectionError` | 0G RPC is slow or rate-limited | Retry after 10–30 seconds. Test RPC health: `curl -X POST https://evmrpc-testnet.0g.ai -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'` |
 | `nonce too low` | Previous tx pending or already mined | Check wallet nonce on explorer; wait for pending tx or manually set nonce. |
 | `receipt.contractAddress is None` | Tx failed (out of gas, revert, etc.) | Check explorer for revert reason. Increase `gas` in script if needed. |
@@ -317,7 +322,7 @@ When you're ready to move from testnet to mainnet, complete this checklist:
 
 | Network | Chain ID | RPC | Explorer | Faucet |
 |---------|----------|-----|----------|--------|
-| Testnet (Galileo) | 16601 | `https://evmrpc-testnet.0g.ai` | `https://chainscan-galileo.0g.ai` | [faucet.0g.ai](https://faucet.0g.ai) |
+| Testnet (Galileo) | 16602 | `https://evmrpc-testnet.0g.ai` | `https://chainscan-galileo.0g.ai` | [faucet.0g.ai](https://faucet.0g.ai) |
 | Mainnet (Aristotle) | 16661 | `https://evmrpc.0g.ai` | `https://chainscan.0g.ai` | — |
 
 | File | Purpose |
@@ -326,7 +331,7 @@ When you're ready to move from testnet to mainnet, complete this checklist:
 | `contracts/PolicyReceiptAnchor.json` | Compiled ABI + bytecode |
 | `scripts/deploy_0g.py` | Python deployment script |
 | `src/guard0/chain.py` | App integration point (env vars) |
-| `foundry/foundry.toml` | Foundry config (default chain_id = 16601) |
+| `foundry/foundry.toml` | Foundry config (default chain_id = 16602) |
 
 ---
 

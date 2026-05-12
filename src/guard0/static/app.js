@@ -53,6 +53,11 @@ async function loadContracts(){
   const j = await r.json();
   writeJson('contract-output', j);
 }
+async function load0gStatus(){
+  const r = await fetch('/api/0g/status');
+  const j = await r.json();
+  writeJson('zg-status-output', j);
+}
 document.getElementById('run-evaluate').addEventListener('click', evaluateIntent);
 document.getElementById('run-hack-check').addEventListener('click', hackCheck);
 document.getElementById('run-domain-check').addEventListener('click', domainCheck);
@@ -63,3 +68,4 @@ document.getElementById('load-allow-sample').addEventListener('click', () => {
   document.getElementById('intent-input').value = JSON.stringify(allowSample, null, 2);
 });
 loadContracts();
+load0gStatus();

@@ -26,6 +26,9 @@ def test_health(client):
     assert data["service"] == "zg-hack-guard"
     assert data["safety_flags"]["external_sends_blocked_from_workbench"] is True
     assert data["safety_flags"]["money_movement_enabled"] is False
+    assert data["0g_chain_id"] == 16602
+    assert data["0g_chain_rpc"] == "https://evmrpc-testnet.0g.ai"
+    assert data["0g_receipt_contract"] == "0x0000000000000000000000000000000000000000"
 
 
 def test_module_entrypoint_honors_container_host_env(monkeypatch):
@@ -56,8 +59,10 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert data["safety"]["transactionSigningEnabled"] is False
     assert data["safety"]["moneyMovementEnabled"] is False
     assert "/api/external-action-contracts" in data["apiRoutes"]
+    assert "/api/0g/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
+    assert "#zg-status-output" in data["requiredSelectors"]
 
 
 def test_frontend_contract_selectors_match_static_shell(client):
@@ -94,6 +99,35 @@ def test_external_action_contracts_keep_live_paths_out_of_workbench(client):
         == "--live-send-confirm SEND_TO_TELEGRAM_FROM_0GUARD"
     )
     assert by_id["0g-contract-deploy"]["reachableFromWorkbench"] is False
+
+
+def test_0g_status_is_read_only_and_reports_runtime_config(monkeypatch, client):
+    monkeypatch.setattr(
+        app_module,
+        "build_0g_status",
+        lambda: {
+            "schema": "0guard.0g_status.v1",
+            "readMode": "live_rpc_read_only",
+            "rpc": {"expectedChainId": 16602, "status": "ok"},
+            "receiptAnchor": {"configured": False},
+            "safety": {
+                "privateKeyRequired": False,
+                "signingEnabled": False,
+                "broadcastingEnabled": False,
+            },
+        },
+    )
+
+    r = client.get("/api/0g/status")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.0g_status.v1"
+    assert data["readMode"] == "live_rpc_read_only"
+    assert data["rpc"]["expectedChainId"] == 16602
+    assert data["receiptAnchor"]["configured"] is False
+    assert data["safety"]["privateKeyRequired"] is False
+    assert data["safety"]["signingEnabled"] is False
+    assert data["safety"]["broadcastingEnabled"] is False
 
 
 def test_evaluate_deny_live_tx(client):

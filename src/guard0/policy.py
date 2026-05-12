@@ -83,6 +83,7 @@ class PolicyDecision:
     allowed_next_steps: tuple[str, ...] = ()
     receipt_hash: str = ""
     generated_at: str = ""
+    zero_g: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -95,6 +96,11 @@ class PolicyDecision:
             "allowed_next_steps": list(self.allowed_next_steps),
             "receipt_hash": self.receipt_hash,
             "generated_at": self.generated_at,
+            "zero_g": self.zero_g or {
+                "chain_anchor": None,
+                "storage_receipt": None,
+                "note": "Set enable_0g_anchor or enable_0g_storage to include 0G proof receipts.",
+            },
         }
 
 
@@ -228,13 +234,16 @@ def evaluate_intent(
     }
     receipt_hash = _receipt_hash(receipt_ctx)
 
+    chain_anchor = None
+    storage_receipt = None
+
     # ── 0G Chain anchoring (optional) ──────────────────────────────────────
     if enable_0g_anchor:
-        anchor_receipt(receipt_hash, decision, severity, agent_id)
+        chain_anchor = anchor_receipt(receipt_hash, decision, severity, agent_id)
 
     # ── 0G Storage persistence (optional) ──────────────────────────────────
     if enable_0g_storage and (hack.signatures_matched or hack.iocs_hit):
-        store_threat_intel(
+        storage_receipt = store_threat_intel(
             key=f"intent-{receipt_hash[:16]}",
             data={
                 "receipt_hash": receipt_hash,
@@ -256,4 +265,10 @@ def evaluate_intent(
         allowed_next_steps=tuple(allowed_next_steps),
         receipt_hash=receipt_hash,
         generated_at=datetime.now(timezone.utc).isoformat(),
+        zero_g={
+            "chain_anchor": chain_anchor,
+            "storage_receipt": storage_receipt,
+            "anchor_requested": enable_0g_anchor,
+            "storage_requested": enable_0g_storage,
+        },
     )

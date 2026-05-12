@@ -32,15 +32,15 @@
 1. Open `https://faucet.0g.ai`
 2. Create or use an existing EVM wallet (MetaMask, Rainbow, etc.)
 3. Add 0G Galileo Testnet to your wallet:
-   - **Network Name:** 0G-Galileo-Testnet
-   - **Chain ID:** `16601`
+   - **Network Name:** 0G Galileo Testnet
+   - **Chain ID:** `16602`
    - **RPC URL:** `https://evmrpc-testnet.0g.ai`
    - **Currency Symbol:** 0G
    - **Explorer:** `https://chainscan-galileo.0g.ai`
 4. Copy your wallet address from MetaMask
 5. Paste it into the faucet and click "Request"
 6. You will receive **0.1 0G** (enough for deployment)
-7. Verify balance: open MetaMask, switch to 0G-Galileo-Testnet, check balance
+7. Verify balance: open MetaMask, switch to 0G Galileo Testnet, check balance
 
 **Alternative faucet:** https://cloud.google.com/application/web3/faucet/0g/galileo
 
@@ -71,7 +71,7 @@ export PRIVATE_KEY=0xYOUR_PRIVATE_KEY_HERE
   "tx_hash": "0xabcd...",
   "explorer_url": "https://chainscan-galileo.0g.ai/tx/0xabcd...",
   "network": "testnet",
-  "chain_id": 16601
+  "chain_id": 16602
 }
 ```
 

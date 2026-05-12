@@ -102,6 +102,9 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#contract-output")).to_contain_text("workbenchCanTriggerLiveActions")
     expect(page.locator("#contract-output")).to_contain_text('"livePostingEnabled": false')
     expect(page.locator("#contract-output")).to_contain_text('"telegramSendsEnabled": false')
+    expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_status.v1")
+    expect(page.locator("#zg-status-output")).to_contain_text('"privateKeyRequired": false')
+    expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
 
     page.locator("#load-deny-sample").click()
     page.locator("#run-evaluate").click()
@@ -140,6 +143,7 @@ def exercise_workbench(page: Page) -> None:
     assert frontend_body["safety"]["workbenchCanTriggerLiveActions"] is False
     assert frontend_body["safety"]["transactionSigningEnabled"] is False
     assert frontend_body["safety"]["moneyMovementEnabled"] is False
+    assert "/api/0g/status" in frontend_body["apiRoutes"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -150,6 +154,15 @@ def exercise_workbench(page: Page) -> None:
     assert external_body["transactionSigningEnabled"] is False
     assert external_body["workbenchCanTriggerLiveActions"] is False
     assert "X/Telegram posting from the browser" in external_body["blockedCapabilities"]
+
+    zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
+    assert zg_status.ok
+    zg_body = zg_status.json()
+    assert zg_body["schema"] == "0guard.0g_status.v1"
+    assert zg_body["readMode"] == "live_rpc_read_only"
+    assert zg_body["safety"]["privateKeyRequired"] is False
+    assert zg_body["safety"]["signingEnabled"] is False
+    assert zg_body["safety"]["broadcastingEnabled"] is False
 
     evaluate = page.request.post(
         f"{BASE_URL}/api/evaluate",

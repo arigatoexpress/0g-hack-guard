@@ -53,7 +53,7 @@ export ZGG_RECEIPT_CONTRACT=0x...
 # Step 5: Update .env
 cat >> .env << EOF
 ZGG_CHAIN_RPC=https://evmrpc-testnet.0g.ai
-ZGG_CHAIN_ID=16601
+ZGG_CHAIN_ID=16602
 ZGG_RECEIPT_CONTRACT=$ZGG_RECEIPT_CONTRACT
 EOF
 ```

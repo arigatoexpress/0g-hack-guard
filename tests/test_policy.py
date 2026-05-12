@@ -40,3 +40,25 @@ def test_hack_signature_blocks():
     })
     assert d.decision == "deny"
     assert any("upgradeTo" in b for b in d.blockers)
+
+
+def test_0g_proof_receipts_are_returned_when_requested():
+    d = evaluate_intent(
+        {
+            "action": "approve",
+            "calldata": "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "mode": "live_transaction",
+            "requires_signature": True,
+        },
+        agent_id="agent-7857-demo",
+        enable_0g_anchor=True,
+        enable_0g_storage=True,
+    )
+    payload = d.to_dict()
+    assert payload["decision"] == "deny"
+    assert payload["zero_g"]["anchor_requested"] is True
+    assert payload["zero_g"]["storage_requested"] is True
+    assert payload["zero_g"]["chain_anchor"]["status"] == "preflight"
+    assert payload["zero_g"]["chain_anchor"]["chain_id"] == 16602
+    assert payload["zero_g"]["storage_receipt"]["stored"] is True
+    assert payload["zero_g"]["storage_receipt"]["root_hash"]

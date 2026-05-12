@@ -18,6 +18,7 @@ from flask import Flask, Response, jsonify, render_template, request
 
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
+from guard0.chain import build_0g_status, get_0g_config
 
 app = Flask(__name__)
 
@@ -39,6 +40,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#run-domain-check",
     "#result-output",
     "#contract-output",
+    "#zg-status-output",
     "#wallet-status",
     "#telegram-status",
     "#deploy-status",
@@ -109,7 +111,7 @@ def api_frontend_contract():
             "route": "/",
             "mode": "read_only_pre_wallet",
             "network": "0g",
-            "chainId": int(os.getenv("ZGG_CHAIN_ID", "16600")),
+            "chainId": get_0g_config()["chain_id"],
             "requiredText": [
                 "0G Hack Guard",
                 "Intent Firewall",
@@ -123,6 +125,7 @@ def api_frontend_contract():
             "requiredSelectors": list(FRONTEND_REQUIRED_SELECTORS),
             "apiRoutes": [
                 "/api/health",
+                "/api/0g/status",
                 "/api/external-action-contracts",
                 "/api/evaluate",
                 "/api/hack-check",
@@ -147,11 +150,14 @@ def api_external_action_contracts():
 
 @app.route("/api/health", methods=["GET"])
 def api_health():
+    cfg = get_0g_config()
     return jsonify(
         {
             "service": "zg-hack-guard",
             "version": "0.1.0",
-            "0g_chain_id": int(os.getenv("ZGG_CHAIN_ID", "16600")),
+            "0g_chain_id": cfg["chain_id"],
+            "0g_chain_rpc": cfg["rpc"],
+            "0g_receipt_contract": cfg["receipt_contract"],
             "0g_storage_node": os.getenv("ZGS_NODE_URL", "not_configured"),
             "safety_flags": {
                 "read_only": True,
@@ -163,6 +169,11 @@ def api_health():
             },
         }
     )
+
+
+@app.route("/api/0g/status", methods=["GET"])
+def api_0g_status():
+    return jsonify(build_0g_status())
 
 
 @app.route("/api/evaluate", methods=["POST"])

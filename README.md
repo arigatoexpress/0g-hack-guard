@@ -110,6 +110,7 @@ python3 -m guard0.cli serve --port 8109
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
+| `GET`  | `/api/0g/status` | Live read-only 0G Galileo RPC proof, chain ID, latest block, and receipt-anchor config |
 | `GET`  | `/api/frontend-contract` | Browser smoke contract, selectors, and safety posture |
 | `GET`  | `/api/external-action-contracts` | Dry-run/default contract for X, Telegram, deploy, and signing paths |
 | `POST` | `/api/evaluate` | Full intent evaluation |
@@ -146,8 +147,24 @@ curl -X POST http://127.0.0.1:8109/api/evaluate \
   ],
   "warnings": [],
   "receipt_hash": "a1b2c3...",
+  "zero_g": {
+    "chain_anchor": {
+      "status": "preflight",
+      "chain_id": 16602
+    },
+    "storage_receipt": {
+      "stored": true,
+      "root_hash": "..."
+    }
+  },
   "generated_at": "2026-05-03T17:45:00+00:00"
 }
+```
+
+Check live 0G RPC proof without any private key:
+
+```bash
+curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
 ```
 
 ---

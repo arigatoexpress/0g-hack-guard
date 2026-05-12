@@ -7,7 +7,7 @@ Usage:
     python3 scripts/deploy_0g.py --network testnet
 
 Networks:
-    testnet -> 0G-Galileo-Testnet (Chain ID 16601)
+    testnet -> 0G-Galileo-Testnet (live RPC Chain ID 16602)
     mainnet -> 0G-Aristotle-Mainnet (Chain ID 16661)
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ from eth_account import Account
 NETWORKS = {
     "testnet": {
         "rpc": "https://evmrpc-testnet.0g.ai",
-        "chain_id": 16601,
+        "chain_id": 16602,
         "explorer": "https://chainscan-galileo.0g.ai",
     },
     "mainnet": {
@@ -60,7 +60,7 @@ def deploy(network: str, private_key: str) -> dict:
         "chainId": cfg["chain_id"],
     })
     signed = account.sign_transaction(tx)
-    tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
 
     return {
