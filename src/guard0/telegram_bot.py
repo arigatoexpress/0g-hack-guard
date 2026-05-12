@@ -11,10 +11,14 @@ Usage:
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
 import os
 import time
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import parse_qsl
 
 import requests
 
@@ -38,6 +42,77 @@ class TelegramConfig:
                 "Get a token from @BotFather on Telegram."
             )
         return cls(bot_token=token, chat_id=chat_id)
+
+
+class TelegramWebAppAuthError(ValueError):
+    """Raised when Telegram Mini App init data is missing, stale, or invalid."""
+
+
+def parse_webapp_init_data(init_data: str) -> dict[str, Any]:
+    """Parse Telegram Mini App initData after validation has succeeded."""
+    parsed = dict(parse_qsl(init_data, keep_blank_values=True, strict_parsing=False))
+    for key in ("user", "receiver", "chat"):
+        if key in parsed:
+            try:
+                parsed[key] = json.loads(parsed[key])
+            except json.JSONDecodeError as exc:
+                raise TelegramWebAppAuthError(f"Invalid Telegram initData {key} JSON") from exc
+    return parsed
+
+
+def validate_webapp_init_data(
+    init_data: str,
+    bot_token: str,
+    *,
+    max_age_seconds: int = 86_400,
+    now: int | None = None,
+) -> dict[str, Any]:
+    """Validate Telegram Mini App initData using Telegram's HMAC-SHA256 scheme."""
+    if not init_data:
+        raise TelegramWebAppAuthError("Missing Telegram initData")
+    if not bot_token:
+        raise TelegramWebAppAuthError("Missing Telegram bot token")
+
+    pairs = parse_qsl(init_data, keep_blank_values=True, strict_parsing=False)
+    fields: dict[str, str] = {}
+    received_hash = ""
+    for key, value in pairs:
+        if key == "hash":
+            received_hash = value
+        else:
+            fields[key] = value
+
+    if not received_hash:
+        raise TelegramWebAppAuthError("Missing Telegram initData hash")
+    if "auth_date" not in fields:
+        raise TelegramWebAppAuthError("Missing Telegram initData auth_date")
+
+    try:
+        auth_date = int(fields["auth_date"])
+    except ValueError as exc:
+        raise TelegramWebAppAuthError("Invalid Telegram initData auth_date") from exc
+
+    current_time = int(time.time()) if now is None else now
+    if max_age_seconds >= 0 and current_time - auth_date > max_age_seconds:
+        raise TelegramWebAppAuthError("Stale Telegram initData")
+    if auth_date - current_time > 60:
+        raise TelegramWebAppAuthError("Future Telegram initData")
+
+    data_check_string = "\n".join(f"{key}={fields[key]}" for key in sorted(fields))
+    secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+    expected_hash = hmac.new(
+        secret_key,
+        data_check_string.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(expected_hash, received_hash):
+        raise TelegramWebAppAuthError("Invalid Telegram initData hash")
+
+    parsed = parse_webapp_init_data(init_data)
+    parsed["auth_date"] = auth_date
+    parsed.pop("hash", None)
+    return parsed
 
 
 def _api_url(config: TelegramConfig, method: str) -> str:

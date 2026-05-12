@@ -1,13 +1,18 @@
 """Smoke tests for Flask app."""
 
+import hashlib
+import hmac
+import json
 from pathlib import Path
 import subprocess
 import sys
+from urllib.parse import urlencode
 
 import pytest
 
 import guard0.app as app_module
 from guard0.app import app
+from guard0.telegram_bot import validate_webapp_init_data as real_validate_webapp_init_data
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,8 +20,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
+    app_module._PENDING_TELEGRAM_CHALLENGES.clear()
+    app_module._CONSUMED_TELEGRAM_TOKEN_IDS.clear()
+    app_module._TELEGRAM_OPT_IN_RECORDS.clear()
     with app.test_client() as c:
         yield c
+
+
+def signed_telegram_init_data(fields: dict[str, str], bot_token: str) -> str:
+    data_check_string = "\n".join(f"{key}={fields[key]}" for key in sorted(fields))
+    secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+    signature = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+    return urlencode({**fields, "hash": signature})
 
 
 def test_health(client):
@@ -26,6 +41,7 @@ def test_health(client):
     assert data["service"] == "zg-hack-guard"
     assert data["safety_flags"]["external_sends_blocked_from_workbench"] is True
     assert data["safety_flags"]["money_movement_enabled"] is False
+    assert data["telegram_mira"]["safety"]["telegramSendsEnabled"] is False
     assert data["0g_chain_id"] == 16602
     assert data["0g_chain_rpc"] == "https://evmrpc-testnet.0g.ai"
     assert data["0g_receipt_contract"] == "0x0000000000000000000000000000000000000000"
@@ -60,9 +76,12 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert data["safety"]["moneyMovementEnabled"] is False
     assert "/api/external-action-contracts" in data["apiRoutes"]
     assert "/api/0g/status" in data["apiRoutes"]
+    assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
     assert "#zg-status-output" in data["requiredSelectors"]
+    assert "#telegram-register-output" in data["requiredSelectors"]
+    assert "#mira-output" in data["requiredSelectors"]
 
 
 def test_frontend_contract_selectors_match_static_shell(client):
@@ -101,6 +120,14 @@ def test_external_action_contracts_keep_live_paths_out_of_workbench(client):
     assert by_id["0g-contract-deploy"]["reachableFromWorkbench"] is False
 
 
+def test_telegram_routes_do_not_import_live_send_helpers():
+    source = (REPO_ROOT / "src" / "guard0" / "app.py").read_text()
+    assert "send_message" not in source
+    assert "send_thread" not in source
+    assert "get_me" not in source
+    assert "setWebhook" not in source
+
+
 def test_0g_status_is_read_only_and_reports_runtime_config(monkeypatch, client):
     monkeypatch.setattr(
         app_module,
@@ -128,6 +155,182 @@ def test_0g_status_is_read_only_and_reports_runtime_config(monkeypatch, client):
     assert data["safety"]["privateKeyRequired"] is False
     assert data["safety"]["signingEnabled"] is False
     assert data["safety"]["broadcastingEnabled"] is False
+
+
+def test_telegram_mira_status_is_preview_only(client):
+    r = client.get("/api/telegram/status")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.telegram_mira_status.v1"
+    assert data["mode"] == "opt_in_preview_no_sends"
+    assert data["mira"]["externalLlmCalls"] is False
+    assert data["miniAppAuth"]["serverSideValidationRequired"] is True
+    assert data["safety"]["telegramSendsEnabled"] is False
+    assert data["safety"]["networkCalls"] is False
+    assert "/api/telegram/opt-ins" in data["apiRoutes"]
+
+
+def test_telegram_registration_and_mira_preview_are_local_and_redacted(monkeypatch, client):
+    monkeypatch.setenv("TELEGRAM_REGISTRATION_SECRET", "test-secret-for-telegram-registration")
+
+    challenge_response = client.post(
+        "/api/telegram/registrations",
+        json={"user_label": "ari@example.com", "scopes": ["mira_alerts", "security.digest"]},
+    )
+    assert challenge_response.status_code == 200
+    challenge = challenge_response.get_json()["challenge"]
+    assert challenge["telegram_send"] is False
+    assert challenge["secret_source"] == "env"
+    assert challenge["start_payload"] == challenge["token_id"]
+    assert challenge["token_redacted"] is True
+    assert "token" not in challenge
+
+    opt_in_response = client.post(
+        "/api/telegram/opt-ins",
+        json={
+            "token_id": challenge["start_payload"],
+            "telegram_user": {
+                "id": 123456,
+                "username": "ari",
+                "language_code": "en",
+                "is_bot": False,
+            },
+        },
+    )
+    assert opt_in_response.status_code == 200
+    opt_in = opt_in_response.get_json()
+    public_json = json.dumps(opt_in)
+    assert opt_in["record"]["status"] == "opted_in"
+    assert "ari@example.com" not in public_json
+    assert "123456" not in public_json
+    assert opt_in["safety"]["telegramSendsEnabled"] is False
+
+    replay_response = client.post(
+        "/api/telegram/opt-ins",
+        json={"token_id": challenge["start_payload"], "telegram_user": {"id": 999}},
+    )
+    assert replay_response.status_code == 400
+
+    preview_response = client.post(
+        "/api/telegram/mira-preview",
+        json={
+            "record_id": opt_in["record"]["record_id"],
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "calldata": "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            },
+        },
+    )
+    assert preview_response.status_code == 200
+    preview = preview_response.get_json()
+    assert preview["schema"] == "0guard.mira_preview.v1"
+    assert preview["delivery"] == "preview_no_send"
+    assert preview["telegram_send"] is False
+    assert preview["network_calls"] is False
+    assert preview["decision"]["decision"] == "deny"
+
+
+def test_telegram_webapp_verify_requires_bot_token(monkeypatch, client):
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    r = client.post("/api/telegram/webapp/verify", json={"init_data": "auth_date=1"})
+    assert r.status_code == 503
+    assert "TELEGRAM_BOT_TOKEN" in r.get_json()["error"]
+
+
+def test_telegram_webapp_verify_validates_signed_init_data(monkeypatch, client):
+    bot_token = "123456:ABCDEF"
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", bot_token)
+    init_data = signed_telegram_init_data(
+        {
+            "auth_date": "1710000000",
+            "user": json.dumps({"id": 123456, "username": "ari"}, separators=(",", ":")),
+        },
+        bot_token,
+    )
+    monkeypatch.setattr(
+        app_module,
+        "validate_webapp_init_data",
+        lambda data, token: real_validate_webapp_init_data(data, token, now=1710000100),
+    )
+
+    r = client.post("/api/telegram/webapp/verify", json={"init_data": init_data})
+
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["valid"] is True
+    assert data["safety"]["telegramSendsEnabled"] is False
+    public_json = json.dumps(data)
+    assert "123456" not in public_json
+    assert "ari" not in public_json
+
+
+def test_telegram_webhook_requires_secret(monkeypatch, client):
+    monkeypatch.delenv("TELEGRAM_WEBHOOK_SECRET_TOKEN", raising=False)
+    r = client.post("/api/telegram/webhook", json={"message": {"text": "/start token"}})
+    assert r.status_code == 503
+
+    monkeypatch.setenv("TELEGRAM_WEBHOOK_SECRET_TOKEN", "webhook-secret")
+    r = client.post(
+        "/api/telegram/webhook",
+        json={"message": {"text": "/start token"}},
+        headers={"X-Telegram-Bot-Api-Secret-Token": "wrong"},
+    )
+    assert r.status_code == 401
+
+
+def test_telegram_webhook_start_preview_and_stop(monkeypatch, client):
+    monkeypatch.setenv("TELEGRAM_REGISTRATION_SECRET", "test-secret-for-telegram-registration")
+    monkeypatch.setenv("TELEGRAM_WEBHOOK_SECRET_TOKEN", "webhook-secret")
+
+    challenge = client.post(
+        "/api/telegram/registrations",
+        json={"user_label": "telegram-webhook-demo"},
+    ).get_json()["challenge"]
+
+    headers = {"X-Telegram-Bot-Api-Secret-Token": "webhook-secret"}
+    message_base = {
+        "chat": {"id": -100123456},
+        "from": {"id": 123456, "username": "ari", "language_code": "en", "is_bot": False},
+    }
+    opt_in = client.post(
+        "/api/telegram/webhook",
+        json={"message": {**message_base, "text": f"/start {challenge['start_payload']}"}},
+        headers=headers,
+    )
+    assert opt_in.status_code == 200
+    opt_in_body = opt_in.get_json()
+    assert opt_in_body["action"] == "opted_in"
+    assert opt_in_body["telegram_send"] is False
+    assert opt_in_body["network_calls"] is False
+
+    preview = client.post(
+        "/api/telegram/webhook",
+        json={"message": {**message_base, "text": "Should I approve this spender?"}},
+        headers=headers,
+    )
+    assert preview.status_code == 200
+    preview_body = preview.get_json()
+    assert preview_body["action"] == "preview"
+    assert preview_body["delivery"] == "preview_no_send"
+    assert preview_body["telegram_send"] is False
+
+    stop = client.post(
+        "/api/telegram/webhook",
+        json={"message": {**message_base, "text": "/stop"}},
+        headers=headers,
+    )
+    assert stop.status_code == 200
+    assert stop.get_json()["action"] == "opted_out"
+
+    ignored = client.post(
+        "/api/telegram/webhook",
+        json={"message": {**message_base, "text": "Any more alerts?"}},
+        headers=headers,
+    )
+    assert ignored.status_code == 200
+    assert ignored.get_json()["action"] == "ignored_not_opted_in"
 
 
 def test_evaluate_deny_live_tx(client):

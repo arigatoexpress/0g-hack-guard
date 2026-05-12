@@ -66,6 +66,24 @@
               <button id="run-domain-check" type="button">Check URL</button>
             </div>
           </div>
+
+          <div class="card">
+            <h2>Telegram Mira Opt-In</h2>
+            <input id="telegram-user-label" value="demo-operator">
+            <div class="actions">
+              <button id="create-telegram-registration" type="button">Create registration</button>
+              <button id="complete-telegram-opt-in" class="secondary" type="button">Complete local opt-in</button>
+            </div>
+            <p class="mini">Registration is local and preview-only. No Telegram message is sent from this workbench.</p>
+          </div>
+
+          <div class="card">
+            <h2>Mira Telegram Preview</h2>
+            <div class="actions">
+              <button id="run-mira-preview" type="button">Build Mira preview</button>
+            </div>
+            <p class="mini">Uses the current intent payload and produces a Telegram-safe response preview.</p>
+          </div>
         </div>
 
         <div class="stack">
@@ -80,6 +98,14 @@
           <div class="card">
             <h2>0G Network Proof</h2>
             <pre id="zg-status-output">Loading 0G status.</pre>
+          </div>
+          <div class="card">
+            <h2>Telegram Registration</h2>
+            <pre id="telegram-register-output">Loading Telegram/Mira status.</pre>
+          </div>
+          <div class="card">
+            <h2>Mira Preview</h2>
+            <pre id="mira-output">Awaiting Mira preview.</pre>
           </div>
         </div>
       </section>

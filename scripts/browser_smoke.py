@@ -105,6 +105,12 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_status.v1")
     expect(page.locator("#zg-status-output")).to_contain_text('"privateKeyRequired": false')
     expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
+    expect(page.locator("#telegram-register-output")).to_contain_text(
+        "0guard.telegram_mira_status.v1"
+    )
+    expect(page.locator("#telegram-register-output")).to_contain_text(
+        '"telegramSendsEnabled": false'
+    )
 
     page.locator("#load-deny-sample").click()
     page.locator("#run-evaluate").click()
@@ -126,6 +132,23 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#result-output")).to_contain_text('"decision": "review"')
     expect(page.locator("#result-output")).to_contain_text("Domain not in curated allowlist")
 
+    page.locator("#telegram-user-label").fill("browser-smoke")
+    page.locator("#create-telegram-registration").click()
+    expect(page.locator("#telegram-register-output")).to_contain_text(
+        "0guard.telegram_registration_challenge.v1"
+    )
+    expect(page.locator("#telegram-register-output")).to_contain_text('"telegram_send": false')
+    page.locator("#complete-telegram-opt-in").click()
+    expect(page.locator("#telegram-register-output")).to_contain_text(
+        "0guard.telegram_opt_in_response.v1"
+    )
+    expect(page.locator("#telegram-register-output")).to_contain_text('"status": "opted_in"')
+
+    page.locator("#run-mira-preview").click()
+    expect(page.locator("#mira-output")).to_contain_text("0guard.mira_preview.v1")
+    expect(page.locator("#mira-output")).to_contain_text("preview_no_send")
+    expect(page.locator("#mira-output")).to_contain_text('"telegram_send": false')
+
     health = page.request.get(f"{BASE_URL}/api/health")
     assert health.ok
     health_body = health.json()
@@ -134,6 +157,7 @@ def exercise_workbench(page: Page) -> None:
     assert health_body["safety_flags"]["live_posting_enabled"] is False
     assert health_body["safety_flags"]["telegram_sends_enabled"] is False
     assert health_body["safety_flags"]["money_movement_enabled"] is False
+    assert health_body["telegram_mira"]["safety"]["telegramSendsEnabled"] is False
 
     frontend_contract = page.request.get(f"{BASE_URL}/api/frontend-contract")
     assert frontend_contract.ok
@@ -144,6 +168,7 @@ def exercise_workbench(page: Page) -> None:
     assert frontend_body["safety"]["transactionSigningEnabled"] is False
     assert frontend_body["safety"]["moneyMovementEnabled"] is False
     assert "/api/0g/status" in frontend_body["apiRoutes"]
+    assert "/api/telegram/status" in frontend_body["apiRoutes"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -154,6 +179,13 @@ def exercise_workbench(page: Page) -> None:
     assert external_body["transactionSigningEnabled"] is False
     assert external_body["workbenchCanTriggerLiveActions"] is False
     assert "X/Telegram posting from the browser" in external_body["blockedCapabilities"]
+
+    telegram_status = page.request.get(f"{BASE_URL}/api/telegram/status")
+    assert telegram_status.ok
+    telegram_body = telegram_status.json()
+    assert telegram_body["schema"] == "0guard.telegram_mira_status.v1"
+    assert telegram_body["safety"]["telegramSendsEnabled"] is False
+    assert telegram_body["safety"]["networkCalls"] is False
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok

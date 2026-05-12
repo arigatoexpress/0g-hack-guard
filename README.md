@@ -26,8 +26,9 @@
 
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
-3. **0G-Native Persistence** — Anchors policy receipts on **0G Chain** and persists threat intel to **0G Storage** for censorship-resistant, federated defense.
-4. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
+3. **0G-Native Proofs** — Reads live 0G Galileo RPC status, prepares policy receipt hashes, and keeps chain/storage writes operator-controlled.
+4. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
+5. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
 ---
 
@@ -35,8 +36,8 @@
 
 | 0G Component | How We Use It | Hackathon Track Fit |
 |---|---|---|
-| **0G Chain** (EVM-compatible) | Anchors SHA-256 policy receipt hashes on-chain for tamper-evident audit trails. | Agentic Infrastructure |
-| **0G Storage** (KV + Log) | Persists threat-intel signatures, IOCs, and incident receipts at ultra-low cost. | Privacy & Sovereign Infrastructure |
+| **0G Chain** (EVM-compatible) | Live read-only Galileo RPC proof today; operator-deployed receipt anchor contract when configured. | Agentic Infrastructure |
+| **0G Storage** (KV + Log) | Deterministic threat-intel payload/root-hash preparation; external writes stay opt-in. | Privacy & Sovereign Infrastructure |
 | **0G Compute** (Inference) | Pluggable AI inference layer for behavioral anomaly detection on agent prompts. | Agentic Infrastructure |
 | **Agent ID** (ERC-7857) | Every evaluation is tagged with a persistent agent identity for accountability. | Agentic Economy |
 
@@ -111,6 +112,12 @@ python3 -m guard0.cli serve --port 8109
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
 | `GET`  | `/api/0g/status` | Live read-only 0G Galileo RPC proof, chain ID, latest block, and receipt-anchor config |
+| `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
+| `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
+| `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
+| `POST` | `/api/telegram/webapp/verify` | Validate Telegram Mini App `initData` server-side when `TELEGRAM_BOT_TOKEN` is configured |
+| `POST` | `/api/telegram/webhook` | Inbound `/start`, `/stop`, and Mira preview handling with Telegram secret-header verification; no send |
+| `POST` | `/api/telegram/mira-preview` | Build a Telegram-safe Mira security response preview; no send |
 | `GET`  | `/api/frontend-contract` | Browser smoke contract, selectors, and safety posture |
 | `GET`  | `/api/external-action-contracts` | Dry-run/default contract for X, Telegram, deploy, and signing paths |
 | `POST` | `/api/evaluate` | Full intent evaluation |
@@ -167,6 +174,29 @@ Check live 0G RPC proof without any private key:
 curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
 ```
 
+### Telegram Mira Opt-In Preview
+
+Create a local registration challenge, complete a redacted opt-in record, and
+build a Mira response preview. These calls do not contact Telegram or send any
+message.
+
+```bash
+curl -s -X POST http://127.0.0.1:8109/api/telegram/registrations \
+  -H "Content-Type: application/json" \
+  -d '{"user_label":"demo-operator","scopes":["mira_alerts","security.digest"]}' \
+  | python3 -m json.tool
+
+curl -s http://127.0.0.1:8109/api/telegram/status | python3 -m json.tool
+```
+
+For a real Telegram Mini App, send `window.Telegram.WebApp.initData` to
+`/api/telegram/webapp/verify`; the backend validates Telegram's signed init
+data with `TELEGRAM_BOT_TOKEN` before trusting user identity.
+
+See also:
+- `docs/TELEGRAM_MIRA_INTEGRATION.md`
+- `docs/MARKET_POSITIONING.md`
+
 ---
 
 ## Real-World Signatures Built-In
@@ -205,6 +235,8 @@ gitleaks detect --no-git --source . --redact --verbose
 - Live mode calls public HTTP endpoints and read-only RPC methods.
 - X and Telegram posting CLIs default to dry-run unless the operator supplies
   the exact live confirmation flag.
+- Telegram/Mira registration and preview routes are local-only by default:
+  they validate tokens, redact identifiers, and never send Telegram messages.
 - The browser workbench cannot trigger external sends, deploys, signatures, or
   transaction broadcasts.
 
@@ -213,11 +245,13 @@ gitleaks detect --no-git --source . --redact --verbose
 ## Roadmap
 
 1. ✅ Signature/behavioral detection for April 2026 exploits
-2. ✅ 0G Chain receipt anchoring
-3. ✅ 0G Storage threat-intel persistence
-4. 🔄 Real-time mempool monitoring via 0G DA subscription
-5. 🔄 TEE-sealed inference for private risk scoring
-6. 🔄 On-chain bounty program for community-submitted signatures
+2. ✅ Live read-only 0G Galileo proof + receipt-anchor preflight
+3. ✅ 0G Storage threat-intel payload/root-hash preparation
+4. ✅ Telegram Mira secure registration primitives and no-send preview
+5. 🔄 Persistent Telegram opt-in registry behind admin auth
+6. 🔄 Real-time mempool monitoring via 0G DA subscription
+7. 🔄 TEE-sealed inference for private risk scoring
+8. 🔄 On-chain bounty program for community-submitted signatures
 
 ---
 
