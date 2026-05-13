@@ -1,0 +1,137 @@
+# 0guard Judge Demo Walkthrough
+
+## Goal
+
+Make the demo easy for judges to score: one clear threat model, one live
+workbench, one 0G integration loop, and one honest gap register.
+
+## Opening Line
+
+0guard is a pre-wallet firewall for AI agents. It blocks risky agent intent
+before a wallet, bridge, Telegram channel, or deploy script can act.
+
+## Three-Minute Flow
+
+### 0:00-0:30 - Problem
+
+AI agents can now plan, trade, bridge, and request signatures at machine speed.
+Most crypto security tools inspect a transaction after it is already near the
+wallet. 0guard moves the safety check one step earlier: intent first, signer
+later.
+
+### 0:30-1:30 - Detection
+
+Show three incident-derived intents:
+
+- Drift-style durable-nonce social engineering.
+- Kelp-style single-DVN bridge/verifier weakness.
+- Wasabi-style compromised-deployer upgrade path.
+
+For each one, point to:
+
+- `decision`
+- `severity`
+- `blockers`
+- `receipt_hash`
+
+The judge should understand that the product is not only matching strings. It
+combines action mode, signature requirement, calldata selectors, known IOCs,
+behavioral sequences, and policy context.
+
+### 1:30-2:20 - 0G Round-Trip
+
+Run the read-only 0G status check:
+
+```bash
+curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
+```
+
+Call out:
+
+- `schema: 0guard.0g_status.v1`
+- `network: 0G Galileo Testnet`
+- `readMode: live_rpc_read_only`
+- `rpc.observedChainId`
+- `rpc.latestBlockNumber`
+- `safety.signingEnabled: false`
+- `safety.broadcastingEnabled: false`
+
+Then run an evaluation with 0G proof flags:
+
+```bash
+curl -s -X POST http://127.0.0.1:8109/api/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "intent": {
+      "action": "approve",
+      "calldata": "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "mode": "live_transaction",
+      "requires_signature": true
+    },
+    "enable_0g_anchor": true,
+    "enable_0g_storage": true,
+    "agent_id": "agent-7857-demo"
+  }' | python3 -m json.tool
+```
+
+Call out:
+
+- `receipt_hash`
+- `zero_g.chain_anchor.status: preflight`
+- `zero_g.chain_anchor.chain_id: 16602`
+- `zero_g.storage_receipt.root_hash`
+- `zero_g.storage_receipt.key`
+
+Explain the round-trip plainly: intent enters, verifier/policy returns a
+decision, the decision becomes a receipt hash, and the 0G proof payload is
+prepared for Chain and Storage while the workbench remains read-only.
+
+### 2:20-2:45 - Dataset and Coverage
+
+Show that the evidence base is structured:
+
+```bash
+curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
+```
+
+Position this as a data product, not a slide: the dataset is schema-validated,
+fingerprinted, summarized, filterable, and used as detector coverage input.
+
+### 2:45-3:00 - Safety Close
+
+Close with the boundary:
+
+0guard is intentionally read-only in this submission. It does not hold keys,
+sign transactions, broadcast 0G writes, move funds, trade, or send Telegram
+messages. The next milestone is deploying the receipt anchor and adding live
+readback verification.
+
+## Judge Questions and Crisp Answers
+
+### Is this live on 0G?
+
+The app reads 0G Galileo live today. Chain anchoring is prepared as a preflight
+payload until a receipt contract is deployed and configured.
+
+### Are you writing to 0G Storage?
+
+The demo produces deterministic Storage-ready receipts and root hashes. Live
+upload/readback is a mainnet/testnet gap, not claimed complete.
+
+### Where does 0G Compute fit?
+
+Compute is the planned inference layer for behavioral anomaly scoring beside the
+deterministic signature engine. The current submission keeps that as
+architecture/future work instead of faking inference output.
+
+### Can the demo move funds?
+
+No. The workbench has no signing or broadcast path. It evaluates intent before
+custody risk begins.
+
+### Why not just use a wallet scanner?
+
+Wallet scanners inspect transactions near signing time. 0guard evaluates agent
+goal, prompt, tool mode, calldata, policy, IOCs, and receipts before the wallet
+is reached.
