@@ -1,6 +1,6 @@
 # 0guard Final Demo Video Script
 
-Final generated length: 1:54.6.
+Final generated length: 2:01.1.
 
 Submission rule: HackQuest requires a public demo video of no more than three
 minutes that shows product functionality, user flow, and actual 0G component
@@ -77,17 +77,32 @@ https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cd
 
 ## Audio Notes
 
-The builder uses segmented macOS `say` narration, short controlled pauses,
+The builder prefers a neural `edge-tts` voice when available, then falls back to
+macOS `say`. It also accepts a finished voiceover through
+`DEMO_NARRATION_AUDIO=/path/to/voiceover.wav`, which lets a manually recorded or
+OpenAI/ElevenLabs export replace the generated narration without changing the
+screen recording.
+
+Current default local voice settings:
+
+```text
+DEMO_TTS_ENGINE=auto
+DEMO_EDGE_TTS_VOICE=en-US-AndrewMultilingualNeural
+DEMO_EDGE_TTS_RATE=+8%
+DEMO_EDGE_TTS_PITCH=+0Hz
+```
+
+The final audio path still uses segmented narration, short controlled pauses,
 high-pass and low-pass filtering, compression, light presence EQ, loudness
-normalization, and fade-in/fade-out padding. This avoids the old abrupt stop
-and reduces the strange pauses from one large text-to-speech paragraph.
+normalization, and fade-in/fade-out padding. This avoids the old abrupt stop and
+reduces the strange pauses from one large text-to-speech paragraph.
 
 Objective checks from the final MP4:
 
 ```text
-video: 1920x1080, 25 fps, 114.6 seconds
-audio: AAC mono, mean volume -15.8 dB, max volume -1.5 dB
-silence check: no >0.8 second silence detected at -35 dB threshold
+video: 1920x1080, 25 fps, 121.12 seconds
+audio: AAC mono, 117.71 seconds, mean volume -17.0 dB, max volume -1.5 dB
+silence check: no internal >1.0 second silence detected at -35 dB threshold
 ```
 
 ## Safety Notes

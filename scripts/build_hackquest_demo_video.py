@@ -2,8 +2,8 @@
 """Build the final HackQuest demo video from a real 0guard workbench capture.
 
 The script starts the local app, drives the browser through the core judge
-flow, records the product UI, generates a local narration track with macOS
-`say`, and muxes the result to a public GitHub Pages asset path.
+flow, records the product UI, generates a narration track, and muxes the
+result to a public GitHub Pages asset path.
 """
 
 from __future__ import annotations
@@ -31,6 +31,16 @@ BASE_URL = f"http://127.0.0.1:{PORT}"
 
 VOICE = os.getenv("DEMO_VOICE", "Samantha")
 VOICE_RATE = os.getenv("DEMO_VOICE_RATE", "166")
+TTS_ENGINE = os.getenv("DEMO_TTS_ENGINE", "auto").strip().lower()
+EDGE_TTS_VOICE = os.getenv("DEMO_EDGE_TTS_VOICE", "en-US-AndrewMultilingualNeural")
+EDGE_TTS_RATE = os.getenv("DEMO_EDGE_TTS_RATE", "+8%")
+EDGE_TTS_PITCH = os.getenv("DEMO_EDGE_TTS_PITCH", "+0Hz")
+EXTERNAL_NARRATION_AUDIO = os.getenv("DEMO_NARRATION_AUDIO", "").strip()
+EDGE_TTS_PATHS = (
+    ROOT / ".venv" / "bin" / "edge-tts",
+    Path("/Users/aribs/.hermes/hermes-agent/venv/bin/edge-tts"),
+    Path("/Users/aribs/.hermes/hermes-agent.backup-20260427-182054/venv/bin/edge-tts"),
+)
 
 NARRATION_SEGMENTS = [
     (
@@ -140,8 +150,8 @@ ANCHOR_STORAGE_BODY = {
 def main() -> int:
     if not shutil.which("ffmpeg"):
         raise SystemExit("ffmpeg is required to build the demo video")
-    if not shutil.which("say"):
-        raise SystemExit("macOS say is required to build the narration track")
+    if not EXTERNAL_NARRATION_AUDIO:
+        _resolve_tts_engine()
 
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="0guard-demo-") as tmp:
@@ -255,7 +265,7 @@ def _record_workbench(work_dir: Path) -> Path:
         page.wait_for_timeout(8500)
 
         _caption(page, "0guard: simple pre-wallet protection, technical proof, and provenance. Built on 0G.")
-        page.wait_for_timeout(21000)
+        page.wait_for_timeout(28000)
 
         context.close()
         browser.close()
@@ -393,6 +403,14 @@ def _show_mainnet_proof(page) -> None:
 
 
 def _build_audio(work_dir: Path) -> Path:
+    if EXTERNAL_NARRATION_AUDIO:
+        external = Path(EXTERNAL_NARRATION_AUDIO).expanduser()
+        if not external.exists():
+            raise FileNotFoundError(f"DEMO_NARRATION_AUDIO does not exist: {external}")
+        return _process_external_audio(external, work_dir)
+
+    engine = _resolve_tts_engine()
+    silence_seconds = "0.10" if engine["name"] == "edge" else "0.32"
     silence = work_dir / "silence.wav"
     subprocess.run(
         [
@@ -403,7 +421,7 @@ def _build_audio(work_dir: Path) -> Path:
             "-i",
             "anullsrc=channel_layout=mono:sample_rate=44100",
             "-t",
-            "0.32",
+            silence_seconds,
             str(silence),
         ],
         check=True,
@@ -420,29 +438,16 @@ def _build_audio(work_dir: Path) -> Path:
     )
     for index, segment in enumerate(NARRATION_SEGMENTS, start=1):
         narration_txt = work_dir / f"narration-{index:02d}.txt"
-        narration_aiff = work_dir / f"narration-{index:02d}.aiff"
+        narration_source = work_dir / f"narration-{index:02d}.{engine['extension']}"
         narration_wav = work_dir / f"narration-{index:02d}.wav"
         narration_txt.write_text(segment + "\n", encoding="utf-8")
-        subprocess.run(
-            [
-                "say",
-                "-v",
-                VOICE,
-                "-r",
-                VOICE_RATE,
-                "-f",
-                str(narration_txt),
-                "-o",
-                str(narration_aiff),
-            ],
-            check=True,
-        )
+        _synthesize_segment(engine, narration_txt, narration_source)
         subprocess.run(
             [
                 "ffmpeg",
                 "-y",
                 "-i",
-                str(narration_aiff),
+                str(narration_source),
                 "-af",
                 segment_filter,
                 "-ar",
@@ -503,6 +508,106 @@ def _build_audio(work_dir: Path) -> Path:
         stderr=subprocess.DEVNULL,
     )
     return narration_final
+
+
+def _process_external_audio(input_audio: Path, work_dir: Path) -> Path:
+    narration_final = work_dir / "narration-final.wav"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(input_audio),
+            "-af",
+            (
+                "highpass=f=70,"
+                "lowpass=f=12000,"
+                "acompressor=threshold=-20dB:ratio=1.8:attack=12:release=150,"
+                "loudnorm=I=-16:TP=-1.5:LRA=10,"
+                "afade=t=in:st=0:d=0.10,"
+                "areverse,afade=t=in:st=0:d=0.60,areverse,apad=pad_dur=0.45"
+            ),
+            "-ar",
+            "44100",
+            "-ac",
+            "1",
+            "-c:a",
+            "pcm_s16le",
+            str(narration_final),
+        ],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return narration_final
+
+
+def _resolve_tts_engine() -> dict[str, str]:
+    edge_tts = _edge_tts_binary()
+    if TTS_ENGINE in {"auto", ""} and edge_tts:
+        return {"name": "edge", "binary": edge_tts, "extension": "mp3"}
+    if TTS_ENGINE == "edge":
+        if not edge_tts:
+            raise SystemExit(
+                "DEMO_TTS_ENGINE=edge requires edge-tts. Install it or set "
+                "DEMO_NARRATION_AUDIO to a finished WAV/MP3 voiceover."
+            )
+        return {"name": "edge", "binary": edge_tts, "extension": "mp3"}
+    if TTS_ENGINE in {"auto", "say", ""}:
+        say = shutil.which("say")
+        if not say:
+            raise SystemExit(
+                "No narration engine found. Install edge-tts, run on macOS with say, "
+                "or set DEMO_NARRATION_AUDIO to a finished voiceover file."
+            )
+        return {"name": "say", "binary": say, "extension": "aiff"}
+    raise SystemExit(f"Unsupported DEMO_TTS_ENGINE={TTS_ENGINE!r}; use auto, edge, or say.")
+
+
+def _edge_tts_binary() -> str | None:
+    discovered = shutil.which("edge-tts")
+    if discovered:
+        return discovered
+    for path in EDGE_TTS_PATHS:
+        if path.exists() and os.access(path, os.X_OK):
+            return str(path)
+    return None
+
+
+def _synthesize_segment(engine: dict[str, str], input_text: Path, out_audio: Path) -> None:
+    if engine["name"] == "edge":
+        subprocess.run(
+            [
+                engine["binary"],
+                "--voice",
+                EDGE_TTS_VOICE,
+                f"--rate={EDGE_TTS_RATE}",
+                f"--pitch={EDGE_TTS_PITCH}",
+                "--file",
+                str(input_text),
+                "--write-media",
+                str(out_audio),
+            ],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return
+
+    subprocess.run(
+        [
+            engine["binary"],
+            "-v",
+            VOICE,
+            "-r",
+            VOICE_RATE,
+            "-f",
+            str(input_text),
+            "-o",
+            str(out_audio),
+        ],
+        check=True,
+    )
 
 
 def _mux(video_webm: Path, audio: Path, out_mp4: Path) -> None:

@@ -99,6 +99,7 @@ def exercise_workbench(page: Page) -> None:
     )
     expect(page.locator("#plain-explanation")).to_contain_text("Safe simulations pass")
     expect(page.locator("#flow-canvas")).to_have_attribute("data-state", "idle")
+    assert_flow_packet_clear_of_node_labels(page)
     expect(page.locator("body")).to_contain_text("Intent Firewall")
     expect(page.locator("body")).to_contain_text("Hack Signature Check")
     expect(page.locator("body")).to_contain_text("Domain Guard")
@@ -140,6 +141,7 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#plain-explanation")).to_contain_text("bridge funds")
     expect(page.locator("#technical-output")).to_contain_text("Decision: deny")
     expect(page.locator("#risk-list")).to_contain_text("bridge")
+    assert_flow_packet_clear_of_node_labels(page)
 
     page.locator("#load-allow-sample").click()
     page.locator("#run-evaluate").click()
@@ -396,6 +398,24 @@ def exercise_workbench(page: Page) -> None:
     evaluate_body = evaluate.json()
     assert evaluate_body["decision"] == "deny"
     assert any("wallet signature" in blocker.lower() for blocker in evaluate_body["blockers"])
+
+
+def assert_flow_packet_clear_of_node_labels(page: Page) -> None:
+    packet = page.locator("#flow-packet").bounding_box()
+    assert packet is not None
+    for selector in ("#agent-state", "#wallet-state", "#receipt-state"):
+        label = page.locator(selector).bounding_box()
+        assert label is not None
+        assert not boxes_overlap(packet, label), f"{selector} overlaps the flow packet"
+
+
+def boxes_overlap(first: dict[str, float], second: dict[str, float]) -> bool:
+    return not (
+        first["x"] + first["width"] <= second["x"]
+        or second["x"] + second["width"] <= first["x"]
+        or first["y"] + first["height"] <= second["y"]
+        or second["y"] + second["height"] <= first["y"]
+    )
 
 
 if __name__ == "__main__":
