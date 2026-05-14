@@ -20,10 +20,10 @@ preserving the same proof-first safety posture.
 |---|---|---|
 | 0G Mainnet | Receipt proof anchor and eventual Storage proof lane | Yes: mainnet receipt proof is live |
 | Base | Virtuals agent identity and x402-first payment lane | Prepared, not launched |
-| Polygon PoS | x402 supported payment/readiness lane | Prepared, not live settlement |
+| Polygon PoS | x402 supported payment/readiness lane | Read-only probes and prepared payment posture |
 | Arbitrum One | x402 supported payment/readiness lane | Prepared, not live settlement |
 | MegaETH | Fast EVM testnet/readiness lane | Read-only testnet probes only |
-| Monad | EVM expansion watchlist | Catalog plus env-configured probes only |
+| Monad | EVM expansion watchlist | Read-only probes and prepared payment posture |
 | HyperEVM | HYPE ecosystem EVM guardrail lane | Read-only probes only |
 | Tempo | Payment-chain watchlist | Testnet/readiness only |
 | Celestia/TIA | Data availability and Blobstream proof lane | DA/proof lane, not EVM settlement |
