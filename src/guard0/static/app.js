@@ -342,6 +342,30 @@ async function loadVirtualsFacilitator(){
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
+async function loadExternalGuardrails(){
+  const r = await fetch('/api/integrations/external-guardrails');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function runExternalGuardrailCheck(){
+  const payload = {
+    target_id: 'layerzero_v2',
+    action: 'bridge_release',
+    intent_text: 'Release funds through LayerZero with requiredDVNCount: 1',
+    config: {
+      requiredDVNCount: 1,
+      sendReceiveConfigSymmetric: false,
+      nonceReplayProtection: false
+    }
+  };
+  const r = await fetch('/api/integrations/external-guardrails/evaluate', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function loadTelegramStatus(){
   const r = await fetch('/api/telegram/status');
   const j = await r.json();
@@ -445,6 +469,8 @@ document.getElementById('load-threat-passport').addEventListener('click', loadTh
 document.getElementById('load-cross-chain-catalog').addEventListener('click', loadCrossChainCatalog);
 document.getElementById('load-cross-chain-readiness').addEventListener('click', loadCrossChainReadiness);
 document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
+document.getElementById('load-external-guardrails').addEventListener('click', loadExternalGuardrails);
+document.getElementById('run-external-guardrail-check').addEventListener('click', runExternalGuardrailCheck);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);

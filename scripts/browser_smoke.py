@@ -206,6 +206,17 @@ def exercise_workbench(page: Page) -> None:
         "0guard.virtuals_facilitator_manifest.v1"
     )
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard Facilitator")
+    page.locator("#load-external-guardrails").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "0guard.external_guardrail_catalog.v1"
+    )
+    page.locator("#run-external-guardrail-check").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "0guard.external_guardrail_evaluation.v1"
+    )
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "layerzero_single_dvn_denied"
+    )
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -268,6 +279,8 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/integrations/cross-chain" in frontend_body["apiRoutes"]
     assert "/api/integrations/cross-chain/readiness" in frontend_body["apiRoutes"]
     assert "/api/integrations/virtuals-facilitator" in frontend_body["apiRoutes"]
+    assert "/api/integrations/external-guardrails" in frontend_body["apiRoutes"]
+    assert "/api/integrations/external-guardrails/evaluate" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
@@ -279,6 +292,8 @@ def exercise_workbench(page: Page) -> None:
     assert "#load-cross-chain-catalog" in frontend_body["requiredSelectors"]
     assert "#load-cross-chain-readiness" in frontend_body["requiredSelectors"]
     assert "#load-virtuals-facilitator" in frontend_body["requiredSelectors"]
+    assert "#load-external-guardrails" in frontend_body["requiredSelectors"]
+    assert "#run-external-guardrail-check" in frontend_body["requiredSelectors"]
     assert "#run-wallet-alert-preview" in frontend_body["requiredSelectors"]
     assert "#run-telegram-wallet-alert-preview" in frontend_body["requiredSelectors"]
 
@@ -360,6 +375,32 @@ def exercise_workbench(page: Page) -> None:
     virtuals_body = virtuals.json()
     assert virtuals_body["schema"] == "0guard.virtuals_facilitator_manifest.v1"
     assert virtuals_body["agent"]["launchStatus"] == "prepared_operator_required"
+
+    guardrails = page.request.get(f"{BASE_URL}/api/integrations/external-guardrails")
+    assert guardrails.ok
+    guardrails_body = guardrails.json()
+    assert guardrails_body["schema"] == "0guard.external_guardrail_catalog.v1"
+    assert guardrails_body["safety"]["moneyMovementEnabled"] is False
+
+    guardrail_eval = page.request.post(
+        f"{BASE_URL}/api/integrations/external-guardrails/evaluate",
+        data=json.dumps(
+            {
+                "target_id": "layerzero_v2",
+                "action": "bridge_release",
+                "config": {
+                    "requiredDVNCount": 1,
+                    "sendReceiveConfigSymmetric": False,
+                    "nonceReplayProtection": False,
+                },
+            }
+        ),
+        headers={"content-type": "application/json"},
+    )
+    assert guardrail_eval.ok
+    guardrail_eval_body = guardrail_eval.json()
+    assert guardrail_eval_body["schema"] == "0guard.external_guardrail_evaluation.v1"
+    assert guardrail_eval_body["decision"] == "deny"
 
     submission = page.request.get(f"{BASE_URL}/api/hackathon/submission-brief")
     assert submission.ok

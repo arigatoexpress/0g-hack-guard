@@ -14,6 +14,10 @@ preserving the same proof-first safety posture.
   default endpoints plus non-EVM HTTP status probes where explicitly supported.
 - `/api/integrations/virtuals-facilitator` returns a deployable manifest for a
   `0guard Facilitator` agent on Base/Virtuals, but does not launch it.
+- `/api/integrations/external-guardrails` and
+  `/api/integrations/external-guardrails/evaluate` turn the catalog into active
+  read-only policy checks for x402, Virtuals/Base, Lighter exchange/API,
+  Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/Blobstream posture.
 
 ## Honest Network Posture
 
@@ -63,6 +67,13 @@ lanes. That means 0guard can explain and score bridge/message/token-transfer
 intents against documented controls such as token-pool ownership, DVN
 thresholds, transceiver registries, replay windows, and supply invariants. It
 does not initiate cross-chain messages or mutate protocol configuration.
+
+The active evaluator intentionally uses conservative policy rules. For example,
+it denies LayerZero one-of-one DVN configurations, Lighter orders/API-key/LIT
+token actions, x402 raw-payload resale, CCIP transfers to non-allowlisted
+destinations, and Wormhole NTT transfers that are missing configured quorum or
+supply-invariant controls. These are preflight findings only; they never sign,
+post, settle, bridge, trade, or call external provider APIs.
 
 ## Readable Tx Log Upgrade
 

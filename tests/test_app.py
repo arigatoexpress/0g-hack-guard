@@ -2,6 +2,7 @@
 
 import hashlib
 import hmac
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -90,6 +91,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/cross-chain" in data["apiRoutes"]
     assert "/api/integrations/cross-chain/readiness" in data["apiRoutes"]
     assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
+    assert "/api/integrations/external-guardrails" in data["apiRoutes"]
+    assert "/api/integrations/external-guardrails/evaluate" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
     assert "/api/hackathon/submission-packet" in data["apiRoutes"]
     assert "/api/hackathon/readiness" in data["apiRoutes"]
@@ -118,6 +121,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-cross-chain-catalog" in data["requiredSelectors"]
     assert "#load-cross-chain-readiness" in data["requiredSelectors"]
     assert "#load-virtuals-facilitator" in data["requiredSelectors"]
+    assert "#load-external-guardrails" in data["requiredSelectors"]
+    assert "#run-external-guardrail-check" in data["requiredSelectors"]
     assert "#cross-chain-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
@@ -306,6 +311,41 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert manifest_body["agent"]["name"] == "0guard Facilitator"
     assert manifest_body["agent"]["launchStatus"] == "prepared_operator_required"
     assert manifest_body["safety"]["externalAgentLaunchEnabled"] is False
+
+    guardrails = client.get("/api/integrations/external-guardrails")
+    assert guardrails.status_code == 200
+    guardrail_body = guardrails.get_json()
+    assert guardrail_body["schema"] == "0guard.external_guardrail_catalog.v1"
+    assert guardrail_body["safety"]["moneyMovementEnabled"] is False
+    assert {item["targetId"] for item in guardrail_body["guardrails"]} >= {
+        "lighter_exchange",
+        "chainlink_ccip",
+        "layerzero_v2",
+        "wormhole_ntt",
+    }
+
+    evaluation = client.post(
+        "/api/integrations/external-guardrails/evaluate",
+        json={
+            "target_id": "layerzero_v2",
+            "action": "bridge_release",
+            "config": {
+                "requiredDVNCount": 1,
+                "sendReceiveConfigSymmetric": False,
+                "nonceReplayProtection": False,
+            },
+        },
+    )
+    assert evaluation.status_code == 200
+    evaluation_body = evaluation.get_json()
+    assert evaluation_body["schema"] == "0guard.external_guardrail_evaluation.v1"
+    assert evaluation_body["decision"] == "deny"
+    assert evaluation_body["safety"]["transactionSigningEnabled"] is False
+    assert {finding["id"] for finding in evaluation_body["findings"]} >= {
+        "layerzero_single_dvn_denied",
+        "layerzero_send_receive_asymmetry",
+        "layerzero_replay_protection_missing",
+    }
 
 
 def test_osint_signal_route_rejects_bad_limit(client):
@@ -670,8 +710,29 @@ def test_x_media_cleanup_template_does_not_require_credentials(tmp_path):
     assert result.returncode == 0
     payload = json.loads(manifest.read_text(encoding="utf-8"))
     assert payload["schema"] == "0guard.x_media_cleanup_manifest.v1"
-    assert payload["keepTweetIds"] == ["2054779961425461542"]
+    assert payload["keepTweetIds"] == ["2054779961425461542", "2055041461218140204"]
+    assert "hackquest" in payload["keepKeywords"]
     assert payload["deleteCandidateCount"] == 0
+
+
+def test_x_media_cleanup_keyword_classifier_ignores_short_url_fragments():
+    spec = importlib.util.spec_from_file_location(
+        "x_media_cleanup_test_module",
+        REPO_ROOT / "scripts" / "x_media_cleanup.py",
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    keywords = set(module.DEFAULT_HACKATHON_KEYWORDS)
+
+    assert not module._is_hackathon_related(
+        "RT @lookdotfun: LOOK has signed a term sheet https://t.co/0gaNEXTyyy",
+        keywords,
+    )
+    assert module._is_hackathon_related(
+        "0guard is built on 0G with @0G_labs #0GHackathon #BuildOn0G",
+        keywords,
+    )
 
 
 def test_x_media_cleanup_delete_requires_confirmation_before_credentials(tmp_path):
@@ -746,7 +807,7 @@ def test_x_media_cleanup_delete_dry_run_does_not_require_credentials(tmp_path):
         check=False,
     )
     assert result.returncode == 0
-    assert "Prepared 1 X media post deletion candidate(s)" in result.stdout
+    assert "Prepared 1 X post deletion candidate(s)" in result.stdout
     assert "Dry-run complete. No X posts deleted." in result.stdout
 
 

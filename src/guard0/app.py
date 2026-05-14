@@ -22,6 +22,10 @@ from guard0.crosschain import (
     cross_chain_readiness,
     virtuals_facilitator_manifest,
 )
+from guard0.external_guardrails import (
+    evaluate_external_guardrail,
+    external_guardrail_catalog,
+)
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.mira import build_mira_security_preview
 from guard0.osint import (
@@ -105,6 +109,8 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-cross-chain-catalog",
     "#load-cross-chain-readiness",
     "#load-virtuals-facilitator",
+    "#load-external-guardrails",
+    "#run-external-guardrail-check",
     "#cross-chain-output",
     "#osint-output",
     "#verify-receipt-hash",
@@ -384,6 +390,8 @@ def api_frontend_contract():
                 "/api/integrations/cross-chain",
                 "/api/integrations/cross-chain/readiness",
                 "/api/integrations/virtuals-facilitator",
+                "/api/integrations/external-guardrails",
+                "/api/integrations/external-guardrails/evaluate",
                 "/api/hackathon/submission-brief",
                 "/api/hackathon/submission-packet",
                 "/api/hackathon/readiness",
@@ -422,6 +430,8 @@ def api_frontend_contract():
                 "load-cross-chain-catalog",
                 "load-cross-chain-readiness",
                 "load-virtuals-facilitator",
+                "load-external-guardrails",
+                "run-external-guardrail-check",
                 "run-wallet-alert-preview",
                 "run-telegram-wallet-alert-preview",
             ],
@@ -559,6 +569,20 @@ def api_cross_chain_readiness():
 @app.route("/api/integrations/virtuals-facilitator", methods=["GET"])
 def api_virtuals_facilitator():
     return jsonify(virtuals_facilitator_manifest())
+
+
+@app.route("/api/integrations/external-guardrails", methods=["GET"])
+def api_external_guardrails():
+    return jsonify(external_guardrail_catalog())
+
+
+@app.route("/api/integrations/external-guardrails/evaluate", methods=["POST"])
+def api_external_guardrail_evaluate():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(evaluate_external_guardrail(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
 
 
 @app.route("/api/hackathon/submission-brief", methods=["GET"])

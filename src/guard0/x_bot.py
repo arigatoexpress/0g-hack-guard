@@ -272,6 +272,29 @@ class XBot:
         The method is intended for review-manifest generation. It never deletes
         content and only returns posts with `attachments.media_keys`.
         """
+        return self.list_timeline_tweets(
+            max_results=max_results,
+            pages=pages,
+            exclude_replies=exclude_replies,
+            exclude_retweets=exclude_retweets,
+            include_text_posts=False,
+        )
+
+    def list_timeline_tweets(
+        self,
+        *,
+        max_results: int = 100,
+        pages: int = 5,
+        exclude_replies: bool = True,
+        exclude_retweets: bool = True,
+        include_text_posts: bool = False,
+    ) -> list[XMediaTweet]:
+        """List recent account posts for review-manifest generation.
+
+        By default this preserves the previous media-only behavior. Set
+        `include_text_posts=True` when the cleanup scope is all timeline posts,
+        not just media-bearing posts.
+        """
         max_results = max(10, min(max_results, 100))
         pages = max(1, pages)
 
@@ -316,7 +339,7 @@ class XBot:
             for tweet in data:
                 attachments = _item_get(tweet, "attachments") or {}
                 media_keys = list(_item_get(attachments, "media_keys") or [])
-                if not media_keys:
+                if not media_keys and not include_text_posts:
                     continue
                 media_types: list[str] = []
                 media_urls: list[str] = []

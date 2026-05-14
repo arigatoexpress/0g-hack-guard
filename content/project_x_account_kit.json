@@ -1,0 +1,44 @@
+{
+  "schema": "0guard.project_x_account_kit.v1",
+  "generatedAt": "2026-05-14",
+  "purpose": "Project-owned X account setup kit for 0guard launch and HackQuest updates.",
+  "account": {
+    "displayName": "0guard",
+    "handleCandidates": [
+      "0guard_ai",
+      "0guardHQ",
+      "0guardlabs",
+      "0guard_xyz",
+      "zero_guard_ai"
+    ],
+    "bio": "Pre-wallet firewall for AI agents. Source-linked exploit intelligence, deterministic policy receipts, and 0G-verifiable proof before any signer can act.",
+    "location": "Built on 0G",
+    "website": "https://arigatoexpress.github.io/0guard/hackathon-0g/",
+    "profileImage": "docs/hackathon-0g/assets/0guard-logo.png",
+    "headerImageRecommendation": "Use the proof-page screenshot or a 1500x500 crop of the workbench showing the agent -> 0guard -> wallet flow."
+  },
+  "pinnedPost": {
+    "text": "Introducing 0guard: a pre-wallet firewall for AI agents.\n\nIt checks intent, calldata, policy, and source-linked exploit intelligence before a wallet is ever asked to sign.\n\nBuilt on 0G with a public mainnet receipt anchor.\n\nDemo: https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4\nProof: https://arigatoexpress.github.io/0guard/hackathon-0g/\n\n#0GHackathon #BuildOn0G",
+    "media": "docs/hackathon-0g/assets/0guard-workbench-provenance.png"
+  },
+  "followUpPosts": [
+    {
+      "id": "proof",
+      "text": "The important part: 0guard is proof-first, not wallet-custody theater.\n\n- 28/28 April 2026 incidents source-linked\n- 27/28 incident-derived patterns matched\n- 1 research-only gap held back until public evidence improves\n- 0G mainnet PolicyReceiptAnchor proof\n\nNo browser signing. No broadcasts. No fund movement."
+    },
+    {
+      "id": "guardrails",
+      "text": "The cross-chain story is now a guardrail story.\n\n0guard treats x402, Virtuals/Base, EVM networks, Lighter exchange/API intents, Celestia, CCIP, LayerZero, and Wormhole as read-only policy surfaces first.\n\nA checkpoint before the wallet, not a launch button."
+    },
+    {
+      "id": "why",
+      "text": "Autonomous agents will move faster than humans can manually review every approval, bridge call, or admin action.\n\n0guard moves the security decision earlier: intent first, signer later."
+    }
+  ],
+  "safety": {
+    "requiresManualAccountCreation": true,
+    "doNotStorePasswordInRepo": true,
+    "doNotReuseMainAccountPassword": true,
+    "livePostingRequiresFinalBrowserReview": true
+  }
+}

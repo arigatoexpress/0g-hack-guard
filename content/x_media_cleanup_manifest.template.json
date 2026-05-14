@@ -1,15 +1,32 @@
 {
   "deleteCandidateCount": 0,
-  "generatedAt": "2026-05-14T20:06:20+00:00",
+  "generatedAt": "2026-05-14T21:46:27+00:00",
   "instructions": [
-    "Run without --template and with X OAuth env vars to populate media-bearing posts.",
+    "Run without --template and with X OAuth env vars to populate recent posts.",
+    "Use --all-posts to include text-only posts; otherwise only media-bearing posts are listed.",
     "Review every item before live deletion.",
-    "Keep the HackQuest proof post unless Ari explicitly changes the allowlist.",
+    "Keep the HackQuest proof post and any HackQuest/0guard-related posts unless Ari explicitly changes the allowlist.",
     "Live deletion requires --live-delete-confirm DELETE_X_MEDIA_FROM_0GUARD."
   ],
   "items": [],
+  "keepKeywords": [
+    "#0ghackathon",
+    "#buildon0g",
+    "0g",
+    "0guard",
+    "@0g_cn",
+    "@0g_eco",
+    "@0g_labs",
+    "@hackquest_",
+    "arigatoexpress.github.io/0guard",
+    "buildon0g",
+    "chainscan.0g.ai",
+    "hackquest",
+    "policyreceiptanchor"
+  ],
   "keepTweetIds": [
-    "2054779961425461542"
+    "2054779961425461542",
+    "2055041461218140204"
   ],
   "mode": "template_review_required",
   "safety": {

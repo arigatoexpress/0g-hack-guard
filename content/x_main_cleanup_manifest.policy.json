@@ -1,0 +1,40 @@
+{
+  "schema": "0guard.x_cleanup_policy.v1",
+  "generatedAt": "2026-05-14",
+  "account": "rariwrldd",
+  "scope": "delete non-hackathon-related posts and media after review",
+  "keepByDefault": {
+    "tweetIds": [
+      "2054779961425461542",
+      "2055041461218140204"
+    ],
+    "keywords": [
+      "0guard",
+      "0G",
+      "0G_labs",
+      "0g_CN",
+      "0g_Eco",
+      "HackQuest",
+      "0GHackathon",
+      "BuildOn0G",
+      "PolicyReceiptAnchor",
+      "chainscan.0g.ai",
+      "arigatoexpress.github.io/0guard"
+    ]
+  },
+  "deleteByDefault": {
+    "description": "Any owned post not matched by the keep list after manifest review.",
+    "requiresActualTimelineManifest": true
+  },
+  "commands": {
+    "generateAllPostsManifest": ".venv/bin/python scripts/x_media_cleanup.py --all-posts --manifest-out content/x_media_cleanup_manifest.review.json",
+    "dryRunDelete": ".venv/bin/python scripts/x_media_cleanup.py --delete-from-manifest content/x_media_cleanup_manifest.review.json --dry-run",
+    "liveDeleteAfterReview": ".venv/bin/python scripts/x_media_cleanup.py --delete-from-manifest content/x_media_cleanup_manifest.review.json --live-delete-confirm DELETE_X_MEDIA_FROM_0GUARD"
+  },
+  "safety": {
+    "doNotDeleteWithoutManifest": true,
+    "doNotDeleteHackQuestProofPost": true,
+    "manualBrowserFallbackAllowed": true,
+    "manualBrowserFallbackRule": "If X API credentials are unavailable, use Brave to manually build the manifest first; do not delete directly from memory."
+  }
+}

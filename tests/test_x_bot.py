@@ -230,6 +230,38 @@ def test_list_media_tweets_reads_media_bearing_timeline(mock_tweepy, fake_creds)
     ]
 
 
+def test_list_timeline_tweets_can_include_text_only_posts(mock_tweepy, fake_creds):
+    mock_tweepy["client"].get_me.return_value = MagicMock(data={"id": "user-1"})
+    mock_tweepy["client"].get_users_tweets.return_value = MagicMock(
+        data=[
+            {
+                "id": "111",
+                "text": "with media",
+                "created_at": "2026-05-14T19:00:00Z",
+                "attachments": {"media_keys": ["3_abc"]},
+            },
+            {"id": "222", "text": "plain hackathon update", "attachments": {}},
+        ],
+        includes={
+            "media": [
+                {
+                    "media_key": "3_abc",
+                    "type": "photo",
+                    "url": "https://pbs.twimg.com/media/example.jpg",
+                }
+            ]
+        },
+        meta={},
+    )
+
+    bot = XBot(**fake_creds)
+    tweets = bot.list_timeline_tweets(max_results=100, pages=1, include_text_posts=True)
+
+    assert [tweet.tweet_id for tweet in tweets] == ["111", "222"]
+    assert tweets[1].media_keys == []
+    assert tweets[1].text == "plain hackathon update"
+
+
 def test_delete_tweets_uses_explicit_user_auth(mock_tweepy, fake_creds):
     mock_tweepy["client"].delete_tweet.side_effect = [
         MagicMock(data={"deleted": True}),
