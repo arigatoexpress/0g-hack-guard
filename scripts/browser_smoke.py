@@ -167,15 +167,15 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#osint-output")).to_contain_text(
         "0guard.hackquest_submission_packet.v1"
     )
-    expect(page.locator("#osint-output")).to_contain_text("OPERATOR_REQUIRED_DEMO_VIDEO_URL")
+    expect(page.locator("#osint-output")).to_contain_text("0guard-hackquest-demo-final.mp4")
     page.locator("#load-submission-readiness").click()
     expect(page.locator("#osint-output")).to_contain_text(
         "0guard.hackquest_readiness_audit.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text('"submittableNow": false')
     page.locator("#load-cross-chain-readiness").click()
-    expect(page.locator("#cross-chain-output")).to_contain_text("0guard.crosschain_readiness.v1")
-    expect(page.locator("#cross-chain-output")).to_contain_text('"liveSettlementAllowed": false')
+    expect(page.locator("#cross-chain-output")).to_contain_text("0guard.crosschain_catalog.v1")
+    expect(page.locator("#cross-chain-output")).to_contain_text('"readOnly": true')
     page.locator("#load-virtuals-facilitator").click()
     expect(page.locator("#cross-chain-output")).to_contain_text(
         "0guard.virtuals_facilitator_manifest.v1"

@@ -82,10 +82,10 @@ Record from `docs/hackathon-0g/final-demo-video-script.md` and show:
 - optional Veo 3 clips only as short cinematic inserts around the live product
   walkthrough
 
-Placeholder until uploaded:
+Generated public demo video:
 
 ```text
-OPERATOR_REQUIRED_DEMO_VIDEO_URL
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
 ```
 
 ## Required X Post

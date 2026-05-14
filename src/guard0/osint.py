@@ -31,6 +31,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
 DEFAULT_PROVENANCE_CACHE_PATH = REPO_ROOT / "data" / "incident_provenance_cache.json"
 DEFAULT_MAINNET_PROOF_PATH = REPO_ROOT / "docs" / "hackathon-0g" / "mainnet-proof.json"
+DEFAULT_DEMO_VIDEO_PATH = (
+    REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-hackquest-demo-final.mp4"
+)
 OSINT_REGISTRY_SCHEMA = "0guard.osint_source_registry.v1"
 OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
@@ -52,6 +55,12 @@ ZGG_MAINNET_EXPLORER = "https://chainscan.0g.ai"
 ZGG_STORAGE_SCAN = "https://storagescan.0g.ai"
 HACKQUEST_REQUIRED_HASHTAGS = ["#0GHackathon", "#BuildOn0G"]
 HACKQUEST_REQUIRED_TAGS = ["@0G_labs", "@0g_CN", "@0g_Eco", "@HackQuest_"]
+PUBLIC_DEMO_VIDEO_URL = (
+    "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/"
+    "0guard-hackquest-demo-final.mp4"
+)
+DEMO_VIDEO_PLACEHOLDER = "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
+X_POST_PLACEHOLDER = "OPERATOR_REQUIRED_X_POST_URL"
 HACKQUEST_ONE_LINER = (
     "0guard is a 0G-native pre-wallet firewall that checks AI-agent intents "
     "against exploit intelligence before any signer can act."
@@ -539,11 +548,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "0G mainnet PolicyReceiptAnchor deployment and one anchored threat receipt.",
             "Read-only cross-chain integration catalog and Virtuals/Base facilitator manifest.",
         ],
-        "operatorRequired": [
-            "Record and upload the <=3 minute demo video.",
-            "Post public X post with required HackQuest tags.",
-            "Submit HackQuest form with repo, demo video, X URL, and 0G proof.",
-        ],
+        "operatorRequired": _operator_required_steps(),
         "claimsToAvoid": [
             "Do not claim live 0G Compute inference until a real router call is wired.",
             "Do not imply the browser can sign, trade, send Telegram messages, or move funds.",
@@ -558,10 +563,12 @@ def hackquest_submission_packet() -> dict[str, Any]:
     provenance = incident_provenance_matrix(live=False)
     mainnet_proof = _load_mainnet_proof()
     screenshot_path = "docs/hackathon-0g/assets/0guard-workbench-provenance.png"
-    demo_script_path = "docs/DEMO_VIDEO_SCRIPT.md"
+    demo_script_path = "docs/hackathon-0g/final-demo-video-script.md"
     checklist_path = "docs/hackathon-0g/final-submission-checklist.md"
     repo_url = brief["project"]["repo"]
     public_demo_url = brief["project"]["publicDemo"]
+    demo_video_url = _demo_video_url()
+    x_post_url = _x_post_url()
     one_liner = HACKQUEST_ONE_LINER
 
     return {
@@ -638,8 +645,8 @@ def hackquest_submission_packet() -> dict[str, Any]:
             ),
             "repoUrl": repo_url,
             "publicDemoUrl": public_demo_url,
-            "demoVideoUrl": "OPERATOR_REQUIRED_DEMO_VIDEO_URL",
-            "xPostUrl": "OPERATOR_REQUIRED_X_POST_URL",
+            "demoVideoUrl": demo_video_url,
+            "xPostUrl": x_post_url,
             "0gContractAddress": (
                 mainnet_proof.get("contract_address")
                 if mainnet_proof
@@ -895,6 +902,10 @@ def hackquest_readiness_audit() -> dict[str, Any]:
     proof_explorer = str(proof.get("anchor_explorer_url", "")) if proof else ""
     mainnet_contract_ready = (mainnet_selected and contract_configured) or bool(proof_contract)
     mainnet_proof_ready = (mainnet_selected and contract_configured and bool(explorer_url)) or proof_ready
+    demo_video_url = _demo_video_url()
+    demo_video_ready = demo_video_url != DEMO_VIDEO_PLACEHOLDER
+    x_post_url = _x_post_url()
+    x_post_ready = x_post_url != X_POST_PLACEHOLDER
     x_post = _load_x_post_text(REPO_ROOT / "content" / "hackquest_x_post.json")
     x_thread = _load_x_post_text(REPO_ROOT / "content" / "hack_guard_thread.json")
 
@@ -954,9 +965,16 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         _requirement(
             "demo_video",
             "Public demo video, 3 minutes or less",
-            "operator_required",
-            ["Recording script: docs/DEMO_VIDEO_SCRIPT.md"],
-            "Record the live product flow and upload a public YouTube or Loom link.",
+            "ready" if demo_video_ready else "operator_required",
+            [
+                "Recording script: docs/hackathon-0g/final-demo-video-script.md",
+                f"Video URL: {demo_video_url}",
+            ],
+            (
+                "Use the generated public demo video URL in HackQuest."
+                if demo_video_ready
+                else "Record the live product flow and upload a public YouTube or Loom link."
+            ),
         ),
         _requirement(
             "readme_docs",
@@ -972,7 +990,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         _requirement(
             "public_x_post",
             "Public X post with required tags, hashtags, and media",
-            "operator_required",
+            "ready" if x_post_ready else "operator_required",
             [
                 "Draft: content/hackquest_x_post.json",
                 f"Draft length: {len(x_post)}/280",
@@ -981,9 +999,14 @@ def hackquest_readiness_audit() -> dict[str, Any]:
                     "Required hashtags present: "
                     f"{_contains_all(x_post + x_thread, HACKQUEST_REQUIRED_HASHTAGS)}"
                 ),
+                f"X post URL: {x_post_url}",
                 "Media: docs/hackathon-0g/assets/0guard-workbench-provenance.png",
             ],
-            "Post the prepared draft with the screenshot or demo clip, then paste the X URL.",
+            (
+                "Use the public X post URL in HackQuest."
+                if x_post_ready
+                else "Post the prepared draft with the screenshot or demo clip, then paste the X URL."
+            ),
         ),
         _requirement(
             "proof_packet",
@@ -1448,6 +1471,30 @@ def _mainnet_proof_ready(proof: dict[str, Any] | None) -> bool:
         and receipt_hash.startswith("0x")
         and len(receipt_hash) == 66
     )
+
+
+def _demo_video_url() -> str:
+    configured = os.getenv("HACKQUEST_DEMO_VIDEO_URL", "").strip()
+    if configured:
+        return configured
+    if DEFAULT_DEMO_VIDEO_PATH.exists():
+        return PUBLIC_DEMO_VIDEO_URL
+    return DEMO_VIDEO_PLACEHOLDER
+
+
+def _x_post_url() -> str:
+    configured = os.getenv("HACKQUEST_X_POST_URL", "").strip()
+    return configured or X_POST_PLACEHOLDER
+
+
+def _operator_required_steps() -> list[str]:
+    steps = []
+    if _demo_video_url() == DEMO_VIDEO_PLACEHOLDER:
+        steps.append("Record and upload the <=3 minute demo video.")
+    if _x_post_url() == X_POST_PLACEHOLDER:
+        steps.append("Post public X post with required HackQuest tags.")
+    steps.append("Submit HackQuest form with repo, demo video, X URL, and 0G proof.")
+    return steps
 
 
 def _word_count(value: str) -> int:

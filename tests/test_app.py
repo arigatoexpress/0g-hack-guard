@@ -233,7 +233,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert packet.status_code == 200
     packet_body = packet.get_json()
     assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
-    assert packet_body["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
+    assert packet_body["formFields"]["demoVideoUrl"].endswith("0guard-hackquest-demo-final.mp4")
     assert packet_body["xPost"]["mediaPath"].endswith("0guard-workbench-provenance.png")
     assert packet_body["safety"]["rawPayloadsReturned"] is False
 

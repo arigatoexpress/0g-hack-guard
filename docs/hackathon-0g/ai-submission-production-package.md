@@ -214,9 +214,10 @@ receipt anchor, read-only workbench, and Storage-ready roots. @0G_labs @0g_CN
 ## Final Operator Checklist
 
 - Run `.venv/bin/python scripts/submission_readiness.py --format markdown`.
-- Record the live demo using `docs/hackathon-0g/final-demo-video-script.md`.
-- Generate optional Veo clips only after the script is locked.
-- Upload the video and paste the public URL into HackQuest.
+- Use the generated public demo video, or replace it with a manually edited
+  Veo-enhanced cut if desired:
+  `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
+- Optional: generate Veo clips only after reviewing the script.
 - Post the X draft and paste the public URL into HackQuest.
 - Paste `docs/hackathon-0g/submission-form-fields.md`.
 - Verify repo, Pages, contract, and anchor transaction from a logged-out window.

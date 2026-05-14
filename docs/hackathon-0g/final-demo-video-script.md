@@ -107,6 +107,12 @@ https://chainscan.0g.ai/address/0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc
 https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
 ```
 
+Generated demo video:
+
+```text
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
+```
+
 ## Recording Notes
 
 - Use live screen capture for at least 80 percent of the video.
@@ -117,4 +123,3 @@ https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cd
   sends.
 - Export as `0guard-hackquest-demo-final.mp4`, 1080p or higher, under three
   minutes.
-
