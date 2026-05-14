@@ -20,6 +20,8 @@ def test_cross_chain_catalog_is_source_cited_and_non_mutating():
     assert catalog["safety"]["transactionSigningEnabled"] is False
     assert catalog["safety"]["bridgingEnabled"] is False
     assert catalog["safety"]["moneyMovementEnabled"] is False
+    assert catalog["safety"]["tradingEnabled"] is False
+    assert catalog["safety"]["exchangeApiKeysEnabled"] is False
 
     targets = {target["id"]: target for target in catalog["targets"]}
     assert targets["base_mainnet"]["chainId"] == 8453
@@ -28,6 +30,10 @@ def test_cross_chain_catalog_is_source_cited_and_non_mutating():
     assert targets["0g_mainnet"]["x402Posture"].startswith("custom_facilitator_required")
     assert targets["celestia_blobstream"]["evmCompatible"] is False
     assert "Blobstream" in targets["celestia_blobstream"]["proofStrategy"]
+    assert targets["lighter_lit"]["nativeAsset"] == "LIT"
+    assert targets["lighter_lit"]["evmCompatible"] is False
+    assert targets["lighter_lit"]["httpStatusUrl"].startswith("https://mainnet.zklighter")
+    assert "verifiable_order_matching" in targets["lighter_lit"]["capabilities"]
     assert all(target["officialSources"] for target in catalog["targets"])
 
 
@@ -37,6 +43,7 @@ def test_cross_chain_readiness_defaults_to_catalog_only_without_network():
     assert readiness["schema"] == "0guard.crosschain_readiness.v1"
     assert readiness["live"] is False
     assert readiness["attemptedRpcProbes"] == 0
+    assert readiness["attemptedHttpProbes"] == 0
     assert readiness["rpcReadinessRatio"] is None
     assert readiness["paymentReadiness"]["x402Ready"] is False
     assert readiness["paymentReadiness"]["liveSettlementAllowed"] is False
@@ -46,6 +53,7 @@ def test_cross_chain_readiness_defaults_to_catalog_only_without_network():
 
     by_id = {probe["id"]: probe for probe in readiness["probes"]}
     assert by_id["base_mainnet"]["status"] == "not_checked"
+    assert by_id["lighter_lit"]["status"] == "not_checked"
     assert by_id["celestia_blobstream"]["status"] == "catalog_only_non_evm"
 
 

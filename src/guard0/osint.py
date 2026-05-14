@@ -514,8 +514,9 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "agentIdentity": "Receipts can include agent_id for accountable agent sessions.",
             "crossChain": (
                 "Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, "
-                "and Celestia/TIA are exposed through a read-only integration fabric; live "
-                "agent launch, settlement, bridges, swaps, and signatures remain operator-only."
+                "Lighter/LIT, and Celestia/TIA are exposed through a read-only integration "
+                "fabric; live agent launch, settlement, exchange orders, staking, bridges, "
+                "swaps, and signatures remain operator-only."
             ),
         },
         "dataProduct": {
@@ -546,7 +547,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
         "claimsToAvoid": [
             "Do not claim live 0G Compute inference until a real router call is wired.",
             "Do not imply the browser can sign, trade, send Telegram messages, or move funds.",
-            "Do not claim live Virtuals launch or x402 settlement until an operator enables and verifies those paths.",
+            "Do not claim live Virtuals launch, x402 settlement, or Lighter trading/staking until an operator enables and verifies those paths.",
         ],
     }
 

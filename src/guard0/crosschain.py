@@ -30,6 +30,8 @@ class ChainTarget:
     chain_id: int | None
     rpc_env: str | None
     default_rpc: str | None
+    http_status_env: str | None
+    default_http_status_url: str | None
     explorer: str | None
     native_asset: str
     evm_compatible: bool
@@ -53,6 +55,8 @@ class ChainTarget:
             "rpc": rpc,
             "rpcEnv": self.rpc_env,
             "rpcConfigured": bool(rpc),
+            "httpStatusUrl": configured_http_status_url(self),
+            "httpStatusEnv": self.http_status_env,
             "explorer": self.explorer,
             "probeDefault": self.probe_default,
             "capabilities": list(self.capabilities),
@@ -72,6 +76,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=16661,
         rpc_env="ZGG_CHAIN_RPC",
         default_rpc="https://evmrpc.0g.ai",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://chainscan.0g.ai",
         native_asset="0G",
         evm_compatible=True,
@@ -100,6 +106,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=8453,
         rpc_env="BASE_RPC_URL",
         default_rpc="https://mainnet.base.org",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://basescan.org",
         native_asset="ETH",
         evm_compatible=True,
@@ -122,6 +130,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=42161,
         rpc_env="ARBITRUM_RPC_URL",
         default_rpc="https://arb1.arbitrum.io/rpc",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://arbiscan.io",
         native_asset="ETH",
         evm_compatible=True,
@@ -142,6 +152,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=137,
         rpc_env="POLYGON_RPC_URL",
         default_rpc="https://polygon.drpc.org",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://polygonscan.com",
         native_asset="POL",
         evm_compatible=True,
@@ -164,6 +176,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=4326,
         rpc_env="MEGAETH_MAINNET_RPC_URL",
         default_rpc="https://mainnet.megaeth.com/rpc",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://megaexplorer.xyz",
         native_asset="ETH",
         evm_compatible=True,
@@ -182,6 +196,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=6343,
         rpc_env="MEGAETH_RPC_URL",
         default_rpc="https://carrot.megaeth.com/rpc",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://www.megaexplorer.xyz",
         native_asset="ETH",
         evm_compatible=True,
@@ -200,6 +216,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=143,
         rpc_env="MONAD_RPC_URL",
         default_rpc="https://rpc.monad.xyz",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://explorer.monad.xyz",
         native_asset="MON",
         evm_compatible=True,
@@ -218,6 +236,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=999,
         rpc_env="HYPEREVM_RPC_URL",
         default_rpc="https://rpc.hyperliquid.xyz/evm",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://hyperevmscan.io",
         native_asset="HYPE",
         evm_compatible=True,
@@ -235,6 +255,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=42431,
         rpc_env="TEMPO_RPC_URL",
         default_rpc="https://rpc.moderato.tempo.xyz",
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://explore.tempo.xyz",
         native_asset="ETH",
         evm_compatible=True,
@@ -246,6 +268,45 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         caveats=("Tempo is treated as testnet/integration-watchlist in 0guard until mainnet details are configured.",),
     ),
     ChainTarget(
+        id="lighter_lit",
+        name="Lighter / LIT",
+        kind="verifiable_exchange_guardrail",
+        status="mainnet_api",
+        chain_id=None,
+        rpc_env=None,
+        default_rpc=None,
+        http_status_env="LIGHTER_API_URL",
+        default_http_status_url="https://mainnet.zklighter.elliot.ai/",
+        explorer="https://etherscan.io/token/0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
+        native_asset="LIT",
+        evm_compatible=False,
+        probe_default=True,
+        capabilities=(
+            "read_only_status_api",
+            "verifiable_order_matching",
+            "ethereum_anchored_zk_rollup",
+            "pre_trade_guardrail",
+            "lit_staking_and_fee_credit_risk",
+        ),
+        x402_posture="not_an_evm_settlement_target_for_x402_by_default; protect as trading venue/API risk lane",
+        proof_strategy=(
+            "Use 0guard as a pre-trade policy guard for Lighter API/order intents; "
+            "anchor blocked receipts to 0G and never generate API keys, stake LIT, "
+            "place orders, or request withdrawals from the workbench."
+        ),
+        official_sources=(
+            "https://docs.lighter.xyz/",
+            "https://docs.lighter.xyz/about-lighter/technical-architecture-lighter-core",
+            "https://docs.lighter.xyz/about-lighter/lit-utility",
+            "https://docs.lighter.xyz/perpetual-futures/api",
+            "https://apidocs.lighter.xyz/reference/status",
+        ),
+        caveats=(
+            "Lighter is integrated as a verifiable exchange/API guardrail, not as an EVM deployment network.",
+            "LIT staking, fee credits, deposits, orders, transfers, and withdrawals are external side effects.",
+        ),
+    ),
+    ChainTarget(
         id="celestia_blobstream",
         name="Celestia / TIA Blobstream",
         kind="data_availability_proof",
@@ -253,6 +314,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         chain_id=None,
         rpc_env="CELESTIA_RPC_URL",
         default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
         explorer="https://celenium.io",
         native_asset="TIA",
         evm_compatible=False,
@@ -275,6 +338,14 @@ def configured_rpc(target: ChainTarget) -> str | None:
         if configured:
             return configured
     return target.default_rpc
+
+
+def configured_http_status_url(target: ChainTarget) -> str | None:
+    if target.http_status_env:
+        configured = os.getenv(target.http_status_env)
+        if configured:
+            return configured
+    return target.default_http_status_url
 
 
 def cross_chain_catalog() -> dict[str, Any]:
@@ -304,6 +375,8 @@ def cross_chain_readiness(
     probes = []
     attempted = 0
     ok = 0
+    http_attempted = 0
+    http_ok = 0
     for target in CHAIN_TARGETS:
         should_probe = (
             live
@@ -311,11 +384,22 @@ def cross_chain_readiness(
             and bool(configured_rpc(target))
             and (target.probe_default or include_non_default)
         )
+        should_probe_http = (
+            live
+            and not target.evm_compatible
+            and bool(configured_http_status_url(target))
+            and (target.probe_default or include_non_default)
+        )
         if should_probe:
             attempted += 1
             probe = _probe_evm_rpc(target, timeout_seconds=timeout_seconds)
             if probe["status"] == "ok":
                 ok += 1
+        elif should_probe_http:
+            http_attempted += 1
+            probe = _probe_http_status(target, timeout_seconds=timeout_seconds)
+            if probe["status"] == "ok":
+                http_ok += 1
         else:
             probe = _not_probed(target, live=live, include_non_default=include_non_default)
         probes.append(probe)
@@ -327,6 +411,9 @@ def cross_chain_readiness(
         "attemptedRpcProbes": attempted,
         "okRpcProbes": ok,
         "rpcReadinessRatio": round(ok / attempted, 4) if attempted else None,
+        "attemptedHttpProbes": http_attempted,
+        "okHttpProbes": http_ok,
+        "httpReadinessRatio": round(http_ok / http_attempted, 4) if http_attempted else None,
         "paymentReadiness": _payment_readiness(),
         "agentReadiness": _agent_readiness(),
         "probes": probes,
@@ -440,6 +527,52 @@ def _probe_evm_rpc(target: ChainTarget, *, timeout_seconds: float) -> dict[str, 
         }
 
 
+def _probe_http_status(target: ChainTarget, *, timeout_seconds: float) -> dict[str, Any]:
+    started = time.perf_counter()
+    url = configured_http_status_url(target)
+    if not url:
+        return _not_probed(target, live=True, include_non_default=True)
+    try:
+        request = urllib.request.Request(
+            url,
+            headers={"Accept": "application/json", "User-Agent": "0guard-crosschain/0.1"},
+        )
+        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+            body = response.read(4096)
+            http_status = int(response.status)
+        decoded = json.loads(body.decode("utf-8"))
+        body_status = decoded.get("status")
+        network_id = decoded.get("network_id")
+        ok = 200 <= http_status < 300 and (body_status in (None, 200, "200", "ok", "OK"))
+        return {
+            "id": target.id,
+            "name": target.name,
+            "status": "ok" if ok else "degraded",
+            "probeType": "http_status",
+            "httpStatusUrl": url,
+            "httpStatus": http_status,
+            "bodyStatus": body_status,
+            "networkId": network_id,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "error": None if ok else "status endpoint did not report ok",
+            "readOnly": True,
+        }
+    except Exception as exc:  # pragma: no cover - live network dependent
+        return {
+            "id": target.id,
+            "name": target.name,
+            "status": "degraded",
+            "probeType": "http_status",
+            "httpStatusUrl": url,
+            "httpStatus": None,
+            "bodyStatus": None,
+            "networkId": None,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "error": f"{type(exc).__name__}: {exc}",
+            "readOnly": True,
+        }
+
+
 def _rpc_int(rpc: str, method: str, *, timeout_seconds: float) -> int:
     payload = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": []}).encode()
     request = urllib.request.Request(
@@ -461,8 +594,15 @@ def _rpc_int(rpc: str, method: str, *, timeout_seconds: float) -> int:
 
 def _not_probed(target: ChainTarget, *, live: bool, include_non_default: bool) -> dict[str, Any]:
     if not target.evm_compatible:
-        status = "catalog_only_non_evm"
-        reason = "Target is not an EVM RPC endpoint; use its native/DA proof path."
+        if configured_http_status_url(target) and not live:
+            status = "not_checked"
+            reason = "Live HTTP status probing disabled."
+        elif configured_http_status_url(target) and not include_non_default:
+            status = "not_default_probed"
+            reason = "Set include_non_default=1 to probe configured non-default targets."
+        else:
+            status = "catalog_only_non_evm"
+            reason = "Target is not an EVM RPC endpoint; use its native/API/DA proof path."
     elif not live:
         status = "not_checked"
         reason = "Live RPC probing disabled."
@@ -480,6 +620,7 @@ def _not_probed(target: ChainTarget, *, live: bool, include_non_default: bool) -
         "name": target.name,
         "status": status,
         "rpc": configured_rpc(target),
+        "httpStatusUrl": configured_http_status_url(target),
         "chainId": target.chain_id,
         "observedChainId": None,
         "latestBlockNumber": None,
@@ -611,6 +752,10 @@ def _crosschain_safety(*, live: bool) -> dict[str, Any]:
         "swappingEnabled": False,
         "moneyMovementEnabled": False,
         "externalAgentLaunchEnabled": False,
+        "tradingEnabled": False,
+        "exchangeApiKeysEnabled": False,
+        "stakingEnabled": False,
+        "withdrawalsEnabled": False,
     }
 
 

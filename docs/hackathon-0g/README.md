@@ -61,7 +61,8 @@ two explicit source-proof gaps.
 
 The cross-chain layer is now explicit instead of implied. `/api/integrations/cross-chain`
 documents where 0guard can safely plug into Virtuals/Base, x402-supported
-payment networks, EVM expansion chains, and Celestia/TIA data availability.
+payment networks, EVM expansion chains, Lighter/LIT exchange guardrails, and
+Celestia/TIA data availability.
 `/api/integrations/virtuals-facilitator` prepares a Base/Virtuals agent manifest
 for a future `0guard Facilitator`, while all launch, payment, bridge, swap, and
 wallet actions remain operator-only.
@@ -74,8 +75,9 @@ wallet actions remain operator-only.
 - Public 0G mainnet proof is limited to the deployed receipt anchor and one
   anchored deny receipt.
 - No trading or money movement claims.
-- No live Virtuals launch, x402 settlement, bridge, swap, or cross-chain
-  transaction from the workbench.
+- No live Virtuals launch, x402 settlement, bridge, swap, Lighter order, LIT
+  stake/fee-credit payment, withdrawal, or cross-chain transaction from the
+  workbench.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.
 - Live Storage upload and Compute scoring are documented as future work, not

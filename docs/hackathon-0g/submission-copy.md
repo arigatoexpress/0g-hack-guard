@@ -55,8 +55,9 @@ mistake that human teams already lost money to.
 - 0G Chain receipt-anchor preflight payloads from the browser workbench.
 - 0G Storage threat-intel payload/root-hash receipts.
 - A cross-chain integration fabric for Virtuals/Base, x402 payment lanes,
-  Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, and Celestia/TIA data
-  availability, exposed as read-only catalog/readiness APIs.
+  Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, Lighter/LIT exchange
+  guardrails, and Celestia/TIA data availability, exposed as read-only
+  catalog/readiness APIs.
 - A prepared `0guard Facilitator` manifest for future Virtuals/Base deployment;
   live launch, token, payment, bridge, and swap actions stay operator-only.
 - Telegram Mira opt-in and preview primitives that never send messages from the
@@ -163,8 +164,8 @@ anchored on 0G mainnet by the dedicated deployer.
 - It turns open-source intelligence into a source-cited data product, not a
   screenshot or one-off scrape.
 - It shows how 0guard can become a cross-chain agent safety/payment layer:
-  x402 for paid derived artifacts, Virtuals/Base for agent distribution, and 0G
-  for proof anchoring.
+  x402 for paid derived artifacts, Virtuals/Base for agent distribution,
+  Lighter/LIT for pre-trade exchange guardrails, and 0G for proof anchoring.
 - It leaves a clear production path: enable live Storage writes, add runtime
   verifier config/readback, then productionize the compute scorer.
 

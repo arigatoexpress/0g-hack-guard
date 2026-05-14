@@ -6,11 +6,11 @@ preserving the same proof-first safety posture.
 ## What Is Live In This Repo
 
 - `/api/integrations/cross-chain` returns a source-cited catalog for 0G
-  mainnet, Base, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, and
-  Celestia/TIA.
+  mainnet, Base, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo,
+  Lighter/LIT, and Celestia/TIA.
 - `/api/integrations/cross-chain/readiness` returns catalog readiness by
   default; add `?live=1` to run read-only EVM JSON-RPC probes on configured
-  default endpoints.
+  default endpoints plus non-EVM HTTP status probes where explicitly supported.
 - `/api/integrations/virtuals-facilitator` returns a deployable manifest for a
   `0guard Facilitator` agent on Base/Virtuals, but does not launch it.
 
@@ -26,6 +26,7 @@ preserving the same proof-first safety posture.
 | Monad | EVM expansion watchlist | Read-only probes and prepared payment posture |
 | HyperEVM | HYPE ecosystem EVM guardrail lane | Read-only probes only |
 | Tempo | Payment-chain watchlist | Testnet/readiness only |
+| Lighter/LIT | Verifiable Ethereum-anchored exchange/API guardrail | Read-only status probe only |
 | Celestia/TIA | Data availability and Blobstream proof lane | DA/proof lane, not EVM settlement |
 
 ## Payment And Agent Boundaries
@@ -45,6 +46,12 @@ authorizes private scraping.
 Virtuals/Base integration is prepared as an agent manifest only. Any live
 Virtuals launch, token action, x402 settlement, bridge, swap, or wallet
 signature is an external side effect and requires an explicit operator run.
+
+Lighter/LIT integration is a trading/API guardrail, not an EVM deployment lane.
+The only live check in 0guard is the public Lighter status endpoint. LIT
+staking, LIT Fee Credits, deposits, API-key creation, orders, transfers, and
+withdrawals remain disabled because they require signatures, funds, API
+credentials, or trading authority.
 
 ## Readable Tx Log Upgrade
 
