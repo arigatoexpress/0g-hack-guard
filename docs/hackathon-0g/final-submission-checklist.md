@@ -72,13 +72,15 @@ curl -s http://127.0.0.1:8109/api/hackathon/readiness | python3 -m json.tool
 
 Requirement: public video link, no more than 3 minutes, not slide-only.
 
-Record from `docs/DEMO_VIDEO_SCRIPT.md` and show:
+Record from `docs/hackathon-0g/final-demo-video-script.md` and show:
 
 - intent firewall blocking a risky agent action
 - live `/api/0g/status` readback
 - `/api/evaluate` with `enable_0g_anchor=true` and `enable_0g_storage=true`
 - `/api/data/provenance` and `/api/data/provenance?live=1`
 - the mainnet contract/explorer proof if it is ready
+- optional Veo 3 clips only as short cinematic inserts around the live product
+  walkthrough
 
 Placeholder until uploaded:
 

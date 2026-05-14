@@ -97,7 +97,7 @@ docs/hackathon-0g/final-submission-checklist.md
 Demo script:
 
 ```text
-docs/DEMO_VIDEO_SCRIPT.md
+docs/hackathon-0g/final-demo-video-script.md
 ```
 
 Demo video URL:

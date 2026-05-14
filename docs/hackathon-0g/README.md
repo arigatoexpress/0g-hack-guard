@@ -9,23 +9,26 @@ proof, and no private keys or real writes in the workbench.
 
 1. Start with `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
-2. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
-3. Use `submission-form-fields.md` as the final copy/paste packet for the
+2. Use `final-demo-video-script.md` as the locked three-minute recording
+   script, and `ai-submission-production-package.md` for Veo/Gemini prompt
+   production.
+3. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
+4. Use `submission-form-fields.md` as the final copy/paste packet for the
    HackQuest form.
-4. Run `scripts/submission_readiness.py --format markdown` or open
+5. Run `scripts/submission_readiness.py --format markdown` or open
    `/api/hackathon/readiness` for the final readiness audit.
-5. Use `final-submission-checklist.md` for the manual submission sequence,
+6. Use `final-submission-checklist.md` for the manual submission sequence,
    mainnet proof requirement, demo video, and X post.
-6. Use `threat-receipt-passport.md` as the one-page judge proof drill: intent,
+7. Use `threat-receipt-passport.md` as the one-page judge proof drill: intent,
    verdict, provenance, receipt hash, and 0G proof slots.
-7. Use `market-intel.md` for current HackQuest requirements, track fit, and
+8. Use `market-intel.md` for current HackQuest requirements, track fit, and
    competitor positioning.
-8. Reference `mainnet-gap-register.md` when judges ask what is real today
+9. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
-9. Use `/api/hackathon/submission-brief` for a machine-readable final brief
+10. Use `/api/hackathon/submission-brief` for a machine-readable final brief
    with deadline, repo/demo links, data stats, manual TODOs, and claims to
    avoid.
-10. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
+11. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
    remaining operator placeholders.
 
 ## Winning Thesis
