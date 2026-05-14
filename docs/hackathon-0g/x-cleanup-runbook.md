@@ -13,6 +13,28 @@ after the HackQuest project is submitted.
   `https://x.com/rariwrldd/status/2055041461218140204`.
 - Generate a manifest, review it, run a dry-run delete pass, then require fresh
   explicit confirmation for live deletion.
+- If a project X account is created, do not invent account identity fields.
+  The public-safe project values are: display name `0guard`, bio from
+  `content/project_x_account_kit.json`, proof page as the website, and the
+  generated 0guard logo as the avatar. Email/phone, date of birth, password,
+  and verification codes must stay operator-controlled and must not be stored in
+  the repo.
+
+## Current Browser Findings - 2026-05-14
+
+- Main X account confirmed active in Brave as `@rariwrldd`.
+- Profile currently reports 2,563 posts, so full cleanup is not realistic as a
+  manual click-through task.
+- X account switcher in the logged-in session exposed only `Add an existing
+  account` and `Log out @rariwrldd`; the direct logged-in signup URL returned
+  X's generic error page.
+- Brave private-window signup opens successfully and reaches the `Create your
+  account` form. The next required fields are real email/phone and date of
+  birth, followed by platform verification.
+- No X API credentials are present in the local environment. The available CDP
+  endpoint on port 9222 belongs to a Chrome session, not the Brave X session.
+  Use the API path below or restart Brave with a controlled CDP session before
+  attempting bulk cleanup.
 
 ## Commands
 

@@ -24,7 +24,7 @@
   "followUpPosts": [
     {
       "id": "proof",
-      "text": "The important part: 0guard is proof-first, not wallet-custody theater.\n\n- 28/28 April 2026 incidents source-linked\n- 27/28 incident-derived patterns matched\n- 1 research-only gap held back until public evidence improves\n- 0G mainnet PolicyReceiptAnchor proof\n\nNo browser signing. No broadcasts. No fund movement."
+      "text": "The important part: 0guard is proof-first, not wallet-custody theater.\n\n- 28/28 April 2026 incidents source-linked\n- 28/28 incident-derived patterns matched\n- Quant/QNT EIP-7702 delegated batch access-control now covered from public evidence\n- 0G mainnet PolicyReceiptAnchor proof\n\nNo browser signing. No broadcasts. No fund movement."
     },
     {
       "id": "guardrails",
