@@ -17,7 +17,7 @@
 | **1:25–1:50** | *"Third: Wasabi Protocol. Five million dollars via a UUPS proxy upgrade using a compromised deployer key. The attacker combined grantRole and upgradeTo in one transaction batch. Watch this. The guard detects the behavioral sequence — grantRole plus upgradeTo — and blocks it outright."* | **Dashboard — Scenario 3: Wasabi.** Paste the Wasabi intent: `{"action":"upgrade","mode":"live_transaction","calldata":"0x3659cfe60000000000000000000000002228b0afcdbedf8180d96fc181da3af5dd1d1ab","target_contract":"0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab","requires_signature":true}`. Click Evaluate. Result: `deny`, critical selector `upgradeTo`, IOC hit on known malicious address. Then switch to terminal and run the CLI version: `python3 scripts/demo_april_2026.py`. Let the output scroll through all 6 scenarios. Stop on the Wasabi blocker line. |
 | **1:50–2:15** | *"Every evaluation generates a tamper-evident receipt: a SHA-256 hash of the decision, the signatures matched, and the agent ID. The workbench also reads 0G Galileo live, with no private key and no transaction broadcast."* | **Dashboard + terminal.** Show the `0G Network Proof` panel, then run `curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool`. Zoom into `observedChainId: 16602`, `latestBlockNumber`, and `signingEnabled: false`. |
 | **2:15–2:35** | *"When anchoring is enabled, 0guard prepares the exact 0G Chain receipt payload. Until a deployer key and contract are configured, it remains preflight only — visible, reviewable, and safe."* | **Terminal.** Run the evaluate curl with `enable_0g_anchor` and `enable_0g_storage`. Show `zero_g.chain_anchor.status: preflight`, `chain_id: 16602`, and the receipt hash. Then briefly show `contracts/PolicyReceiptAnchor.sol`. |
-| **2:35–2:50** | *"And users can opt into Telegram Mira securely. The workbench creates a signed one-time registration challenge, stores only a redacted opt-in record, and builds a Mira security response preview. No Telegram message is sent unless an operator explicitly enables it."* | **Dashboard.** Click `Create registration`, then `Complete local opt-in`, then `Build Mira preview`. Zoom into `telegram_send: false`, `status: opted_in`, and `0guard.mira_preview.v1`. |
+| **2:35–2:50** | *"The evidence layer is not a screenshot. The provenance matrix matches twenty-six of twenty-eight April incidents to reviewed public-source evidence, keeps record hashes, and names the two incidents that still need proof. Live refresh is separate, so the demo stays reliable."* | **Dashboard.** Click `Provenance` in Data Flow. Zoom into `26/28`, `23` high-confidence matches, `Silo V2`, `Denaria Finance`, and `rawPayloadsReturned: false`. |
 | **2:50–3:00** | *"Autonomous finance is coming. But autonomy without safety is just chaos. 0G Hack Guard is how we make autonomous finance actually safe. Built on 0G."* | **Full-screen dashboard.** Show a final "SAFE INTENT" evaluation returning `"decision": "allow"`, `"severity": "low"`. Hard cut to black with text: `0G Hack Guard` | `github.com/arigatoexpress/0guard` | `0G APAC Hackathon 2026`. Fade out. |
 
 **Total runtime target: 2:55–3:00.**
@@ -54,7 +54,7 @@ source .venv/bin/activate
 # python3 scripts/demo_april_2026.py
 ```
 
-### Tab 3 — API curl demo (for 0G + Telegram segments)
+### Tab 3 — API curl demo (for 0G + provenance segments)
 ```bash
 # Have this copied to clipboard, paste when needed:
 curl -s -X POST http://127.0.0.1:8109/api/evaluate \
@@ -71,8 +71,9 @@ curl -s -X POST http://127.0.0.1:8109/api/evaluate \
     "agent_id": "agent-7857-demo"
   }' | python3 -m json.tool
 
-# Telegram/Mira status proof:
-curl -s http://127.0.0.1:8109/api/telegram/status | python3 -m json.tool
+# Provenance proof:
+curl -s http://127.0.0.1:8109/api/data/provenance | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 ```
 
 ### Tab 4 — 0G Explorer (browser tab)
@@ -92,11 +93,10 @@ https://chainscan-galileo.0g.ai
 | 5 | Paste Wasabi JSON → Evaluate | 1:25 |
 | 6 | Switch to Terminal Tab 2, run `python3 scripts/demo_april_2026.py` | 1:35 |
 | 7 | Show 0G status and preflight receipt curl | 1:50 |
-| 8 | Click Telegram registration, local opt-in, and Mira preview | 2:35 |
-| 7 | Switch to VS Code → `policy.py` → `PolicyReceiptAnchor.sol` | 1:50 |
-| 8 | Switch to Terminal Tab 3, paste curl command | 2:15 |
-| 9 | Switch to Browser (0G Explorer) | 2:25 |
-| 10 | Back to Dashboard for safe-intent finale | 2:50 |
+| 8 | Switch to VS Code -> `policy.py` -> `PolicyReceiptAnchor.sol` | 2:05 |
+| 9 | Switch to Terminal Tab 3, paste evaluate curl command | 2:15 |
+| 10 | Click `Provenance` and show the summary strip | 2:35 |
+| 11 | Back to Dashboard for safe-intent finale | 2:50 |
 
 ---
 
@@ -151,7 +151,7 @@ https://chainscan-galileo.0g.ai
 | 1:25 | Zoom 1.5× on Wasabi `"sequence_grant_upgrade"` blocker |
 | 1:50 | Zoom 2× on `receipt_hash = _receipt_hash(...)` line in `policy.py` |
 | 2:15 | Zoom 1.5× on terminal output showing `status: preflight` or explorer tx hash |
-| 2:35 | Zoom 1.5× on `telegram_send: false`, `status: opted_in`, and `mira_preview` |
+| 2:35 | Zoom 1.5× on provenance `26/28`, `23`, `Silo V2`, and `Denaria Finance` |
 | 2:50 | Zoom 1.3× on final `"decision": "allow"` badge |
 
 ### Transitions
