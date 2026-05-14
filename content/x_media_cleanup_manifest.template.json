@@ -1,0 +1,21 @@
+{
+  "deleteCandidateCount": 0,
+  "generatedAt": "2026-05-14T20:06:20+00:00",
+  "instructions": [
+    "Run without --template and with X OAuth env vars to populate media-bearing posts.",
+    "Review every item before live deletion.",
+    "Keep the HackQuest proof post unless Ari explicitly changes the allowlist.",
+    "Live deletion requires --live-delete-confirm DELETE_X_MEDIA_FROM_0GUARD."
+  ],
+  "items": [],
+  "keepTweetIds": [
+    "2054779961425461542"
+  ],
+  "mode": "template_review_required",
+  "safety": {
+    "defaultAction": "dry_run_or_manifest_only",
+    "destructive": false,
+    "requiresFreshReview": true
+  },
+  "schema": "0guard.x_media_cleanup_manifest.v1"
+}

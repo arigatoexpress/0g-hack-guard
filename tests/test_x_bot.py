@@ -8,8 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from guard0.x_bot import (
+    DeletedTweet,
     XBot,
     XBotConfigError,
+    XMediaTweet,
     XBotPostError,
     XBotRateLimitError,
     PostedTweet,
@@ -176,6 +178,73 @@ def test_post_thread_empty(mock_tweepy, fake_creds):
     bot = XBot(**fake_creds)
     with pytest.raises(XBotPostError, match="empty thread"):
         bot.post_thread([])
+
+
+# ---------------------------------------------------------------------------
+# Media cleanup manifest helpers
+# ---------------------------------------------------------------------------
+
+def test_list_media_tweets_reads_media_bearing_timeline(mock_tweepy, fake_creds):
+    mock_tweepy["client"].get_me.return_value = MagicMock(data={"id": "user-1"})
+    mock_tweepy["client"].get_users_tweets.return_value = MagicMock(
+        data=[
+            {
+                "id": "111",
+                "text": "with media",
+                "created_at": "2026-05-14T19:00:00Z",
+                "attachments": {"media_keys": ["3_abc"]},
+            },
+            {"id": "222", "text": "plain", "attachments": {}},
+        ],
+        includes={
+            "media": [
+                {
+                    "media_key": "3_abc",
+                    "type": "photo",
+                    "url": "https://pbs.twimg.com/media/example.jpg",
+                }
+            ]
+        },
+        meta={},
+    )
+
+    bot = XBot(**fake_creds)
+    tweets = bot.list_media_tweets(max_results=100, pages=1)
+
+    assert tweets == [
+        XMediaTweet(
+            tweet_id="111",
+            text="with media",
+            created_at="2026-05-14T19:00:00Z",
+            media_keys=["3_abc"],
+            media_types=["photo"],
+            media_urls=["https://pbs.twimg.com/media/example.jpg"],
+        )
+    ]
+    mock_tweepy["client"].get_me.assert_called_once_with(user_auth=True)
+    mock_tweepy["client"].get_users_tweets.assert_called_once()
+    assert mock_tweepy["client"].get_users_tweets.call_args.args == ("user-1",)
+    assert mock_tweepy["client"].get_users_tweets.call_args.kwargs["user_auth"] is True
+    assert "attachments.media_keys" in mock_tweepy["client"].get_users_tweets.call_args.kwargs[
+        "expansions"
+    ]
+
+
+def test_delete_tweets_uses_explicit_user_auth(mock_tweepy, fake_creds):
+    mock_tweepy["client"].delete_tweet.side_effect = [
+        MagicMock(data={"deleted": True}),
+        MagicMock(data={"deleted": True}),
+    ]
+
+    bot = XBot(**fake_creds)
+    results = bot.delete_tweets(["111", "222"])
+
+    assert results == [
+        DeletedTweet(tweet_id="111", deleted=True),
+        DeletedTweet(tweet_id="222", deleted=True),
+    ]
+    assert mock_tweepy["client"].delete_tweet.call_args_list[0].args == ("111",)
+    assert mock_tweepy["client"].delete_tweet.call_args_list[0].kwargs["user_auth"] is True
 
 
 # ---------------------------------------------------------------------------

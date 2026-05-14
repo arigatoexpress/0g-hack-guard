@@ -49,6 +49,26 @@ class ThreadResult:
     tweets: list[PostedTweet]
 
 
+@dataclass(frozen=True)
+class XMediaTweet:
+    """A media-bearing X post returned by the account timeline."""
+
+    tweet_id: str
+    text: str
+    created_at: str | None
+    media_keys: list[str]
+    media_types: list[str]
+    media_urls: list[str]
+
+
+@dataclass(frozen=True)
+class DeletedTweet:
+    """Result of a delete attempt for a single X post."""
+
+    tweet_id: str
+    deleted: bool
+
+
 class XBotError(Exception):
     """Base exception for XBot errors."""
 
@@ -239,6 +259,115 @@ class XBot:
         logger.info("Posted thread with %d tweets. Root=%s", len(results), results[0].tweet_id)
         return ThreadResult(tweets=results)
 
+    def list_media_tweets(
+        self,
+        *,
+        max_results: int = 100,
+        pages: int = 5,
+        exclude_replies: bool = True,
+        exclude_retweets: bool = True,
+    ) -> list[XMediaTweet]:
+        """List recent account posts that contain media attachments.
+
+        The method is intended for review-manifest generation. It never deletes
+        content and only returns posts with `attachments.media_keys`.
+        """
+        max_results = max(10, min(max_results, 100))
+        pages = max(1, pages)
+
+        me = self._call_v2_with_retry(self._client.get_me, user_auth=True)
+        user_id = _item_get(_response_data(me), "id")
+        if not user_id:
+            raise XBotPostError("Unable to resolve authenticated X user id.")
+
+        exclude: list[str] = []
+        if exclude_replies:
+            exclude.append("replies")
+        if exclude_retweets:
+            exclude.append("retweets")
+
+        token: str | None = None
+        media_tweets: list[XMediaTweet] = []
+        for _ in range(pages):
+            kwargs: dict[str, Any] = {
+                "user_auth": True,
+                "max_results": max_results,
+                "expansions": ["attachments.media_keys"],
+                "tweet_fields": ["created_at", "attachments"],
+                "media_fields": ["media_key", "type", "url", "preview_image_url"],
+            }
+            if exclude:
+                kwargs["exclude"] = exclude
+            if token:
+                kwargs["pagination_token"] = token
+
+            resp = self._call_v2_with_retry(
+                self._client.get_users_tweets,
+                str(user_id),
+                **kwargs,
+            )
+            data = _response_data(resp) or []
+            includes = _response_includes(resp)
+            media_by_key = {
+                str(_item_get(item, "media_key")): item
+                for item in includes.get("media", [])
+                if _item_get(item, "media_key")
+            }
+            for tweet in data:
+                attachments = _item_get(tweet, "attachments") or {}
+                media_keys = list(_item_get(attachments, "media_keys") or [])
+                if not media_keys:
+                    continue
+                media_types: list[str] = []
+                media_urls: list[str] = []
+                for media_key in media_keys:
+                    media = media_by_key.get(str(media_key))
+                    if not media:
+                        continue
+                    media_type = _item_get(media, "type")
+                    if media_type:
+                        media_types.append(str(media_type))
+                    media_url = _item_get(media, "url") or _item_get(media, "preview_image_url")
+                    if media_url:
+                        media_urls.append(str(media_url))
+                media_tweets.append(
+                    XMediaTweet(
+                        tweet_id=str(_item_get(tweet, "id")),
+                        text=str(_item_get(tweet, "text") or ""),
+                        created_at=(
+                            str(_item_get(tweet, "created_at"))
+                            if _item_get(tweet, "created_at") is not None
+                            else None
+                        ),
+                        media_keys=[str(key) for key in media_keys],
+                        media_types=media_types,
+                        media_urls=media_urls,
+                    )
+                )
+
+            token = str(_response_meta(resp).get("next_token") or "")
+            if not token:
+                break
+        return media_tweets
+
+    def delete_tweets(self, tweet_ids: list[str]) -> list[DeletedTweet]:
+        """Delete owned X posts by id using explicit caller-side confirmation."""
+        results: list[DeletedTweet] = []
+        for tweet_id in tweet_ids:
+            resp = self._call_v2_with_retry(
+                self._client.delete_tweet,
+                str(tweet_id),
+                user_auth=True,
+            )
+            payload = _response_data(resp) or {}
+            results.append(
+                DeletedTweet(
+                    tweet_id=str(tweet_id),
+                    deleted=bool(_item_get(payload, "deleted")),
+                )
+            )
+        return results
+
     # ------------------------------------------------------------------ #
     # Internal helpers
     # ------------------------------------------------------------------ #
@@ -299,3 +428,30 @@ class XBot:
         except Exception:
             pass
         return None
+
+
+def _response_data(resp: Any) -> Any:
+    if isinstance(resp, dict):
+        return resp.get("data")
+    return getattr(resp, "data", None)
+
+
+def _response_includes(resp: Any) -> dict[str, Any]:
+    if isinstance(resp, dict):
+        return resp.get("includes") or {}
+    return getattr(resp, "includes", None) or {}
+
+
+def _response_meta(resp: Any) -> dict[str, Any]:
+    if isinstance(resp, dict):
+        return resp.get("meta") or {}
+    return getattr(resp, "meta", None) or {}
+
+
+def _item_get(item: Any, key: str) -> Any:
+    if isinstance(item, dict):
+        return item.get(key)
+    data = getattr(item, "data", None)
+    if isinstance(data, dict) and key in data:
+        return data.get(key)
+    return getattr(item, key, None)

@@ -82,17 +82,21 @@ Winning proof sequence:
 6. `/api/data/provenance?live=1` proves the incident dataset can be correlated
    against live public source records without returning raw upstream payloads.
 
-## Current Gaps
+## Current Submission State
 
-- Operator must deploy or configure a receipt anchor contract and provide the
-  0G mainnet explorer link before claiming full HackQuest 0G Chain proof.
-- Operator must record and upload a demo video of 3 minutes or less.
-- Operator must publish the required X post with screenshot or clip.
-- A prepared screenshot exists at
+- The 0G mainnet `PolicyReceiptAnchor` contract and anchor transaction are
+  live and included in the submitted proof packet.
+- The final public demo video is ready at
+  `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
+- The submitted X proof URL is
+  `https://x.com/rariwrldd/status/2054779961425461542`.
+- A prepared screenshot still exists at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
-- Per-incident source evidence is now promoted for 26 of 28 records; `Silo V2`
-  and `Denaria Finance` remain aggregate-only until stronger public proof is
-  available.
+- Per-incident source evidence is now promoted for 28 of 28 records.
+- The detector map covers 27 of 28 incident-derived patterns. `Quant` remains
+  research-only until stronger public root-cause evidence exists.
+- Remaining production gaps are live 0G Storage upload/readback and 0G Compute
+  inference, both documented as future work rather than submitted live claims.
 
 ## Demo Advice
 

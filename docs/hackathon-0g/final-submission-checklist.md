@@ -85,21 +85,26 @@ curl -s http://127.0.0.1:8109/api/hackathon/readiness | python3 -m json.tool
 
 Requirement: public video link, no more than 3 minutes, not slide-only.
 
-Record from `docs/hackathon-0g/final-demo-video-script.md` and show:
+Current public demo video:
+
+```text
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
+```
+
+Verified refresh: commit `29894a7`, 1920x1080, 25 fps, about 2:08 runtime,
+public `Content-Type: video/mp4`, public `Content-Length: 11062907`, and no
+internal audio silence longer than 1.0s at the local -35 dB threshold.
+
+The generated video follows `docs/hackathon-0g/final-demo-video-script.md` and
+shows:
 
 - intent firewall blocking a risky agent action
 - live `/api/0g/status` readback
 - `/api/evaluate` with `enable_0g_anchor=true` and `enable_0g_storage=true`
 - `/api/data/provenance` and `/api/data/provenance?live=1`
-- the mainnet contract/explorer proof if it is ready
-- optional Veo 3 clips only as short cinematic inserts around the live product
-  walkthrough
-
-Generated public demo video:
-
-```text
-https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
-```
+- the mainnet contract/explorer proof
+- the signature map showing 27/28 detector coverage and the remaining
+  research-only `Quant` gap
 
 ## Required X Post
 
@@ -122,6 +127,20 @@ Published X post:
 
 ```text
 https://x.com/rariwrldd/status/2054779961425461542
+```
+
+For the separate Ari-requested X media cleanup, do not delete directly from
+memory or browser state. Generate and review a manifest first:
+
+```bash
+.venv/bin/python scripts/x_media_cleanup.py --manifest-out content/x_media_cleanup_manifest.review.json
+.venv/bin/python scripts/x_media_cleanup.py --delete-from-manifest content/x_media_cleanup_manifest.review.json --dry-run
+```
+
+Live deletion stays a separate fresh-confirmation action:
+
+```bash
+.venv/bin/python scripts/x_media_cleanup.py --delete-from-manifest content/x_media_cleanup_manifest.review.json --live-delete-confirm DELETE_X_MEDIA_FROM_0GUARD
 ```
 
 ## Verification Commands

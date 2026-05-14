@@ -16,9 +16,9 @@ truth boundary.
 - X post: include project name, screenshot or short clip, `#0GHackathon`,
   `#BuildOn0G`, and tags `@0G_labs @0g_CN @0g_Eco @HackQuest_`.
 - Veo/Gemini video clips are currently best used as short cinematic assets.
-  Gemini Apps documentation says Veo videos in Gemini Apps are 8 seconds long,
-  so the main HackQuest video still needs to be assembled from real product
-  screen capture plus optional generated inserts.
+  The current public MP4 is already assembled from real product screen capture;
+  use generated clips only for a later replacement cut if they improve clarity
+  without adding unsupported claims.
 
 Sources:
 
@@ -61,11 +61,12 @@ Recommended order:
 1. Open this package and the final demo script.
 2. Open Gemini or Flow for Veo 3 clip generation.
 3. Use the Veo prompts below to generate optional 8-second clips.
-4. Record the live product walkthrough separately.
-5. Assemble the final three-minute video in your editor.
-6. Upload the video to YouTube or Loom.
-7. Post the X draft with screenshot or clip.
-8. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
+4. Compare any generated inserts against the current public MP4.
+5. Replace the public MP4 only if the edited version remains under three
+   minutes and stays grounded in real product footage.
+6. Dry-run the X draft or thread before any new live post.
+7. Keep `docs/hackathon-0g/submission-form-fields.md` as the historical
+   submitted-state packet.
 
 ## Master Video Assembly
 
@@ -205,21 +206,20 @@ Use the existing dry-run command first:
 Draft:
 
 ```text
-0guard is a pre-wallet firewall for AI agents: intent, calldata, domains, and
-exploit intel checked before any signer can act. Built on 0G with mainnet
-receipt anchor, read-only workbench, and Storage-ready roots. @0G_labs @0g_CN
+0guard: a pre-wallet firewall for AI agents. It checks intent -> policy ->
+wallet before any signature. Now: 28/28 April 2026 incidents source-linked,
+27/28 detector coverage, and a 0G mainnet receipt anchor. @0G_labs @0g_CN
 @0g_Eco @HackQuest_ #0GHackathon #BuildOn0G
 ```
 
 ## Final Operator Checklist
 
 - Run `.venv/bin/python scripts/submission_readiness.py --format markdown`.
-- Use the generated public demo video, or replace it with a manually edited
-  Veo-enhanced cut if desired:
+- Use the current generated public demo video, or replace it only with a
+  manually reviewed Veo-enhanced cut if desired:
   `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
 - Optional: generate Veo clips only after reviewing the script.
 - Use the published X post URL:
   `https://x.com/rariwrldd/status/2054779961425461542`.
-- Paste `docs/hackathon-0g/submission-form-fields.md`.
 - Verify repo, Pages, contract, and anchor transaction from a logged-out window.
-- Submit before the deadline.
+- For X cleanup, generate and review a manifest before any live deletion.

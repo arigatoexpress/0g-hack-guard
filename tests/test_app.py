@@ -651,6 +651,105 @@ def test_x_post_cli_dry_run_does_not_require_credentials():
     assert "Dry-run complete" in result.stderr
 
 
+def test_x_media_cleanup_template_does_not_require_credentials(tmp_path):
+    manifest = tmp_path / "x-cleanup-template.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/x_media_cleanup.py",
+            "--template",
+            "--manifest-out",
+            str(manifest),
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    assert payload["schema"] == "0guard.x_media_cleanup_manifest.v1"
+    assert payload["keepTweetIds"] == ["2054779961425461542"]
+    assert payload["deleteCandidateCount"] == 0
+
+
+def test_x_media_cleanup_delete_requires_confirmation_before_credentials(tmp_path):
+    manifest = tmp_path / "x-cleanup.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema": "0guard.x_media_cleanup_manifest.v1",
+                "items": [
+                    {
+                        "tweetId": "111",
+                        "keep": False,
+                        "deleteRecommended": True,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/x_media_cleanup.py",
+            "--delete-from-manifest",
+            str(manifest),
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "--live-delete-confirm DELETE_X_MEDIA_FROM_0GUARD" in result.stderr
+    assert "Missing environment variables" not in result.stderr
+
+
+def test_x_media_cleanup_delete_dry_run_does_not_require_credentials(tmp_path):
+    manifest = tmp_path / "x-cleanup.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema": "0guard.x_media_cleanup_manifest.v1",
+                "items": [
+                    {
+                        "tweetId": "111",
+                        "keep": False,
+                        "deleteRecommended": True,
+                    },
+                    {
+                        "tweetId": "2054779961425461542",
+                        "keep": True,
+                        "deleteRecommended": False,
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/x_media_cleanup.py",
+            "--delete-from-manifest",
+            str(manifest),
+            "--dry-run",
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "Prepared 1 X media post deletion candidate(s)" in result.stdout
+    assert "Dry-run complete. No X posts deleted." in result.stdout
+
+
 def test_cli_evaluate_runs_without_budget_argument_regression():
     result = subprocess.run(
         [

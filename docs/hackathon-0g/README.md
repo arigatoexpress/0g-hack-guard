@@ -15,9 +15,9 @@ Submission proof artifact: `hackquest-submission-proof.json`
    readback, public project URL, 0G proof, demo video, and X post.
 2. Use `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
-3. Use `final-demo-video-script.md` as the locked three-minute recording
-   script, and `ai-submission-production-package.md` for Veo/Gemini prompt
-   production.
+3. Use `final-demo-video-script.md` as the reproducible source script for the
+   generated public MP4, and `ai-submission-production-package.md` if a later
+   Veo/Gemini-enhanced cut is desired.
 4. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
 5. Use `submission-form-fields.md` as the historical copy/paste packet for the
    submitted HackQuest form.
@@ -34,6 +34,8 @@ Submission proof artifact: `hackquest-submission-proof.json`
    claims to avoid.
 11. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
    submitted-state monitoring notes.
+12. Use `x-cleanup-runbook.md` for the dry-run-first X media deletion manifest
+    workflow; live deletion is never automatic.
 
 ## Winning Thesis
 
@@ -63,8 +65,9 @@ explains detector coverage gaps instead of hiding them.
 for offline judge demos, while `/api/data/provenance?live=1` can refresh
 against live public source records when the network path is healthy.
 The canonical incident dataset now includes per-incident source URLs and
-derived evidence for 26 of 28 records; `Silo V2` and `Denaria Finance` are the
-two explicit source-proof gaps.
+derived evidence for 28 of 28 records. The detector map covers 27 of 28
+incident-derived patterns; `Quant` remains the single research-only detector
+gap until stronger public root-cause evidence exists.
 
 The cross-chain layer is now explicit instead of implied. `/api/integrations/cross-chain`
 documents where 0guard can safely plug into Virtuals/Base, x402-supported
@@ -87,5 +90,7 @@ wallet actions remain operator-only.
   workbench.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.
+- No X media/post deletion unless a reviewed manifest exists and Ari gives
+  fresh explicit live deletion confirmation.
 - Live Storage upload and Compute scoring are documented as future work, not
   represented as complete.

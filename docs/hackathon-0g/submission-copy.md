@@ -66,17 +66,18 @@ mistake that human teams already lost money to.
 
 ## Required HackQuest Materials Status
 
-- Project info: ready.
+- Project info: submitted and publicly verified.
 - Copy/paste form packet: ready at
   `docs/hackathon-0g/submission-form-fields.md` and
   `/api/hackathon/submission-packet`.
 - Public GitHub repository: ready at `https://github.com/arigatoexpress/0guard`.
 - README and technical documentation: ready, with remaining Storage/Compute gaps stated openly.
-- Demo video: operator must record and upload a public <=3 minute video.
-- Public X post: operator must post with a screenshot or short clip,
-  `#0GHackathon`, `#BuildOn0G`, and tags `@0G_labs @0g_CN @0g_Eco
-  @HackQuest_`. A ready screenshot asset is available at
-  `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
+- Demo video: ready at
+  `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
+- Public X post: submitted proof URL is
+  `https://x.com/rariwrldd/status/2054779961425461542`. Refreshed single-post
+  and thread drafts remain available at `content/hackquest_x_post.json` and
+  `content/hack_guard_thread.json` for any follow-up launch posts.
 - 0G proof: live read-only status, receipt preflight, and mainnet receipt
   anchor proof are ready. Use `docs/hackathon-0g/mainnet-proof.json`, the
   contract URL, and the anchor transaction URL in the HackQuest form.
