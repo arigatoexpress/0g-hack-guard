@@ -4,6 +4,15 @@
 
 0guard
 
+## Recommended Track
+
+Primary: Track 5 - Privacy & Sovereign Infrastructure.
+
+Secondary: Track 1 - Agentic Infrastructure & OpenClaw Lab.
+
+Track 5 is the cleaner judge story because 0guard is a pre-wallet security,
+provenance, and receipt-infrastructure layer for autonomous agents.
+
 ## One-Sentence Description
 
 0guard is a 0G-native pre-wallet firewall that checks AI-agent intents against
@@ -34,6 +43,9 @@ mistake that human teams already lost money to.
   detection-coverage API readbacks.
 - A rights-aware OSINT registry and live signal route for public incident and
   research metadata.
+- A provenance matrix that correlates canonical incidents against live public
+  source records without exposing raw upstream payloads, plus a reviewed
+  derived-evidence cache for offline judge demos.
 - A signature map that explains detector coverage gaps and recommended rule
   additions.
 - 0G Galileo read-only network proof through `/api/0g/status`.
@@ -41,6 +53,20 @@ mistake that human teams already lost money to.
 - 0G Storage threat-intel payload/root-hash receipts.
 - Telegram Mira opt-in and preview primitives that never send messages from the
   judge workbench.
+
+## Required HackQuest Materials Status
+
+- Project info: ready.
+- Public GitHub repository: ready at `https://github.com/arigatoexpress/0guard`.
+- README and technical documentation: ready, with mainnet gaps stated openly.
+- Demo video: operator must record and upload a public <=3 minute video.
+- Public X post: operator must post with a screenshot or short clip,
+  `#0GHackathon`, `#BuildOn0G`, and tags `@0G_labs @0g_CN @0g_Eco
+  @HackQuest_`. A ready screenshot asset is available at
+  `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
+- 0G proof: live read-only Galileo status and receipt preflight are ready;
+  the contract address and explorer link require operator deployment or
+  configuration before claiming full chain proof.
 
 ## 0G Integration
 
@@ -101,9 +127,11 @@ shows the round-trip shape and intentionally labels the current anchor status as
    `zero_g.chain_anchor.status: preflight` plus the Storage `root_hash`.
 7. Show `/api/data/detection-coverage` to prove the incident dataset is wired
    through the detector rather than pasted into marketing copy.
-8. Show `/api/osint/sources` or `/api/osint/signals?live=1&limit=10` to prove
+8. Show `/api/data/provenance?live=1` to prove incidents can be correlated
+   against live public source records with confidence and record hashes.
+9. Show `/api/osint/sources` or `/api/osint/signals?live=1&limit=10` to prove
    the OSINT pipeline has source owners, rights caveats, links, and hashes.
-9. Show Telegram Mira preview only as a no-send opt-in surface.
+10. Show Telegram Mira preview only as a no-send opt-in surface.
 
 ## Why This Can Win
 

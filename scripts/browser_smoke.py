@@ -143,6 +143,12 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#load-detection-coverage").click()
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.detection_coverage.v1")
     expect(page.locator("#data-flow-output")).to_contain_text('"coverageRatio"')
+    page.locator("#load-provenance-matrix").click()
+    expect(page.locator("#data-flow-output")).to_contain_text(
+        "0guard.incident_provenance_matrix.v1"
+    )
+    expect(page.locator("#provenance-summary")).to_contain_text("26/28")
+    expect(page.locator("#provenance-summary")).to_contain_text("cached")
     page.locator("#load-signature-map").click()
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.signature_map.v1")
     expect(page.locator("#data-flow-output")).to_contain_text('"gapCount"')
@@ -194,9 +200,12 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/0g/status" in frontend_body["apiRoutes"]
     assert "/api/0g/receipt" in frontend_body["apiRoutes"]
     assert "/api/data/summary" in frontend_body["apiRoutes"]
+    assert "/api/data/provenance" in frontend_body["apiRoutes"]
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
+    assert "#provenance-summary" in frontend_body["requiredSelectors"]
+    assert "#load-live-provenance" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -227,6 +236,15 @@ def exercise_workbench(page: Page) -> None:
     assert detection_body["schema"] == "0guard.detection_coverage.v1"
     assert detection_body["coveredCount"] >= 12
 
+    provenance = page.request.get(f"{BASE_URL}/api/data/provenance")
+    assert provenance.ok
+    provenance_body = provenance.json()
+    assert provenance_body["schema"] == "0guard.incident_provenance_matrix.v1"
+    assert provenance_body["coverage"]["incidentCount"] == 28
+    assert provenance_body["coverage"]["withMatchedEvidence"] >= 20
+    assert provenance_body["sourceStatus"]["evidenceMode"] == "reviewed_derived_cache"
+    assert provenance_body["safety"]["rawPayloadsReturned"] is False
+
     signature_readback = page.request.get(f"{BASE_URL}/api/data/signature-map")
     assert signature_readback.ok
     signature_body = signature_readback.json()
@@ -251,6 +269,7 @@ def exercise_workbench(page: Page) -> None:
     submission_body = submission.json()
     assert submission_body["schema"] == "0guard.hackathon_submission_brief.v1"
     assert submission_body["project"]["name"] == "0guard"
+    assert submission_body["submissionRequirements"]["publicXPost"]["mandatory"] is True
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok

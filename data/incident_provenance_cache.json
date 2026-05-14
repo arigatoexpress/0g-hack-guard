@@ -1,0 +1,667 @@
+{
+  "coverageAtGeneration": {
+    "aggregateOnlyCount": 2,
+    "evidenceCoverageRatio": 0.9286,
+    "highConfidenceEvidenceCount": 23,
+    "incidentCount": 28,
+    "withDatasetSourceUrls": 0,
+    "withMatchedEvidence": 26
+  },
+  "generatedAt": "2026-05-14T01:12:22+00:00",
+  "records": [
+    {
+      "evidence": {
+        "amountUsd": 285000000,
+        "bridgeHack": false,
+        "chains": [
+          "Solana"
+        ],
+        "classification": "Infrastructure",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Drift Trade",
+        "observedDate": "2026-04-01",
+        "recordHash": "50196e5bd6df9eb8fe8ec44a64ce54482baeec40a1b4f8c30d0b21c2f549e4b6",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Compromised Admin + Fake Token Price Manipulation"
+      },
+      "incidentId": 1,
+      "protocol": "Drift Protocol",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 1665000,
+        "bridgeHack": false,
+        "chains": [
+          "BSC"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.86,
+        "evidenceType": "public_incident_index",
+        "matchedName": "BSC TMM/USDT",
+        "observedDate": "2026-04-04",
+        "recordHash": "d007b468c62c0887e7c07314f6677e89c270044744f828f2b2d76fab4ddad59a",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Reserve Manipulation Attack"
+      },
+      "incidentId": 3,
+      "protocol": "TMM",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 423000,
+        "bridgeHack": false,
+        "chains": [
+          "BSC"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Aethir",
+        "observedDate": "2026-04-09",
+        "recordHash": "805eed2174b8e315e6c2a3ad8ceca5d755c72d6455fc06f40e5c59b136425dd3",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Acces Control Exploit"
+      },
+      "incidentId": 5,
+      "protocol": "Aethir",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 2500000,
+        "bridgeHack": true,
+        "chains": [
+          "Ethereum",
+          "Base",
+          "BSC",
+          "Arbitrum"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.98,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Hyperbridge",
+        "observedDate": "2026-04-12",
+        "recordHash": "a2148c10930c9b78bee51382c66669b07c411e143b92226076a0077877ee097e",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Fake State Proof"
+      },
+      "incidentId": 6,
+      "protocol": "Hyperbridge",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 60000,
+        "bridgeHack": false,
+        "chains": [
+          "Base"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "SubQuery Network",
+        "observedDate": "2026-04-12",
+        "recordHash": "206849c39a3e6b93116fb85f6de134e94d1220d3ef08777e4f0f5ed187e1b045",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Acces Control Exploit"
+      },
+      "incidentId": 7,
+      "protocol": "SubQuery Network",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 410000,
+        "bridgeHack": false,
+        "chains": [
+          "Dango"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Dango",
+        "observedDate": "2026-04-13",
+        "recordHash": "026c1224ce3f3b1eb6b29460bcce6f5150718f5f5b94e274e81d0b44b74e330b",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Donate Negative Amounts Hack"
+      },
+      "incidentId": 8,
+      "protocol": "Dango",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 60950,
+        "bridgeHack": false,
+        "chains": [
+          "BSC"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "MONA",
+        "observedDate": "2026-04-13",
+        "recordHash": "9f362df29a90ba5a37ed93a03372f7ff8a1d1d0880a73440603656b7cbf99db1",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "Token",
+        "technique": "BurnAddress Accounting Exploit"
+      },
+      "incidentId": 9,
+      "protocol": "MONA",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 100000,
+        "bridgeHack": false,
+        "chains": [],
+        "classification": "Infrastructure",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Zerion Wallet",
+        "observedDate": "2026-04-14",
+        "recordHash": "311a75a02841e302c0aec219f382d072035f6cd163f057b8b03d65759f971951",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "Wallet",
+        "technique": "Hot Wallet Compromise via Social Engineering"
+      },
+      "incidentId": 10,
+      "protocol": "Zerion Wallet",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 18400000,
+        "bridgeHack": false,
+        "chains": [
+          "Near"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Rhea Lend",
+        "observedDate": "2026-04-16",
+        "recordHash": "480a59414d3878df7f9a311765b8b98605e5e026bcb969f73ce3e57328d9bc26",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Fake Collateral Exploit"
+      },
+      "incidentId": 11,
+      "protocol": "Rhea Finance",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 15000000,
+        "bridgeHack": false,
+        "chains": [
+          "Tron",
+          "Ethereum"
+        ],
+        "classification": "Infrastructure",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Grinex",
+        "observedDate": "2026-04-16",
+        "recordHash": "233f8565b099baa8a3eeead06bcca9b70b26267e5ea0625f9cba5474d8262586",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "CEX",
+        "technique": "Hot wallet hack"
+      },
+      "incidentId": 12,
+      "protocol": "Grinex",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 293000000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum",
+          "Arbitrum"
+        ],
+        "classification": "Infrastructure",
+        "confidence": 0.84,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Kelp",
+        "observedDate": "2026-04-18",
+        "recordHash": "e418424507b80510da83e14d13691f80b4e2119a2ee5f3967bb7777c7eed6a5a",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "LayerZero OFT bridge exploit"
+      },
+      "incidentId": 13,
+      "protocol": "Kelp DAO",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 52000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Juicebox V3",
+        "observedDate": "2026-04-20",
+        "recordHash": "91758a7064b424df6f08f021c0e2f7806082d64ce2d3d368768855030a9a5eac",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "borrowFrom Spoof Attack"
+      },
+      "incidentId": 14,
+      "protocol": "Juicebox V3",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 50000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Thetanuts Finance",
+        "observedDate": "2026-04-20",
+        "recordHash": "4f8793f01bf7ba0bf61e5ee2d96db4d5a7171852d9355103ce65ca80ff6e7786",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "First Depositor Attack"
+      },
+      "incidentId": 15,
+      "protocol": "Thetanuts Finance",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 3500000,
+        "bridgeHack": false,
+        "chains": [
+          "Sui"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Volo Vault",
+        "observedDate": "2026-04-21",
+        "recordHash": "195a9062cd748cdaa5d72fbc34aa5ff38c056272f8fa09537b3595b2559fb98c",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Admin Key Compromised"
+      },
+      "incidentId": 16,
+      "protocol": "Volo Protocol",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 80000,
+        "bridgeHack": false,
+        "chains": [
+          "Base"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Kipseli",
+        "observedDate": "2026-04-22",
+        "recordHash": "fc152ea3cb56e162cede47fe378ebfbe83c569a17593960b96b9fb7e60888c3e",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Flawed Quoting Logic"
+      },
+      "incidentId": 17,
+      "protocol": "Kipseli",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 1300000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.86,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Giddy",
+        "observedDate": "2026-04-23",
+        "recordHash": "b48b857a41e36aceb7a803eaf7ad1941440585111d9db46eb27fd7bbbeaec7da",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Incomplete EIP-712 Signature Coverage"
+      },
+      "incidentId": 18,
+      "protocol": "Giddy Finance",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 1500000,
+        "bridgeHack": false,
+        "chains": [
+          "MegaETH",
+          "Hyperliquid L1"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Purrlend",
+        "observedDate": "2026-04-25",
+        "recordHash": "463c4ac334b45d5af1a29f2b7e74dcdfc03795cbc98cb922d0ea875674656d89",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Fake Bridge Address"
+      },
+      "incidentId": 19,
+      "protocol": "Purrlend",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 150000,
+        "bridgeHack": false,
+        "chains": [
+          "Sui"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.78,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Scallop Lend",
+        "observedDate": "2026-04-26",
+        "recordHash": "ff5cd003ef75b8e88f780b254b642587b699d9697227b48fbc06c199fa81ccec",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Deprecated V2 Rewards Contract"
+      },
+      "incidentId": 20,
+      "protocol": "Scallop",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 413000,
+        "bridgeHack": false,
+        "chains": [
+          "Base"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Singularity Finance",
+        "observedDate": "2026-04-27",
+        "recordHash": "ff31d427a2283a7a3b17e61a1207ff538eb840a8cb5dabd18c4a038e5447a2ab",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Oracle Misconfiguration Exploit"
+      },
+      "incidentId": 21,
+      "protocol": "Singularity Finance",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 300000,
+        "bridgeHack": true,
+        "chains": [
+          "Ethereum",
+          "Base",
+          "Polygon",
+          "Arbitrum",
+          "Avalanche",
+          "BSC"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.98,
+        "evidenceType": "public_incident_index",
+        "matchedName": "ZetaChain",
+        "observedDate": "2026-04-27",
+        "recordHash": "dd9bcf229c25f29e6d3e42d42e2fc8aed27b999ddefa7cd18972d2b937302f51",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "GatewayEVM Contracts Exploit"
+      },
+      "incidentId": 22,
+      "protocol": "ZetaChain",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 228000,
+        "bridgeHack": false,
+        "chains": [
+          "BSC"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.92,
+        "evidenceType": "public_incident_index",
+        "matchedName": "JUDAO",
+        "observedDate": "2026-04-28",
+        "recordHash": "65ae0606ad642c2658447c72c7792000e8785adbcb4d9b1293111492d69bf4d7",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "Token",
+        "technique": "Flashloan Exploit"
+      },
+      "incidentId": 23,
+      "protocol": "JuDAO",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 138000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Quant",
+        "observedDate": "2026-04-28",
+        "recordHash": "5448fa703e0e3a464a632d2cb8d1ce3376312c9d6fec3300ba888cc9386f6802",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "Token",
+        "technique": "Access Control Exploit"
+      },
+      "incidentId": 24,
+      "protocol": "Quant",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 1140000,
+        "bridgeHack": false,
+        "chains": [
+          "Sui"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Aftermath Perps",
+        "observedDate": "2026-04-29",
+        "recordHash": "ae729ae362829f405b027f7cfb4109055f10743fedf58644918692fc57f9177c",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Fee-Accounting Logic Flaw"
+      },
+      "incidentId": 25,
+      "protocol": "Aftermath Perps",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 3500000,
+        "bridgeHack": false,
+        "chains": [
+          "Near"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 1.0,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Sweat Foundation",
+        "observedDate": "2026-04-29",
+        "recordHash": "f576be106ac37e0b0bd896bb34b6a808882c0c54c9890cb555c3f22ab1f2bc57",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Refund_first & Refund_second Logic Exploit"
+      },
+      "incidentId": 26,
+      "protocol": "Sweat Foundation",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 380000,
+        "bridgeHack": true,
+        "chains": [
+          "Base"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.68,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Syndicate",
+        "observedDate": "2026-04-29",
+        "recordHash": "0ab7b2034c202b518a1e48a43cf5fc72afbd61f8581ec885db24451cc19bfe72",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Commons Bridge Exploit"
+      },
+      "incidentId": 27,
+      "protocol": "Syndicate",
+      "reviewStatus": "derived_pending_human_promotion"
+    },
+    {
+      "evidence": {
+        "amountUsd": 5500000,
+        "bridgeHack": false,
+        "chains": [
+          "Ethereum",
+          "Base",
+          "Berachain",
+          "Blast"
+        ],
+        "classification": "Protocol Logic",
+        "confidence": 0.9,
+        "evidenceType": "public_incident_index",
+        "matchedName": "Wasabi Perps",
+        "observedDate": "2026-04-30",
+        "recordHash": "b479a421f5fa7fa547464d31351c1855d937f75a03a9b7a76254891420b5002d",
+        "rightsEnvelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps.",
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": "https://defillama.com/hacks",
+        "targetType": "DeFi Protocol",
+        "technique": "Admin Key Compromised"
+      },
+      "incidentId": 28,
+      "protocol": "Wasabi Protocol",
+      "reviewStatus": "derived_pending_human_promotion"
+    }
+  ],
+  "rightsEnvelope": "Derived metadata and source links for defensive provenance. Do not mirror raw upstream payload dumps.",
+  "schema": "0guard.incident_provenance_cache.v1",
+  "source": {
+    "sourceId": "defillama_hacks",
+    "sourceOwner": "DeFiLlama",
+    "sourceStatus": {
+      "cacheRecordsLoaded": 0,
+      "error": null,
+      "evidenceMode": "live_source_records",
+      "httpStatus": 200,
+      "latencyMs": 239,
+      "live": true,
+      "recordsLoaded": 521,
+      "sourceId": "defillama_hacks",
+      "status": "ok"
+    },
+    "sourceUrl": "https://api.llama.fi/hacks"
+  }
+}

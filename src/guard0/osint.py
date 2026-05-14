@@ -26,13 +26,23 @@ from guard0.crypto_hack_guard import check_crypto_hack_signatures
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
+DEFAULT_PROVENANCE_CACHE_PATH = REPO_ROOT / "data" / "incident_provenance_cache.json"
 OSINT_REGISTRY_SCHEMA = "0guard.osint_source_registry.v1"
 OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
 SIGNATURE_MAP_SCHEMA = "0guard.signature_map.v1"
 HACKATHON_BRIEF_SCHEMA = "0guard.hackathon_submission_brief.v1"
+PROVENANCE_MATRIX_SCHEMA = "0guard.incident_provenance_matrix.v1"
+PROVENANCE_CACHE_SCHEMA = "0guard.incident_provenance_cache.v1"
 USER_AGENT = "0guard-osint/0.1 (+https://github.com/arigatoexpress/0guard)"
 MAX_FETCH_BYTES = 2_000_000
+DEFILLAMA_INCIDENT_ALIASES = {
+    "driftprotocol": {"drifttrade"},
+    "rheafinance": {"rhealend"},
+    "voloprotocol": {"volovault"},
+    "wasabiprotocol": {"wasabiperps"},
+    "silov2": {"silofinance"},
+}
 
 
 @dataclass(frozen=True)
@@ -238,12 +248,142 @@ def signature_map(dataset: dict[str, Any] | None = None) -> dict[str, Any]:
     }
 
 
+def incident_provenance_matrix(
+    *,
+    live: bool = False,
+    dataset: dict[str, Any] | None = None,
+    defillama_records: list[dict[str, Any]] | None = None,
+    cache_path: str | Path | None = None,
+    timeout_seconds: float = 6.0,
+) -> dict[str, Any]:
+    """Build per-incident source evidence and live-source correlation gaps."""
+    loaded = dataset or load_incident_dataset()
+    meta = loaded.get("meta") or {}
+    aggregate_sources = meta.get("source_urls") if isinstance(meta, dict) else []
+    if not isinstance(aggregate_sources, list):
+        aggregate_sources = []
+
+    fetched = False
+    records = defillama_records if defillama_records is not None else []
+    cached_evidence = (
+        {}
+        if defillama_records is not None
+        else _load_provenance_cache(cache_path=cache_path)
+    )
+    source_status = {
+        "sourceId": "defillama_hacks",
+        "status": "injected_records"
+        if defillama_records is not None
+        else "live_fetch_disabled",
+        "live": live,
+        "error": None,
+        "recordsLoaded": len(records),
+        "cacheRecordsLoaded": len(cached_evidence),
+        "evidenceMode": "injected_records" if defillama_records is not None else "none",
+    }
+
+    if live and defillama_records is None:
+        fetched = True
+        result = _fetch_url(
+            "https://api.llama.fi/hacks",
+            timeout_seconds=timeout_seconds,
+            max_bytes=MAX_FETCH_BYTES,
+        )
+        source_status.update(
+            {
+                "status": "ok" if result.ok else "degraded",
+                "httpStatus": result.status_code,
+                "latencyMs": result.elapsed_ms,
+                "error": result.error,
+            }
+        )
+        if result.ok:
+            try:
+                decoded = json.loads(result.body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                decoded = []
+                source_status["status"] = "parse_error"
+            if isinstance(decoded, list):
+                records = [item for item in decoded if isinstance(item, dict)]
+                source_status["recordsLoaded"] = len(records)
+        if not records and cached_evidence:
+            source_status["status"] = "degraded_cache_fallback"
+
+    if records:
+        source_status["evidenceMode"] = "live_source_records" if fetched else "injected_records"
+    elif cached_evidence:
+        if not live and defillama_records is None:
+            source_status["status"] = "reviewed_cache"
+        source_status["evidenceMode"] = "reviewed_derived_cache"
+
+    rows = []
+    linked_count = 0
+    high_confidence_count = 0
+    dataset_source_count = 0
+    for incident in loaded.get("incidents", []):
+        dataset_urls = incident.get("source_urls")
+        if isinstance(dataset_urls, list) and dataset_urls:
+            dataset_source_count += 1
+        else:
+            dataset_urls = []
+
+        evidence = _defillama_evidence_for_incident(incident, records) if records else None
+        if evidence is None and cached_evidence:
+            evidence = cached_evidence.get(int(incident.get("id", -1)))
+        if evidence:
+            linked_count += 1
+            if evidence["confidence"] >= 0.85:
+                high_confidence_count += 1
+        status = "source_linked" if evidence else "aggregate_only"
+        if not evidence and not aggregate_sources:
+            status = "missing_sources"
+
+        rows.append(
+            {
+                "incidentId": incident.get("id"),
+                "protocol": incident.get("protocol"),
+                "date": incident.get("date"),
+                "lossUsd": incident.get("loss_usd"),
+                "chain": incident.get("chain"),
+                "attackVector": incident.get("attack_vector"),
+                "status": status,
+                "datasetSourceUrls": dataset_urls,
+                "aggregateSourceUrls": aggregate_sources,
+                "evidence": [evidence] if evidence else [],
+                "recommendedNextStep": _provenance_next_step(incident, evidence),
+            }
+        )
+
+    incident_count = len(rows)
+    return {
+        "schema": PROVENANCE_MATRIX_SCHEMA,
+        "generatedAt": _now(),
+        "live": live,
+        "liveFetchAttempted": fetched,
+        "datasetFingerprint": dataset_fingerprint(loaded),
+        "sourceStatus": source_status,
+        "coverage": {
+            "incidentCount": incident_count,
+            "withDatasetSourceUrls": dataset_source_count,
+            "withMatchedEvidence": linked_count,
+            "highConfidenceEvidenceCount": high_confidence_count,
+            "aggregateOnlyCount": sum(1 for row in rows if row["status"] == "aggregate_only"),
+            "evidenceCoverageRatio": round(linked_count / incident_count, 4)
+            if incident_count
+            else 0,
+        },
+        "rows": rows,
+        "safety": _osint_safety(),
+    }
+
+
 def hackathon_submission_brief() -> dict[str, Any]:
     """Return a compact, current submission checklist and product brief."""
     summary = incident_summary()
     coverage = detection_coverage()
     sig_map = signature_map()
     sources = source_registry_public()
+    provenance = incident_provenance_matrix(live=False)
     return {
         "schema": HACKATHON_BRIEF_SCHEMA,
         "generatedAt": _now(),
@@ -260,7 +400,56 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "source": "HackQuest 0G APAC Hackathon",
             "submissionDeadline": "2026-05-16T23:59:00+08:00",
             "submissionDeadlineMdt": "2026-05-16T09:59:00-06:00",
-            "note": "Current English HackQuest page shows May 16; older localized pages may show May 9.",
+            "submissionDeadlineEdt": "2026-05-16T11:59:00-04:00",
+            "preliminaryReview": "2026-05-16 to 2026-05-24",
+            "rewardAnnouncement": "2026-05-29T15:59:00+08:00",
+            "note": "Official HackQuest page says all final materials must be submitted before May 16, 2026 at 23:59 UTC+8.",
+        },
+        "trackRecommendation": {
+            "primary": "Track 5: Privacy & Sovereign Infrastructure",
+            "secondary": "Track 1: Agentic Infrastructure & OpenClaw Lab",
+            "why": (
+                "Lead with verifiable pre-wallet security, provenance, and receipt "
+                "infrastructure; mention agent orchestration only as the user context."
+            ),
+        },
+        "submissionRequirements": {
+            "repo": {
+                "required": True,
+                "status": "ready",
+                "url": "https://github.com/arigatoexpress/0guard",
+            },
+            "0gProof": {
+                "required": True,
+                "status": "operator_required",
+                "needs": [
+                    "0G contract address",
+                    "0G Explorer link",
+                    "Clear proof of at least one 0G component",
+                ],
+            },
+            "demoVideo": {
+                "required": True,
+                "status": "operator_required",
+                "maxDurationSeconds": 180,
+                "mustShow": [
+                    "core product flow",
+                    "user flow or use case",
+                    "how the 0G component is actually used",
+                ],
+            },
+            "publicXPost": {
+                "mandatory": True,
+                "status": "operator_required",
+                "requiredTags": ["@0G_labs", "@0g_CN", "@0g_Eco", "@HackQuest_"],
+                "requiredHashtags": ["#0GHackathon", "#BuildOn0G"],
+                "needs": ["project name", "demo screenshot or short demo clip"],
+            },
+            "documentation": {
+                "required": True,
+                "status": "ready_with_known_gaps",
+                "judgeFastPath": "README plus docs/hackathon-0g/",
+            },
         },
         "judgeStory": [
             "AI agents can request wallet actions faster than humans can review them.",
@@ -268,6 +457,18 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "The detector is grounded in real incident patterns and OSINT source streams.",
             "The verdict becomes a deterministic receipt ready for 0G Chain and Storage.",
             "Dangerous actions stay blocked from the workbench by design.",
+        ],
+        "competitivePositioning": [
+            "Strong 0G submissions expose proof trails: contract addresses, storage roots, transaction hashes, demo URLs, and judge walkthroughs.",
+            "0guard's wedge is not another agent memory app; it is the security/provenance layer agents should consult before signing.",
+            "The submission should foreground read-only proof honesty and the receipt-anchor gap instead of pretending mainnet writes are complete.",
+        ],
+        "proofFirstChecklist": [
+            "Show live /api/0g/status readback.",
+            "Show /api/evaluate with 0G anchor/storage flags and the preflight receipt payload.",
+            "Show /api/data/provenance?live=1 with source match counts and record hashes.",
+            "Show the contract address and explorer link after operator deployment.",
+            "Show the public X post link and <=3 minute demo video link in the HackQuest form.",
         ],
         "0gIntegration": {
             "chain": "Live read-only Galileo RPC proof plus PolicyReceiptAnchor preflight.",
@@ -282,11 +483,15 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "detectionCoverageRatio": coverage["coverageRatio"],
             "signatureGapCount": sig_map["gapCount"],
             "sourceRegistryCount": sources["sourceCount"],
+            "provenanceCoverageRatioWithoutLiveFetch": provenance["coverage"][
+                "evidenceCoverageRatio"
+            ],
         },
         "autonomousWorkCompleted": [
             "Validated incident dataset and read-only coverage APIs.",
             "Rights-aware OSINT source registry and live signal normalization.",
             "Signature coverage map with recommended detector gaps.",
+            "Incident provenance matrix with live DeFiLlama correlation support.",
             "Submission brief API for judge/operator readback.",
         ],
         "operatorRequired": [
@@ -410,6 +615,118 @@ def _normalize_rss_items(
     return normalized
 
 
+def _defillama_evidence_for_incident(
+    incident: dict[str, Any],
+    records: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    best: tuple[float, dict[str, Any]] | None = None
+    for record in records:
+        score = _defillama_match_score(incident, record)
+        if score < 0.62:
+            continue
+        if best is None or score > best[0]:
+            best = (score, record)
+    if best is None:
+        return None
+
+    score, record = best
+    source_url = record.get("source") or "https://defillama.com/hacks"
+    evidence = {
+        "sourceId": "defillama_hacks",
+        "sourceOwner": "DeFiLlama",
+        "sourceUrl": source_url,
+        "evidenceType": "public_incident_index",
+        "matchedName": record.get("name"),
+        "observedDate": _unix_to_iso(record.get("date")),
+        "amountUsd": record.get("amount"),
+        "chains": record.get("chain") or [],
+        "classification": record.get("classification"),
+        "technique": record.get("technique"),
+        "targetType": record.get("targetType"),
+        "bridgeHack": bool(record.get("bridgeHack")),
+        "confidence": round(min(score, 1.0), 4),
+        "rightsEnvelope": (
+            "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        ),
+    }
+    evidence["recordHash"] = _record_hash(evidence)
+    return evidence
+
+
+def _load_provenance_cache(
+    *,
+    cache_path: str | Path | None = None,
+) -> dict[int, dict[str, Any]]:
+    path = Path(cache_path) if cache_path else DEFAULT_PROVENANCE_CACHE_PATH
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as handle:
+        cache = json.load(handle)
+    if cache.get("schema") != PROVENANCE_CACHE_SCHEMA:
+        raise ValueError(f"unexpected provenance cache schema: {cache.get('schema')}")
+    records = cache.get("records")
+    if not isinstance(records, list):
+        raise ValueError("provenance cache records must be a list")
+
+    indexed: dict[int, dict[str, Any]] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        incident_id = record.get("incidentId")
+        evidence = record.get("evidence")
+        if not isinstance(incident_id, int) or not isinstance(evidence, dict):
+            continue
+        indexed[incident_id] = {
+            **evidence,
+            "cacheReviewStatus": record.get("reviewStatus", "derived_unreviewed"),
+            "cacheGeneratedAt": cache.get("generatedAt"),
+        }
+    return indexed
+
+
+def _defillama_match_score(incident: dict[str, Any], record: dict[str, Any]) -> float:
+    incident_name = _normalize_name(incident.get("protocol"))
+    record_name = _normalize_name(record.get("name"))
+    aliases = DEFILLAMA_INCIDENT_ALIASES.get(incident_name, set())
+    score = 0.0
+
+    if incident_name and incident_name == record_name:
+        score += 0.52
+    elif record_name in aliases:
+        score += 0.52
+    elif incident_name and (incident_name in record_name or record_name in incident_name):
+        score += 0.38
+
+    incident_loss = incident.get("loss_usd")
+    record_amount = record.get("amount")
+    if _numbers_close(incident_loss, record_amount):
+        score += 0.24
+    elif _numbers_close(incident_loss, record_amount, tolerance=0.12):
+        score += 0.16
+
+    if incident.get("date") == _unix_to_iso(record.get("date")):
+        score += 0.16
+
+    incident_chain = _normalize_name(incident.get("chain"))
+    record_chains = {_normalize_name(chain) for chain in (record.get("chain") or [])}
+    if incident_chain and incident_chain in record_chains:
+        score += 0.08
+    elif incident_chain == "multichain" and len(record_chains) > 1:
+        score += 0.06
+
+    return score
+
+
+def _provenance_next_step(incident: dict[str, Any], evidence: dict[str, Any] | None) -> str:
+    if evidence and evidence["confidence"] >= 0.85:
+        return "Add incident-specific source URL/evidence_type/confidence to the canonical dataset."
+    if evidence:
+        return "Review the matched source candidate before promoting it into canonical provenance."
+    if str(incident.get("attack_vector", "")).lower() == "undisclosed":
+        return "Wait for a postmortem or trusted incident writeup before adding detector-specific claims."
+    return "Find a protocol postmortem, security report, transaction, or trusted incident index entry."
+
+
 def _signature_gap_for_incident(incident: dict[str, Any]) -> str:
     vector = str(incident.get("attack_vector") or "").lower()
     text = f"{vector} {incident.get('description', '')}".lower()
@@ -522,6 +839,23 @@ def _xml_text(item: ElementTree.Element, field: str) -> str:
 
 def _clean_text(value: str | None) -> str:
     return " ".join(str(value or "").split())
+
+
+def _normalize_name(value: Any) -> str:
+    import re
+
+    return re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
+
+
+def _numbers_close(left: Any, right: Any, *, tolerance: float = 0.015) -> bool:
+    if isinstance(left, bool) or isinstance(right, bool):
+        return False
+    if not isinstance(left, int | float) or not isinstance(right, int | float):
+        return False
+    if left == right:
+        return True
+    larger = max(abs(float(left)), abs(float(right)), 1.0)
+    return abs(float(left) - float(right)) / larger <= tolerance
 
 
 def _security_relevant(title: str, categories: list[str]) -> bool:

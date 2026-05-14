@@ -21,6 +21,7 @@ from guard0.incident_data import detection_coverage, filter_incidents, incident_
 from guard0.mira import build_mira_security_preview
 from guard0.osint import (
     hackathon_submission_brief,
+    incident_provenance_matrix,
     osint_readiness,
     osint_signals,
     signature_map,
@@ -67,7 +68,10 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#contract-output",
     "#zg-status-output",
     "#data-flow-output",
+    "#provenance-summary",
     "#load-data-summary",
+    "#load-provenance-matrix",
+    "#load-live-provenance",
     "#load-detection-coverage",
     "#load-signature-map",
     "#load-osint-sources",
@@ -332,6 +336,7 @@ def api_frontend_contract():
                 "/api/0g/receipt",
                 "/api/data/summary",
                 "/api/data/incidents",
+                "/api/data/provenance",
                 "/api/data/detection-coverage",
                 "/api/data/signature-map",
                 "/api/osint/sources",
@@ -351,6 +356,8 @@ def api_frontend_contract():
                 "run-hack-check",
                 "run-domain-check",
                 "load-data-summary",
+                "load-provenance-matrix",
+                "load-live-provenance",
                 "load-detection-coverage",
                 "load-signature-map",
                 "load-osint-sources",
@@ -405,6 +412,12 @@ def api_data_incidents():
 @app.route("/api/data/detection-coverage", methods=["GET"])
 def api_data_detection_coverage():
     return jsonify(detection_coverage())
+
+
+@app.route("/api/data/provenance", methods=["GET"])
+def api_data_provenance():
+    live = _truthy_query_arg("live")
+    return jsonify(incident_provenance_matrix(live=live))
 
 
 @app.route("/api/data/signature-map", methods=["GET"])

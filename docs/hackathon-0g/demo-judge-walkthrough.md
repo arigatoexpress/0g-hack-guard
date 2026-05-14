@@ -92,6 +92,8 @@ Show that the evidence base is structured:
 
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/provenance | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 ```
@@ -100,6 +102,12 @@ Position this as a data product, not a slide: the dataset is schema-validated,
 fingerprinted, summarized, filterable, and used as detector coverage input.
 The signature map also names the detector gaps instead of hiding misses behind
 one aggregate score.
+The provenance matrix shows which canonical incidents already correlate to
+live public source records and which still need postmortems, transaction links,
+or trusted incident reports.
+In the browser workbench, use `Provenance` for the deterministic offline view
+backed by `data/incident_provenance_cache.json`, and `Live provenance` only
+when the network path is healthy.
 
 If time allows, show the OSINT source layer:
 

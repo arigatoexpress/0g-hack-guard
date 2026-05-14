@@ -18,6 +18,35 @@ let latestTelegramRecord = null;
 function writeJson(id, value){
   document.getElementById(id).textContent = JSON.stringify(value, null, 2);
 }
+function sourceStatusLabel(status){
+  return {
+    reviewed_cache: 'reviewed cache',
+    degraded_cache_fallback: 'cache fallback',
+    injected_records: 'fixture',
+    live_fetch_disabled: 'not live',
+    ok: 'live ok'
+  }[status] || status || 'unknown';
+}
+function writeProvenanceSummary(matrix){
+  const summary = document.getElementById('provenance-summary');
+  if(!matrix || !matrix.coverage){
+    return;
+  }
+  const coverage = matrix.coverage;
+  const missing = (matrix.rows || [])
+    .filter((row) => !row.evidence || row.evidence.length === 0)
+    .map((row) => row.protocol)
+    .slice(0, 4);
+  const missingText = missing.length ? missing.join(', ') : 'none';
+  summary.innerHTML = `
+    <div class="metric"><span>Source matches</span><strong class="ok">${coverage.withMatchedEvidence}/${coverage.incidentCount}</strong></div>
+    <div class="metric"><span>High confidence</span><strong>${coverage.highConfidenceEvidenceCount}</strong></div>
+    <div class="metric"><span>Needs proof</span><strong class="${missing.length ? 'review' : 'ok'}">${coverage.aggregateOnlyCount}</strong></div>
+    <div class="metric"><span>Mode</span><strong>${matrix.live ? 'live' : 'cached'}</strong></div>
+    <div class="metric"><span>Source</span><strong>${sourceStatusLabel(matrix.sourceStatus.status)}</strong></div>
+    <div class="metric"><span>Missing</span><strong class="${missing.length ? 'review' : 'ok'}">${missingText}</strong></div>
+  `;
+}
 function updateDecision(decision){
   const pill = document.getElementById('decision-pill');
   pill.className = 'pill ' + (decision || 'review');
@@ -69,6 +98,18 @@ async function verifyReceipt(){
 async function loadDataSummary(){
   const r = await fetch('/api/data/summary');
   const j = await r.json();
+  writeJson('data-flow-output', j);
+}
+async function loadProvenanceMatrix(){
+  const r = await fetch('/api/data/provenance');
+  const j = await r.json();
+  writeProvenanceSummary(j);
+  writeJson('data-flow-output', j);
+}
+async function loadLiveProvenanceMatrix(){
+  const r = await fetch('/api/data/provenance?live=1');
+  const j = await r.json();
+  writeProvenanceSummary(j);
   writeJson('data-flow-output', j);
 }
 async function loadDetectionCoverage(){
@@ -158,6 +199,8 @@ document.getElementById('run-hack-check').addEventListener('click', hackCheck);
 document.getElementById('run-domain-check').addEventListener('click', domainCheck);
 document.getElementById('verify-receipt').addEventListener('click', verifyReceipt);
 document.getElementById('load-data-summary').addEventListener('click', loadDataSummary);
+document.getElementById('load-provenance-matrix').addEventListener('click', loadProvenanceMatrix);
+document.getElementById('load-live-provenance').addEventListener('click', loadLiveProvenanceMatrix);
 document.getElementById('load-detection-coverage').addEventListener('click', loadDetectionCoverage);
 document.getElementById('load-signature-map').addEventListener('click', loadSignatureMap);
 document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);

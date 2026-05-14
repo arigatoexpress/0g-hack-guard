@@ -88,6 +88,24 @@ python3 -m guard0.app
 
 Open `http://127.0.0.1:8109` for the dashboard.
 
+## Judge Fast Path
+
+For the 0G APAC Hackathon, the fastest review path is:
+
+1. Open the dashboard and run a risky intent through the Intent Firewall.
+2. Check `/api/0g/status` for live, read-only Galileo RPC proof.
+3. Run `/api/evaluate` with `enable_0g_anchor` and `enable_0g_storage` to see
+   receipt preflight plus a Storage-ready root hash.
+4. Run `/api/data/provenance` to see the reviewed derived-evidence cache, then
+   `/api/data/provenance?live=1` for live source correlation when the network
+   path is healthy.
+5. Use `docs/hackathon-0g/` for the submission copy, demo walkthrough, market
+   intel, and mainnet gap register.
+
+Current operator-only submission gaps: public X post, <=3 minute demo video,
+and 0G contract/explorer proof after receipt-anchor deployment or
+configuration.
+
 ---
 
 ## CLI
@@ -116,6 +134,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
 | `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
 | `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
+| `GET`  | `/api/data/provenance` | Per-incident provenance matrix from reviewed derived cache; add `?live=1` to correlate against live DeFiLlama hack records |
 | `GET`  | `/api/data/detection-coverage` | Runs incident-derived seeds through the signature engine and reports coverage |
 | `GET`  | `/api/data/signature-map` | Explains per-incident signature matches, coverage gaps, and recommended detector additions |
 | `GET`  | `/api/osint/sources` | Rights-aware OSINT source registry with owners, URLs, retrieval modes, TTLs, and caveats |
@@ -190,9 +209,12 @@ curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000
 The incident dataset is loaded from `data/april_2026_incidents.json`, validated
 against a required schema, fingerprinted, summarized, and run through the
 signature engine as detection-coverage seeds.
+`data/incident_provenance_cache.json` stores derived source evidence for the
+provenance matrix so the judge demo remains useful offline.
 
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 ```

@@ -47,6 +47,7 @@ loose demo copy.
 |---|---|
 | `/api/data/summary` | Validation, fingerprint, aggregate stats, top losses. |
 | `/api/data/incidents` | Filterable public incident rows. |
+| `/api/data/provenance` | Per-incident provenance matrix and optional live DeFiLlama correlation. |
 | `/api/data/detection-coverage` | Signature-engine coverage over incident-derived seeds. |
 | `/api/data/signature-map` | Per-incident match explanation, gaps, and recommended detectors. |
 | `/api/osint/sources` | Rights-aware source registry and output policy. |
@@ -59,6 +60,7 @@ Example:
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/data/incidents?chain=Ethereum&min_loss_usd=100000&limit=5' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
@@ -82,6 +84,14 @@ provenance. Each source records:
 
 Default outputs are derived metadata, links, hashes, readiness, and defensive
 analysis. Raw upstream payloads are not exposed by API routes.
+
+The provenance matrix uses `data/incident_provenance_cache.json` for a reviewed
+derived-evidence cache, so the judge demo remains useful without network access.
+It can also correlate canonical incidents against DeFiLlama's public hack index
+when `?live=1` is supplied. Both modes return matched source metadata,
+confidence, record hashes, and a recommended next step for each incident. This
+keeps live source evidence separate from the canonical dataset until a human
+promotes each source URL/evidence type into `data/april_2026_incidents.json`.
 
 Next durable upgrade:
 

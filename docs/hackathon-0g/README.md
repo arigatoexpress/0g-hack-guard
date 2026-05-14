@@ -10,9 +10,11 @@ private keys or real writes in the workbench.
 1. Start with `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
 2. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
-3. Reference `mainnet-gap-register.md` when judges ask what is real today
+3. Use `market-intel.md` for current HackQuest requirements, track fit, and
+   competitor positioning.
+4. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
-4. Use `/api/hackathon/submission-brief` for a machine-readable final brief
+5. Use `/api/hackathon/submission-brief` for a machine-readable final brief
    with deadline, repo/demo links, data stats, manual TODOs, and claims to
    avoid.
 
@@ -39,6 +41,9 @@ tracks source ownership, URLs, retrieval mode, rights envelopes, TTLs, and
 caveats; `/api/osint/signals?live=1` normalizes public incident/research
 metadata into source-cited records with hashes; `/api/data/signature-map`
 explains detector coverage gaps instead of hiding them.
+`data/incident_provenance_cache.json` keeps a reviewed derived-evidence cache
+for offline judge demos, while `/api/data/provenance?live=1` can refresh
+against live public source records when the network path is healthy.
 
 ## Safety Posture
 

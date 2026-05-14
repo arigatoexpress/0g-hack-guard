@@ -79,6 +79,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/0g/receipt" in data["apiRoutes"]
     assert "/api/data/summary" in data["apiRoutes"]
     assert "/api/data/incidents" in data["apiRoutes"]
+    assert "/api/data/provenance" in data["apiRoutes"]
     assert "/api/data/detection-coverage" in data["apiRoutes"]
     assert "/api/data/signature-map" in data["apiRoutes"]
     assert "/api/osint/sources" in data["apiRoutes"]
@@ -92,6 +93,9 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#verify-receipt-hash" in data["requiredSelectors"]
     assert "#verify-receipt" in data["requiredSelectors"]
     assert "#data-flow-output" in data["requiredSelectors"]
+    assert "#provenance-summary" in data["requiredSelectors"]
+    assert "#load-provenance-matrix" in data["requiredSelectors"]
+    assert "#load-live-provenance" in data["requiredSelectors"]
     assert "#osint-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
@@ -162,6 +166,16 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     assert coverage_body["schema"] == "0guard.detection_coverage.v1"
     assert coverage_body["coveredCount"] >= 12
 
+    provenance = client.get("/api/data/provenance")
+    assert provenance.status_code == 200
+    provenance_body = provenance.get_json()
+    assert provenance_body["schema"] == "0guard.incident_provenance_matrix.v1"
+    assert provenance_body["coverage"]["incidentCount"] == 28
+    assert provenance_body["coverage"]["withMatchedEvidence"] >= 20
+    assert provenance_body["sourceStatus"]["status"] == "reviewed_cache"
+    assert provenance_body["live"] is False
+    assert provenance_body["safety"]["rawPayloadsReturned"] is False
+
     signature_map = client.get("/api/data/signature-map")
     assert signature_map.status_code == 200
     signature_body = signature_map.get_json()
@@ -199,6 +213,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert brief_body["schema"] == "0guard.hackathon_submission_brief.v1"
     assert brief_body["project"]["name"] == "0guard"
     assert brief_body["dataProduct"]["incidentCount"] == 28
+    assert brief_body["submissionRequirements"]["publicXPost"]["mandatory"] is True
 
 
 def test_osint_signal_route_rejects_bad_limit(client):

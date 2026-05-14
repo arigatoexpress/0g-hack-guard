@@ -80,6 +80,8 @@
             <h2>Data Flow</h2>
             <div class="actions">
               <button id="load-data-summary" type="button">Load data summary</button>
+              <button id="load-provenance-matrix" class="secondary" type="button">Provenance</button>
+              <button id="load-live-provenance" class="secondary" type="button">Live provenance</button>
               <button id="load-detection-coverage" class="secondary" type="button">Detection coverage</button>
               <button id="load-signature-map" class="secondary" type="button">Signature map</button>
             </div>
@@ -131,6 +133,11 @@
           </div>
           <div class="card">
             <h2>Incident Data Flow</h2>
+            <div class="provenance-summary" id="provenance-summary" aria-live="polite">
+              <div class="metric"><span>Source matches</span><strong>awaiting</strong></div>
+              <div class="metric"><span>High confidence</span><strong>awaiting</strong></div>
+              <div class="metric"><span>Needs proof</span><strong>awaiting</strong></div>
+            </div>
             <pre id="data-flow-output">Loading incident data summary.</pre>
           </div>
           <div class="card">
