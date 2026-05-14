@@ -27,3 +27,16 @@ def test_parse_hackquest_project_html_extracts_links_and_proofs() -> None:
         "https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed"
         in txs
     )
+
+
+def test_parse_hackquest_project_html_prefers_x_status_link() -> None:
+    html = """
+    <html>
+      <body>
+        <a href="https://x.com/rariwrldd">profile</a>
+        <a href="rariwrldd/status/2054779961425461542">status</a>
+      </body>
+    </html>
+    """
+    _, _, x_link, _, _ = parse_hackquest_project_html(html)
+    assert x_link == "https://x.com/rariwrldd/status/2054779961425461542"
