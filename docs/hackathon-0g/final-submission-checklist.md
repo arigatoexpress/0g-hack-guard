@@ -9,6 +9,8 @@ Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 
 ## Ready to Paste
 
+- HackQuest draft:
+  https://www.hackquest.io/projects/setup/f8333543-559e-48f4-b6fa-4ff447777966
 - Project name: `0guard`
 - Track: `Track 5: Privacy & Sovereign Infrastructure`
 - Backup track: `Track 1: Agentic Infrastructure & OpenClaw Lab`
@@ -113,12 +115,18 @@ https://x.com/rariwrldd/status/2054779961425461542
 
 ## Final Submit Order
 
-1. Run the readiness audit and verify only operator-only blockers remain.
-2. Record and upload the demo video.
-3. Publish the required X post with the screenshot or demo clip.
-4. Open the public repo, Pages URL, and 0G Explorer URLs from a logged-out/incognito window.
-5. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
+1. Run the readiness audit and verify only HackQuest form completion remains.
+2. Open the HackQuest draft URL above.
+3. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
+4. Use the already-published demo video and X post URLs from this checklist.
+5. Open the public repo, Pages URL, demo video URL, X post URL, and 0G Explorer URLs from a logged-out/incognito window.
 6. Submit before May 16, 2026 at 09:59 MDT.
+
+## Manual Recovery Note
+
+The HackQuest draft was created under the signed-in `rari` account, but
+coordinate-based browser filling was unreliable. Continue manually from the
+draft URL; do not run blind UI automation against the form.
 
 ## Claims to Avoid
 

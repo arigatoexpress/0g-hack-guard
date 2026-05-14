@@ -8,6 +8,12 @@ submission.
 
 ## Project
 
+HackQuest draft URL:
+
+```text
+https://www.hackquest.io/projects/setup/f8333543-559e-48f4-b6fa-4ff447777966
+```
+
 Project name:
 
 ```text
@@ -165,11 +171,17 @@ Readiness audit:
 
 ## Final Submit Order
 
-1. Record and upload the demo video.
-2. Post the required X post with screenshot or clip.
-3. Paste the fields above into HackQuest.
-4. Re-open the public repo, Pages URL, and 0G Explorer links from an incognito window.
+1. Open the HackQuest draft URL above.
+2. Verify the saved name/intro, then paste the remaining fields above.
+3. Use the public demo video URL and published X URL already listed in this packet.
+4. Re-open the public repo, Pages URL, demo video URL, X post URL, and 0G Explorer links from an incognito window.
 5. Submit before May 16, 2026 at 23:59 UTC+8.
+
+## Manual Recovery Note
+
+The signed-in HackQuest draft exists, but browser-coordinate automation proved
+unreliable on the form. Do not continue blind UI automation. The fastest safe
+path is manual copy/paste from this packet into the draft URL above.
 
 ## Claims To Avoid
 
