@@ -16,13 +16,19 @@ The demo walks through:
 - safe read-only simulations that do not move funds;
 - deterministic receipt hashes, Storage-ready roots, and a public 0G mainnet
   receipt anchor;
-- source-aware April 2026 incident data and provenance instead of mock claims.
+- source-aware April 2026 incident data and provenance instead of mock claims;
+- 28/28 incidents source-linked and 27/28 incident-derived patterns matched by
+  deterministic detectors, with the remaining Quant row held in research mode
+  until stronger public root-cause evidence exists.
 
 Demo video:
 https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
 
 Project:
 https://arigatoexpress.github.io/0guard/
+
+HackQuest proof packet:
+https://arigatoexpress.github.io/0guard/hackathon-0g/
 
 Repo:
 https://github.com/arigatoexpress/0guard

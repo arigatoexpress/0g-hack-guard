@@ -69,7 +69,7 @@ NARRATION_SEGMENTS = [
     ),
     (
         "Now the technical proof: the demo is grounded in real incident data, "
-        "not mock claims. It tracks 28 April 2026 cases and 635.24 million "
+        "not mock claims. It tracks 28 April 2026 cases and 634.86 million "
         "dollars in reported losses."
     ),
     (
@@ -83,8 +83,13 @@ NARRATION_SEGMENTS = [
     ),
     (
         "Zero guard also prepares Storage-ready receipt roots and a provenance "
-        "matrix. Judges can see source-aware evidence and hashes, without raw "
+        "matrix. All 28 incidents now have source-linked evidence, without raw "
         "payload resale."
+    ),
+    (
+        "The detector map is honest and measurable. It matches 27 of 28 "
+        "incident-derived patterns, and leaves only Quant in research mode until "
+        "public root-cause data is stronger."
     ),
     (
         "The cross-chain layer is shown as guardrails, not unchecked power: "
@@ -240,32 +245,37 @@ def _record_workbench(work_dir: Path) -> Path:
         _caption(page, "Technical proof: real April 2026 incident data, not mock evidence.")
         page.locator("#load-data-summary").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(8000)
+        page.wait_for_timeout(7600)
 
         _caption(page, "Live 0G readback stays safe: no private key, signing, or broadcast.")
         page.locator("#zg-status-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7800)
+        page.wait_for_timeout(7200)
 
         _caption(page, "Each verdict creates a receipt hash and Storage-ready root.")
         _show_anchor_storage_receipt(page)
-        page.wait_for_timeout(7600)
+        page.wait_for_timeout(7200)
 
         _caption(page, "0G mainnet proof: PolicyReceiptAnchor contract plus one anchored deny receipt.")
         _show_mainnet_proof(page)
-        page.wait_for_timeout(8200)
+        page.wait_for_timeout(7600)
 
-        _caption(page, "Provenance: source-aware evidence and hashes, not raw upstream payload resale.")
+        _caption(page, "Provenance: 28 of 28 incidents source-linked, with hashes and rights boundaries.")
         page.locator("#load-provenance-matrix").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7600)
+        page.wait_for_timeout(6800)
+
+        _caption(page, "Detector coverage: 27 of 28 matched. Quant stays research-only until stronger proof.")
+        page.locator("#load-signature-map").click()
+        page.locator("#data-flow-output").scroll_into_view_if_needed()
+        page.wait_for_timeout(7000)
 
         _caption(page, "Cross-chain guardrails stay read-only: Virtuals, x402, EVMs, Celestia, and Lighter LIT.")
         page.locator("#load-cross-chain-catalog").click()
         page.locator("#cross-chain-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(8500)
+        page.wait_for_timeout(7600)
 
         _caption(page, "0guard: simple pre-wallet protection, technical proof, and provenance. Built on 0G.")
-        page.wait_for_timeout(28000)
+        page.wait_for_timeout(22000)
 
         context.close()
         browser.close()

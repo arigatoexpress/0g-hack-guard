@@ -4,7 +4,7 @@
     "Introducing 0guard: a read-only, pre-wallet firewall for AI agents. It checks intent, calldata, domains, and exploit intelligence before a signing key is touched. Built for @0G_labs infra. #0GHackathon #BuildOn0G",
     "1/ The problem: agent wallets can bridge, approve, and sign at machine speed. 0guard moves safety earlier than wallet simulation: goal and tool intent first, signer later.",
     "2/ The demo blocks incident-derived patterns: durable-nonce social engineering, unlimited ERC-20 approvals, UUPS/admin upgrades, bridge-verifier risk, oracle manipulation, replay paths, and known malicious IOCs.",
-    "3/ The data layer is source-aware: validated incident dataset, DeFiLlama/Chainalysis/Forta/CryptoScamDB-style OSINT registry, record hashes, rights caveats, source readiness, and detector gap mapping.",
+    "3/ The data layer is source-aware: 28/28 April 2026 incidents have source-linked evidence, record hashes, rights caveats, and raw-payload safety boundaries. The detector map currently matches 27/28 patterns.",
     "4/ The 0G path is honest: live read-only status, a mainnet PolicyReceiptAnchor deny receipt, Storage-ready threat-intel root hashes, and no browser signing or fund movement. @0g_CN @0g_Eco @HackQuest_ github.com/arigatoexpress/0guard"
   ]
 }

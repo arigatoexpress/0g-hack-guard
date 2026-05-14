@@ -1,6 +1,6 @@
 # 0guard Final Demo Video Script
 
-Final generated length: 2:01.1.
+Final generated length: 2:08.3.
 
 Submission rule: HackQuest requires a public demo video of no more than three
 minutes that shows product functionality, user flow, and actual 0G component
@@ -27,7 +27,7 @@ transaction.
 
 The technical proof is shown after the simple explanation: real April 2026
 incident data, deterministic receipt hashes, Storage-ready roots, a public 0G
-mainnet receipt anchor, and source-aware provenance.
+mainnet receipt anchor, source-aware provenance, and the current signature map.
 
 ## Final Timeline
 
@@ -39,11 +39,13 @@ mainnet receipt anchor, and source-aware provenance.
 | 0:34-0:46 | "Next, the agent is asked to release bridge funds through a weak verifier setup. 0guard catches the bridge risk and denies it." | Run the bridge release scenario. Show the red blocker chips and deny verdict. |
 | 0:46-0:58 | "Then, a compromised admin path tries to upgrade a contract. 0guard sees the upgrade sequence and stops the wallet step." | Run the upgrade scenario. Keep the visual deny path centered. |
 | 0:58-1:08 | "Good requests still work. A read-only simulation does not move funds, does not need a signature, and can pass through safely." | Run the safe simulation scenario. Show the allow state and `simulation only` wallet label. |
-| 1:08-1:20 | "Now the technical proof: the demo is grounded in real incident data, not mock claims. It tracks 28 April 2026 cases and 635.24 million dollars in reported losses." | Click `Load data summary`. Show the incident summary and source list. |
+| 1:08-1:20 | "Now the technical proof: the demo is grounded in real incident data, not mock claims. It tracks 28 April 2026 cases and 634.86 million dollars in reported losses." | Click `Load data summary`. Show the incident summary and source list. |
 | 1:20-1:30 | "Every verdict becomes a receipt hash. The browser workbench remains safe: no private key, no signing, no transaction broadcast, and no money movement." | Show the 0G read-only status and safety flags. |
 | 1:30-1:39 | "For this submission, one deny receipt is already anchored on 0G mainnet. The public explorer proves that the receipt anchor exists." | Show the PolicyReceiptAnchor proof data from `docs/hackathon-0g/mainnet-proof.json`. |
-| 1:39-1:49 | "0guard also prepares Storage-ready receipt roots and a provenance matrix. Judges can see source-aware evidence and hashes, without raw payload resale." | Show provenance coverage, source matches, and raw-payload safety. |
-| 1:49-1:55 | "Autonomous finance needs more than smart agents. It needs simple pre-wallet protection, technical proof, and provenance. That is 0guard, built on 0G." | End on the cross-chain/read-only guardrail surface and final 0guard caption. |
+| 1:39-1:49 | "0guard also prepares Storage-ready receipt roots and a provenance matrix. All 28 incidents now have source-linked evidence, without raw payload resale." | Show provenance coverage, source matches, and raw-payload safety. |
+| 1:49-1:59 | "The detector map is honest and measurable. It matches 27 of 28 incident-derived patterns, and leaves only Quant in research mode until public root-cause data is stronger." | Click `Load signature map`. Show `matchedCount=27`, `gapCount=1`, and `Quant` as the only unmatched row. |
+| 1:59-2:08 | "The cross-chain layer is shown as guardrails, not unchecked power: Virtuals, x402, EVM networks, Celestia, and Lighter LIT stay read-only in the demo." | Show the read-only cross-chain catalog. |
+| 2:08-2:20 | "Autonomous finance needs more than smart agents. It needs simple pre-wallet protection, technical proof, and provenance. That is 0guard, built on 0G." | End on the cross-chain/read-only guardrail surface and final 0guard caption. |
 
 ## Exact Demo Scenarios
 
@@ -64,6 +66,7 @@ It then drives the real workbench controls for:
 /api/evaluate with enable_0g_anchor and enable_0g_storage
 docs/hackathon-0g/mainnet-proof.json readback
 /api/data/provenance
+/api/data/signature-map
 /api/integrations/cross-chain
 ```
 
@@ -97,11 +100,11 @@ high-pass and low-pass filtering, compression, light presence EQ, loudness
 normalization, and fade-in/fade-out padding. This avoids the old abrupt stop and
 reduces the strange pauses from one large text-to-speech paragraph.
 
-Objective checks from the final MP4:
+Objective checks from the final MP4 after rebuild:
 
 ```text
-video: 1920x1080, 25 fps, 121.12 seconds
-audio: AAC mono, 117.71 seconds, mean volume -17.0 dB, max volume -1.5 dB
+video: 1920x1080, 25 fps, 127.96 seconds
+audio: AAC mono, 128.35 seconds, mean volume -17.0 dB, max volume -1.5 dB
 silence check: no internal >1.0 second silence detected at -35 dB threshold
 ```
 

@@ -3,64 +3,306 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>0guard — HackQuest Proof Packet</title>
+    <title>0guard HackQuest Proof Packet</title>
+    <meta
+      name="description"
+      content="0guard HackQuest proof packet: demo video, 0G mainnet anchor, source-linked exploit intelligence, and read-only safety boundaries."
+    />
     <style>
-      :root { color-scheme: light dark; }
-      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; line-height: 1.5; margin: 0; }
-      main { max-width: 900px; padding: 28px 20px 40px; margin: 0 auto; }
-      h1 { margin: 0 0 8px; font-size: 28px; }
-      p { margin: 10px 0; }
-      .meta { opacity: 0.85; margin-top: 0; }
-      .card { border: 1px solid rgba(127,127,127,0.25); border-radius: 12px; padding: 14px 14px; margin: 14px 0; }
-      ul { margin: 8px 0 0 20px; padding: 0; }
-      code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.95em; }
-      a { color: inherit; }
-      .muted { opacity: 0.8; }
+      :root {
+        color-scheme: dark;
+        --bg: #07090d;
+        --panel: #111722;
+        --panel-2: #151e2c;
+        --line: rgba(125, 211, 252, 0.18);
+        --text: #eef7fb;
+        --muted: #98a7b8;
+        --cyan: #7dd3fc;
+        --green: #34d399;
+        --amber: #fbbf24;
+        --red: #fb7185;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(125, 211, 252, 0.14), transparent 28rem),
+          radial-gradient(circle at 82% 0%, rgba(52, 211, 153, 0.10), transparent 26rem),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      a { color: var(--cyan); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      main { max-width: 1120px; margin: 0 auto; padding: 28px 20px 56px; }
+      header {
+        min-height: 84vh;
+        display: grid;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px 0;
+      }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 850; }
+      .brand img { width: 42px; height: 42px; border-radius: 8px; }
+      .nav-links { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 0.92rem; }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+        gap: 30px;
+        align-items: center;
+      }
+      .eyebrow {
+        color: var(--green);
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 12px 0 14px;
+        font-size: clamp(2.7rem, 7vw, 5.4rem);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+      .lede {
+        max-width: 660px;
+        color: var(--muted);
+        font-size: 1.1rem;
+      }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: rgba(125, 211, 252, 0.08);
+        color: var(--text);
+        font-weight: 800;
+      }
+      .btn.primary { background: var(--cyan); color: #061018; border-color: transparent; }
+
+      .video-frame {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #020409;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+      }
+      video { width: 100%; display: block; aspect-ratio: 16 / 9; background: #020409; }
+      .video-meta {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        border-top: 1px solid var(--line);
+      }
+      .video-meta span { min-width: max-content; }
+
+      section { margin-top: 36px; }
+      h2 { font-size: 1.5rem; margin: 0 0 12px; }
+      .grid { display: grid; gap: 14px; }
+      .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .links { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgba(21, 30, 44, 0.92), rgba(17, 23, 34, 0.92));
+        padding: 16px;
+      }
+      .metric strong {
+        display: block;
+        margin-bottom: 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        line-height: 1;
+        color: var(--green);
+      }
+      .metric span, .card p, .card li { color: var(--muted); }
+      .metric.warn strong { color: var(--amber); }
+      .metric.deny strong { color: var(--red); }
+      .card h3 { margin: 0 0 8px; font-size: 1rem; }
+      ul { margin: 8px 0 0; padding-left: 18px; }
+      code {
+        color: #bae6fd;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        word-break: break-word;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--green);
+        font-weight: 850;
+      }
+      .status::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 18px var(--green);
+      }
+
+      footer {
+        margin-top: 42px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 860px) {
+        header { min-height: auto; padding-top: 18px; }
+        .hero, .metrics, .links, .proof { grid-template-columns: 1fr; }
+        .nav { align-items: flex-start; flex-direction: column; }
+        .video-meta span { min-width: 0; flex: 1 1 150px; }
+      }
     </style>
   </head>
   <body>
     <main>
-      <h1>0guard — HackQuest Proof Packet</h1>
-      <p class="meta">
-        Public, read-only artifacts for the 0G APAC Hackathon (HackQuest).
-      </p>
+      <nav class="nav" aria-label="Proof packet navigation">
+        <a class="brand" href="../">
+          <img src="assets/0guard-logo.png" alt="" />
+          <span>0guard</span>
+        </a>
+        <div class="nav-links">
+          <a href="#proof">Proof</a>
+          <a href="#submission">Submission</a>
+          <a href="#safety">Safety</a>
+          <a href="https://github.com/arigatoexpress/0guard">GitHub</a>
+        </div>
+      </nav>
 
-      <div class="card">
-        <strong>Primary artifacts</strong>
-        <ul>
-          <li><a href="assets/0guard-hackquest-demo-final.mp4">Demo video (≤3 minutes)</a></li>
-          <li><a href="assets/0guard-workbench-provenance.png">Demo screenshot / provenance asset</a></li>
-          <li><a href="mainnet-proof.json">0G mainnet proof (JSON)</a></li>
-          <li><a href="final-submission-checklist.md">Final submission checklist (Markdown)</a></li>
-          <li><a href="submission-form-fields.md">HackQuest form fields (Markdown)</a></li>
-          <li><a href="threat-receipt-passport.md">Threat receipt passport (Markdown)</a></li>
-        </ul>
-      </div>
+      <header>
+        <div class="hero">
+          <div>
+            <div class="eyebrow">0G APAC Hackathon Proof Packet</div>
+            <h1>Pre-wallet protection for AI agents.</h1>
+            <p class="lede">
+              0guard checks agent intent, calldata, policy, and source-linked exploit intelligence before any signer can act. The demo is read-only, evidence-backed, and anchored with a public 0G mainnet receipt proof.
+            </p>
+            <div class="actions">
+              <a class="btn primary" href="assets/0guard-hackquest-demo-final.mp4">Watch demo video</a>
+              <a class="btn" href="https://www.hackquest.io/projects/0guard">HackQuest project</a>
+              <a class="btn" href="mainnet-proof.json">0G proof JSON</a>
+            </div>
+          </div>
+          <div class="video-frame" aria-label="0guard demo video">
+            <video controls preload="metadata" poster="assets/0guard-workbench-provenance.png">
+              <source src="assets/0guard-hackquest-demo-final.mp4" type="video/mp4" />
+            </video>
+            <div class="video-meta">
+              <span>Real product walkthrough</span>
+              <span>No signing. No broadcasts.</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      <div class="card">
-        <strong>Mainnet anchor (from <code>mainnet-proof.json</code>)</strong>
-        <ul>
-          <li>Contract: <code>0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc</code></li>
-          <li>Anchored receipt: <code>0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1</code></li>
-          <li>
-            Anchor tx:
-            <a href="https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed">
-              64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
-            </a>
-          </li>
-        </ul>
-        <p class="muted">
-          The workbench stays preflight/read-only; the mainnet anchor is proven via the public explorer.
-        </p>
-      </div>
+      <section id="proof">
+        <h2>Current Proof State</h2>
+        <div class="grid metrics">
+          <div class="card metric">
+            <strong>28/28</strong>
+            <span>April 2026 incidents source-linked</span>
+          </div>
+          <div class="card metric">
+            <strong>27/28</strong>
+            <span>incident-derived patterns matched by detectors</span>
+          </div>
+          <div class="card metric warn">
+            <strong>1</strong>
+            <span>research-only gap: Quant root cause</span>
+          </div>
+          <div class="card metric">
+            <strong>0.9643</strong>
+            <span>signature and detection coverage ratio</span>
+          </div>
+        </div>
+      </section>
 
-      <div class="card">
-        <strong>Repo</strong>
-        <ul>
-          <li><a href="https://github.com/arigatoexpress/0guard">GitHub: arigatoexpress/0guard</a></li>
-          <li><a href="../">Project landing page</a></li>
-        </ul>
-      </div>
+      <section id="submission">
+        <h2>Submission Links</h2>
+        <div class="grid links">
+          <a class="card" href="https://github.com/arigatoexpress/0guard">
+            <h3>Repository</h3>
+            <p>Source code, tests, docs, and reproducible demo builder.</p>
+          </a>
+          <a class="card" href="../">
+            <h3>Public demo page</h3>
+            <p>Judge-facing project landing page on GitHub Pages.</p>
+          </a>
+          <a class="card" href="submission-form-fields.md">
+            <h3>Form fields</h3>
+            <p>Copy-ready HackQuest fields and proof URLs.</p>
+          </a>
+          <a class="card" href="threat-receipt-passport.md">
+            <h3>Threat passport</h3>
+            <p>Intent, verdict, receipt hash, provenance, and 0G proof drill.</p>
+          </a>
+          <a class="card" href="final-submission-checklist.md">
+            <h3>Readiness checklist</h3>
+            <p>Final audit commands and current submitted state.</p>
+          </a>
+          <a class="card" href="https://x.com/rariwrldd/status/2054779961425461542">
+            <h3>Required X post</h3>
+            <p>Public post with required 0G/HackQuest tags and media.</p>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <h2>0G Mainnet Anchor</h2>
+        <div class="grid proof">
+          <div class="card">
+            <h3><span class="status">Live proof ready</span></h3>
+            <ul>
+              <li>Contract: <code>0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc</code></li>
+              <li>Anchored receipt: <code>0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1</code></li>
+              <li>Anchor transaction: <a href="https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed">chainscan.0g.ai transaction</a></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>What is intentionally not claimed</h3>
+            <p>
+              The browser workbench does not hold keys, sign, broadcast, bridge, swap, settle x402 payments, launch Virtuals agents, place Lighter/LIT orders, or send Telegram/X messages.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="safety">
+        <h2>Safety Boundary</h2>
+        <div class="card">
+          <p>
+            0guard is useful because it is honest: the app performs live read-only 0G checks, prepares deterministic receipt and Storage-ready proof payloads, and blocks risky pre-wallet flows. External sends and money movement remain outside the workbench and require separate operator confirmation.
+          </p>
+        </div>
+      </section>
+
+      <footer>
+        Built for the 0G APAC Hackathon. Last proof baseline: commit <code>038926b</code>.
+      </footer>
     </main>
   </body>
 </html>

@@ -476,6 +476,9 @@
         <a class="btn btn-secondary" href="#solution">
           See How It Works
         </a>
+        <a class="btn btn-secondary" href="hackathon-0g/">
+          HackQuest Proof Packet
+        </a>
       </div>
       <div class="hero-stats reveal">
         <div class="hero-stat">
@@ -874,28 +877,33 @@
       </p>
       <div class="stats-grid reveal">
         <div class="stat-card">
-          <div class="stat-number" data-target="26">0</div>
+          <div class="stat-number" data-target="28">0</div>
           <div class="stat-label">Source-Matched Incidents of 28</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" data-target="23">0</div>
+          <div class="stat-number" data-target="27">0</div>
+          <div class="stat-label">Detector-Matched Incidents of 28</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-target="25">0</div>
           <div class="stat-label">High-Confidence Provenance Matches</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" data-target="2">0</div>
-          <div class="stat-label">Operator-Required Final Links</div>
+          <div class="stat-number" data-target="1">0</div>
+          <div class="stat-label">Research-Only Detector Gap</div>
         </div>
       </div>
       <div class="problem-body reveal">
         <ul>
-          <li><strong>Copy/paste packet:</strong> `docs/hackathon-0g/submission-form-fields.md` maps HackQuest fields to ready text and remaining operator placeholders.</li>
+          <li><strong>Public proof hub:</strong> `docs/hackathon-0g/index.html` embeds the demo video and shows 28/28 provenance, 27/28 detector coverage, and the 0G mainnet anchor.</li>
+          <li><strong>Copy/paste packet:</strong> `docs/hackathon-0g/submission-form-fields.md` maps HackQuest fields to ready text and proof URLs.</li>
           <li><strong>Machine-readable packet:</strong> `/api/hackathon/submission-packet` returns track choice, form fields, proof points, X commands, and submit order.</li>
-          <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` separate ready artifacts from remaining demo video and X post work.</li>
+          <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` currently report `Submittable now: true` with no operator blockers.</li>
           <li><strong>Threat receipt passport:</strong> `docs/hackathon-0g/threat-receipt-passport.md` and `/api/hackathon/threat-passport` give judges a proof drill with intent, verdict, provenance, receipt hash, and 0G proof slots.</li>
           <li><strong>Cross-chain fabric:</strong> `/api/integrations/cross-chain` and `/api/integrations/virtuals-facilitator` prepare Virtuals/Base and x402 expansion without claiming live settlement or agent launch.</li>
           <li><strong>Proof-first story:</strong> live 0G readback, mainnet receipt anchor, Storage-ready root hashes, and canonical provenance evidence with no raw upstream payload mirroring.</li>
           <li><strong>Mainnet proof:</strong> contract `0xBaC59b...2abc` and anchored deny receipt `0x9739...afd1` are public on 0G Explorer.</li>
-          <li><strong>Prepared media:</strong> `docs/hackathon-0g/assets/0guard-workbench-provenance.png` is ready for the required X post or demo thumbnail.</li>
+          <li><strong>Prepared media:</strong> the final MP4 and `docs/hackathon-0g/assets/0guard-workbench-provenance.png` are ready for the required X post or demo thumbnail.</li>
         </ul>
       </div>
       <div class="hero-ctas reveal" style="margin-top:28px">
@@ -907,6 +915,9 @@
         </a>
         <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/threat-receipt-passport.md" target="_blank" rel="noopener">
           Receipt Passport
+        </a>
+        <a class="btn btn-secondary" href="hackathon-0g/">
+          Proof Page
         </a>
         <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/mainnet-proof.json" target="_blank" rel="noopener">
           Mainnet Proof
