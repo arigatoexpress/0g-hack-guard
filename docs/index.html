@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>0guard — AI Agent Firewall for Crypto Hacks</title>
-  <meta name="description" content="A read-only, pre-wallet safety layer that uses source-cited OSINT and 60+ real exploit signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
+  <meta name="description" content="A read-only, pre-wallet safety layer that uses source-cited OSINT and curated incident-derived signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://arigatoexpress.github.io/0guard/">
   <meta property="og:title" content="0guard — AI Agent Firewall for Crypto Hacks">
-  <meta property="og:description" content="Pre-wallet safety layer using source-cited OSINT and 60+ real exploit signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
+  <meta property="og:description" content="Pre-wallet safety layer using source-cited OSINT and curated incident-derived signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
   <meta property="og:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="0guard — AI Agent Firewall for Crypto Hacks">
-  <meta name="twitter:description" content="Pre-wallet safety layer using source-cited OSINT and 60+ real exploit signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
+  <meta name="twitter:description" content="Pre-wallet safety layer using source-cited OSINT and curated incident-derived signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png">
   <style>
     :root {
@@ -465,7 +465,7 @@
       </div>
       <h1 class="reveal">Autonomy without safety<br>is just <span>chaos</span>.</h1>
       <p class="hero-pitch reveal">
-        0guard is a read-only, pre-wallet safety layer that uses 60+ real exploit signatures from 2020-2026
+        0guard is a read-only, pre-wallet safety layer that uses curated incident-derived signatures from 2020-2026
         to detect and block crypto hacks before an AI agent ever reaches a signing key.
       </p>
       <div class="hero-ctas reveal">
@@ -509,7 +509,7 @@
     <div class="inner">
       <h2 class="section-title reveal">The Problem</h2>
       <p class="section-subtitle reveal">
-        April 2026 was the worst month on record for DeFi hacks — but it was not an anomaly. It was part of a $3.5B+ historical pattern of operational-security failures.
+        In 0guard's source-linked April 2026 dataset, 28 DeFi incidents total about $635M in reported losses. They fit a broader historical pattern of operational-security failures.
       </p>
       <div class="stats-grid reveal">
         <div class="stat-card">
@@ -521,17 +521,17 @@
           <div class="stat-label">Major Incidents</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" data-target="76">0%</div>
-          <div class="stat-label">Attribution: Lazarus Group</div>
+          <div class="stat-number" data-target="100">0%</div>
+          <div class="stat-label">Source-Linked Records</div>
         </div>
       </div>
       <div class="problem-body reveal">
         <ul>
-          <li><strong>$635M+ stolen</strong> across 28 DeFi / DEX incidents in April 2026 alone — the worst month on record.</li>
+          <li><strong>$635M+ in reported losses</strong> across 28 DeFi / DEX incidents in 0guard's April 2026 dataset.</li>
           <li><strong>$3.5B+ in historical losses</strong> detected across 60+ incidents from 2020-2026, with the same attack vectors repeating.</li>
-          <li><strong>76% of April losses</strong> were attributed to North Korea's Lazarus Group using social engineering, bridge misconfiguration, and admin-key compromise.</li>
+          <li>Public sources attribute the largest April loss clusters to North Korea's Lazarus Group using social engineering, bridge misconfiguration, and admin-key compromise.</li>
           <li>The two largest exploits involved <strong>zero smart-contract bugs</strong>; they were pure operational-security failures.</li>
-          <li>AI agents operating on fast L1s / L2s can make wallet mistakes <strong>instantly</strong> — there is no pre-flight safety layer designed specifically for autonomous agents.</li>
+          <li>AI agents operating on fast L1s / L2s can make wallet mistakes <strong>instantly</strong>; few tools check agent intent before the signer.</li>
         </ul>
       </div>
     </div>
@@ -561,7 +561,7 @@
         </div>
         <div class="feature">
           <h4>🎯 Hack Signature Detection</h4>
-          <p>Built-in IOCs, calldata selectors, and behavioral sequences derived from <strong>60+ real exploits</strong> (2020-2026).</p>
+          <p>Built-in IOCs, calldata selectors, and behavioral sequences derived from a <strong>curated set of incident-derived signatures</strong> (2020-2026).</p>
         </div>
         <div class="feature">
           <h4>OSINT Evidence Layer</h4>
@@ -581,7 +581,7 @@
         </div>
         <div class="feature">
           <h4>Cross-Chain Fabric</h4>
-          <p>Catalogs Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, Lighter/LIT, and Celestia/TIA as read-only integration targets with no live launches, trades, or money movement.</p>
+          <p>Catalogs Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, Lighter exchange/API guardrails, CCIP, LayerZero, Wormhole, and Celestia/TIA as read-only integration targets with no live launches, trades, or money movement.</p>
         </div>
         <div class="feature">
           <h4>🛡️ Zero Trust by Default</h4>
@@ -656,7 +656,7 @@
     <div class="inner">
       <h2 class="section-title reveal">Historical Signatures</h2>
       <p class="section-subtitle reveal">
-        Every major exploit from 2020-2026 is encoded as a detectable signature inside 0guard. Historical incidents plus April 2026's worst hits.
+        0guard encodes a curated set of historical and April 2026 incident patterns as detectable signatures, with coverage gaps called out explicitly.
       </p>
       <div class="sig-divider reveal">Major Historical Incidents</div>
       <div class="cards-grid">
@@ -1012,7 +1012,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
         </div>
         <div class="content-panel active">
           <div class="content-sample">
-            <span class="timestamp">2026-04-15 09:23 UTC — Auto-generated by 0guard Content Engine</span><br><br>
+            <span class="timestamp">Example draft from local content engine; not a live alert.</span><br><br>
             <span class="handle">🚨 0guard Alert</span><br><br>
             Flash-loan attack sequence detected on Ethereum mainnet.<br><br>
             Matched signature: <span class="tag">sequence_flash_swap_withdraw</span><br>
@@ -1024,9 +1024,9 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
         </div>
         <div class="content-panel">
           <div class="content-sample">
-            <span class="timestamp">2026-04-15 09:24 UTC — Auto-generated by 0guard Content Engine</span><br><br>
+            <span class="timestamp">Example draft from local content engine; not a live alert.</span><br><br>
             <span class="handle">🧵 Thread: How 0guard blocked this attack</span><br><br>
-            1/ An AI agent attempted a high-value swap preceded by a flash-loan borrow. This exact sequence was used in the <span class="amount">Rhea Finance ($18.4M)</span> exploit.<br><br>
+            1/ An AI agent attempted a high-value swap preceded by a flash-loan borrow. This pattern is modeled on the <span class="amount">Rhea Finance ($18.4M)</span> incident.<br><br>
             2/ The Signature Engine matched <span class="tag">sequence_flash_swap_withdraw</span> within 12ms of intent submission.<br><br>
             3/ The Content Engine generated this draft; live posting stays behind explicit workflow confirmation.<br><br>
             4/ A SHA-256 policy receipt was produced locally with <span class="tag">anchor_status=preflight</span>, and the deny receipt is anchored on <span class="tag">0G mainnet</span> for judge verification.<br><br>
@@ -1036,7 +1036,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
         </div>
         <div class="content-panel">
           <div class="content-sample">
-            <span class="timestamp">2026-04-15 09:25 UTC — Auto-generated by 0guard Content Engine</span><br><br>
+            <span class="timestamp">Example draft from local content engine; not a live alert.</span><br><br>
             <span class="handle">📋 Incident Summary</span><br><br>
             <strong>Incident ID:</strong> <span class="tag">0guard-2026-0415-0923</span><br>
             <strong>Vector:</strong> Flash Loan<br>
@@ -1082,7 +1082,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 2a10 10 0 0 1 10 10"></path><path d="M12 12l8.66-5"></path></svg>
           </div>
           <h4>0G Compute</h4>
-          <p>Pluggable AI inference layer for behavioral anomaly detection on agent prompts. Future TEE-sealed scoring.</p>
+          <p>Planned 0G Compute scoring adapter; current demo uses deterministic policy/signature checks. Future scoring can add provider and TEE proof metadata.</p>
           <span class="og-track">Agentic Infrastructure</span>
         </div>
       </div>

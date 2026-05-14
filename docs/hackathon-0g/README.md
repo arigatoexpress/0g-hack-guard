@@ -71,8 +71,8 @@ gap until stronger public root-cause evidence exists.
 
 The cross-chain layer is now explicit instead of implied. `/api/integrations/cross-chain`
 documents where 0guard can safely plug into Virtuals/Base, x402-supported
-payment networks, EVM expansion chains, Lighter/LIT exchange guardrails, and
-Celestia/TIA data availability.
+payment networks, EVM expansion chains, Lighter exchange/API guardrails,
+Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/TIA data availability.
 `/api/integrations/virtuals-facilitator` prepares a Base/Virtuals agent manifest
 for a future `0guard Facilitator`, while all launch, payment, bridge, swap, and
 wallet actions remain operator-only.
@@ -86,8 +86,8 @@ wallet actions remain operator-only.
   anchored deny receipt.
 - No trading or money movement claims.
 - No live Virtuals launch, x402 settlement, bridge, swap, Lighter order, LIT
-  stake/fee-credit payment, withdrawal, or cross-chain transaction from the
-  workbench.
+  token/staking/fee-credit action, withdrawal, or cross-chain transaction from
+  the workbench.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.
 - No X media/post deletion unless a reviewed manifest exists and Ari gives

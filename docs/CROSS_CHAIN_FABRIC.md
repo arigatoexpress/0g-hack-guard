@@ -7,7 +7,8 @@ preserving the same proof-first safety posture.
 
 - `/api/integrations/cross-chain` returns a source-cited catalog for 0G
   mainnet, Base, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo,
-  Lighter/LIT, and Celestia/TIA.
+  Lighter exchange/API guardrails, Chainlink CCIP, LayerZero V2, Wormhole NTT,
+  and Celestia/TIA.
 - `/api/integrations/cross-chain/readiness` returns catalog readiness by
   default; add `?live=1` to run read-only EVM JSON-RPC probes on configured
   default endpoints plus non-EVM HTTP status probes where explicitly supported.
@@ -26,7 +27,10 @@ preserving the same proof-first safety posture.
 | Monad | EVM expansion watchlist | Read-only probes and prepared payment posture |
 | HyperEVM | HYPE ecosystem EVM guardrail lane | Read-only probes only |
 | Tempo | Payment-chain watchlist | Testnet/readiness only |
-| Lighter/LIT | Verifiable Ethereum-anchored exchange/API guardrail | Read-only status probe only |
+| Lighter exchange API | Verifiable exchange/API guardrail | Read-only status probe only |
+| Chainlink CCIP | Cross-chain message and token-transfer policy lane | Catalog-only guardrail; no transfer |
+| LayerZero V2 | DVN/executor and message-path policy lane | Catalog-only guardrail; no config change |
+| Wormhole NTT | VAA, transceiver, and supply-invariant policy lane | Catalog-only guardrail; no transfer |
 | Celestia/TIA | Data availability and Blobstream proof lane | DA/proof lane, not EVM settlement |
 
 ## Payment And Agent Boundaries
@@ -47,11 +51,18 @@ Virtuals/Base integration is prepared as an agent manifest only. Any live
 Virtuals launch, token action, x402 settlement, bridge, swap, or wallet
 signature is an external side effect and requires an explicit operator run.
 
-Lighter/LIT integration is a trading/API guardrail, not an EVM deployment lane.
-The only live check in 0guard is the public Lighter status endpoint. LIT
-staking, LIT Fee Credits, deposits, API-key creation, orders, transfers, and
-withdrawals remain disabled because they require signatures, funds, API
-credentials, or trading authority.
+Lighter integration is an exchange/API guardrail, not an EVM deployment lane.
+The only live check in 0guard is the public Lighter status endpoint. LIT is
+treated as venue token and fee-credit context only; buying/staking LIT, buying
+fee credits, deposits, API-key creation, orders, transfers, and withdrawals
+remain disabled because they require signatures, funds, API credentials, or
+trading authority.
+
+Chainlink CCIP, LayerZero V2, and Wormhole NTT are cataloged as protocol-risk
+lanes. That means 0guard can explain and score bridge/message/token-transfer
+intents against documented controls such as token-pool ownership, DVN
+thresholds, transceiver registries, replay windows, and supply invariants. It
+does not initiate cross-chain messages or mutate protocol configuration.
 
 ## Readable Tx Log Upgrade
 

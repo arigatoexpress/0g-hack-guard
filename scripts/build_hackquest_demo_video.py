@@ -32,8 +32,8 @@ BASE_URL = f"http://127.0.0.1:{PORT}"
 VOICE = os.getenv("DEMO_VOICE", "Samantha")
 VOICE_RATE = os.getenv("DEMO_VOICE_RATE", "166")
 TTS_ENGINE = os.getenv("DEMO_TTS_ENGINE", "auto").strip().lower()
-EDGE_TTS_VOICE = os.getenv("DEMO_EDGE_TTS_VOICE", "en-US-AndrewMultilingualNeural")
-EDGE_TTS_RATE = os.getenv("DEMO_EDGE_TTS_RATE", "+8%")
+EDGE_TTS_VOICE = os.getenv("DEMO_EDGE_TTS_VOICE", "en-US-BrianNeural")
+EDGE_TTS_RATE = os.getenv("DEMO_EDGE_TTS_RATE", "+2%")
 EDGE_TTS_PITCH = os.getenv("DEMO_EDGE_TTS_PITCH", "+0Hz")
 EXTERNAL_NARRATION_AUDIO = os.getenv("DEMO_NARRATION_AUDIO", "").strip()
 EDGE_TTS_PATHS = (
@@ -44,62 +44,66 @@ EDGE_TTS_PATHS = (
 
 NARRATION_SEGMENTS = [
     (
-        "Imagine an A I agent is about to use your wallet. Before it can ask "
-        "for a signature, zero guard checks what the agent is trying to do."
+        "Picture this: an A I agent is about to use your wallet. Before the "
+        "wallet ever opens, zero guard reads the intent and asks whether this "
+        "is safe to put in front of a signer."
     ),
     (
-        "The simple idea is this: agent request, zero guard check, then wallet. "
-        "Safe simulations can continue. Risky live actions stop before signing."
+        "The flow is simple: request, policy check, then wallet. Simulations can "
+        "keep moving. Anything that moves funds, changes ownership, or asks for "
+        "a live signature has to pass the guard first."
     ),
     (
-        "First, the agent is tricked into pre-signing an admin transfer. Zero "
-        "guard blocks the social-engineering ask before the wallet is involved."
+        "Here, the agent is tricked into pre-signing an admin transfer. Zero "
+        "guard catches the social-engineering pattern before the wallet is "
+        "even asked."
     ),
     (
-        "Next, the agent is asked to release bridge funds through a weak "
-        "verifier setup. Zero guard catches the bridge risk and denies it."
+        "Now the request changes: release bridge funds through a weak verifier "
+        "setup. That is exactly the kind of cross-chain shortcut zero guard is "
+        "built to stop."
     ),
     (
-        "Then, a compromised admin path tries to upgrade a contract. Zero guard "
-        "sees the upgrade sequence and stops the wallet step."
+        "Then a compromised admin path tries to upgrade a contract. The system "
+        "does not need to guess; it sees the risky sequence and blocks the "
+        "wallet step."
     ),
     (
         "Good requests still work. A read-only simulation does not move funds, "
-        "does not need a signature, and can pass through safely."
+        "does not need a signature, and should be allowed to continue."
     ),
     (
-        "Now the technical proof: the demo is grounded in real incident data, "
-        "not mock claims. It tracks 28 April 2026 cases and 634.86 million "
-        "dollars in reported losses."
+        "Now we move from plain English to proof. This is the April twenty "
+        "twenty six source-linked incident set: 28 cases, with about 635 "
+        "million dollars in reported losses."
     ),
     (
-        "Every verdict becomes a receipt hash. The browser workbench remains "
-        "safe: no private key, no signing, no transaction broadcast, and no "
-        "money movement."
+        "Every verdict becomes a receipt hash. The browser workbench stays "
+        "safe: no private key, no signing, no broadcast, and no money movement."
     ),
     (
         "For this submission, one deny receipt is already anchored on zero G "
-        "mainnet. The public explorer proves that the receipt anchor exists."
+        "mainnet, so judges can verify that the proof is not just a local demo."
     ),
     (
-        "Zero guard also prepares Storage-ready receipt roots and a provenance "
-        "matrix. All 28 incidents now have source-linked evidence, without raw "
-        "payload resale."
+        "Zero guard also prepares Storage-ready roots and a provenance matrix. "
+        "Every incident has source evidence and hashes, while raw upstream "
+        "payloads stay out of resale."
     ),
     (
-        "The detector map is honest and measurable. It matches 27 of 28 "
-        "incident-derived patterns, and leaves only Quant in research mode until "
-        "public root-cause data is stronger."
+        "The detector map is honest and measurable. It matches 27 of the 28 "
+        "incident patterns, and leaves Quant in research mode until the public "
+        "root-cause evidence is stronger."
     ),
     (
-        "The cross-chain layer is shown as guardrails, not unchecked power: "
-        "Virtuals, x four oh two, E V M networks, Celestia, and Lighter L I T "
-        "stay read-only in the demo."
+        "For external systems, zero guard is a checkpoint, not a launch button. "
+        "Base and Virtuals, paid API rails, Ethereum-compatible networks, "
+        "Celestia, Lighter exchange intents, and bridge protocols all stay read-only here."
     ),
     (
-        "Autonomous finance needs more than smart agents. It needs simple "
-        "pre-wallet protection, technical proof, and provenance. That is zero "
-        "guard, built on zero G."
+        "Autonomous finance needs more than smart agents. It needs a clear "
+        "checkpoint before the wallet, real technical proof, and provenance. "
+        "That is zero guard, built on zero G."
     ),
 ]
 
@@ -242,7 +246,7 @@ def _record_workbench(work_dir: Path) -> Path:
         _run_story_scenario(page, "safe")
         page.wait_for_timeout(7000)
 
-        _caption(page, "Technical proof: real April 2026 incident data, not mock evidence.")
+        _caption(page, "Technical proof: source-linked April 2026 incident dataset.")
         page.locator("#load-data-summary").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
         page.wait_for_timeout(7600)
@@ -269,13 +273,13 @@ def _record_workbench(work_dir: Path) -> Path:
         page.locator("#data-flow-output").scroll_into_view_if_needed()
         page.wait_for_timeout(7000)
 
-        _caption(page, "Cross-chain guardrails stay read-only: Virtuals, x402, EVMs, Celestia, and Lighter LIT.")
+        _caption(page, "External guardrails stay read-only: Virtuals, x402, EVMs, Celestia, Lighter, CCIP, LayerZero, and Wormhole.")
         page.locator("#load-cross-chain-catalog").click()
         page.locator("#cross-chain-output").scroll_into_view_if_needed()
         page.wait_for_timeout(7600)
 
         _caption(page, "0guard: simple pre-wallet protection, technical proof, and provenance. Built on 0G.")
-        page.wait_for_timeout(22000)
+        page.wait_for_timeout(35000)
 
         context.close()
         browser.close()
@@ -640,12 +644,15 @@ def _mux(video_webm: Path, audio: Path, out_mp4: Path) -> None:
             "medium",
             "-crf",
             "20",
+            "-vf",
+            "tpad=stop_mode=clone:stop_duration=8",
             "-pix_fmt",
             "yuv420p",
             "-c:a",
             "aac",
             "-b:a",
             "192k",
+            "-shortest",
             "-movflags",
             "+faststart",
             str(tmp_mp4),

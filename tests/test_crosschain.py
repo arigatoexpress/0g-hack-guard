@@ -13,7 +13,7 @@ def test_cross_chain_catalog_is_source_cited_and_non_mutating():
     catalog = cross_chain_catalog()
 
     assert catalog["schema"] == "0guard.crosschain_catalog.v1"
-    assert catalog["targetCount"] >= 8
+    assert catalog["targetCount"] >= 12
     assert catalog["evmTargetCount"] >= 7
     assert catalog["x402"]["mode"] == "prepared_not_live"
     assert catalog["x402"]["rightsEnvelope"]["rawPayloadResaleAllowed"] is False
@@ -30,10 +30,14 @@ def test_cross_chain_catalog_is_source_cited_and_non_mutating():
     assert targets["0g_mainnet"]["x402Posture"].startswith("custom_facilitator_required")
     assert targets["celestia_blobstream"]["evmCompatible"] is False
     assert "Blobstream" in targets["celestia_blobstream"]["proofStrategy"]
-    assert targets["lighter_lit"]["nativeAsset"] == "LIT"
-    assert targets["lighter_lit"]["evmCompatible"] is False
-    assert targets["lighter_lit"]["httpStatusUrl"].startswith("https://mainnet.zklighter")
-    assert "verifiable_order_matching" in targets["lighter_lit"]["capabilities"]
+    assert targets["lighter_exchange"]["nativeAsset"] == "N/A"
+    assert targets["lighter_exchange"]["evmCompatible"] is False
+    assert targets["lighter_exchange"]["httpStatusUrl"].startswith("https://mainnet.zklighter")
+    assert "verifiable_order_matching" in targets["lighter_exchange"]["capabilities"]
+    assert targets["chainlink_ccip"]["kind"] == "cross_chain_security_protocol"
+    assert "ccip_lane_policy_review" in targets["chainlink_ccip"]["capabilities"]
+    assert "dvn_executor_config_review" in targets["layerzero_v2"]["capabilities"]
+    assert "global_accountant_supply_invariant" in targets["wormhole_ntt"]["capabilities"]
     assert all(target["officialSources"] for target in catalog["targets"])
 
 
@@ -53,8 +57,9 @@ def test_cross_chain_readiness_defaults_to_catalog_only_without_network():
 
     by_id = {probe["id"]: probe for probe in readiness["probes"]}
     assert by_id["base_mainnet"]["status"] == "not_checked"
-    assert by_id["lighter_lit"]["status"] == "not_checked"
+    assert by_id["lighter_exchange"]["status"] == "not_checked"
     assert by_id["celestia_blobstream"]["status"] == "catalog_only_non_evm"
+    assert by_id["chainlink_ccip"]["status"] == "catalog_only_non_evm"
 
 
 def test_virtuals_facilitator_manifest_is_deployable_but_not_deployed():

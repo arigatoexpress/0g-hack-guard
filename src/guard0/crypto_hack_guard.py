@@ -1,8 +1,8 @@
 """
 Crypto Hack Signature & Behavioral Detection Module
 ====================================================
-Real-world detection signatures derived from April 2026 — the worst month on
-record for DeFi/DEX hacks ($635M+ across 28 incidents).
+Real-world detection signatures derived from 0guard's source-linked April 2026
+dataset ($635M+ in reported losses across 28 DeFi/DEX incidents).
 
 Expanded with major historical incident signatures (pre-2026) including Ronin,
 Poly Network, BNB Chain, Wormhole, Nomad, Mixin, Curve, and The DAO.
@@ -258,7 +258,7 @@ HISTORICAL_INCIDENTS: dict[str, dict[str, Any]] = {
     "drift_protocol_apr_2026": {
         "name": "Drift Protocol",
         "date": "2026-04",
-        "loss_usd": 28_000_000,
+        "loss_usd": 285_000_000,
         "chain": "Solana",
         "type": "Social Engineering / Durable Nonce",
         "root_cause": "Adversary convinced a signer to use a durable nonce for an unauthorized admin transfer.",
@@ -268,7 +268,7 @@ HISTORICAL_INCIDENTS: dict[str, dict[str, Any]] = {
     "kelp_dao_apr_2026": {
         "name": "Kelp DAO / LayerZero",
         "date": "2026-04",
-        "loss_usd": 15_000_000,
+        "loss_usd": 293_000_000,
         "chain": "Multi-chain",
         "type": "Bridge Misconfiguration",
         "root_cause": "Single-DVN (decentralized-verifier network) allowed a compromised verifier to relay false messages.",
@@ -278,7 +278,7 @@ HISTORICAL_INCIDENTS: dict[str, dict[str, Any]] = {
     "wasabi_apr_2026": {
         "name": "Wasabi Protocol",
         "date": "2026-04",
-        "loss_usd": 8_500_000,
+        "loss_usd": 5_000_000,
         "chain": "Ethereum",
         "type": "Access Control / UUPS Takeover",
         "root_cause": " grantRole + upgradeTo sequence in same transaction enabled immediate proxy takeover.",

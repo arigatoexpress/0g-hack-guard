@@ -1,7 +1,7 @@
 # 🔒 0guard
 
 > **AI Agent Firewall + Signature/Behavioral Detection for Crypto Hacks**  
-> Built on [0G](https://0g.ai) — the first decentralized AI operating system.
+> Built on [0G](https://0g.ai) decentralized AI infrastructure.
 
 [![CI](https://github.com/arigatoexpress/0guard/actions/workflows/ci.yml/badge.svg)](https://github.com/arigatoexpress/0guard/actions)
 
@@ -9,26 +9,26 @@
 
 ## One-Sentence Pitch
 
-0guard is a read-only, pre-wallet safety layer that uses real exploit signatures from April 2026 (the worst month on record for DeFi hacks) to detect and block crypto hacks before an AI agent ever reaches a signing key.
+0guard is a read-only, pre-wallet safety layer that uses source-linked April 2026 exploit intelligence to detect and block crypto hacks before an AI agent ever reaches a signing key.
 
 ---
 
 ## Problem
 
-- **April 2026 saw $635M+ stolen across 28 DeFi/DEX incidents** — the worst month on record.
-- **76% of losses were attributed to North Korea's Lazarus Group** using social engineering, bridge misconfiguration, and admin-key compromise.
+- **0guard's source-linked April 2026 dataset covers $635M+ in reported losses across 28 DeFi/DEX incidents.**
+- **Public sources attribute the largest loss clusters to North Korea's Lazarus Group** using social engineering, bridge misconfiguration, and admin-key compromise.
 - **The two largest exploits involved zero smart-contract bugs**; they were pure operational-security failures.
-- AI agents operating on fast L1s/L2s can make wallet mistakes *instantly* — there is no pre-flight safety layer designed specifically for autonomous agents.
+- AI agents operating on fast L1s/L2s can make wallet mistakes *instantly*; few tools check agent intent before the signer.
 
 ## Solution
 
 0guard gives every AI agent a **pre-wallet security copilot**:
 
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
-2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
+2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **source-linked April 2026 incidents** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
 3. **0G-Native Proofs** — Reads live 0G status, prepares policy receipt hashes, and includes a public 0G mainnet receipt anchor proof while keeping workbench writes operator-controlled.
 4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
-5. **Cross-Chain Integration Fabric** — Catalogs 0G, Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, Lighter/LIT, and Celestia/TIA proof lanes with read-only readiness probes.
+5. **External Guardrail Catalog** — Catalogs read-only EVM networks, x402 posture, Lighter exchange/API intents, DA proof lanes, and bridge-protocol risk lanes; no settlement, orders, bridges, or launches.
 6. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
 7. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
@@ -40,7 +40,7 @@
 |---|---|---|
 | **0G Chain** (EVM-compatible) | Public 0G mainnet `PolicyReceiptAnchor` with one anchored deny receipt; workbench path remains read-only/preflight. | Agentic Infrastructure |
 | **0G Storage** (KV + Log) | Deterministic threat-intel payload/root-hash preparation; external writes stay opt-in. | Privacy & Sovereign Infrastructure |
-| **0G Compute** (Inference) | Pluggable AI inference layer for behavioral anomaly detection on agent prompts. | Agentic Infrastructure |
+| **0G Compute** (Inference) | Planned 0G Compute scoring adapter; current demo uses deterministic policy/signature checks. | Agentic Infrastructure |
 | **Agent ID** (ERC-7857) | Every evaluation is tagged with a persistent agent identity for accountability. | Agentic Economy |
 
 ### Smart Contract
@@ -147,7 +147,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
 | `GET/POST` | `/api/wallet/alert-preview` | Read-only wallet alert preview with quality gates, dedupe keys, cooldowns, and no sends |
-| `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, Lighter/LIT, and Celestia/TIA |
+| `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, Lighter exchange/API, bridge protocol guardrails, and Celestia/TIA |
 | `GET`  | `/api/integrations/cross-chain/readiness` | Read-only cross-chain readiness; add `?live=1` for safe EVM RPC probes plus supported non-EVM status probes |
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |

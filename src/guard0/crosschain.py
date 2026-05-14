@@ -268,8 +268,8 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         caveats=("Tempo is treated as testnet/integration-watchlist in 0guard until mainnet details are configured.",),
     ),
     ChainTarget(
-        id="lighter_lit",
-        name="Lighter / LIT",
+        id="lighter_exchange",
+        name="Lighter exchange API",
         kind="verifiable_exchange_guardrail",
         status="mainnet_api",
         chain_id=None,
@@ -278,7 +278,7 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         http_status_env="LIGHTER_API_URL",
         default_http_status_url="https://mainnet.zklighter.elliot.ai/",
         explorer="https://etherscan.io/token/0x232ce3bd40fcd6f80f3d55a522d03f25df784ee2",
-        native_asset="LIT",
+        native_asset="N/A",
         evm_compatible=False,
         probe_default=True,
         capabilities=(
@@ -286,13 +286,13 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
             "verifiable_order_matching",
             "ethereum_anchored_zk_rollup",
             "pre_trade_guardrail",
-            "lit_staking_and_fee_credit_risk",
+            "lit_token_and_fee_credit_policy_context",
         ),
         x402_posture="not_an_evm_settlement_target_for_x402_by_default; protect as trading venue/API risk lane",
         proof_strategy=(
             "Use 0guard as a pre-trade policy guard for Lighter API/order intents; "
-            "anchor blocked receipts to 0G and never generate API keys, stake LIT, "
-            "place orders, or request withdrawals from the workbench."
+            "anchor blocked receipts to 0G and never generate API keys, place orders, "
+            "stake/buy LIT, buy fee credits, or request withdrawals from the workbench."
         ),
         official_sources=(
             "https://docs.lighter.xyz/",
@@ -303,8 +303,103 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         ),
         caveats=(
             "Lighter is integrated as a verifiable exchange/API guardrail, not as an EVM deployment network.",
-            "LIT staking, fee credits, deposits, orders, transfers, and withdrawals are external side effects.",
+            "LIT token, staking, fee credits, deposits, orders, transfers, and withdrawals are external side effects.",
         ),
+    ),
+    ChainTarget(
+        id="chainlink_ccip",
+        name="Chainlink CCIP",
+        kind="cross_chain_security_protocol",
+        status="protocol_guardrail_catalog",
+        chain_id=None,
+        rpc_env=None,
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://ccip.chain.link",
+        native_asset="N/A",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "ccip_lane_policy_review",
+            "cross_chain_token_pool_checks",
+            "router_allowlist_review",
+            "rate_limit_and_risk_control_context",
+        ),
+        x402_posture="not_an_x402_settlement_target; protect as cross-chain protocol-risk lane",
+        proof_strategy=(
+            "Score CCIP message and token-transfer intents before signer access; "
+            "anchor blocked policy receipts to 0G instead of initiating transfers."
+        ),
+        official_sources=(
+            "https://docs.chain.link/ccip",
+            "https://chain.link/cross-chain",
+        ),
+        caveats=("Catalog-only in this repo; no CCIP send, token pool update, or router transaction is executed.",),
+    ),
+    ChainTarget(
+        id="layerzero_v2",
+        name="LayerZero V2",
+        kind="cross_chain_security_protocol",
+        status="protocol_guardrail_catalog",
+        chain_id=None,
+        rpc_env=None,
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://layerzeroscan.com",
+        native_asset="N/A",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "dvn_executor_config_review",
+            "uln_threshold_checks",
+            "send_receive_config_symmetry",
+            "dead_dvn_detection",
+            "replay_and_nonce_guardrails",
+        ),
+        x402_posture="not_an_x402_settlement_target; protect as cross-chain message-risk lane",
+        proof_strategy=(
+            "Detect weak DVN or asymmetric send/receive configs before a wallet signs bridge "
+            "or omnichain app actions; anchor denials and evidence summaries to 0G."
+        ),
+        official_sources=(
+            "https://docs.layerzero.network/v2/developers/evm/configuration/dvn-executor-config",
+            "https://docs.layerzero.network/v2/concepts/modular-security/production-dvn-configuration",
+        ),
+        caveats=("Catalog-only in this repo; no LayerZero send, receive, DVN, or executor configuration is changed.",),
+    ),
+    ChainTarget(
+        id="wormhole_ntt",
+        name="Wormhole NTT",
+        kind="cross_chain_security_protocol",
+        status="protocol_guardrail_catalog",
+        chain_id=None,
+        rpc_env=None,
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://wormholescan.io",
+        native_asset="N/A",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "vaa_attestation_review",
+            "transceiver_registry_checks",
+            "global_accountant_supply_invariant",
+            "guardian_threshold_context",
+            "native_token_transfer_guardrails",
+        ),
+        x402_posture="not_an_x402_settlement_target; protect as cross-chain transfer-risk lane",
+        proof_strategy=(
+            "Preflight Wormhole NTT or VAA-driven actions for supply-invariant, registry, "
+            "and replay risk; use 0G as the receipt/provenance anchor."
+        ),
+        official_sources=(
+            "https://wormhole.com/docs/products/token-transfers/native-token-transfers/concepts/security/",
+            "https://docs.wormhole.com/protocol/security/",
+        ),
+        caveats=("Catalog-only in this repo; no VAA submission, relayer call, or token transfer is executed.",),
     ),
     ChainTarget(
         id="celestia_blobstream",
@@ -680,6 +775,13 @@ def _x402_posture() -> dict[str, Any]:
             "rawPayloadResaleAllowed": False,
             "outputPolicy": "derived_metadata_links_hashes_receipts_and_defensive_analysis",
         },
+        "minimumControlsBeforeLive": [
+            "bind payment requirements to route, chain, token, recipient, amount, and content hash",
+            "dedupe nonces and replay windows before returning paid artifacts",
+            "redact sensitive request metadata before any facilitator call",
+            "settle only derived artifacts whose source licenses permit redistribution",
+            "anchor payment decision receipts to 0G without exposing private payloads",
+        ],
         "claimsToAvoid": [
             "Do not claim x402 settlement is live until middleware verifies and settles a real payment.",
             "Do not claim 0G-native x402 without a configured facilitator for eip155:16661.",
@@ -729,6 +831,11 @@ def _next_operator_actions() -> list[dict[str, str]]:
             "id": "non_default_rpcs",
             "owner": "operator",
             "action": "Add MONAD_RPC_URL or CELESTIA_RPC_URL only if readback from official/provider docs is desired.",
+        },
+        {
+            "id": "protocol_config_inputs",
+            "owner": "operator",
+            "action": "Provide target CCIP, LayerZero, or Wormhole contract/config addresses before turning catalog guardrails into live config inspections.",
         },
     ]
 

@@ -59,7 +59,8 @@ Expected proof fields:
 - `decision: deny`
 - `severity: critical`
 - `zero_g.chain_anchor.status: preflight`
-- `zero_g.chain_anchor.chain_id: 16602` unless mainnet env vars are configured
+- `zero_g.chain_anchor.chain_id` matches the configured 0G network; the submitted
+  mainnet proof uses `16661`
 - `zero_g.storage_receipt.root_hash`
 - `receipt_hash`
 

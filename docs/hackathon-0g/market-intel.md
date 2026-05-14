@@ -63,6 +63,52 @@ Examples worth tracking:
 - [Synapse](https://www.hackquest.io/projects/Synapse): decentralized agent
   memory with 0G Storage and Galileo hash verification.
 
+## Gap Bridge Intelligence
+
+The strongest competitors mostly package agent frameworks, builder passports,
+or memory layers. That leaves a valuable open lane: a pre-wallet policy layer
+that other agents and agent markets can call before signing, paying, bridging,
+or trading.
+
+Source-backed build implications:
+
+- [0G Mainnet](https://docs.0g.ai/developer-hub/mainnet/mainnet-overview) gives
+  this repo a real Chain proof surface: chain ID `16661`, public RPC, and
+  ChainScan. 0guard should keep making 0G the audit anchor, not merely a logo.
+- [0G Storage SDK](https://docs.0g.ai/developer-hub/building-on-0g/storage/sdk)
+  supports upload/download, Merkle roots, and proof-enabled downloads. The next
+  production gap is not another mock screen; it is live upload/readback for the
+  already-generated threat-intel receipt roots.
+- [0G Compute inference](https://docs.0g.ai/developer-hub/building-on-0g/compute-network/inference)
+  exposes Router and Direct paths, provider health, pricing, and TEE
+  verification modes. 0guard should use this for anomaly scoring only after it
+  can cite the provider, model, request hash, response hash, and policy version.
+- [x402](https://docs.x402.org/core-concepts/network-and-token-support) uses
+  CAIP-2 network IDs and can support any EVM chain with the right facilitator,
+  but public production support is facilitator-dependent. The honest claim is:
+  Base/Polygon/Arbitrum are prepared first-settlement lanes; 0G-native x402
+  needs a configured custom facilitator for `eip155:16661`.
+- [Virtuals GAME](https://whitepaper.virtuals.io/developer-documents/game-framework/)
+  and ACP are distribution/orchestration lanes, not automatic proof of safety.
+  0guard should be a callable evaluator/resource for agents before any live
+  Virtuals launch or token action.
+- [Lighter](https://docs.lighter.xyz/) is best treated as an exchange/API risk
+  surface. Its docs describe verifiable order matching and an API, while
+  [LIT utility](https://docs.lighter.xyz/about-lighter/lit-utility) and
+  [terms](https://lighter.xyz/terms) make token, staking, fee-credit, and access
+  language sensitive. In 0guard copy, say "Lighter exchange/API guardrail"; do
+  not conflate Lighter with its LIT token as if it were an EVM chain lane.
+- [Celestia Blobstream](https://docs.celestia.org/learn/blobstream/) is the
+  useful DA comparison: it lets EVM contracts verify Celestia data publication.
+  0guard can mention it as a proof comparator while keeping 0G Storage/Chain as
+  the implemented path.
+- Cross-chain protocols should be modeled as guardrail lanes:
+  [Chainlink CCIP](https://docs.chain.link/ccip) for router/token-pool policy,
+  [LayerZero V2](https://docs.layerzero.network/v2/developers/evm/configuration/dvn-executor-config)
+  for DVN/executor configuration risk, and
+  [Wormhole NTT](https://wormhole.com/docs/products/token-transfers/native-token-transfers/concepts/security/)
+  for VAA, transceiver, and supply-invariant risk.
+
 ## 0guard Positioning
 
 Do not pitch 0guard as a generic wallet scanner. The best wedge is:
@@ -78,9 +124,20 @@ Winning proof sequence:
 3. `enable_0g_anchor=true` exposes the exact Chain anchor payload in preflight.
 4. `enable_0g_storage=true` exposes a Storage-ready threat-intel receipt and
    root hash.
-5. `/api/0g/status` proves live, read-only Galileo connectivity.
+5. `/api/0g/status` proves live, read-only 0G RPC connectivity.
 6. `/api/data/provenance?live=1` proves the incident dataset can be correlated
    against live public source records without returning raw upstream payloads.
+
+Clear value proposition:
+
+> 0guard makes autonomous finance safer by moving the security decision before
+> the signer. It turns intent, calldata, domain context, and public exploit
+> intelligence into a deterministic verdict plus a 0G-verifiable receipt.
+
+The world-class version is not just a bigger dashboard. It is a continuously
+updated defensive feature store: incident signatures, bridge/protocol config
+checks, x402 metadata controls, exchange/API intent guardrails, and provenance
+hashes that can be verified without exposing raw upstream data.
 
 ## Current Submission State
 

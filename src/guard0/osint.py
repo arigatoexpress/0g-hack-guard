@@ -653,9 +653,10 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "agentIdentity": "Receipts can include agent_id for accountable agent sessions.",
             "crossChain": (
                 "Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, "
-                "Lighter/LIT, and Celestia/TIA are exposed through a read-only integration "
-                "fabric; live agent launch, settlement, exchange orders, staking, bridges, "
-                "swaps, and signatures remain operator-only."
+                "Lighter exchange/API, Chainlink CCIP, LayerZero V2, Wormhole NTT, and "
+                "Celestia/TIA are exposed through a read-only integration fabric; live "
+                "agent launch, settlement, exchange orders, LIT token/staking/fee-credit "
+                "actions, bridges, swaps, and signatures remain operator-only."
             ),
         },
         "dataProduct": {

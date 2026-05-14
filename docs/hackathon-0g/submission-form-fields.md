@@ -56,7 +56,7 @@ One-line description:
 ## Summary
 
 ```text
-0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, Storage-ready threat-intel root hashes, and a read-only cross-chain integration fabric for Virtuals/Base, x402, EVM expansion chains, Lighter/LIT exchange guardrails, and Celestia/TIA proof lanes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, stakes LIT, launches agents, settles payments, or sends Telegram messages.
+0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, Storage-ready threat-intel root hashes, and a read-only cross-chain integration fabric for Virtuals/Base, x402, EVM expansion chains, Lighter exchange/API guardrails, Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/TIA proof lanes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, takes LIT token/staking/fee-credit actions, launches agents, settles payments, or sends Telegram messages.
 ```
 
 ## Problem
@@ -205,6 +205,6 @@ specific field must be edited.
   move funds.
 - Do not claim live Virtuals launch, x402 settlement, or custom 0G x402
   facilitation until those paths are separately configured and verified.
-- Do not claim live Lighter orders, LIT staking/fee credits, transfers, or
+- Do not claim live Lighter orders, LIT token/staking/fee-credit actions, transfers, or
   withdrawals from the workbench.
 - Do not mirror or resell raw upstream OSINT payloads.

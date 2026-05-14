@@ -19,17 +19,19 @@ cd /Users/aribs/Code/0guard
 .venv/bin/python scripts/submission_readiness.py --format markdown
 ```
 
-The expected state before Ari performs manual actions is `submittable now:
-false`. The remaining blockers should be operator-only: 0G mainnet
-contract/explorer proof, demo video URL, and public X post URL.
+The expected state after the completed submission run is `submittable now:
+true`, with a documented 0G mainnet contract/explorer proof, demo video URL,
+and public X proof URL. If the readiness audit returns `false`, treat the
+reported blocker list as the current source of truth.
 
 ## Operator-Only Final Tasks
 
-1. Deploy and anchor one receipt with `PolicyReceiptAnchor` on 0G mainnet.
-2. Save the 0G mainnet contract address and Explorer transaction URL.
-3. Record and upload the <=3 minute demo video.
-4. Post the required X post with screenshot or short clip.
-5. Paste the packet into HackQuest before May 16, 2026 at 09:59 MDT.
+1. Review the readiness audit and proof packet before any follow-up edits.
+2. If the video is rebuilt, verify it remains under three minutes and update
+   the public Pages asset.
+3. Use the prepared X/LinkedIn drafts for follow-up launch posts only after
+   manual review.
+4. Preserve the submitted 0G mainnet proof and X proof URL in the packet.
 
 ## Safety Rules
 
@@ -37,5 +39,5 @@ contract/explorer proof, demo video URL, and public X post URL.
 - Do not commit `.env` files.
 - Do not use the browser workbench to sign, broadcast, trade, bridge, send
   Telegram messages, or move funds.
-- Do not claim live 0G mainnet writes until the mainnet contract/explorer proof
-  exists.
+- Do not claim new live 0G writes, Storage uploads, Compute inference,
+  payments, launches, or trading unless the matching public proof exists.

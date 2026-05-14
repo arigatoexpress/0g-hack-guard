@@ -78,7 +78,7 @@ Call out:
 
 - `receipt_hash`
 - `zero_g.chain_anchor.status: preflight`
-- `zero_g.chain_anchor.chain_id: 16602`
+- `zero_g.chain_anchor.chain_id: 16661`
 - `zero_g.storage_receipt.root_hash`
 - `zero_g.storage_receipt.key`
 
