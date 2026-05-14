@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>0guard — HackQuest Proof Packet</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; line-height: 1.5; margin: 0; }
+      main { max-width: 900px; padding: 28px 20px 40px; margin: 0 auto; }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      p { margin: 10px 0; }
+      .meta { opacity: 0.85; margin-top: 0; }
+      .card { border: 1px solid rgba(127,127,127,0.25); border-radius: 12px; padding: 14px 14px; margin: 14px 0; }
+      ul { margin: 8px 0 0 20px; padding: 0; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.95em; }
+      a { color: inherit; }
+      .muted { opacity: 0.8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>0guard — HackQuest Proof Packet</h1>
+      <p class="meta">
+        Public, read-only artifacts for the 0G APAC Hackathon (HackQuest).
+      </p>
+
+      <div class="card">
+        <strong>Primary artifacts</strong>
+        <ul>
+          <li><a href="assets/0guard-hackquest-demo-final.mp4">Demo video (≤3 minutes)</a></li>
+          <li><a href="assets/0guard-workbench-provenance.png">Demo screenshot / provenance asset</a></li>
+          <li><a href="mainnet-proof.json">0G mainnet proof (JSON)</a></li>
+          <li><a href="final-submission-checklist.md">Final submission checklist (Markdown)</a></li>
+          <li><a href="submission-form-fields.md">HackQuest form fields (Markdown)</a></li>
+          <li><a href="threat-receipt-passport.md">Threat receipt passport (Markdown)</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <strong>Mainnet anchor (from <code>mainnet-proof.json</code>)</strong>
+        <ul>
+          <li>Contract: <code>0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc</code></li>
+          <li>Anchored receipt: <code>0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1</code></li>
+          <li>
+            Anchor tx:
+            <a href="https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed">
+              64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
+            </a>
+          </li>
+        </ul>
+        <p class="muted">
+          The workbench stays preflight/read-only; the mainnet anchor is proven via the public explorer.
+        </p>
+      </div>
+
+      <div class="card">
+        <strong>Repo</strong>
+        <ul>
+          <li><a href="https://github.com/arigatoexpress/0guard">GitHub: arigatoexpress/0guard</a></li>
+          <li><a href="../">Project landing page</a></li>
+        </ul>
+      </div>
+    </main>
+  </body>
+</html>
