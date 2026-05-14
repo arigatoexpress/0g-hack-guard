@@ -32,6 +32,7 @@ OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
 SIGNATURE_MAP_SCHEMA = "0guard.signature_map.v1"
 HACKATHON_BRIEF_SCHEMA = "0guard.hackathon_submission_brief.v1"
+HACKQUEST_PACKET_SCHEMA = "0guard.hackquest_submission_packet.v1"
 PROVENANCE_MATRIX_SCHEMA = "0guard.incident_provenance_matrix.v1"
 PROVENANCE_CACHE_SCHEMA = "0guard.incident_provenance_cache.v1"
 USER_AGENT = "0guard-osint/0.1 (+https://github.com/arigatoexpress/0guard)"
@@ -505,6 +506,149 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Do not claim live 0G Compute inference until a real router call is wired.",
             "Do not imply the browser can sign, trade, send Telegram messages, or move funds.",
         ],
+    }
+
+
+def hackquest_submission_packet() -> dict[str, Any]:
+    """Return copy-ready HackQuest fields plus explicit operator placeholders."""
+    brief = hackathon_submission_brief()
+    provenance = incident_provenance_matrix(live=False)
+    screenshot_path = "docs/hackathon-0g/assets/0guard-workbench-provenance.png"
+    demo_script_path = "docs/DEMO_VIDEO_SCRIPT.md"
+    repo_url = brief["project"]["repo"]
+    public_demo_url = brief["project"]["publicDemo"]
+    one_liner = (
+        "0guard is a 0G-native pre-wallet firewall that checks AI-agent intents "
+        "against exploit intelligence before any signer can act."
+    )
+
+    return {
+        "schema": HACKQUEST_PACKET_SCHEMA,
+        "generatedAt": _now(),
+        "event": {
+            "name": "0G APAC Hackathon",
+            "host": "HackQuest",
+            "officialUrl": "https://www.hackquest.io/hackathons/0G-APAC-Hackathon",
+            "deadline": brief["deadline"],
+        },
+        "readiness": {
+            "ready": [
+                "project_name",
+                "one_line_description",
+                "summary",
+                "public_repo",
+                "public_demo_page",
+                "english_readme",
+                "technical_docs",
+                "demo_script",
+                "x_post_draft",
+                "screenshot_asset",
+                "read_only_0g_galileo_status",
+                "receipt_preflight_payload",
+                "storage_ready_root_hashes",
+                "provenance_cache",
+            ],
+            "operatorRequired": brief["operatorRequired"],
+            "claimsToAvoid": brief["claimsToAvoid"],
+        },
+        "recommendedTrack": brief["trackRecommendation"]["primary"],
+        "alternateTrack": brief["trackRecommendation"]["secondary"],
+        "formFields": {
+            "projectName": "0guard",
+            "oneLineDescription": one_liner,
+            "summary": (
+                "0guard is a pre-wallet firewall for AI agents. It evaluates prompts, "
+                "action mode, calldata, target contracts, domains, policy context, and "
+                "incident-derived exploit intelligence before an agent can reach a "
+                "signer. The product returns allow/review/deny verdicts, deterministic "
+                "receipt hashes, 0G Chain anchor preflight payloads, and Storage-ready "
+                "threat-intel root hashes. The current submission is intentionally "
+                "read-only: it proves live 0G Galileo status and the full receipt shape "
+                "without holding keys, signing, broadcasting, trading, or sending "
+                "Telegram messages."
+            ),
+            "problem": (
+                "AI agents are gaining wallet and bridge tooling faster than their "
+                "safety controls are maturing. Most security checks happen near signing "
+                "time, after an agent has already formed a risky action. 0guard moves "
+                "the review point earlier: intent first, signer later."
+            ),
+            "solution": (
+                "0guard checks agent intent against deterministic policy rules, known "
+                "exploit signatures, behavioral sequences, domain context, and "
+                "source-cited incident intelligence. Risky actions are blocked before "
+                "wallet custody begins, and every evaluation can become a tamper-evident "
+                "receipt for 0G Chain and 0G Storage workflows."
+            ),
+            "0gIntegration": (
+                "0guard uses 0G Chain for policy receipt anchoring, 0G Storage for "
+                "portable threat-intel receipt payloads and root hashes, and a planned "
+                "0G Compute layer for agent-risk anomaly scoring. Today the app reads "
+                "0G Galileo live in read-only mode, prepares receipt-anchor payloads for "
+                "PolicyReceiptAnchor.sol, and returns deterministic Storage-ready root "
+                "hashes without private keys or broadcasts."
+            ),
+            "repoUrl": repo_url,
+            "publicDemoUrl": public_demo_url,
+            "demoVideoUrl": "OPERATOR_REQUIRED_DEMO_VIDEO_URL",
+            "xPostUrl": "OPERATOR_REQUIRED_X_POST_URL",
+            "0gContractAddress": "OPERATOR_REQUIRED_0G_CONTRACT_ADDRESS_OR_EXPLICIT_GAP",
+            "0gExplorerUrl": "OPERATOR_REQUIRED_0G_EXPLORER_URL_OR_EXPLICIT_GAP",
+            "screenshotAsset": screenshot_path,
+            "demoScript": demo_script_path,
+        },
+        "proofPoints": [
+            {
+                "label": "Live 0G read proof",
+                "route": "/api/0g/status",
+                "claim": "Reads Galileo chain status without private keys, signing, or broadcasts.",
+            },
+            {
+                "label": "Receipt anchor preflight",
+                "route": "/api/evaluate",
+                "claim": "Returns the exact 0G Chain anchor payload when enable_0g_anchor=true.",
+            },
+            {
+                "label": "Storage-ready root hash",
+                "route": "/api/evaluate",
+                "claim": "Returns deterministic threat-intel receipt payloads and root hashes.",
+            },
+            {
+                "label": "Incident provenance",
+                "route": "/api/data/provenance",
+                "claim": (
+                    f"{provenance['coverage']['withMatchedEvidence']}/"
+                    f"{provenance['coverage']['incidentCount']} incidents have reviewed "
+                    "derived source evidence without mirroring raw upstream payloads."
+                ),
+            },
+        ],
+        "xPost": {
+            "threadFile": "content/hack_guard_thread.json",
+            "mediaPath": screenshot_path,
+            "requiredHashtags": brief["submissionRequirements"]["publicXPost"][
+                "requiredHashtags"
+            ],
+            "requiredTags": brief["submissionRequirements"]["publicXPost"]["requiredTags"],
+            "dryRunCommand": (
+                ".venv/bin/python scripts/x_post.py --file "
+                "content/hack_guard_thread.json --thread --media "
+                f"{screenshot_path} --dry-run --verbose"
+            ),
+            "liveCommand": (
+                ".venv/bin/python scripts/x_post.py --file "
+                "content/hack_guard_thread.json --thread --media "
+                f"{screenshot_path} --live-post-confirm POST_TO_X_FROM_0GUARD"
+            ),
+        },
+        "manualSubmitOrder": [
+            "Record and upload the <=3 minute demo video.",
+            "Decide whether to deploy/configure PolicyReceiptAnchor or submit explicit gap.",
+            "Post the required X thread with screenshot or short clip.",
+            "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
+            "Before final submit, re-open the public repo and Pages URL from an incognito window.",
+        ],
+        "safety": _osint_safety(),
     }
 
 

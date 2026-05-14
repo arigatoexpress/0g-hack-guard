@@ -86,6 +86,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/readiness" in data["apiRoutes"]
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
+    assert "/api/hackathon/submission-packet" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
@@ -97,6 +98,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-provenance-matrix" in data["requiredSelectors"]
     assert "#load-live-provenance" in data["requiredSelectors"]
     assert "#osint-output" in data["requiredSelectors"]
+    assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -214,6 +216,14 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert brief_body["project"]["name"] == "0guard"
     assert brief_body["dataProduct"]["incidentCount"] == 28
     assert brief_body["submissionRequirements"]["publicXPost"]["mandatory"] is True
+
+    packet = client.get("/api/hackathon/submission-packet")
+    assert packet.status_code == 200
+    packet_body = packet.get_json()
+    assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
+    assert packet_body["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
+    assert packet_body["xPost"]["mediaPath"].endswith("0guard-workbench-provenance.png")
+    assert packet_body["safety"]["rawPayloadsReturned"] is False
 
 
 def test_osint_signal_route_rejects_bad_limit(client):

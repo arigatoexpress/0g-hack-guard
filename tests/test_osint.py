@@ -4,6 +4,7 @@ import json
 
 from guard0.osint import (
     hackathon_submission_brief,
+    hackquest_submission_packet,
     incident_provenance_matrix,
     load_source_registry,
     osint_readiness,
@@ -154,3 +155,19 @@ def test_hackathon_submission_brief_is_operator_ready():
     assert any("proof trails" in item for item in brief["competitivePositioning"])
     assert any("Deploy PolicyReceiptAnchor" in item for item in brief["operatorRequired"])
     assert any("Do not claim live mainnet writes" in item for item in brief["claimsToAvoid"])
+
+
+def test_hackquest_submission_packet_is_copy_ready_and_safe():
+    packet = hackquest_submission_packet()
+
+    assert packet["schema"] == "0guard.hackquest_submission_packet.v1"
+    assert packet["formFields"]["projectName"] == "0guard"
+    assert packet["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
+    assert packet["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
+    assert packet["formFields"]["screenshotAsset"].endswith("0guard-workbench-provenance.png")
+    assert packet["recommendedTrack"].startswith("Track 5")
+    assert "/api/data/provenance" in {proof["route"] for proof in packet["proofPoints"]}
+    assert packet["xPost"]["mediaPath"] == packet["formFields"]["screenshotAsset"]
+    assert "--dry-run" in packet["xPost"]["dryRunCommand"]
+    assert "POST_TO_X_FROM_0GUARD" in packet["xPost"]["liveCommand"]
+    assert packet["safety"]["rawPayloadsReturned"] is False

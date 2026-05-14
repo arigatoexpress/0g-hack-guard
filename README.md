@@ -141,6 +141,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
+| `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and operator placeholders |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
@@ -236,6 +237,7 @@ curl -s http://127.0.0.1:8109/api/osint/readiness | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/readiness?live=1' | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
 ```
 
 Current default source families include DeFiLlama Hacks, Chainalysis RSS,

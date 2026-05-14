@@ -57,6 +57,9 @@ mistake that human teams already lost money to.
 ## Required HackQuest Materials Status
 
 - Project info: ready.
+- Copy/paste form packet: ready at
+  `docs/hackathon-0g/submission-form-fields.md` and
+  `/api/hackathon/submission-packet`.
 - Public GitHub repository: ready at `https://github.com/arigatoexpress/0guard`.
 - README and technical documentation: ready, with mainnet gaps stated openly.
 - Demo video: operator must record and upload a public <=3 minute video.

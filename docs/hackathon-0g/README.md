@@ -10,13 +10,17 @@ private keys or real writes in the workbench.
 1. Start with `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
 2. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
-3. Use `market-intel.md` for current HackQuest requirements, track fit, and
+3. Use `submission-form-fields.md` as the final copy/paste packet for the
+   HackQuest form.
+4. Use `market-intel.md` for current HackQuest requirements, track fit, and
    competitor positioning.
-4. Reference `mainnet-gap-register.md` when judges ask what is real today
+5. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
-5. Use `/api/hackathon/submission-brief` for a machine-readable final brief
+6. Use `/api/hackathon/submission-brief` for a machine-readable final brief
    with deadline, repo/demo links, data stats, manual TODOs, and claims to
    avoid.
+7. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
+   explicit operator placeholders.
 
 ## Winning Thesis
 

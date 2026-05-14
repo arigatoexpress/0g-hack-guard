@@ -54,6 +54,7 @@ loose demo copy.
 | `/api/osint/readiness` | Catalog posture; `?live=1` performs public availability checks. |
 | `/api/osint/signals` | Normalized incident/research leads; `?live=1` fetches live public metadata. |
 | `/api/hackathon/submission-brief` | HackQuest-ready brief, data stats, 0G story, and operator TODOs. |
+| `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields and explicit operator placeholders. |
 
 Example:
 
@@ -65,6 +66,7 @@ curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
 ```
 
 ## Provenance

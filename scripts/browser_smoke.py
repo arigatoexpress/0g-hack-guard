@@ -161,6 +161,11 @@ def exercise_workbench(page: Page) -> None:
         "0guard.hackathon_submission_brief.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text("2026-05-16T23:59:00+08:00")
+    page.locator("#load-submission-packet").click()
+    expect(page.locator("#osint-output")).to_contain_text(
+        "0guard.hackquest_submission_packet.v1"
+    )
+    expect(page.locator("#osint-output")).to_contain_text("OPERATOR_REQUIRED_DEMO_VIDEO_URL")
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -203,9 +208,11 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/data/provenance" in frontend_body["apiRoutes"]
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
+    assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
+    assert "#load-submission-packet" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -270,6 +277,12 @@ def exercise_workbench(page: Page) -> None:
     assert submission_body["schema"] == "0guard.hackathon_submission_brief.v1"
     assert submission_body["project"]["name"] == "0guard"
     assert submission_body["submissionRequirements"]["publicXPost"]["mandatory"] is True
+
+    packet = page.request.get(f"{BASE_URL}/api/hackathon/submission-packet")
+    assert packet.ok
+    packet_body = packet.json()
+    assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
+    assert packet_body["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok
