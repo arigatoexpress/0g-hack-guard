@@ -8,7 +8,10 @@ from typing import Literal
 
 import requests
 
-from guard0.hackquest_public_readback import parse_hackquest_project_html
+from guard0.hackquest_public_readback import (
+    parse_hackquest_is_submit,
+    parse_hackquest_project_html,
+)
 
 
 @dataclass(frozen=True)
@@ -16,6 +19,7 @@ class HackQuestPublicReadback:
     fetched_at: str
     url: str
     http_status: int
+    is_submit: bool | None
     open_source_link: str | None
     mvp_link: str | None
     x_link: str | None
@@ -25,6 +29,7 @@ class HackQuestPublicReadback:
 
 def fetch_hackquest_project(url: str) -> HackQuestPublicReadback:
     resp = requests.get(url, timeout=30)
+    is_submit = parse_hackquest_is_submit(resp.text)
     open_source_link, mvp_link, x_link, contracts, chainscan_txs = parse_hackquest_project_html(
         resp.text
     )
@@ -32,6 +37,7 @@ def fetch_hackquest_project(url: str) -> HackQuestPublicReadback:
         fetched_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         url=url,
         http_status=resp.status_code,
+        is_submit=is_submit,
         open_source_link=open_source_link,
         mvp_link=mvp_link,
         x_link=x_link,
@@ -47,6 +53,7 @@ def _to_markdown(result: HackQuestPublicReadback) -> str:
     lines.append(f"- Fetched at: {result.fetched_at}")
     lines.append(f"- URL: {result.url}")
     lines.append(f"- HTTP status: {result.http_status}")
+    lines.append(f"- isSubmit: {result.is_submit if result.is_submit is not None else '(not found)'}")
     lines.append(f"- Repo link: {result.open_source_link or '(not found)'}")
     lines.append(f"- Demo/MVP link: {result.mvp_link or '(not found)'}")
     lines.append(f"- X link: {result.x_link or '(not found)'}")

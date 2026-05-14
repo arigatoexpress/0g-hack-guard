@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 _RE_URL = re.compile(r'https?://[^\s"<>]+')
 _RE_CONTRACT = re.compile(r"0x[a-fA-F0-9]{40}")
 _RE_CHAINSCAN_TX = re.compile(r"https://chainscan\.0g\.ai/tx/[a-fA-F0-9]{64}")
+_RE_IS_SUBMIT = re.compile(r'"isSubmit"\s*:\s*(true|false)')
+_RE_IS_SUBMIT_ESCAPED = re.compile(r'\\"isSubmit\\"\s*:\s*(true|false)')
 
 
 def normalize_x_link(raw: str) -> str:
@@ -55,3 +57,10 @@ def parse_hackquest_project_html(
     chainscan_tx_urls = sorted(set(_RE_CHAINSCAN_TX.findall(html)))
     return open_source_link, mvp_link, x_link, contract_addresses, chainscan_tx_urls
 
+
+def parse_hackquest_is_submit(html: str) -> bool | None:
+    for regex in (_RE_IS_SUBMIT, _RE_IS_SUBMIT_ESCAPED):
+        match = regex.search(html)
+        if match:
+            return match.group(1) == "true"
+    return None
