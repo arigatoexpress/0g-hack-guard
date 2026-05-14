@@ -944,6 +944,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
     proof_ready = _mainnet_proof_ready(proof)
     proof_contract = str(proof.get("contract_address", "")) if proof else ""
     proof_explorer = str(proof.get("anchor_explorer_url", "")) if proof else ""
+    proof_anchor_tx = str(proof.get("anchor_tx_hash", "")) if proof else ""
     submission_proof = _load_hackquest_submission_proof()
     submission_ready = _hackquest_submission_ready(submission_proof)
     mainnet_contract_ready = (mainnet_selected and contract_configured) or bool(proof_contract)
@@ -1143,6 +1144,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "mainnetProofReady": proof_ready,
             "mainnetProofContract": proof_contract or None,
             "mainnetProofExplorerUrl": proof_explorer or None,
+            "mainnetProofAnchorTxHash": proof_anchor_tx or None,
         },
         "hackQuestSubmission": {
             "submitted": submission_ready,

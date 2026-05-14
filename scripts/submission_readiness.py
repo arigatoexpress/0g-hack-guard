@@ -56,6 +56,7 @@ def _to_markdown(audit: dict) -> str:
         f"- Explorer URL configured: {audit['current0GConfig']['explorerUrlConfigured']}",
         f"- Mainnet proof file ready: {audit['current0GConfig'].get('mainnetProofReady')}",
         f"- Mainnet proof contract: {audit['current0GConfig'].get('mainnetProofContract')}",
+        f"- Mainnet proof anchor tx: {audit['current0GConfig'].get('mainnetProofAnchorTxHash')}",
         f"- Mainnet proof explorer: {audit['current0GConfig'].get('mainnetProofExplorerUrl')}",
         "",
         "## Requirements",
