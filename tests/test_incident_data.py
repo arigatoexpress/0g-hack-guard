@@ -52,7 +52,7 @@ def test_detection_coverage_runs_dataset_through_signature_engine():
 
     assert coverage["schema"] == "0guard.detection_coverage.v1"
     assert coverage["incidentCount"] == 28
-    assert coverage["coveredCount"] >= 12
+    assert coverage["coveredCount"] >= 18
     assert 0 < coverage["coverageRatio"] <= 1
     drift = next(row for row in coverage["coverage"] if row["incident"]["protocol"] == "Drift Protocol")
     assert drift["matched"] is True

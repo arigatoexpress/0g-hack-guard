@@ -94,9 +94,9 @@ def test_signature_map_explains_coverage_gaps():
 
     assert mapping["schema"] == "0guard.signature_map.v1"
     assert mapping["incidentCount"] == 28
-    assert mapping["matchedCount"] >= 12
-    assert mapping["gapCount"] >= 1
-    assert mapping["topGaps"]
+    assert mapping["matchedCount"] >= 18
+    assert mapping["gapCount"] == 10
+    assert mapping["topGaps"] == {"insufficient_public_root_cause": 10}
     drift = next(row for row in mapping["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["matched"] is True
     assert drift["gap"] is None
@@ -114,6 +114,11 @@ def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
     assert intel["currentDataset"]["sourceEvidenceCoverage"] >= 0.9
     assert intel["detectorFamilies"]
     assert any(family["id"] == "behavior_sequence" for family in intel["detectorFamilies"])
+    assert any(
+        family["id"] == "accounting_and_numeric"
+        and family["matchedIncidentCount"] >= 3
+        for family in intel["detectorFamilies"]
+    )
     assert intel["emergingDetectorQueue"]
     assert intel["liveSourceSignals"]["signalCount"] == 0
     assert intel["zeroGSuite"]["chain"]["status"] == "mainnet_anchor_live"

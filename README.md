@@ -241,6 +241,12 @@ records lack per-incident source URLs. Current canonical coverage is 26 of 28
 records with derived source evidence; `Silo V2` and `Denaria Finance` remain
 aggregate-only until stronger public proof exists.
 
+The signature engine currently covers 18 of 28 incident-derived detection
+seeds. The remaining 10 are deliberately classified as
+`insufficient_public_root_cause`, so they stay in research/watch mode until a
+source URL, transaction, postmortem, or security report identifies a concrete
+behavior or calldata pattern.
+
 ### OSINT Pipeline
 
 The source registry lives in `data/osint_sources.json` and records source owner,

@@ -113,6 +113,14 @@ confidence, record hashes, and a recommended next step for each incident. This
 keeps live source evidence separate from raw upstream payloads, while preserving
 the reviewed derived evidence in `data/april_2026_incidents.json`.
 
+As of the detector-invariant pass, the signature engine covers 18 of 28
+incident-derived seeds. Added coverage includes negative amount/accounting
+invariants, burn/mint balance-accounting drift, signedness/bounded-math
+settlement risk, cross-chain gateway pause/nonce/replay invariants, and
+hot-wallet operational-security context. The remaining 10 records are all
+`insufficient_public_root_cause` and should stay in research/watch mode until
+public evidence identifies a concrete behavior or calldata pattern.
+
 Next durable upgrade:
 
 - Add `evidence_type` per source, such as `postmortem`, `transaction`, `security_report`, or `news`.

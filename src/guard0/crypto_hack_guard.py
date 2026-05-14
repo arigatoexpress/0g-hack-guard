@@ -188,6 +188,35 @@ SANDWICH_PATTERN_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Accounting / numeric invariant failures that show up in source-cited incident
+# writeups before a clean calldata selector is public.
+NEGATIVE_AMOUNT_RE = re.compile(
+    r"\b(negative\s+amounts?|signed\s+amount|unsigned\s+input|"
+    r"donat(?:e|ion).*negative|lower\s+bounds?|impossible\s+balance\s+delta)\b",
+    re.IGNORECASE,
+)
+TOKEN_ACCOUNTING_RE = re.compile(
+    r"\b(burn\s*address|burnaddress|burn.?mint|mint.?burn|supply\s+drift|"
+    r"refund\s+claims?|balance\s+manipulat|extract\s+excess\s+value)\b",
+    re.IGNORECASE,
+)
+NUMERIC_TYPE_RE = re.compile(
+    r"\b(signedness|signed\s+vs\s+unsigned|integer\s+underflow|integer\s+overflow|"
+    r"bounded\s+math|checked\s+math|settlement\s+math|excess\s+collateral)\b",
+    re.IGNORECASE,
+)
+CROSS_CHAIN_GATEWAY_RE = re.compile(
+    r"\b(gatewayevm|gateway\s+contract|cross-?chain\s+activity|security\s+council|"
+    r"pausable|pause\s+circuit|halt\s+of\s+all\s+cross-?chain|replay.?proof|"
+    r"nonce\s+invalidation)\b",
+    re.IGNORECASE,
+)
+HOT_WALLET_OPSEC_RE = re.compile(
+    r"\b(hot\s+wallets?|withdrawal\s+limits?|hsm|unauthorized\s+outbound\s+transfers?|"
+    r"geographic\s+signing|signing\s+distribution|coordinated\s+attack)\b",
+    re.IGNORECASE,
+)
+
 # ── High-Risk Action Combinations ────────────────────────────────────────────
 
 HIGH_RISK_ACTION_PAIRS: tuple[tuple[str, str], ...] = (
@@ -629,6 +658,23 @@ def _check_textual_signatures(payload: dict[str, Any]) -> tuple[list[str], list[
     if SANDWICH_PATTERN_RE.search(text):
         warnings.append("Sandwich / MEV / front-running language detected.")
         sigs.append("sandwich_mev_lang")
+
+    # Accounting and numeric invariants
+    if NEGATIVE_AMOUNT_RE.search(text) or NEGATIVE_AMOUNT_RE.search(action):
+        blockers.append("Negative amount / signed accounting invariant detected.")
+        sigs.append("negative_amount_invariant")
+    if TOKEN_ACCOUNTING_RE.search(text) or TOKEN_ACCOUNTING_RE.search(action):
+        warnings.append("Burn/mint or balance-accounting invariant risk detected.")
+        sigs.append("token_accounting_invariant")
+    if NUMERIC_TYPE_RE.search(text) or NUMERIC_TYPE_RE.search(action):
+        warnings.append("Signedness or bounded-math invariant risk detected.")
+        sigs.append("numeric_type_invariant")
+    if CROSS_CHAIN_GATEWAY_RE.search(text) or CROSS_CHAIN_GATEWAY_RE.search(action):
+        warnings.append("Cross-chain gateway pause, nonce, or replay invariant risk detected.")
+        sigs.append("cross_chain_gateway_invariant")
+    if HOT_WALLET_OPSEC_RE.search(text) or HOT_WALLET_OPSEC_RE.search(action):
+        warnings.append("Hot-wallet operational-security risk detected.")
+        sigs.append("hot_wallet_opsec_context")
 
     # Action-pair risk
     # We look at action + method combinations

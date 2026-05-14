@@ -75,3 +75,38 @@ def test_flash_loan_init():
         "calldata": "0xab9c4b5d...",
     })
     assert any("Flash-loan" in w for w in result.warnings)
+
+
+def test_negative_amount_invariant_blocks():
+    result = check_crypto_hack_signatures({
+        "action": "donate negative amounts",
+        "prompt_text": "Donation flow credits negative amounts without strict lower bounds.",
+    })
+    assert any("Negative amount" in b for b in result.blockers)
+    assert "negative_amount_invariant" in result.signatures_matched
+
+
+def test_accounting_numeric_and_gateway_invariants_warn():
+    result = check_crypto_hack_signatures({
+        "action": "settlement review",
+        "prompt_text": (
+            "BurnAddress accounting bug caused balance manipulation. "
+            "A signedness mismatch in settlement math extracted excess collateral. "
+            "GatewayEVM halted all cross-chain activity while nonce replay protection was patched."
+        ),
+    })
+    assert any("Burn/mint" in w for w in result.warnings)
+    assert any("Signedness" in w for w in result.warnings)
+    assert any("Cross-chain gateway" in w for w in result.warnings)
+    assert "token_accounting_invariant" in result.signatures_matched
+    assert "numeric_type_invariant" in result.signatures_matched
+    assert "cross_chain_gateway_invariant" in result.signatures_matched
+
+
+def test_hot_wallet_opsec_warns():
+    result = check_crypto_hack_signatures({
+        "action": "hot wallet compromise",
+        "prompt_text": "Hot wallet incident with unauthorized outbound transfers and weak HSM controls.",
+    })
+    assert any("Hot-wallet" in w for w in result.warnings)
+    assert "hot_wallet_opsec_context" in result.signatures_matched

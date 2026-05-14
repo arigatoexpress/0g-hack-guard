@@ -1596,8 +1596,14 @@ def _detector_family_summary(sig_map: dict[str, Any]) -> list[dict[str, Any]]:
         "calldata_signature": ("critical_selector:", "unlimited_approval", "flash_loan_init"),
         "behavior_sequence": ("sequence_", "risk_pair:"),
         "bridge_and_da": ("bridge_", "single_dvn", "sequence_bridge"),
+        "accounting_and_numeric": (
+            "negative_amount_invariant",
+            "token_accounting_invariant",
+            "numeric_type_invariant",
+        ),
         "oracle_and_market": ("oracle_", "price_deviation", "sequence_oracle"),
         "governance_and_upgrade": ("governance_", "sequence_grant", "sequence_timelock"),
+        "wallet_opsec": ("hot_wallet_opsec_context",),
     }
     rows = sig_map.get("rows") or []
     summary = []
@@ -1623,7 +1629,9 @@ def _detector_family_summary(sig_map: dict[str, Any]) -> list[dict[str, Any]]:
                     "calldata_signature",
                     "behavior_sequence",
                     "bridge_and_da",
+                    "accounting_and_numeric",
                     "governance_and_upgrade",
+                    "wallet_opsec",
                 },
             }
         )

@@ -344,6 +344,10 @@ def _alert_title(verdict: str, reason: str) -> str:
         return "Bridge message or verifier risk"
     if "upgrade" in reason_lower:
         return "Proxy upgrade or admin-control risk"
+    if "negative amount" in reason_lower or "accounting invariant" in reason_lower:
+        return "Accounting-invariant exploit attempt"
+    if "signedness" in reason_lower or "bounded-math" in reason_lower:
+        return "Numeric settlement invariant risk"
     if verdict == "deny":
         return "Blocked wallet-signing request"
     return "Human review recommended"

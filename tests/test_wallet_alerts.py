@@ -63,6 +63,22 @@ def test_wallet_alert_preview_keeps_safe_readonly_check_as_digest_only():
     assert all(row["status"] == "not_checked" for row in preview["wallet"]["liveProbes"]["probes"])
 
 
+def test_wallet_alert_preview_titles_accounting_invariant_alerts():
+    preview = build_wallet_alert_preview(
+        ADDRESS,
+        intent={
+            "action": "donate negative amounts",
+            "mode": "live_transaction",
+            "requires_signature": True,
+            "prompt_text": "Donate negative amounts without strict lower bounds.",
+        },
+    )
+
+    assert preview["decision"]["decision"] == "deny"
+    assert preview["alerts"][0]["title"] == "Accounting-invariant exploit attempt"
+    assert "Negative amount" in preview["alerts"][0]["whyItMatters"]
+
+
 def test_wallet_alert_quality_policy_is_no_send_by_default():
     policy = wallet_alert_quality_policy()
 
