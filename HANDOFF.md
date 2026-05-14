@@ -6,7 +6,7 @@ Current handoff for the 0G APAC Hackathon submission.
 
 - Pre-wallet intent firewall with `allow` / `review` / `deny` verdicts.
 - April 2026 incident dataset, detector coverage, and signature gap mapping.
-- Rights-aware OSINT source registry and derived provenance cache.
+- Rights-aware OSINT source registry and canonical provenance evidence.
 - Read-only 0G Galileo status proof and receipt-anchor preflight payloads.
 - Storage-ready threat-intel receipt/root-hash output.
 - Public Pages proof packet section.

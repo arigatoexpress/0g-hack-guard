@@ -135,7 +135,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
 | `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
 | `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
-| `GET`  | `/api/data/provenance` | Per-incident provenance matrix from reviewed derived cache; add `?live=1` to correlate against live DeFiLlama hack records |
+| `GET`  | `/api/data/provenance` | Per-incident provenance matrix from canonical dataset evidence; add `?live=1` to correlate against live DeFiLlama hack records |
 | `GET`  | `/api/data/detection-coverage` | Runs incident-derived seeds through the signature engine and reports coverage |
 | `GET`  | `/api/data/signature-map` | Explains per-incident signature matches, coverage gaps, and recommended detector additions |
 | `GET`  | `/api/osint/sources` | Rights-aware OSINT source registry with owners, URLs, retrieval modes, TTLs, and caveats |
@@ -144,6 +144,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and operator placeholders |
 | `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |
+| `GET`  | `/api/hackathon/threat-passport` | Judge proof drill with sample intent, verdict receipt, source evidence, detector coverage, and 0G proof slots |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
@@ -211,15 +212,17 @@ curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000
 
 The incident dataset is loaded from `data/april_2026_incidents.json`, validated
 against a required schema, fingerprinted, summarized, and run through the
-signature engine as detection-coverage seeds.
-`data/incident_provenance_cache.json` stores derived source evidence for the
-provenance matrix so the judge demo remains useful offline.
+signature engine as detection-coverage seeds. Canonical per-incident source
+evidence is embedded for 26 of 28 records, while
+`data/incident_provenance_cache.json` remains a reviewed fallback so the judge
+demo remains useful offline.
 
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.tool
 ```
 
 The validator fails on bad totals, duplicate IDs, malformed dates, missing

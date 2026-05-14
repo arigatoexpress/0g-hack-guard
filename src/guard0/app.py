@@ -28,6 +28,7 @@ from guard0.osint import (
     osint_signals,
     signature_map,
     source_registry_public,
+    threat_receipt_passport,
 )
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
@@ -82,6 +83,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-submission-brief",
     "#load-submission-packet",
     "#load-submission-readiness",
+    "#load-threat-passport",
     "#osint-output",
     "#verify-receipt-hash",
     "#verify-receipt",
@@ -349,6 +351,7 @@ def api_frontend_contract():
                 "/api/hackathon/submission-brief",
                 "/api/hackathon/submission-packet",
                 "/api/hackathon/readiness",
+                "/api/hackathon/threat-passport",
                 "/api/telegram/status",
                 "/api/external-action-contracts",
                 "/api/evaluate",
@@ -372,6 +375,7 @@ def api_frontend_contract():
                 "load-submission-brief",
                 "load-submission-packet",
                 "load-submission-readiness",
+                "load-threat-passport",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -470,6 +474,11 @@ def api_hackathon_submission_packet():
 @app.route("/api/hackathon/readiness", methods=["GET"])
 def api_hackathon_readiness():
     return jsonify(hackquest_readiness_audit())
+
+
+@app.route("/api/hackathon/threat-passport", methods=["GET"])
+def api_hackathon_threat_passport():
+    return jsonify(threat_receipt_passport())
 
 
 @app.route("/api/telegram/status", methods=["GET"])

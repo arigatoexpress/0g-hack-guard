@@ -215,11 +215,13 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
     assert "/api/hackathon/readiness" in frontend_body["apiRoutes"]
+    assert "/api/hackathon/threat-passport" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
     assert "#load-submission-packet" in frontend_body["requiredSelectors"]
     assert "#load-submission-readiness" in frontend_body["requiredSelectors"]
+    assert "#load-threat-passport" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -297,6 +299,15 @@ def exercise_workbench(page: Page) -> None:
     assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
     assert readiness_body["mainnetRequirement"]["chainId"] == 16661
     assert readiness_body["submittableNow"] is False
+
+    passport = page.request.get(f"{BASE_URL}/api/hackathon/threat-passport")
+    assert passport.ok
+    passport_body = passport.json()
+    assert passport_body["schema"] == "0guard.threat_receipt_passport.v1"
+    assert passport_body["receipt"]["decision"] == "deny"
+    assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
+    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 26
+    assert passport_body["safety"]["rawPayloadsReturned"] is False
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok

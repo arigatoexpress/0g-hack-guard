@@ -25,6 +25,7 @@ from guard0.incident_data import (
     load_incident_dataset,
 )
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
+from guard0.policy import evaluate_intent
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
@@ -36,6 +37,7 @@ SIGNATURE_MAP_SCHEMA = "0guard.signature_map.v1"
 HACKATHON_BRIEF_SCHEMA = "0guard.hackathon_submission_brief.v1"
 HACKQUEST_PACKET_SCHEMA = "0guard.hackquest_submission_packet.v1"
 HACKQUEST_READINESS_SCHEMA = "0guard.hackquest_readiness_audit.v1"
+THREAT_RECEIPT_PASSPORT_SCHEMA = "0guard.threat_receipt_passport.v1"
 PROVENANCE_MATRIX_SCHEMA = "0guard.incident_provenance_matrix.v1"
 PROVENANCE_CACHE_SCHEMA = "0guard.incident_provenance_cache.v1"
 USER_AGENT = "0guard-osint/0.1 (+https://github.com/arigatoexpress/0guard)"
@@ -573,9 +575,10 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "read_only_0g_galileo_status",
                 "receipt_preflight_payload",
                 "storage_ready_root_hashes",
-                "provenance_cache",
+                "canonical_provenance_evidence",
                 "readiness_audit",
                 "threat_receipt_passport",
+                "threat_receipt_passport_api",
             ],
             "operatorRequired": brief["operatorRequired"],
             "claimsToAvoid": brief["claimsToAvoid"],
@@ -629,6 +632,7 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "demoScript": demo_script_path,
             "finalChecklist": checklist_path,
             "threatReceiptPassport": "docs/hackathon-0g/threat-receipt-passport.md",
+            "threatReceiptPassportApi": "/api/hackathon/threat-passport",
         },
         "proofPoints": [
             {
@@ -691,6 +695,145 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "Post the required X post with screenshot or short clip.",
             "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
             "Before final submit, re-open the public repo and Pages URL from an incognito window.",
+        ],
+        "safety": _osint_safety(),
+    }
+
+
+def threat_receipt_passport() -> dict[str, Any]:
+    """Return the judge-facing proof drill as a single read-only API packet."""
+    agent_id = "agent-7857-demo"
+    sample_intent = {
+        "action": "approve",
+        "mode": "live_transaction",
+        "requires_signature": True,
+        "calldata": (
+            "0x095ea7b3ffffffffffffffffffffffffffffffffffffffff"
+            "ffffffffffffffffffffffff"
+        ),
+    }
+    receipt = evaluate_intent(
+        sample_intent,
+        agent_id=agent_id,
+        enable_0g_anchor=True,
+        enable_0g_storage=True,
+    ).to_dict()
+    provenance = incident_provenance_matrix(live=False)
+    sig_map = signature_map()
+    aggregate_only = [
+        {
+            "incidentId": row["incidentId"],
+            "protocol": row["protocol"],
+            "recommendedNextStep": row["recommendedNextStep"],
+        }
+        for row in provenance["rows"]
+        if row["status"] == "aggregate_only"
+    ]
+    evidence_samples = []
+    for row in provenance["rows"]:
+        if not row["evidence"]:
+            continue
+        evidence = row["evidence"][0]
+        evidence_samples.append(
+            {
+                "incidentId": row["incidentId"],
+                "protocol": row["protocol"],
+                "sourceUrl": evidence.get("sourceUrl"),
+                "matchedName": evidence.get("matchedName"),
+                "confidence": evidence.get("confidence"),
+                "recordHash": evidence.get("recordHash"),
+                "reviewStatus": evidence.get("canonicalReviewStatus")
+                or evidence.get("cacheReviewStatus"),
+            }
+        )
+        if len(evidence_samples) == 5:
+            break
+
+    signature_hits = [
+        {
+            "incidentId": row["incidentId"],
+            "protocol": row["protocol"],
+            "attackVector": row["attackVector"],
+            "signaturesMatched": row["signaturesMatched"],
+            "blockerCount": len(row["blockers"]),
+            "warningCount": len(row["warnings"]),
+        }
+        for row in sig_map["rows"]
+        if row["matched"]
+    ][:5]
+
+    return {
+        "schema": THREAT_RECEIPT_PASSPORT_SCHEMA,
+        "generatedAt": _now(),
+        "purpose": (
+            "A compact, falsifiable judge drill: agent intent in, safety verdict out, "
+            "source evidence attached, receipt hash generated, and 0G proof slots explicit."
+        ),
+        "agentSession": agent_id,
+        "sampleIntent": sample_intent,
+        "receipt": {
+            "decision": receipt["decision"],
+            "severity": receipt["severity"],
+            "receiptHash": receipt["receipt_hash"],
+            "blockers": receipt["blockers"],
+            "warnings": receipt["warnings"],
+            "zeroG": receipt["zero_g"],
+        },
+        "provenance": {
+            "datasetFingerprint": provenance["datasetFingerprint"],
+            "sourceStatus": provenance["sourceStatus"],
+            "coverage": provenance["coverage"],
+            "evidenceSamples": evidence_samples,
+            "aggregateOnlyGaps": aggregate_only,
+        },
+        "signatureCoverage": {
+            "datasetFingerprint": sig_map["datasetFingerprint"],
+            "incidentCount": sig_map["incidentCount"],
+            "matchedCount": sig_map["matchedCount"],
+            "gapCount": sig_map["gapCount"],
+            "coverageRatio": sig_map["coverageRatio"],
+            "topGaps": sig_map["topGaps"],
+            "sampleHits": signature_hits,
+        },
+        "0gProofBoundary": {
+            "currentStatus": "read_only_galileo_plus_preflight",
+            "chainIdToday": receipt["zero_g"]["chain_anchor"]["chain_id"]
+            if receipt["zero_g"].get("chain_anchor")
+            else None,
+            "chainAnchorStatus": receipt["zero_g"]["chain_anchor"]["status"]
+            if receipt["zero_g"].get("chain_anchor")
+            else None,
+            "storageRootHash": (
+                receipt["zero_g"].get("storage_receipt") or {}
+            ).get("root_hash"),
+            "hackquestFinalRequires": [
+                "0G mainnet contract address",
+                "0G Explorer URL with verifiable activity",
+            ],
+            "operatorPlaceholders": {
+                "0gMainnetContractAddress": "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS",
+                "0gExplorerUrl": "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL",
+                "anchorTransactionHash": "OPERATOR_REQUIRED_ANCHOR_TRANSACTION_HASH",
+            },
+        },
+        "reproduce": {
+            "localServer": ".venv/bin/python -m guard0.app",
+            "passportRoute": "curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.tool",
+            "evaluateRoute": (
+                "curl -s -X POST http://127.0.0.1:8109/api/evaluate "
+                "-H 'Content-Type: application/json' "
+                "-d '{\"intent\":{\"action\":\"approve\",\"mode\":\"live_transaction\","
+                "\"requires_signature\":true,\"calldata\":\"0x095ea7b3ffffffffffffffff"
+                "ffffffffffffffffffffffffffffffffffffffffffffffff\"},"
+                "\"enable_0g_anchor\":true,\"enable_0g_storage\":true,"
+                "\"agent_id\":\"agent-7857-demo\"}' | python3 -m json.tool"
+            ),
+            "provenanceRoute": "curl -s http://127.0.0.1:8109/api/data/provenance | python3 -m json.tool",
+        },
+        "claimsToAvoid": [
+            "Do not claim HackQuest-valid mainnet proof until the mainnet contract and explorer link exist.",
+            "Do not claim live 0G Compute inference.",
+            "Do not imply the browser can sign, broadcast, send Telegram messages, or move funds.",
         ],
         "safety": _osint_safety(),
     }

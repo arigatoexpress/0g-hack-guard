@@ -12,6 +12,7 @@ from guard0.osint import (
     osint_signals,
     signature_map,
     source_registry_public,
+    threat_receipt_passport,
 )
 
 
@@ -188,6 +189,7 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     )
     assert packet["formFields"]["screenshotAsset"].endswith("0guard-workbench-provenance.png")
     assert packet["formFields"]["threatReceiptPassport"].endswith("threat-receipt-passport.md")
+    assert packet["formFields"]["threatReceiptPassportApi"] == "/api/hackathon/threat-passport"
     assert packet["recommendedTrack"].startswith("Track 5")
     assert "/api/data/provenance" in {proof["route"] for proof in packet["proofPoints"]}
     assert packet["xPost"]["mediaPath"] == packet["formFields"]["screenshotAsset"]
@@ -196,6 +198,27 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     assert "POST_TO_X_FROM_0GUARD" in packet["xPost"]["liveCommand"]
     assert packet["readiness"]["readinessRoute"] == "/api/hackathon/readiness"
     assert packet["safety"]["rawPayloadsReturned"] is False
+
+
+def test_threat_receipt_passport_stitches_judge_proof_packet():
+    passport = threat_receipt_passport()
+
+    assert passport["schema"] == "0guard.threat_receipt_passport.v1"
+    assert passport["agentSession"] == "agent-7857-demo"
+    assert passport["sampleIntent"]["action"] == "approve"
+    assert passport["receipt"]["decision"] == "deny"
+    assert passport["receipt"]["severity"] == "critical"
+    assert passport["receipt"]["receiptHash"]
+    assert passport["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
+    assert passport["receipt"]["zeroG"]["storage_receipt"]["root_hash"]
+    assert passport["provenance"]["coverage"]["withMatchedEvidence"] == 26
+    assert passport["provenance"]["aggregateOnlyGaps"]
+    assert passport["signatureCoverage"]["incidentCount"] == 28
+    assert passport["signatureCoverage"]["gapCount"] >= 1
+    assert passport["0gProofBoundary"]["operatorPlaceholders"]["0gExplorerUrl"] == (
+        "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL"
+    )
+    assert passport["safety"]["rawPayloadsReturned"] is False
 
 
 def test_hackquest_readiness_audit_separates_operator_mainnet_work():

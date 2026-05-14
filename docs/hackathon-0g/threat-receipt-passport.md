@@ -15,7 +15,7 @@ source evidence attached, and 0G proof fields made explicit.
 | Expected verdict | `deny` |
 | Expected severity | `critical` |
 | Detector hits | `critical_selector:approve(address,uint256)`, `unlimited_approval` |
-| Provenance layer | `/api/data/provenance` and reviewed derived cache |
+| Provenance layer | `/api/data/provenance` and canonical dataset evidence |
 | Receipt hash | returned by `/api/evaluate` |
 | 0G Chain status today | `preflight` until operator mainnet deployment |
 | 0G Storage status today | Storage-ready root hash and payload, no default upload |
@@ -31,6 +31,12 @@ cd /Users/aribs/Code/0guard
 ```
 
 Create the passport receipt:
+
+```bash
+curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.tool
+```
+
+Or run the underlying evaluation route directly:
 
 ```bash
 curl -s -X POST http://127.0.0.1:8109/api/evaluate \

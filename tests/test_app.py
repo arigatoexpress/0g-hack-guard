@@ -88,6 +88,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
     assert "/api/hackathon/submission-packet" in data["apiRoutes"]
     assert "/api/hackathon/readiness" in data["apiRoutes"]
+    assert "/api/hackathon/threat-passport" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
@@ -101,6 +102,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#osint-output" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
+    assert "#load-threat-passport" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -235,6 +237,16 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert readiness_body["mainnetRequirement"]["chainId"] == 16661
     assert readiness_body["submittableNow"] is False
     assert readiness_body["safety"]["rawPayloadsReturned"] is False
+
+    passport = client.get("/api/hackathon/threat-passport")
+    assert passport.status_code == 200
+    passport_body = passport.get_json()
+    assert passport_body["schema"] == "0guard.threat_receipt_passport.v1"
+    assert passport_body["receipt"]["decision"] == "deny"
+    assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
+    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 26
+    assert passport_body["signatureCoverage"]["incidentCount"] == 28
+    assert passport_body["safety"]["rawPayloadsReturned"] is False
 
 
 def test_osint_signal_route_rejects_bad_limit(client):
