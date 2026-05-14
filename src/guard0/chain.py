@@ -37,6 +37,10 @@ def build_0g_status(timeout_seconds: float = 3.0) -> dict[str, Any]:
     cfg = get_0g_config()
     contract = cfg["receipt_contract"]
     contract_configured = contract.lower() != ZERO_ADDRESS.lower()
+    network_name = {
+        16661: "0G Mainnet",
+        16602: "0G Galileo Testnet",
+    }.get(cfg["chain_id"], "0G Chain")
     started = time.perf_counter()
 
     rpc_status: dict[str, Any] = {
@@ -88,7 +92,7 @@ def build_0g_status(timeout_seconds: float = 3.0) -> dict[str, Any]:
 
     return {
         "schema": "0guard.0g_status.v1",
-        "network": "0G Galileo Testnet",
+        "network": network_name,
         "readMode": "live_rpc_read_only",
         "rpc": rpc_status,
         "receiptAnchor": contract_status,

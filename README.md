@@ -26,7 +26,7 @@
 
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
-3. **0G-Native Proofs** — Reads live 0G Galileo RPC status, prepares policy receipt hashes, and keeps chain/storage writes operator-controlled.
+3. **0G-Native Proofs** — Reads live 0G status, prepares policy receipt hashes, and includes a public 0G mainnet receipt anchor proof while keeping workbench writes operator-controlled.
 4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
 5. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
 6. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
@@ -37,7 +37,7 @@
 
 | 0G Component | How We Use It | Hackathon Track Fit |
 |---|---|---|
-| **0G Chain** (EVM-compatible) | Live read-only Galileo RPC proof today; operator-deployed receipt anchor contract when configured. | Agentic Infrastructure |
+| **0G Chain** (EVM-compatible) | Public 0G mainnet `PolicyReceiptAnchor` with one anchored deny receipt; workbench path remains read-only/preflight. | Agentic Infrastructure |
 | **0G Storage** (KV + Log) | Deterministic threat-intel payload/root-hash preparation; external writes stay opt-in. | Privacy & Sovereign Infrastructure |
 | **0G Compute** (Inference) | Pluggable AI inference layer for behavioral anomaly detection on agent prompts. | Agentic Infrastructure |
 | **Agent ID** (ERC-7857) | Every evaluation is tagged with a persistent agent identity for accountability. | Agentic Economy |
@@ -93,7 +93,7 @@ Open `http://127.0.0.1:8109` for the dashboard.
 For the 0G APAC Hackathon, the fastest review path is:
 
 1. Open the dashboard and run a risky intent through the Intent Firewall.
-2. Check `/api/0g/status` for live, read-only Galileo RPC proof.
+2. Check `/api/0g/status` for live, read-only 0G RPC proof.
 3. Run `/api/evaluate` with `enable_0g_anchor` and `enable_0g_storage` to see
    receipt preflight plus a Storage-ready root hash.
 4. Run `/api/data/provenance` to see the reviewed derived-evidence cache, then
@@ -103,9 +103,10 @@ For the 0G APAC Hackathon, the fastest review path is:
    intel, and mainnet gap register.
 
 Current operator-only submission gaps: public X post, <=3 minute demo video,
-and 0G mainnet contract/explorer proof after receipt-anchor deployment or
-configuration. Run `scripts/submission_readiness.py --format markdown` for the
-current final-submit audit.
+and final HackQuest form submission. The 0G mainnet contract/explorer proof is
+captured in `docs/hackathon-0g/mainnet-proof.json`. Run
+`scripts/submission_readiness.py --format markdown` for the current
+final-submit audit.
 
 ---
 
@@ -131,7 +132,7 @@ python3 -m guard0.cli serve --port 8109
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
-| `GET`  | `/api/0g/status` | Live read-only 0G Galileo RPC proof, chain ID, latest block, and receipt-anchor config |
+| `GET`  | `/api/0g/status` | Live read-only 0G RPC proof, chain ID, latest block, and receipt-anchor config |
 | `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
 | `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
 | `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
@@ -142,7 +143,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
-| `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and operator placeholders |
+| `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |
 | `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |
 | `GET`  | `/api/hackathon/threat-passport` | Judge proof drill with sample intent, verdict receipt, source evidence, detector coverage, and 0G proof slots |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
@@ -325,7 +326,7 @@ gitleaks detect --no-git --source . --redact --verbose
 ## Roadmap
 
 1. ✅ Signature/behavioral detection for April 2026 exploits
-2. ✅ Live read-only 0G Galileo proof + receipt-anchor preflight
+2. ✅ Live read-only 0G proof + mainnet receipt anchor
 3. ✅ 0G Storage threat-intel payload/root-hash preparation
 4. ✅ Telegram Mira secure registration primitives and no-send preview
 5. 🔄 Persistent Telegram opt-in registry behind admin auth

@@ -17,9 +17,9 @@ source evidence attached, and 0G proof fields made explicit.
 | Detector hits | `critical_selector:approve(address,uint256)`, `unlimited_approval` |
 | Provenance layer | `/api/data/provenance` and canonical dataset evidence |
 | Receipt hash | returned by `/api/evaluate` |
-| 0G Chain status today | `preflight` until operator mainnet deployment |
+| 0G Chain status today | 0G mainnet anchor deployed; workbench still emits preflight payloads |
 | 0G Storage status today | Storage-ready root hash and payload, no default upload |
-| HackQuest-final gap | 0G mainnet contract address and Explorer URL |
+| HackQuest-final proof | `docs/hackathon-0g/mainnet-proof.json` |
 
 ## Reproduce Locally
 
@@ -63,6 +63,17 @@ Expected proof fields:
 - `zero_g.storage_receipt.root_hash`
 - `receipt_hash`
 
+Mainnet proof for this exact receipt:
+
+- 0G mainnet contract:
+  `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
+- Contract page:
+  `https://chainscan.0g.ai/address/0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
+- Anchored receipt hash:
+  `0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1`
+- Anchor transaction:
+  `https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed`
+
 Check source evidence:
 
 ```bash
@@ -78,15 +89,11 @@ Check final readiness:
 
 ## Mainnet Completion Slot
 
-After Ari deploys and anchors a receipt on 0G mainnet, fill these fields before
-final HackQuest submission:
+Completed on May 14, 2026 UTC:
 
 ```text
-0G_MAINNET_CONTRACT_ADDRESS=
-0G_MAINNET_EXPLORER_URL=
-ANCHORED_RECEIPT_HASH=
-ANCHOR_TRANSACTION_HASH=
+0G_MAINNET_CONTRACT_ADDRESS=0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc
+0G_MAINNET_EXPLORER_URL=https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
+ANCHORED_RECEIPT_HASH=0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1
+ANCHOR_TRANSACTION_HASH=64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
 ```
-
-Do not present this passport as HackQuest-valid mainnet proof until those fields
-exist and the explorer link opens publicly.

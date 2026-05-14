@@ -5,6 +5,7 @@ Deploy PolicyReceiptAnchor to 0G Chain.
 Usage:
     export PRIVATE_KEY=0x...
     python3 scripts/deploy_0g.py --network testnet
+    python3 scripts/deploy_0g.py --network mainnet --private-key-file ~/.0guard-secrets/wallets/deployer.private-key
 
 Networks:
     testnet -> 0G-Galileo-Testnet (live RPC Chain ID 16602)
@@ -38,8 +39,10 @@ NETWORKS = {
 
 def deploy(network: str, private_key: str) -> dict:
     cfg = NETWORKS[network]
-    w3 = Web3(Web3.HTTPProvider(cfg["rpc"]))
+    w3 = Web3(Web3.HTTPProvider(cfg["rpc"], request_kwargs={"timeout": 30}))
     account = Account.from_key(private_key)
+    if int(w3.eth.chain_id) != cfg["chain_id"]:
+        raise RuntimeError(f"RPC chain ID mismatch for {network}: {w3.eth.chain_id}")
 
     # Load compiled artifact
     artifact_path = os.path.join(
@@ -51,14 +54,25 @@ def deploy(network: str, private_key: str) -> dict:
     bytecode = artifact["bytecode"]["object"]
 
     Contract = w3.eth.contract(abi=abi, bytecode=bytecode)
-    nonce = w3.eth.get_transaction_count(account.address)
-    tx = Contract.constructor().build_transaction({
-        "from": account.address,
+    sender = Web3.to_checksum_address(account.address)
+    constructor = Contract.constructor()
+    gas_estimate = constructor.estimate_gas({"from": sender})
+    gas_price = int(w3.eth.gas_price)
+    nonce = w3.eth.get_transaction_count(sender, "pending")
+    tx = constructor.build_transaction({
+        "from": sender,
         "nonce": nonce,
-        "gas": 800000,
-        "gasPrice": w3.to_wei("1", "gwei"),
+        "gas": int(gas_estimate * 1.25) + 50_000,
+        "gasPrice": gas_price,
         "chainId": cfg["chain_id"],
     })
+    max_cost = tx["gas"] * gas_price
+    balance = w3.eth.get_balance(sender)
+    if max_cost > balance:
+        raise RuntimeError(
+            "insufficient native token for deployment max cost: "
+            f"need {w3.from_wei(max_cost, 'ether')}, have {w3.from_wei(balance, 'ether')}"
+        )
     signed = account.sign_transaction(tx)
     tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
@@ -69,17 +83,29 @@ def deploy(network: str, private_key: str) -> dict:
         "explorer_url": f"{cfg['explorer']}/tx/{tx_hash.hex()}",
         "network": network,
         "chain_id": cfg["chain_id"],
+        "deployer": sender,
+        "gas_used": receipt.gasUsed,
+        "gas_price_wei": gas_price,
     }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Deploy PolicyReceiptAnchor to 0G")
     parser.add_argument("--network", choices=["testnet", "mainnet"], default="testnet")
+    parser.add_argument(
+        "--private-key-file",
+        help="Read the deployer private key from a local secure file instead of PRIVATE_KEY.",
+    )
     args = parser.parse_args()
 
-    pk = os.getenv("PRIVATE_KEY")
+    pk = None
+    if args.private_key_file:
+        with open(os.path.expanduser(args.private_key_file), encoding="utf-8") as handle:
+            pk = handle.read().strip()
+    else:
+        pk = os.getenv("PRIVATE_KEY")
     if not pk:
-        print("ERROR: Set PRIVATE_KEY env var")
+        print("ERROR: Set PRIVATE_KEY env var or pass --private-key-file")
         return 1
 
     result = deploy(args.network, pk)

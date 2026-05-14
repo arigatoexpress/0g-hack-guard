@@ -16,21 +16,30 @@ Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 - Repository: https://github.com/arigatoexpress/0guard
 - Public demo page: https://arigatoexpress.github.io/0guard/
 - Screenshot asset: `docs/hackathon-0g/assets/0guard-workbench-provenance.png`
+- 0G mainnet contract:
+  `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
+- 0G anchor transaction:
+  https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
 - Copy/paste form packet: `docs/hackathon-0g/submission-form-fields.md`
 - Judge proof drill: `docs/hackathon-0g/threat-receipt-passport.md`
 
-## Mainnet Proof Required
+## Mainnet Proof Ready
 
 HackQuest requires a 0G mainnet contract address and a 0G Explorer link showing
-verifiable activity. The local workbench currently stays safe by default: it
-reads Galileo/testnet state, creates receipt-anchor preflight payloads, and
-returns Storage-ready root hashes without keys, signing, or broadcasts.
+verifiable activity. 0guard now has both: `PolicyReceiptAnchor` is deployed on
+0G mainnet and one deny receipt is anchored. The local workbench still stays
+safe by default: it creates receipt-anchor preflight payloads and returns
+Storage-ready root hashes without keys, signing, or browser-side broadcasts.
 
-Before final submission, Ari needs to provide:
+Use these values in HackQuest:
 
-- `OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS`
-- `OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL`
-- the transaction or event that proves at least one receipt was anchored
+- Contract: `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
+- Contract URL:
+  https://chainscan.0g.ai/address/0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc
+- Anchor transaction:
+  https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
+- Receipt hash:
+  `0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1`
 
 Mainnet references:
 
@@ -103,16 +112,14 @@ OPERATOR_REQUIRED_X_POST_URL
 ## Final Submit Order
 
 1. Run the readiness audit and verify only operator-only blockers remain.
-2. Deploy and anchor a receipt on 0G mainnet, then save contract and explorer URLs.
-3. Record and upload the demo video.
-4. Publish the required X post with the screenshot or demo clip.
-5. Open the public repo and Pages URL from a logged-out/incognito window.
-6. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
-7. Submit before May 16, 2026 at 09:59 MDT.
+2. Record and upload the demo video.
+3. Publish the required X post with the screenshot or demo clip.
+4. Open the public repo, Pages URL, and 0G Explorer URLs from a logged-out/incognito window.
+5. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
+6. Submit before May 16, 2026 at 09:59 MDT.
 
 ## Claims to Avoid
 
-- Do not claim live 0G mainnet writes until the mainnet contract/explorer URL exists.
 - Do not claim live 0G Compute inference.
 - Do not imply the browser can sign, trade, bridge, send Telegram messages, or move funds.
 - Do not mirror or resell raw upstream OSINT payloads.

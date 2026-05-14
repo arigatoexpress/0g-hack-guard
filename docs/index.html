@@ -574,7 +574,7 @@
         </div>
         <div class="feature">
           <h4>🔗 0G-Native Proofs</h4>
-          <p>Reads live <strong>0G Galileo</strong> status, prepares policy receipt hashes, and keeps chain/storage writes behind explicit operator configuration.</p>
+          <p>Reads live <strong>0G</strong> status, prepares policy receipt hashes, and includes public mainnet receipt-anchor proof while keeping workbench writes operator-controlled.</p>
         </div>
         <div class="feature">
           <h4>🛡️ Zero Trust by Default</h4>
@@ -878,18 +878,18 @@
           <div class="stat-label">High-Confidence Provenance Matches</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" data-target="4">0</div>
+          <div class="stat-number" data-target="2">0</div>
           <div class="stat-label">Operator-Required Final Links</div>
         </div>
       </div>
       <div class="problem-body reveal">
         <ul>
-          <li><strong>Copy/paste packet:</strong> `docs/hackathon-0g/submission-form-fields.md` maps HackQuest fields to ready text and explicit operator placeholders.</li>
+          <li><strong>Copy/paste packet:</strong> `docs/hackathon-0g/submission-form-fields.md` maps HackQuest fields to ready text and remaining operator placeholders.</li>
           <li><strong>Machine-readable packet:</strong> `/api/hackathon/submission-packet` returns track choice, form fields, proof points, X commands, and submit order.</li>
-          <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` separate ready artifacts from operator-only mainnet proof, demo video, and X post work.</li>
+          <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` separate ready artifacts from remaining demo video and X post work.</li>
           <li><strong>Threat receipt passport:</strong> `docs/hackathon-0g/threat-receipt-passport.md` and `/api/hackathon/threat-passport` give judges a proof drill with intent, verdict, provenance, receipt hash, and 0G proof slots.</li>
-          <li><strong>Proof-first story:</strong> live 0G Galileo readback, receipt-anchor preflight, Storage-ready root hashes, and canonical provenance evidence with no raw upstream payload mirroring.</li>
-          <li><strong>Mainnet boundary:</strong> HackQuest-final proof still needs a 0G mainnet contract address and Explorer URL before submission.</li>
+          <li><strong>Proof-first story:</strong> live 0G readback, mainnet receipt anchor, Storage-ready root hashes, and canonical provenance evidence with no raw upstream payload mirroring.</li>
+          <li><strong>Mainnet proof:</strong> contract `0xBaC59b...2abc` and anchored deny receipt `0x9739...afd1` are public on 0G Explorer.</li>
           <li><strong>Prepared media:</strong> `docs/hackathon-0g/assets/0guard-workbench-provenance.png` is ready for the required X post or demo thumbnail.</li>
         </ul>
       </div>
@@ -902,6 +902,9 @@
         </a>
         <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/threat-receipt-passport.md" target="_blank" rel="noopener">
           Receipt Passport
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/mainnet-proof.json" target="_blank" rel="noopener">
+          Mainnet Proof
         </a>
         <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png" target="_blank" rel="noopener">
           View Screenshot Asset
@@ -1010,7 +1013,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
             1/ An AI agent attempted a high-value swap preceded by a flash-loan borrow. This exact sequence was used in the <span class="amount">Rhea Finance ($18.4M)</span> exploit.<br><br>
             2/ The Signature Engine matched <span class="tag">sequence_flash_swap_withdraw</span> within 12ms of intent submission.<br><br>
             3/ The Content Engine generated this draft; live posting stays behind explicit workflow confirmation.<br><br>
-            4/ A SHA-256 policy receipt was produced locally with <span class="tag">anchor_status=preflight</span>. Once the operator deploys the receipt contract, the same hash can anchor on <span class="tag">0G Galileo</span>.<br><br>
+            4/ A SHA-256 policy receipt was produced locally with <span class="tag">anchor_status=preflight</span>, and the deny receipt is anchored on <span class="tag">0G mainnet</span> for judge verification.<br><br>
             5/ A deterministic storage payload/root hash was prepared for <span class="tag">0G Storage</span>; external writes remain opt-in for the demo.<br><br>
             <span class="tag">#0guard #ThreatIntel #AutonomousSecurity</span>
           </div>
@@ -1026,7 +1029,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
             <strong>Historical Match:</strong> Rhea Finance ($18.4M)<br>
             <strong>Signatures Matched:</strong> sequence_flash_swap_withdraw, high_value_swap<br>
             <strong>Chain:</strong> Ethereum<br>
-            <strong>Receipt:</strong> <span class="tag">preflight SHA-256 policy receipt</span>, ready for 0G Chain anchor<br>
+            <strong>Receipt:</strong> <span class="tag">preflight SHA-256 policy receipt</span>, with matching 0G mainnet anchor proof<br>
             <strong>Alert Channel:</strong> Draft only; no live X send in demo mode<br><br>
             The agent's intent was intercepted at the firewall layer. No signing key was exposed. The forensic trace is serializable for 0G Storage once a storage node is configured.
           </div>
@@ -1039,7 +1042,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
     <div class="inner">
       <h2 class="section-title reveal">Built on 0G</h2>
       <p class="section-subtitle reveal">
-        0guard integrates with the 0G Galileo testnet: live read-only RPC status today, with chain and storage write paths kept explicit and opt-in.
+        0guard integrates with 0G through live read-only RPC status, a public mainnet receipt anchor, and explicit opt-in paths for future chain/storage writes.
       </p>
       <div class="og-grid reveal">
         <div class="og-col">
@@ -1047,7 +1050,7 @@ Decision: <span class="string">deny</span> | Chain anchor: <span class="string">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
           </div>
           <h4>0G Chain</h4>
-          <p>Live 0G Galileo RPC readback for chain id 16602, plus SHA-256 policy receipt hashes for an operator-deployed EVM anchor contract.</p>
+          <p>Public 0G mainnet PolicyReceiptAnchor proof plus SHA-256 policy receipt hashes from the read-only workbench.</p>
           <span class="og-track">Agentic Infrastructure</span>
         </div>
         <div class="og-col">

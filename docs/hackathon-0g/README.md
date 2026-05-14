@@ -2,8 +2,8 @@
 
 This folder is the judge-facing copy pack for the 0guard 0G hackathon
 submission. It is intentionally written from the live demo posture: read-only
-0G RPC proof, deterministic receipts, operator-controlled anchoring, and no
-private keys or real writes in the workbench.
+0G RPC proof in the workbench, deterministic receipts, public mainnet anchoring
+proof, and no private keys or real writes in the workbench.
 
 ## Recommended Judge Path
 
@@ -26,7 +26,7 @@ private keys or real writes in the workbench.
    with deadline, repo/demo links, data stats, manual TODOs, and claims to
    avoid.
 10. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
-   explicit operator placeholders.
+   remaining operator placeholders.
 
 ## Winning Thesis
 
@@ -42,10 +42,10 @@ positioned to provide:
 - 0G Compute for agent-risk scoring that can sit beside the policy engine.
 
 The current submission demonstrates the full integration shape without crossing
-unsafe boundaries: live/read-only 0G Galileo status, deterministic Storage
-payload/root-hash receipts, chain-anchor preflight payloads, and explicit gaps
-before mainnet broadcast or live decentralized storage writes. HackQuest-final
-proof still requires a 0G mainnet contract address and 0G Explorer link.
+unsafe workbench boundaries: live/read-only 0G status, deterministic Storage
+payload/root-hash receipts, chain-anchor preflight payloads, and a public 0G
+mainnet `PolicyReceiptAnchor` proof in `mainnet-proof.json`. Live Storage
+upload and 0G Compute inference remain explicit gaps.
 
 The new OSINT layer strengthens the evidence story: `data/osint_sources.json`
 tracks source ownership, URLs, retrieval mode, rights envelopes, TTLs, and
@@ -63,10 +63,11 @@ two explicit source-proof gaps.
 
 - No private keys in the repo or workbench.
 - No transaction signing or broadcasting.
-- No real 0G writes from the demo path.
-- No claim of HackQuest-valid mainnet proof until the mainnet contract and
-  explorer URL exist.
+- No real 0G writes from the browser demo path.
+- Public 0G mainnet proof is limited to the deployed receipt anchor and one
+  anchored deny receipt.
 - No trading or money movement claims.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.
-- Mainnet work is documented as future work, not represented as complete.
+- Live Storage upload and Compute scoring are documented as future work, not
+  represented as complete.

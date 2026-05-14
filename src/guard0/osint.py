@@ -30,6 +30,7 @@ from guard0.policy import evaluate_intent
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
 DEFAULT_PROVENANCE_CACHE_PATH = REPO_ROOT / "data" / "incident_provenance_cache.json"
+DEFAULT_MAINNET_PROOF_PATH = REPO_ROOT / "docs" / "hackathon-0g" / "mainnet-proof.json"
 OSINT_REGISTRY_SCHEMA = "0guard.osint_source_registry.v1"
 OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
@@ -416,6 +417,8 @@ def hackathon_submission_brief() -> dict[str, Any]:
     sig_map = signature_map()
     sources = source_registry_public()
     provenance = incident_provenance_matrix(live=False)
+    mainnet_proof = _load_mainnet_proof()
+    mainnet_proof_ready = _mainnet_proof_ready(mainnet_proof)
     return {
         "schema": HACKATHON_BRIEF_SCHEMA,
         "generatedAt": _now(),
@@ -450,12 +453,14 @@ def hackathon_submission_brief() -> dict[str, Any]:
             },
             "0gProof": {
                 "required": True,
-                "status": "operator_required",
+                "status": "ready" if mainnet_proof_ready else "operator_required",
                 "needs": [
                     "0G mainnet contract address",
                     "0G mainnet Explorer link with verifiable activity",
                     "Clear proof of at least one 0G component",
                 ],
+                "contractAddress": mainnet_proof.get("contract_address") if mainnet_proof else None,
+                "explorerUrl": mainnet_proof.get("anchor_explorer_url") if mainnet_proof else None,
             },
             "demoVideo": {
                 "required": True,
@@ -490,19 +495,19 @@ def hackathon_submission_brief() -> dict[str, Any]:
         "competitivePositioning": [
             "Strong 0G submissions expose proof trails: contract addresses, storage roots, transaction hashes, demo URLs, and judge walkthroughs.",
             "0guard's wedge is not another agent memory app; it is the security/provenance layer agents should consult before signing.",
-            "The submission should foreground read-only proof honesty and the receipt-anchor gap instead of pretending mainnet writes are complete.",
+            "The submission should foreground public proof honesty: mainnet receipt anchoring exists, while live Storage upload and Compute inference remain explicitly out of scope.",
         ],
         "proofFirstChecklist": [
             "Show live /api/0g/status readback.",
             "Show /api/evaluate with 0G anchor/storage flags and the preflight receipt payload.",
             "Show /api/data/provenance?live=1 with source match counts and record hashes.",
-            "Show the 0G mainnet contract address and explorer link after operator deployment.",
+            "Show the 0G mainnet contract address, anchor transaction, and readback proof.",
             "Show the public X post link and <=3 minute demo video link in the HackQuest form.",
         ],
         "0gIntegration": {
             "chain": (
-                "Live read-only Galileo RPC proof plus PolicyReceiptAnchor preflight today; "
-                "HackQuest-final proof requires mainnet chain ID 16661 and a 0G Explorer link."
+                "PolicyReceiptAnchor is deployed on 0G mainnet and one deny receipt is anchored; "
+                "the browser workbench remains read-only and produces reviewable preflight payloads."
             ),
             "storage": "Deterministic Storage-ready threat-intel receipts and root hashes.",
             "compute": "Planned 0G Compute anomaly scorer; not claimed as live inference today.",
@@ -525,15 +530,14 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Signature coverage map with recommended detector gaps.",
             "Incident provenance matrix with live DeFiLlama correlation support.",
             "Submission brief API for judge/operator readback.",
+            "0G mainnet PolicyReceiptAnchor deployment and one anchored threat receipt.",
         ],
         "operatorRequired": [
-            "Deploy PolicyReceiptAnchor to 0G mainnet and save contract/explorer link.",
             "Record and upload the <=3 minute demo video.",
             "Post public X post with required HackQuest tags.",
             "Submit HackQuest form with repo, demo video, X URL, and 0G proof.",
         ],
         "claimsToAvoid": [
-            "Do not claim live mainnet writes.",
             "Do not claim live 0G Compute inference until a real router call is wired.",
             "Do not imply the browser can sign, trade, send Telegram messages, or move funds.",
         ],
@@ -541,9 +545,10 @@ def hackathon_submission_brief() -> dict[str, Any]:
 
 
 def hackquest_submission_packet() -> dict[str, Any]:
-    """Return copy-ready HackQuest fields plus explicit operator placeholders."""
+    """Return copy-ready HackQuest fields plus remaining operator placeholders."""
     brief = hackathon_submission_brief()
     provenance = incident_provenance_matrix(live=False)
+    mainnet_proof = _load_mainnet_proof()
     screenshot_path = "docs/hackathon-0g/assets/0guard-workbench-provenance.png"
     demo_script_path = "docs/DEMO_VIDEO_SCRIPT.md"
     checklist_path = "docs/hackathon-0g/final-submission-checklist.md"
@@ -572,7 +577,9 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "demo_script",
                 "x_post_draft",
                 "screenshot_asset",
-                "read_only_0g_galileo_status",
+                "read_only_0g_status",
+                "0g_mainnet_contract",
+                "0g_mainnet_anchor_transaction",
                 "receipt_preflight_payload",
                 "storage_ready_root_hashes",
                 "canonical_provenance_evidence",
@@ -595,11 +602,9 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "action mode, calldata, target contracts, domains, policy context, and "
                 "incident-derived exploit intelligence before an agent can reach a "
                 "signer. The product returns allow/review/deny verdicts, deterministic "
-                "receipt hashes, 0G Chain anchor preflight payloads, and Storage-ready "
-                "threat-intel root hashes. The current submission is intentionally "
-                "read-only: it proves live 0G Galileo status and the full receipt shape "
-                "without holding keys, signing, broadcasting, trading, or sending "
-                "Telegram messages."
+                "receipt hashes, a live 0G mainnet receipt anchor, and Storage-ready "
+                "threat-intel root hashes. The workbench stays read-only and never "
+                "holds keys, signs, broadcasts, trades, or sends Telegram messages."
             ),
             "problem": (
                 "AI agents are gaining wallet and bridge tooling faster than their "
@@ -618,16 +623,25 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "0guard uses 0G Chain for policy receipt anchoring, 0G Storage for "
                 "portable threat-intel receipt payloads and root hashes, and a planned "
                 "0G Compute layer for agent-risk anomaly scoring. Today the app reads "
-                "0G Galileo live in read-only mode, prepares receipt-anchor payloads for "
-                "PolicyReceiptAnchor.sol, and returns deterministic Storage-ready root "
-                "hashes without private keys or broadcasts."
+                "0G status in read-only mode, has a deployed 0G mainnet "
+                "PolicyReceiptAnchor with one anchored deny receipt, and returns "
+                "deterministic Storage-ready root hashes without private keys or "
+                "browser-side broadcasts."
             ),
             "repoUrl": repo_url,
             "publicDemoUrl": public_demo_url,
             "demoVideoUrl": "OPERATOR_REQUIRED_DEMO_VIDEO_URL",
             "xPostUrl": "OPERATOR_REQUIRED_X_POST_URL",
-            "0gContractAddress": "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS",
-            "0gExplorerUrl": "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL",
+            "0gContractAddress": (
+                mainnet_proof.get("contract_address")
+                if mainnet_proof
+                else "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS"
+            ),
+            "0gExplorerUrl": (
+                mainnet_proof.get("anchor_explorer_url")
+                if mainnet_proof
+                else "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL"
+            ),
             "screenshotAsset": screenshot_path,
             "demoScript": demo_script_path,
             "finalChecklist": checklist_path,
@@ -638,7 +652,12 @@ def hackquest_submission_packet() -> dict[str, Any]:
             {
                 "label": "Live 0G read proof",
                 "route": "/api/0g/status",
-                "claim": "Reads Galileo chain status without private keys, signing, or broadcasts.",
+                "claim": "Reads 0G chain status without private keys, signing, or broadcasts.",
+            },
+            {
+                "label": "0G mainnet receipt anchor",
+                "route": "docs/hackathon-0g/mainnet-proof.json",
+                "claim": "Public 0G mainnet contract and anchor transaction for the deny receipt.",
             },
             {
                 "label": "Receipt anchor preflight",
@@ -691,7 +710,6 @@ def hackquest_submission_packet() -> dict[str, Any]:
         },
         "manualSubmitOrder": [
             "Record and upload the <=3 minute demo video.",
-            "Deploy/configure PolicyReceiptAnchor on 0G mainnet and capture explorer proof.",
             "Post the required X post with screenshot or short clip.",
             "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
             "Before final submit, re-open the public repo and Pages URL from an incognito window.",
@@ -718,6 +736,7 @@ def threat_receipt_passport() -> dict[str, Any]:
         enable_0g_anchor=True,
         enable_0g_storage=True,
     ).to_dict()
+    mainnet_proof = _load_mainnet_proof()
     provenance = incident_provenance_matrix(live=False)
     sig_map = signature_map()
     aggregate_only = [
@@ -796,7 +815,11 @@ def threat_receipt_passport() -> dict[str, Any]:
             "sampleHits": signature_hits,
         },
         "0gProofBoundary": {
-            "currentStatus": "read_only_galileo_plus_preflight",
+            "currentStatus": (
+                "mainnet_anchor_live_plus_read_only_workbench"
+                if _mainnet_proof_ready(mainnet_proof)
+                else "read_only_galileo_plus_preflight"
+            ),
             "chainIdToday": receipt["zero_g"]["chain_anchor"]["chain_id"]
             if receipt["zero_g"].get("chain_anchor")
             else None,
@@ -811,10 +834,23 @@ def threat_receipt_passport() -> dict[str, Any]:
                 "0G Explorer URL with verifiable activity",
             ],
             "operatorPlaceholders": {
-                "0gMainnetContractAddress": "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS",
-                "0gExplorerUrl": "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL",
-                "anchorTransactionHash": "OPERATOR_REQUIRED_ANCHOR_TRANSACTION_HASH",
+                "0gMainnetContractAddress": (
+                    mainnet_proof.get("contract_address")
+                    if mainnet_proof
+                    else "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS"
+                ),
+                "0gExplorerUrl": (
+                    mainnet_proof.get("anchor_explorer_url")
+                    if mainnet_proof
+                    else "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL"
+                ),
+                "anchorTransactionHash": (
+                    mainnet_proof.get("anchor_tx_hash")
+                    if mainnet_proof
+                    else "OPERATOR_REQUIRED_ANCHOR_TRANSACTION_HASH"
+                ),
             },
+            "mainnetProof": mainnet_proof,
         },
         "reproduce": {
             "localServer": ".venv/bin/python -m guard0.app",
@@ -831,7 +867,6 @@ def threat_receipt_passport() -> dict[str, Any]:
             "provenanceRoute": "curl -s http://127.0.0.1:8109/api/data/provenance | python3 -m json.tool",
         },
         "claimsToAvoid": [
-            "Do not claim HackQuest-valid mainnet proof until the mainnet contract and explorer link exist.",
             "Do not claim live 0G Compute inference.",
             "Do not imply the browser can sign, broadcast, send Telegram messages, or move funds.",
         ],
@@ -846,8 +881,12 @@ def hackquest_readiness_audit() -> dict[str, Any]:
     contract_configured = contract.lower() != ZERO_ADDRESS.lower()
     mainnet_selected = int(cfg.get("chain_id", 0)) == ZGG_MAINNET_CHAIN_ID
     explorer_url = os.getenv("ZGG_RECEIPT_EXPLORER_URL") or os.getenv("ZGG_EXPLORER_URL") or ""
-    mainnet_contract_ready = mainnet_selected and contract_configured
-    mainnet_proof_ready = mainnet_contract_ready and bool(explorer_url)
+    proof = _load_mainnet_proof()
+    proof_ready = _mainnet_proof_ready(proof)
+    proof_contract = str(proof.get("contract_address", "")) if proof else ""
+    proof_explorer = str(proof.get("anchor_explorer_url", "")) if proof else ""
+    mainnet_contract_ready = (mainnet_selected and contract_configured) or bool(proof_contract)
+    mainnet_proof_ready = (mainnet_selected and contract_configured and bool(explorer_url)) or proof_ready
     x_post = _load_x_post_text(REPO_ROOT / "content" / "hackquest_x_post.json")
     x_thread = _load_x_post_text(REPO_ROOT / "content" / "hack_guard_thread.json")
 
@@ -877,11 +916,16 @@ def hackquest_readiness_audit() -> dict[str, Any]:
                 f"Configured chain ID: {cfg.get('chain_id')}",
                 f"Required chain ID: {ZGG_MAINNET_CHAIN_ID}",
                 f"Configured contract: {contract}",
+                f"Proof file contract: {proof_contract or 'not_found'}",
             ],
             (
-                "Deploy PolicyReceiptAnchor on 0G mainnet, then set "
-                "ZGG_CHAIN_ID=16661, ZGG_CHAIN_RPC=https://evmrpc.0g.ai, "
-                "and ZGG_RECEIPT_CONTRACT."
+                "Use docs/hackathon-0g/mainnet-proof.json and the 0G contract URL in HackQuest."
+                if mainnet_contract_ready
+                else (
+                    "Deploy PolicyReceiptAnchor on 0G mainnet, then set "
+                    "ZGG_CHAIN_ID=16661, ZGG_CHAIN_RPC=https://evmrpc.0g.ai, "
+                    "and ZGG_RECEIPT_CONTRACT."
+                )
             ),
         ),
         _requirement(
@@ -890,9 +934,14 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "ready" if mainnet_proof_ready else "operator_required",
             [
                 f"Explorer URL env configured: {bool(explorer_url)}",
+                f"Proof file explorer URL: {proof_explorer or 'not_found'}",
                 f"Expected explorer: {ZGG_MAINNET_EXPLORER}",
             ],
-            "Anchor at least one receipt and save the 0G mainnet explorer transaction URL.",
+            (
+                "Use the anchored receipt transaction URL from docs/hackathon-0g/mainnet-proof.json."
+                if mainnet_proof_ready
+                else "Anchor at least one receipt and save the 0G mainnet explorer transaction URL."
+            ),
         ),
         _requirement(
             "demo_video",
@@ -992,6 +1041,11 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "mainnetSelected": mainnet_selected,
             "receiptContractConfigured": contract_configured,
             "explorerUrlConfigured": bool(explorer_url),
+            "mainnetProofFile": str(DEFAULT_MAINNET_PROOF_PATH.relative_to(REPO_ROOT)),
+            "mainnetProofLoaded": bool(proof),
+            "mainnetProofReady": proof_ready,
+            "mainnetProofContract": proof_contract or None,
+            "mainnetProofExplorerUrl": proof_explorer or None,
         },
         "submittableNow": len(blockers) == 0,
         "statusCounts": counts,
@@ -1007,10 +1061,9 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         "safeAutonomousWorkRemaining": [
             "Keep source/provenance docs current if official requirements change.",
             "Run the readiness audit, tests, browser smoke, and public Pages readback before final submission.",
-            "Prepare copy updates after Ari provides demo, X, and mainnet proof links.",
+            "Prepare copy updates after Ari provides demo and X links.",
         ],
         "operatorOnlyActions": [
-            "Deploy/sign/broadcast the 0G mainnet receipt anchor.",
             "Record and upload the demo video.",
             "Post publicly on X.",
             "Submit the HackQuest form.",
@@ -1359,6 +1412,34 @@ def _requirement(
 
 def _paths_exist(*paths: str) -> bool:
     return all((REPO_ROOT / path).exists() for path in paths)
+
+
+def _load_mainnet_proof(path: Path = DEFAULT_MAINNET_PROOF_PATH) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
+def _mainnet_proof_ready(proof: dict[str, Any] | None) -> bool:
+    if not proof:
+        return False
+    contract = str(proof.get("contract_address") or "")
+    anchor_url = str(proof.get("anchor_explorer_url") or "")
+    receipt_hash = str(proof.get("anchored_receipt_hash") or "")
+    return (
+        int(proof.get("chain_id") or 0) == ZGG_MAINNET_CHAIN_ID
+        and contract.startswith("0x")
+        and len(contract) == 42
+        and anchor_url.startswith(ZGG_MAINNET_EXPLORER)
+        and receipt_hash.startswith("0x")
+        and len(receipt_hash) == 66
+    )
 
 
 def _word_count(value: str) -> int:

@@ -49,7 +49,7 @@ curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
 Call out:
 
 - `schema: 0guard.0g_status.v1`
-- `network: 0G Galileo Testnet`
+- `network` and live RPC status
 - `readMode: live_rpc_read_only`
 - `rpc.observedChainId`
 - `rpc.latestBlockNumber`
@@ -85,6 +85,18 @@ Call out:
 Explain the round-trip plainly: intent enters, verifier/policy returns a
 decision, the decision becomes a receipt hash, and the 0G proof payload is
 prepared for Chain and Storage while the workbench remains read-only.
+
+Then show the mainnet proof:
+
+```bash
+python3 -m json.tool docs/hackathon-0g/mainnet-proof.json
+```
+
+Open the anchor transaction:
+
+```text
+https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
+```
 
 ### 2:20-2:45 - Dataset and Coverage
 
@@ -124,17 +136,19 @@ payloads.
 
 Close with the boundary:
 
-0guard is intentionally read-only in this submission. It does not hold keys,
-sign transactions, broadcast 0G writes, move funds, trade, or send Telegram
-messages. The next milestone is deploying the receipt anchor and adding live
-readback verification.
+0guard is intentionally read-only in the browser workbench. It does not hold
+keys, sign transactions, broadcast 0G writes, move funds, trade, or send
+Telegram messages from the demo path. The mainnet receipt anchor is already
+deployed; the next milestone is live runtime readback verification plus Storage
+upload/readback.
 
 ## Judge Questions and Crisp Answers
 
 ### Is this live on 0G?
 
-The app reads 0G Galileo live today. Chain anchoring is prepared as a preflight
-payload until a receipt contract is deployed and configured.
+The app reads 0G live today. The browser prepares chain anchoring as a preflight
+payload, and the submission includes a deployed 0G mainnet receipt anchor plus
+one anchored deny receipt.
 
 ### Are you writing to 0G Storage?
 

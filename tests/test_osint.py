@@ -173,8 +173,10 @@ def test_hackathon_submission_brief_is_operator_ready():
     assert brief["submissionRequirements"]["publicXPost"]["mandatory"] is True
     assert "#0GHackathon" in brief["submissionRequirements"]["publicXPost"]["requiredHashtags"]
     assert any("proof trails" in item for item in brief["competitivePositioning"])
-    assert any("Deploy PolicyReceiptAnchor" in item for item in brief["operatorRequired"])
-    assert any("Do not claim live mainnet writes" in item for item in brief["claimsToAvoid"])
+    assert brief["submissionRequirements"]["0gProof"]["status"] == "ready"
+    assert brief["submissionRequirements"]["0gProof"]["contractAddress"].startswith("0x")
+    assert any("Record and upload" in item for item in brief["operatorRequired"])
+    assert any("Do not claim live 0G Compute" in item for item in brief["claimsToAvoid"])
 
 
 def test_hackquest_submission_packet_is_copy_ready_and_safe():
@@ -185,8 +187,9 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     assert packet["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
     assert packet["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
     assert packet["formFields"]["0gContractAddress"] == (
-        "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS"
+        "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc"
     )
+    assert packet["formFields"]["0gExplorerUrl"].startswith("https://chainscan.0g.ai/tx/")
     assert packet["formFields"]["screenshotAsset"].endswith("0guard-workbench-provenance.png")
     assert packet["formFields"]["threatReceiptPassport"].endswith("threat-receipt-passport.md")
     assert packet["formFields"]["threatReceiptPassportApi"] == "/api/hackathon/threat-passport"
@@ -215,13 +218,16 @@ def test_threat_receipt_passport_stitches_judge_proof_packet():
     assert passport["provenance"]["aggregateOnlyGaps"]
     assert passport["signatureCoverage"]["incidentCount"] == 28
     assert passport["signatureCoverage"]["gapCount"] >= 1
-    assert passport["0gProofBoundary"]["operatorPlaceholders"]["0gExplorerUrl"] == (
-        "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL"
+    assert passport["0gProofBoundary"]["currentStatus"] == (
+        "mainnet_anchor_live_plus_read_only_workbench"
+    )
+    assert passport["0gProofBoundary"]["operatorPlaceholders"]["0gExplorerUrl"].startswith(
+        "https://chainscan.0g.ai/tx/"
     )
     assert passport["safety"]["rawPayloadsReturned"] is False
 
 
-def test_hackquest_readiness_audit_separates_operator_mainnet_work():
+def test_hackquest_readiness_audit_uses_mainnet_proof_file():
     audit = hackquest_readiness_audit()
 
     assert audit["schema"] == "0guard.hackquest_readiness_audit.v1"
@@ -229,9 +235,10 @@ def test_hackquest_readiness_audit_separates_operator_mainnet_work():
     assert audit["mainnetRequirement"]["chainId"] == 16661
     assert audit["current0GConfig"]["chainId"] == 16602
     assert audit["submittableNow"] is False
+    assert audit["current0GConfig"]["mainnetProofReady"] is True
     blockers = {item["id"] for item in audit["operatorBlockers"]}
-    assert "0g_mainnet_contract" in blockers
-    assert "0g_mainnet_explorer" in blockers
+    assert "0g_mainnet_contract" not in blockers
+    assert "0g_mainnet_explorer" not in blockers
     assert "demo_video" in blockers
     assert "public_x_post" in blockers
     requirements = {item["id"]: item for item in audit["requirements"]}

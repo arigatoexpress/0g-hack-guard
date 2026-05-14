@@ -3,7 +3,7 @@
 Generated for final operator submission on May 14, 2026.
 
 Use this as the copy/paste packet for HackQuest. Values marked
-`OPERATOR_REQUIRED` need Ari to provide the final public link or proof before
+`OPERATOR_REQUIRED` need Ari to provide the final public link before
 submission.
 
 ## Project
@@ -35,7 +35,7 @@ One-line description:
 ## Summary
 
 ```text
-0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, 0G Chain anchor preflight payloads, and Storage-ready threat-intel root hashes. The current submission is intentionally read-only: it proves live 0G Galileo status and the full receipt shape without holding keys, signing, broadcasting, trading, or sending Telegram messages.
+0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, and Storage-ready threat-intel root hashes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, or sends Telegram messages.
 ```
 
 ## Problem
@@ -53,7 +53,7 @@ AI agents are gaining wallet and bridge tooling faster than their safety control
 ## 0G Integration
 
 ```text
-0guard uses 0G Chain for policy receipt anchoring, 0G Storage for portable threat-intel receipt payloads and root hashes, and a planned 0G Compute layer for agent-risk anomaly scoring. Today the app reads 0G Galileo live in read-only mode, prepares receipt-anchor payloads for PolicyReceiptAnchor.sol, and returns deterministic Storage-ready root hashes without private keys or broadcasts.
+0guard uses 0G Chain for policy receipt anchoring, 0G Storage for portable threat-intel receipt payloads and root hashes, and a planned 0G Compute layer for agent-risk anomaly scoring. A PolicyReceiptAnchor contract is deployed on 0G mainnet with one anchored deny receipt; the browser workbench remains read-only and returns deterministic Storage-ready root hashes without private keys or browser-side broadcasts.
 ```
 
 Proof routes to show:
@@ -63,6 +63,7 @@ Proof routes to show:
 /api/evaluate with enable_0g_anchor=true and enable_0g_storage=true
 /api/data/provenance
 /api/data/provenance?live=1
+docs/hackathon-0g/mainnet-proof.json
 ```
 
 ## Links
@@ -112,13 +113,25 @@ OPERATOR_REQUIRED_X_POST_URL
 0G contract address:
 
 ```text
-OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS
+0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc
 ```
 
 0G explorer URL:
 
 ```text
-OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL
+https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
+```
+
+0G contract page:
+
+```text
+https://chainscan.0g.ai/address/0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc
+```
+
+Anchored receipt hash:
+
+```text
+0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1
 ```
 
 ## X Post
@@ -151,16 +164,13 @@ Readiness audit:
 ## Final Submit Order
 
 1. Record and upload the demo video.
-2. Deploy/configure `PolicyReceiptAnchor` on 0G mainnet and save the contract
-   address plus explorer URL.
-3. Post the required X post with screenshot or clip.
-4. Paste the fields above into HackQuest.
-5. Re-open the public repo and Pages URL from an incognito window.
-6. Submit before May 16, 2026 at 23:59 UTC+8.
+2. Post the required X post with screenshot or clip.
+3. Paste the fields above into HackQuest.
+4. Re-open the public repo, Pages URL, and 0G Explorer links from an incognito window.
+5. Submit before May 16, 2026 at 23:59 UTC+8.
 
 ## Claims To Avoid
 
-- Do not claim live mainnet writes.
 - Do not claim live 0G Compute inference.
 - Do not imply the browser can sign, trade, bridge, send Telegram messages, or
   move funds.

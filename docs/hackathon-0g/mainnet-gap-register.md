@@ -22,6 +22,12 @@ can verify now from what remains before a production/mainnet launch.
   block, latency, and safety flags. Evidence: `/api/0g/status`.
 - 0G Chain payload: receipt anchor payloads are produced when
   `enable_0g_anchor=true`. Evidence: `zero_g.chain_anchor.status: preflight`.
+- 0G mainnet anchor: `PolicyReceiptAnchor` is deployed on 0G mainnet and one
+  deny receipt is anchored. Evidence:
+  `docs/hackathon-0g/mainnet-proof.json`,
+  `https://chainscan.0g.ai/address/0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`,
+  and
+  `https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed`.
 - 0G receipt verifier: `/api/0g/receipt?receipt_hash=...` performs a read-only
   verifier lookup when `ZGG_RECEIPT_CONTRACT` is configured and returns
   `contract_not_configured` honestly otherwise.
@@ -34,16 +40,10 @@ can verify now from what remains before a production/mainnet launch.
 
 ## Mainnet/Testnet Gaps
 
-- HackQuest-final mainnet proof: judges can inspect preflight payloads and
-  Galileo readbacks, but the final HackQuest requirement is a 0G mainnet
-  contract address plus a 0G Explorer link. Next step: deploy
-  `PolicyReceiptAnchor.sol` to 0G mainnet with a dedicated operator deployer,
-  then configure `ZGG_CHAIN_RPC=https://evmrpc.0g.ai`,
-  `ZGG_CHAIN_ID=16661`, `ZGG_RECEIPT_CONTRACT`, and the final explorer URL.
-- On-chain verifier readback with deployed contract: the route exists, but it
-  needs a configured deployed contract to return `verified`. Next step: deploy
-  the contract, set `ZGG_RECEIPT_CONTRACT`, anchor at least one receipt, and
-  capture the readback plus explorer URL.
+- Runtime verifier config: the public proof file is complete, but a local demo
+  that wants `/api/0g/receipt` to return `verified` must set
+  `ZGG_CHAIN_RPC=https://evmrpc.0g.ai`, `ZGG_CHAIN_ID=16661`, and
+  `ZGG_RECEIPT_CONTRACT=0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`.
 - Live 0G Storage upload: current Storage receipts are deterministic and
   Storage-ready but not uploaded by default. Next step: wire the 0G Storage
   SDK/gateway upload behind explicit operator config and add readback by key or
@@ -65,7 +65,6 @@ can verify now from what remains before a production/mainnet launch.
 
 ## Claims to Avoid
 
-- Do not say 0guard is writing to 0G mainnet today.
 - Do not say 0guard has live 0G Compute inference today.
 - Do not say the workbench can deploy, sign, trade, bridge, or move funds.
 - Do not imply Telegram messages are sent during the judge demo.
@@ -75,7 +74,7 @@ can verify now from what remains before a production/mainnet launch.
 ## Strong Honest Claim
 
 0guard demonstrates the end-to-end safety architecture on 0G without crossing
-dangerous boundaries: live Galileo read proof, deterministic policy receipts,
-Chain anchor preflight, Storage-ready threat-intel receipts, and a clear path to
-mainnet verification. HackQuest-valid proof starts only after Ari provides the
-0G mainnet contract and explorer link.
+dangerous workbench boundaries: live read-only 0G proof, deterministic policy
+receipts, a mainnet PolicyReceiptAnchor with one anchored deny receipt,
+Storage-ready threat-intel receipts, and explicit remaining gaps for live
+Storage upload and 0G Compute inference.

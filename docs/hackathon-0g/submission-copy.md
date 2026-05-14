@@ -50,8 +50,9 @@ mistake that human teams already lost money to.
   `Denaria Finance` left as explicit source gaps.
 - A signature map that explains detector coverage gaps and recommended rule
   additions.
-- 0G Galileo read-only network proof through `/api/0g/status`.
-- 0G Chain receipt-anchor preflight payloads for `PolicyReceiptAnchor.sol`.
+- 0G read-only network proof through `/api/0g/status`.
+- 0G mainnet `PolicyReceiptAnchor` proof with one anchored deny receipt.
+- 0G Chain receipt-anchor preflight payloads from the browser workbench.
 - 0G Storage threat-intel payload/root-hash receipts.
 - Telegram Mira opt-in and preview primitives that never send messages from the
   judge workbench.
@@ -63,24 +64,24 @@ mistake that human teams already lost money to.
   `docs/hackathon-0g/submission-form-fields.md` and
   `/api/hackathon/submission-packet`.
 - Public GitHub repository: ready at `https://github.com/arigatoexpress/0guard`.
-- README and technical documentation: ready, with mainnet gaps stated openly.
+- README and technical documentation: ready, with remaining Storage/Compute gaps stated openly.
 - Demo video: operator must record and upload a public <=3 minute video.
 - Public X post: operator must post with a screenshot or short clip,
   `#0GHackathon`, `#BuildOn0G`, and tags `@0G_labs @0g_CN @0g_Eco
   @HackQuest_`. A ready screenshot asset is available at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
-- 0G proof: live read-only Galileo status and receipt preflight are ready;
-  HackQuest-final proof requires operator deployment/configuration of a 0G
-  mainnet contract address and mainnet Explorer link before claiming full chain
-  proof.
+- 0G proof: live read-only status, receipt preflight, and mainnet receipt
+  anchor proof are ready. Use `docs/hackathon-0g/mainnet-proof.json`, the
+  contract URL, and the anchor transaction URL in the HackQuest form.
 
 ## 0G Integration
 
 ### 0G Chain
 
-The workbench reads Galileo testnet live and prepares policy receipt anchor
-payloads for `PolicyReceiptAnchor.sol`. Agent decisions need public,
-tamper-evident audit trails.
+The workbench reads 0G state live and prepares policy receipt anchor payloads
+for `PolicyReceiptAnchor.sol`. A dedicated deployer has also anchored one deny
+receipt on 0G mainnet so judges can inspect a public, tamper-evident audit
+trail.
 
 ### 0G Storage
 
@@ -111,13 +112,13 @@ The submission demonstrates the verifier loop in a safe, judge-reviewable form:
    anchor payload in `zero_g.chain_anchor`.
 5. With `enable_0g_storage=true`, matching threat intel returns a canonical
    Storage receipt with `root_hash`, `key`, and payload size.
-6. `/api/0g/status` proves the app can read 0G Galileo live without a key,
+6. `/api/0g/status` proves the app can read 0G live without a key,
    signing, or broadcast.
 
-The production verifier still needs a deployed receipt contract plus live
-contract readback before we claim on-chain verification is complete. The demo
-shows the round-trip shape and intentionally labels the current anchor status as
-`preflight` until that operator step is complete.
+The demo shows both the safe workbench round-trip and the public mainnet anchor
+proof. The browser path intentionally labels its local anchor payload as
+`preflight`, while the Explorer link proves the corresponding receipt was
+anchored on 0G mainnet by the dedicated deployer.
 
 ## Demo Script for Judges
 
@@ -131,6 +132,8 @@ shows the round-trip shape and intentionally labels the current anchor status as
    `latestBlockNumber`, and `signingEnabled: false`.
 6. Run `/api/evaluate` with both 0G flags enabled and show
    `zero_g.chain_anchor.status: preflight` plus the Storage `root_hash`.
+   Then show `docs/hackathon-0g/mainnet-proof.json` and the 0G Explorer anchor
+   transaction.
 7. Show `/api/data/detection-coverage` to prove the incident dataset is wired
    through the detector rather than pasted into marketing copy.
 8. Show `/api/data/provenance?live=1` to prove incidents can be correlated
@@ -145,20 +148,20 @@ shows the round-trip shape and intentionally labels the current anchor status as
   and 0G proof receipts come out.
 - It uses 0G as infrastructure, not branding: Chain for audit, Storage for
   threat intel, Compute for the next scoring layer.
-- It is honest about safety: no keys, no live writes, no fake trading bot.
+- It is honest about safety: no keys in the workbench, no fake trading bot,
+  and mainnet writes limited to the documented receipt anchor.
 - It is grounded in real exploit patterns, so judges do not have to imagine the
   risk.
 - It turns open-source intelligence into a source-cited data product, not a
   screenshot or one-off scrape.
-- It leaves a clear mainnet path: deploy receipt anchor, enable live Storage
-  writes, add verifier readback, then productionize the compute scorer.
+- It leaves a clear production path: enable live Storage writes, add runtime
+  verifier config/readback, then productionize the compute scorer.
 
 ## Mainnet Honesty Statement
 
-This submission is safe/read-only and preflight by design until Ari performs the
-operator-only mainnet step. It does not sign transactions, broadcast 0G writes,
-move funds, or claim production mainnet coverage from the browser workbench.
-The mainnet gap is explicit: deploy and verify the receipt anchor on 0G mainnet,
-wire live 0G Storage uploads/readbacks, harden key custody outside the
-workbench, and add a contract-level verifier readback before any production
-launch.
+This submission keeps the browser workbench safe/read-only and preflight by
+design. It does not hold keys, sign transactions, broadcast 0G writes, move
+funds, or claim production custody from the workbench. The mainnet receipt
+anchor proof is complete; the remaining production gaps are live 0G Storage
+uploads/readbacks, hardened signer custody outside the workbench, and a
+contract-level verifier readback in the deployed runtime.
