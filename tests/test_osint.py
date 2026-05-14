@@ -94,15 +94,17 @@ def test_signature_map_explains_coverage_gaps():
 
     assert mapping["schema"] == "0guard.signature_map.v1"
     assert mapping["incidentCount"] == 28
-    assert mapping["matchedCount"] >= 18
-    assert mapping["gapCount"] == 10
-    assert mapping["topGaps"] == {"insufficient_public_root_cause": 10}
+    assert mapping["matchedCount"] == 27
+    assert mapping["gapCount"] == 1
+    assert mapping["coverageRatio"] == 0.9643
+    assert mapping["topGaps"] == {"insufficient_public_root_cause": 1}
     drift = next(row for row in mapping["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["matched"] is True
     assert drift["gap"] is None
-    undisclosed = next(row for row in mapping["rows"] if row["attackVector"] == "undisclosed")
-    assert undisclosed["matched"] is False
-    assert undisclosed["recommendedDetector"]
+    quant = next(row for row in mapping["rows"] if row["protocol"] == "Quant")
+    assert quant["attackVector"] == "undisclosed"
+    assert quant["matched"] is False
+    assert quant["recommendedDetector"]
 
 
 def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
@@ -111,7 +113,8 @@ def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
     assert intel["schema"] == "0guard.evolving_threat_intelligence.v1"
     assert intel["live"] is False
     assert intel["currentDataset"]["incidentCount"] == 28
-    assert intel["currentDataset"]["sourceEvidenceCoverage"] >= 0.9
+    assert intel["currentDataset"]["sourceEvidenceCoverage"] == 1.0
+    assert intel["currentDataset"]["signatureCoverageRatio"] == 0.9643
     assert intel["detectorFamilies"]
     assert any(family["id"] == "behavior_sequence" for family in intel["detectorFamilies"])
     assert any(
@@ -149,7 +152,7 @@ def test_incident_provenance_matrix_correlates_source_records():
     denaria = next(row for row in matrix["rows"] if row["protocol"] == "Denaria Finance")
     assert denaria["status"] == "aggregate_only"
     assert denaria["evidence"] == []
-    assert "trusted incident writeup" in denaria["recommendedNextStep"]
+    assert "protocol postmortem" in denaria["recommendedNextStep"]
 
 
 def test_incident_provenance_matrix_uses_canonical_evidence_without_network():
@@ -159,14 +162,15 @@ def test_incident_provenance_matrix_uses_canonical_evidence_without_network():
     assert matrix["sourceStatus"]["status"] == "canonical_dataset"
     assert matrix["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
     assert matrix["sourceStatus"]["cacheRecordsLoaded"] == 26
-    assert matrix["sourceStatus"]["canonicalEvidenceRecordsLoaded"] == 26
-    assert matrix["coverage"]["withMatchedEvidence"] >= 20
-    assert matrix["coverage"]["withDatasetSourceUrls"] == 26
-    assert matrix["coverage"]["aggregateOnlyCount"] <= 8
+    assert matrix["sourceStatus"]["canonicalEvidenceRecordsLoaded"] == 28
+    assert matrix["coverage"]["withMatchedEvidence"] == 28
+    assert matrix["coverage"]["withDatasetSourceUrls"] == 28
+    assert matrix["coverage"]["aggregateOnlyCount"] == 0
     assert matrix["safety"]["rawPayloadsReturned"] is False
 
     silo = next(row for row in matrix["rows"] if row["protocol"] == "Silo V2")
-    assert silo["status"] == "aggregate_only"
+    assert silo["status"] == "source_linked"
+    assert silo["evidence"][0]["sourceId"] == "smart_contract_hacking_attack_library"
     drift = next(row for row in matrix["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["evidence"][0]["canonicalDatasetEvidence"] is True
     assert drift["recommendedNextStep"].startswith("Add protocol postmortem")
@@ -179,8 +183,8 @@ def test_incident_provenance_matrix_can_fallback_to_canonical_evidence(tmp_path)
 
     assert matrix["sourceStatus"]["status"] == "canonical_dataset"
     assert matrix["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
-    assert matrix["coverage"]["withMatchedEvidence"] == 26
-    assert matrix["coverage"]["withDatasetSourceUrls"] == 26
+    assert matrix["coverage"]["withMatchedEvidence"] == 28
+    assert matrix["coverage"]["withDatasetSourceUrls"] == 28
     drift = next(row for row in matrix["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["evidence"][0]["canonicalDatasetEvidence"] is True
     assert drift["evidence"][0]["recordHash"]
@@ -244,10 +248,10 @@ def test_threat_receipt_passport_stitches_judge_proof_packet():
     assert passport["receipt"]["receiptHash"]
     assert passport["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
     assert passport["receipt"]["zeroG"]["storage_receipt"]["root_hash"]
-    assert passport["provenance"]["coverage"]["withMatchedEvidence"] == 26
-    assert passport["provenance"]["aggregateOnlyGaps"]
+    assert passport["provenance"]["coverage"]["withMatchedEvidence"] == 28
+    assert passport["provenance"]["aggregateOnlyGaps"] == []
     assert passport["signatureCoverage"]["incidentCount"] == 28
-    assert passport["signatureCoverage"]["gapCount"] >= 1
+    assert passport["signatureCoverage"]["gapCount"] == 1
     assert passport["0gProofBoundary"]["currentStatus"] == (
         "mainnet_anchor_live_plus_read_only_workbench"
     )

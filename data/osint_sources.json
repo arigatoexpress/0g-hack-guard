@@ -183,6 +183,48 @@
       "license_or_rights": "API terms apply. Suitable as an upstream signal, not as raw resale data.",
       "output_policy": "Use for transaction/token/address risk enrichment after explicit integration review.",
       "caveats": "Keep disabled until API key/terms/rate limits are reviewed."
+    },
+    {
+      "id": "blocksec_blog",
+      "name": "BlockSec Security Blog",
+      "owner": "BlockSec",
+      "url": "https://blocksec.com/blog",
+      "homepage": "https://blocksec.com/blog",
+      "retrieval_mode": "public_site_manual_review",
+      "adapter": "catalog_only",
+      "enabled_by_default": true,
+      "freshness_ttl_seconds": 86400,
+      "license_or_rights": "Public security blog. Use links, categories, short metadata, hashes, and defensive analysis; do not mirror full article text.",
+      "output_policy": "Use as reviewed incident root-cause provenance and detector-enrichment leads.",
+      "caveats": "Article body rights remain with BlockSec; manually promote only source-cited summaries and links."
+    },
+    {
+      "id": "smart_contract_hacking_attack_library",
+      "name": "Smart Contract Hacking Attack Library",
+      "owner": "Smart Contract Hacking",
+      "url": "https://smartcontractshacking.com/hacks/",
+      "homepage": "https://smartcontractshacking.com/hacks/",
+      "retrieval_mode": "public_site_manual_review",
+      "adapter": "catalog_only",
+      "enabled_by_default": true,
+      "freshness_ttl_seconds": 86400,
+      "license_or_rights": "Public attack-library pages. Use classification metadata, source links, hashes, and defensive analysis only.",
+      "output_policy": "Use as incident taxonomy and source-link provenance leads for defensive detector tests.",
+      "caveats": "Some entries are classification signals rather than protocol-authored postmortems; preserve caveats."
+    },
+    {
+      "id": "mexc_news_livebitcoinnews",
+      "name": "MEXC News / LiveBitcoinNews Crypto Incident Reports",
+      "owner": "MEXC News / LiveBitcoinNews",
+      "url": "https://www.mexc.co/en-GB/news",
+      "homepage": "https://www.mexc.co/en-GB/news",
+      "retrieval_mode": "public_news_manual_review",
+      "adapter": "catalog_only",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 86400,
+      "license_or_rights": "Public news pages. Use as corroborating metadata links only; do not mirror article text or treat market commentary as advice.",
+      "output_policy": "Use as secondary incident corroboration when protocol/security-firm postmortems are unavailable.",
+      "caveats": "News syndication can repeat unverified claims; require stronger sources before high-confidence detector promotion."
     }
   ]
 }

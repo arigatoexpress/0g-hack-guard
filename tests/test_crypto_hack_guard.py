@@ -92,15 +92,18 @@ def test_accounting_numeric_and_gateway_invariants_warn():
         "prompt_text": (
             "BurnAddress accounting bug caused balance manipulation. "
             "A signedness mismatch in settlement math extracted excess collateral. "
-            "GatewayEVM halted all cross-chain activity while nonce replay protection was patched."
+            "GatewayEVM halted all cross-chain activity while nonce replay protection was patched. "
+            "Router quote or decimal mismatch changed the output-token amount."
         ),
     })
     assert any("Burn/mint" in w for w in result.warnings)
     assert any("Signedness" in w for w in result.warnings)
     assert any("Cross-chain gateway" in w for w in result.warnings)
+    assert any("Router quote" in w for w in result.warnings)
     assert "token_accounting_invariant" in result.signatures_matched
     assert "numeric_type_invariant" in result.signatures_matched
     assert "cross_chain_gateway_invariant" in result.signatures_matched
+    assert "router_quote_denomination_invariant" in result.signatures_matched
 
 
 def test_hot_wallet_opsec_warns():

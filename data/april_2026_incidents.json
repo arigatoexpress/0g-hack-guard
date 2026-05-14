@@ -48,11 +48,28 @@
       "date": "2026-04-03",
       "protocol": "Silo V2",
       "loss_usd": 392000,
-      "chain": "Ethereum",
+      "chain": "Arbitrum",
       "attack_vector": "oracle misconfiguration",
-      "description": "Misconfigured oracle allowed attacker to borrow at inflated collateral prices, draining isolated markets.",
+      "description": "Public incident data classifies the Silo V2 loss as an Arbitrum lending-market oracle misconfiguration / protocol-logic exploit. Exact vulnerable line remains source-review-only until a protocol postmortem is promoted.",
       "attribution": "Unknown",
-      "lesson": "Oracle configs must be validated in production. Use multiple independent price sources."
+      "lesson": "Oracle configs must be validated in production. Use multiple independent price sources.",
+      "source_urls": [
+        "https://smartcontractshacking.com/hacks/silo-v2-hack-2026"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "smart_contract_hacking_attack_library",
+          "source_owner": "Smart Contract Hacking",
+          "source_url": "https://smartcontractshacking.com/hacks/silo-v2-hack-2026",
+          "evidence_type": "public_attack_library_entry",
+          "matched_name": "Silo V2 Hack",
+          "observed_date": "2026-04-03",
+          "confidence": 0.9,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "3835cc1a77a5fdcaefa0705584fc9fb1f80fe77bb1a6a82772a6949011ad039c"
+        }
+      ]
     },
     {
       "id": 3,
@@ -87,11 +104,28 @@
       "date": "2026-04-05",
       "protocol": "Denaria Finance",
       "loss_usd": 165000,
-      "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Team acknowledged an exploit but has not publicly disclosed the root cause.",
+      "chain": "Linea",
+      "attack_vector": "rounding asymmetry and unsafe cast",
+      "description": "BlockSec reports that a post-audit LP-accounting refactor produced a slightly negative intermediate value that was cast from int256 to uint256 without a boundary check, inflating realized PnL during a single-sided LP and long-trade sequence.",
       "attribution": "Unknown",
-      "lesson": "Transparency in post-incident disclosure is essential for community trust and collective defense."
+      "lesson": "Transparency in post-incident disclosure is essential for community trust and collective defense.",
+      "source_urls": [
+        "https://blocksec.com/blog/weekly-web3-security-incident-roundup-apr-6-apr-12-2026"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-incident-roundup-apr-6-apr-12-2026",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "Denaria Incident",
+          "observed_date": "2026-04-05",
+          "confidence": 0.96,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "49c598fb92eb61ca7234ae987a08c5a3adad6d63b1d4806c0b061fbf1a16b36e"
+        }
+      ]
     },
     {
       "id": 5,
@@ -351,14 +385,27 @@
       "protocol": "Juicebox V3",
       "loss_usd": 52000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Small-scale exploit of a Juicebox V3 treasury. Root cause not publicly disclosed.",
+      "attack_vector": "improper validation / accounting-source spoof",
+      "description": "REVLoans accepted a caller-supplied loan accounting source without verifying it was protocol-registered; a forged high-decimal same-currency context polluted totalBorrowedFrom and enabled borrowing at an inflated share price.",
       "attribution": "Unknown",
       "lesson": "Even small treasuries benefit from multi-sig, timelocks, and on-chain spending limits.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "REVLoans (Juicebox)",
+          "observed_date": "2026-04-20",
+          "confidence": 0.96,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "7384ef2b33df1658eedfbe1bcd2c6774bbdfaf1f2da4965bc6414e64a1a339d7"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -379,14 +426,27 @@
       "protocol": "Thetanuts Finance",
       "loss_usd": 50000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Options vault protocol suffered an undisclosed exploit resulting in moderate losses.",
+      "attack_vector": "first depositor / zero-supply vault share inflation",
+      "description": "SlowMist classifies the incident as a first-depositor attack against a newly deployed vault: minimal initial shares plus direct asset transfer distorted the asset-to-share ratio before later user deposits.",
       "attribution": "Unknown",
       "lesson": "Options and structured products need continuous Greeks monitoring and circuit breakers.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://hacked.slowmist.io/?c=ETH"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "slowmist_hacked",
+          "source_owner": "SlowMist",
+          "source_url": "https://hacked.slowmist.io/?c=ETH",
+          "evidence_type": "public_incident_archive",
+          "matched_name": "Thetanuts Finance",
+          "observed_date": "2026-04-20",
+          "confidence": 0.9,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "bb2aaf8730ff8336131fa784b2692f9ed7bf912489e7191405198d69baed5e9a"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -435,14 +495,27 @@
       "protocol": "Kipseli",
       "loss_usd": 80000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Small lending protocol incident. Limited user impact due to low TVL.",
+      "attack_vector": "improper validation / router decimal mismatch",
+      "description": "BlockSec classifies the Kipseli Router incident as improper validation; its blog summary identifies the detector-relevant pattern as a router quote or decimal-mismatch risk.",
       "attribution": "Unknown",
       "lesson": "Low-TVL protocols are not immune; attackers often use them as testing grounds.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "Kipseli Router",
+          "observed_date": "2026-04-22",
+          "confidence": 0.9,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "b4542be840389b58d88d8d00282f670e9ef34f2939004aa44be565fbe5a44707"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -491,14 +564,27 @@
       "protocol": "Purrlend",
       "loss_usd": 1500000,
       "chain": "Solana",
-      "attack_vector": "undisclosed",
-      "description": "Solana lending protocol exploit. Limited details available at time of recording.",
+      "attack_vector": "key compromise / privileged-role takeover",
+      "description": "BlockSec classifies Purrlend as a key-compromise incident. For detector purposes, 0guard treats it as privileged-role takeover and unbacked bridge-token mint risk, not as a source-confirmed calldata exploit.",
       "attribution": "Unknown",
       "lesson": "Solana programs need the same rigor as EVM contracts: formal verification, audits, and fuzzing.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "Purrlend",
+          "observed_date": "2026-04-25",
+          "confidence": 0.92,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "250df52227962d073bcbc5823bfb56d8e6324d0eca2e51470f8ba4e9eb1e8ebd"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -519,14 +605,27 @@
       "protocol": "Scallop",
       "loss_usd": 150000,
       "chain": "Solana",
-      "attack_vector": "undisclosed",
-      "description": "Minor exploit on Scallop lending markets. Quickly contained by the team.",
+      "attack_vector": "accounting flaw / cross-pool index injection",
+      "description": "BlockSec classifies Scallop as an accounting-flaw incident and summarizes the detector pattern as cross-pool index injection, which 0guard maps to account-binding and rewards-accounting invariants.",
       "attribution": "Unknown",
       "lesson": "Rapid incident response and contract pausing can limit losses significantly.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "Scallop",
+          "observed_date": "2026-04-26",
+          "confidence": 0.9,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "e99f613f0547103cf9cd710de9b67989485d2331a7259344096df8028d192d5c"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -547,14 +646,27 @@
       "protocol": "Singularity Finance",
       "loss_usd": 413000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Cross-chain yield protocol incident resulting in moderate losses.",
+      "attack_vector": "oracle misconfiguration / invalid pool fee tier",
+      "description": "BlockSec reports that a Base vault used an invalid Uniswap V3 fee tier, causing pricing to resolve to a non-existent pool and value non-USDC reserves at zero before share minting and redemption.",
       "attribution": "Unknown",
-      "lesson": "Cross-chain yield strategies multiply attack surface — each bridge is a potential failure point.",
+      "lesson": "Cross-chain yield strategies multiply attack surface \u2014 each bridge is a potential failure point.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-04-26",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "SingularityFinance",
+          "observed_date": "2026-04-26",
+          "confidence": 0.96,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "a1900c09915184201accc2a72d4315d94b67653c55e9c5000fc8483c65fecf4d"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -603,14 +715,27 @@
       "protocol": "JuDAO",
       "loss_usd": 228000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "DAO treasury drained via undisclosed vector. Governance token dumped sharply post-incident.",
+      "attack_vector": "access control issue",
+      "description": "BlockSec lists the JUDAO Token incident as an access-control issue. Public detail is still high-level, so 0guard maps this to generic privileged-call and upgrade-path review.",
       "attribution": "Unknown",
       "lesson": "DAO treasuries should require on-chain voting + timelock for any non-routine outbound transfers.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://blocksec.com/blog/weekly-web3-security-roundup-2026-05-10"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "blocksec_blog",
+          "source_owner": "BlockSec",
+          "source_url": "https://blocksec.com/blog/weekly-web3-security-roundup-2026-05-10",
+          "evidence_type": "public_security_roundup",
+          "matched_name": "JUDAO Token Incident",
+          "observed_date": "2026-04-28",
+          "confidence": 0.82,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public incident writeup metadata. Use as source-cited defensive evidence; do not mirror raw article text.",
+          "record_hash": "6b1ee0e60d5f415b2ba13f1deb793f411ef8a98515adea45959711c043252985"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",
@@ -634,7 +759,7 @@
       "attack_vector": "undisclosed",
       "description": "Over-the-counter settlement protocol incident. Limited public details.",
       "attribution": "Unknown",
-      "lesson": "OTC settlement needs atomic swaps or escrow — never trust-based finality.",
+      "lesson": "OTC settlement needs atomic swaps or escrow \u2014 never trust-based finality.",
       "source_urls": [
         "https://defillama.com/hacks"
       ],
@@ -714,15 +839,28 @@
       "date": "2026-04-29",
       "protocol": "Syndicate",
       "loss_usd": 330000,
-      "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Investment syndicate smart contract incident. Limited user funds affected.",
+      "chain": "Base",
+      "attack_vector": "commons bridge compromise / privileged upgrade flaw",
+      "description": "Public reports link the loss to the Commons bridge on Base and describe a privileged upgrade or bridge-control flaw used to drain SYND before swapping to ETH. Treat as bridge/privileged-control risk until a protocol postmortem is published.",
       "attribution": "Unknown",
       "lesson": "Investment pools should enforce deposit caps and withdrawal cooldowns to limit exploit blast radius.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://www.mexc.co/en-GB/news/1061951"
       ],
       "derived_source_evidence": [
+        {
+          "source_id": "mexc_news_livebitcoinnews",
+          "source_owner": "MEXC News / LiveBitcoinNews",
+          "source_url": "https://www.mexc.co/en-GB/news/1061951",
+          "evidence_type": "public_incident_report",
+          "matched_name": "Syndicate Commons Bridge",
+          "observed_date": "2026-04-29",
+          "confidence": 0.78,
+          "review_status": "reviewed_source_enrichment",
+          "rights_envelope": "Public news metadata. Use as corroborating bridge-risk evidence; do not mirror article text.",
+          "record_hash": "8caecd4b45851a8cea78b3794f7af02feb3a3c9ef7cfc5e3409dc1aae89514a0"
+        },
         {
           "source_id": "defillama_hacks",
           "source_owner": "DeFiLlama",

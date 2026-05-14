@@ -108,7 +108,9 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#contract-output")).to_contain_text("workbenchCanTriggerLiveActions")
     expect(page.locator("#contract-output")).to_contain_text('"livePostingEnabled": false')
     expect(page.locator("#contract-output")).to_contain_text('"telegramSendsEnabled": false')
-    expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_status.v1")
+    expect(page.locator("#zg-status-output")).to_contain_text(
+        "0guard.0g_status.v1", timeout=15000
+    )
     expect(page.locator("#zg-status-output")).to_contain_text('"privateKeyRequired": false')
     expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
     page.locator("#verify-receipt").click()
@@ -167,7 +169,7 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#data-flow-output")).to_contain_text(
         "0guard.incident_provenance_matrix.v1"
     )
-    expect(page.locator("#provenance-summary")).to_contain_text("26/28")
+    expect(page.locator("#provenance-summary")).to_contain_text("28/28")
     expect(page.locator("#provenance-summary")).to_contain_text("cached")
     page.locator("#load-signature-map").click()
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.signature_map.v1")
@@ -385,7 +387,8 @@ def exercise_workbench(page: Page) -> None:
     assert passport_body["schema"] == "0guard.threat_receipt_passport.v1"
     assert passport_body["receipt"]["decision"] == "deny"
     assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
-    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 26
+    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 28
+    assert passport_body["signatureCoverage"]["gapCount"] == 1
     assert passport_body["safety"]["rawPayloadsReturned"] is False
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")

@@ -105,9 +105,9 @@ For the 0G APAC Hackathon, the fastest review path is:
 5. Use `docs/hackathon-0g/` for the submission copy, demo walkthrough, market
    intel, and mainnet gap register.
 
-Current operator-only submission gaps: public X post, <=3 minute demo video,
-and final HackQuest form submission. The 0G mainnet contract/explorer proof is
-captured in `docs/hackathon-0g/mainnet-proof.json`. Run
+Current submission proof is captured in `docs/hackathon-0g/`, including the
+public X post URL, final demo video URL, HackQuest readback, and 0G mainnet
+contract/explorer proof. Run
 `scripts/submission_readiness.py --format markdown` for the current
 final-submit audit.
 
@@ -223,7 +223,7 @@ curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000
 The incident dataset is loaded from `data/april_2026_incidents.json`, validated
 against a required schema, fingerprinted, summarized, and run through the
 signature engine as detection-coverage seeds. Canonical per-incident source
-evidence is embedded for 26 of 28 records, while
+evidence is embedded for all 28 records, while
 `data/incident_provenance_cache.json` remains a reviewed fallback so the judge
 demo remains useful offline.
 
@@ -236,16 +236,18 @@ curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.to
 ```
 
 The validator fails on bad totals, duplicate IDs, malformed dates, missing
-required fields, or invalid losses. It also reports provenance warnings when
-records lack per-incident source URLs. Current canonical coverage is 26 of 28
-records with derived source evidence; `Silo V2` and `Denaria Finance` remain
-aggregate-only until stronger public proof exists.
+required fields, invalid losses, or malformed provenance fields. It reports
+provenance warnings when records lack per-incident source URLs; the current
+dataset is fully source-linked at the incident level.
 
-The signature engine currently covers 18 of 28 incident-derived detection
-seeds. The remaining 10 are deliberately classified as
-`insufficient_public_root_cause`, so they stay in research/watch mode until a
-source URL, transaction, postmortem, or security report identifies a concrete
-behavior or calldata pattern.
+The signature engine currently covers 27 of 28 incident-derived detection
+seeds (`0.9643` coverage). Newly promoted source-backed categories include
+Denaria unsafe-cast math, REVLoans/Juicebox accounting-source spoofing,
+Thetanuts first-depositor vault inflation, Kipseli router quote mismatch,
+Purrlend key compromise, Scallop accounting/index injection, Singularity fee
+tier/oracle misconfiguration, JUDAO access control, and Syndicate bridge
+control risk. The remaining `Quant` row stays
+`insufficient_public_root_cause` because the public naming is still ambiguous.
 
 ### OSINT Pipeline
 
@@ -264,11 +266,11 @@ curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python3 -m json.t
 curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
 ```
 
-Current default source families include DeFiLlama Hacks, Chainalysis RSS,
-Forta labelled datasets, CryptoScamDB, Rekt News, SlowMist, CISA KEV, OFAC,
-URLhaus, Chainabuse, GoPlus, Scam Sniffer, and MetaMask phishing data. Sources
-with credential, license, or redistribution caveats stay catalog-only or
-disabled until explicitly reviewed.
+Current default source families include DeFiLlama Hacks, BlockSec, Smart
+Contract Hacking, Chainalysis RSS, Forta labelled datasets, CryptoScamDB, Rekt
+News, SlowMist, CISA KEV, OFAC, URLhaus, Chainabuse, GoPlus, Scam Sniffer, and
+MetaMask phishing data. Sources with credential, license, or redistribution
+caveats stay catalog-only or disabled until explicitly reviewed.
 
 ### Telegram Mira Opt-In Preview
 

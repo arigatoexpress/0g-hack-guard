@@ -41,7 +41,7 @@ loose demo copy.
 9. Optionally fetch live public metadata signals from enabled adapters without
    returning raw payload dumps.
 10. Promote reviewed derived source evidence into per-incident provenance fields
-   while leaving unresolved incidents explicitly aggregate-only.
+   while keeping unresolved root-cause claims in research/watch mode.
 11. Build an evolving detector queue from uncovered incident gaps and expose the
     current 0G Chain, Storage, DA, and Compute proof plan.
 12. Convert intent verdicts into wallet-specific alert previews with score,
@@ -88,10 +88,10 @@ curl -s http://127.0.0.1:8109/api/hackathon/readiness | python3 -m json.tool
 
 The dataset carries aggregate upstream source URLs in `meta.source_urls`.
 It also now carries per-incident `source_urls` and `derived_source_evidence`
-for 26 of 28 incidents promoted from the reviewed provenance cache. The two
-remaining aggregate-only records are `Silo V2` and `Denaria Finance`; the
-validator reports those as a warning rather than pretending the records are
-fully sourced.
+for all 28 incidents. New enrichments were promoted from public BlockSec,
+SlowMist, Smart Contract Hacking, and corroborating news/timeline sources while
+preserving rights boundaries: APIs return links, metadata, hashes, confidence,
+and defensive summaries rather than raw article bodies.
 
 `data/osint_sources.json` is the source-rights registry for the next layer of
 provenance. Each source records:
@@ -113,19 +113,20 @@ confidence, record hashes, and a recommended next step for each incident. This
 keeps live source evidence separate from raw upstream payloads, while preserving
 the reviewed derived evidence in `data/april_2026_incidents.json`.
 
-As of the detector-invariant pass, the signature engine covers 18 of 28
-incident-derived seeds. Added coverage includes negative amount/accounting
-invariants, burn/mint balance-accounting drift, signedness/bounded-math
-settlement risk, cross-chain gateway pause/nonce/replay invariants, and
-hot-wallet operational-security context. The remaining 10 records are all
-`insufficient_public_root_cause` and should stay in research/watch mode until
-public evidence identifies a concrete behavior or calldata pattern.
+As of the source-enrichment pass, the signature engine covers 27 of 28
+incident-derived seeds (`0.9643` coverage). Added coverage includes negative
+amount/accounting invariants, unsafe casts and decimal mismatches, first
+depositor vault share inflation, router quote-denomination mismatches,
+account-binding and rewards-accounting faults, cross-chain bridge/control
+risks, and hot-wallet or privileged-key operational-security context. The lone
+remaining gap is `Quant`, kept as `insufficient_public_root_cause` until public
+evidence disambiguates the incident naming and concrete behavior.
 
 Next durable upgrade:
 
-- Add `evidence_type` per source, such as `postmortem`, `transaction`, `security_report`, or `news`.
-- Add protocol postmortem or transaction-level source URLs for `Silo V2` and
-  `Denaria Finance`.
+- Add more protocol-authored postmortem or transaction-level URLs when they
+  appear, especially for high-level BlockSec/SlowMist classifications.
+- Disambiguate the remaining `Quant`/`QNT` record before detector promotion.
 - Add `detection_seed` overrides for cases where the generic attack vector is
   too weak to exercise the signature engine.
 - Promote detector-gap candidates from `/api/intelligence/evolving` only after

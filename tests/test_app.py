@@ -190,14 +190,14 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     assert coverage.status_code == 200
     coverage_body = coverage.get_json()
     assert coverage_body["schema"] == "0guard.detection_coverage.v1"
-    assert coverage_body["coveredCount"] >= 18
+    assert coverage_body["coveredCount"] == 27
 
     provenance = client.get("/api/data/provenance")
     assert provenance.status_code == 200
     provenance_body = provenance.get_json()
     assert provenance_body["schema"] == "0guard.incident_provenance_matrix.v1"
     assert provenance_body["coverage"]["incidentCount"] == 28
-    assert provenance_body["coverage"]["withMatchedEvidence"] >= 20
+    assert provenance_body["coverage"]["withMatchedEvidence"] == 28
     assert provenance_body["sourceStatus"]["status"] == "canonical_dataset"
     assert provenance_body["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
     assert provenance_body["live"] is False
@@ -208,8 +208,8 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     signature_body = signature_map.get_json()
     assert signature_body["schema"] == "0guard.signature_map.v1"
     assert signature_body["incidentCount"] == 28
-    assert signature_body["matchedCount"] >= 18
-    assert signature_body["topGaps"] == {"insufficient_public_root_cause": 10}
+    assert signature_body["matchedCount"] == 27
+    assert signature_body["topGaps"] == {"insufficient_public_root_cause": 1}
 
 
 def test_osint_and_hackathon_routes_are_read_only(client):
@@ -273,8 +273,9 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert passport_body["schema"] == "0guard.threat_receipt_passport.v1"
     assert passport_body["receipt"]["decision"] == "deny"
     assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
-    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 26
+    assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 28
     assert passport_body["signatureCoverage"]["incidentCount"] == 28
+    assert passport_body["signatureCoverage"]["gapCount"] == 1
     assert passport_body["safety"]["rawPayloadsReturned"] is False
 
 

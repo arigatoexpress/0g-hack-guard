@@ -197,23 +197,37 @@ NEGATIVE_AMOUNT_RE = re.compile(
 )
 TOKEN_ACCOUNTING_RE = re.compile(
     r"\b(burn\s*address|burnaddress|burn.?mint|mint.?burn|supply\s+drift|"
-    r"refund\s+claims?|balance\s+manipulat|extract\s+excess\s+value)\b",
+    r"refund\s+claims?|balance\s+manipulat|extract\s+excess\s+value|"
+    r"first.?depositor|zero.?supply|share\s+inflation|asset.?to.?share|"
+    r"accounting.?source|borrowedfrom|same.?currency|fake\s+debt|"
+    r"account.?binding|rewards?.?accounting|cross.?pool\s+index|"
+    r"unbacked\s+bridge|unbacked\s+token|p\s*token\s+mint)\b",
     re.IGNORECASE,
 )
 NUMERIC_TYPE_RE = re.compile(
     r"\b(signedness|signed\s+vs\s+unsigned|integer\s+underflow|integer\s+overflow|"
-    r"bounded\s+math|checked\s+math|settlement\s+math|excess\s+collateral)\b",
+    r"bounded\s+math|checked\s+math|settlement\s+math|excess\s+collateral|"
+    r"unsafe\s+cast|rounding\s+asymmetry|fixed.?point|decimal\s+mismatch|"
+    r"precision\s+loss|invalid\s+pool\s+fee\s+tier|zero.?valued\s+pool)\b",
     re.IGNORECASE,
 )
 CROSS_CHAIN_GATEWAY_RE = re.compile(
     r"\b(gatewayevm|gateway\s+contract|cross-?chain\s+activity|security\s+council|"
     r"pausable|pause\s+circuit|halt\s+of\s+all\s+cross-?chain|replay.?proof|"
-    r"nonce\s+invalidation)\b",
+    r"nonce\s+invalidation|commons\s+bridge|bridge\s+compromise|"
+    r"privileged\s+upgrade\s+flaw)\b",
     re.IGNORECASE,
 )
 HOT_WALLET_OPSEC_RE = re.compile(
     r"\b(hot\s+wallets?|withdrawal\s+limits?|hsm|unauthorized\s+outbound\s+transfers?|"
-    r"geographic\s+signing|signing\s+distribution|coordinated\s+attack)\b",
+    r"geographic\s+signing|signing\s+distribution|coordinated\s+attack|"
+    r"key\s+compromise|private\s+key\s+(?:leak|compromise|exposure)|"
+    r"privileged.?role\s+takeover)\b",
+    re.IGNORECASE,
+)
+ROUTER_QUOTE_RE = re.compile(
+    r"\b(router\s+quote|quote\s+or\s+decimal|quote.?token|unsupported\s+routing|"
+    r"output.?token\s+amount|denomination\s+mismatch)\b",
     re.IGNORECASE,
 )
 
@@ -675,6 +689,9 @@ def _check_textual_signatures(payload: dict[str, Any]) -> tuple[list[str], list[
     if HOT_WALLET_OPSEC_RE.search(text) or HOT_WALLET_OPSEC_RE.search(action):
         warnings.append("Hot-wallet operational-security risk detected.")
         sigs.append("hot_wallet_opsec_context")
+    if ROUTER_QUOTE_RE.search(text) or ROUTER_QUOTE_RE.search(action):
+        warnings.append("Router quote, decimal, or token-denomination mismatch risk detected.")
+        sigs.append("router_quote_denomination_invariant")
 
     # Action-pair risk
     # We look at action + method combinations

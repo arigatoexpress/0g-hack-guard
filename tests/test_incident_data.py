@@ -19,7 +19,7 @@ def test_incident_dataset_validates_cleanly():
     assert report.computed_loss_usd == report.total_loss_usd
     assert len(report.fingerprint) == 64
     assert report.errors == ()
-    assert report.warnings == ("2 incident records missing per-incident source_urls",)
+    assert report.warnings == ()
 
     drift = next(item for item in dataset["incidents"] if item["protocol"] == "Drift Protocol")
     assert drift["source_urls"] == ["https://defillama.com/hacks"]
@@ -36,6 +36,7 @@ def test_incident_summary_exposes_top_losses_and_counts():
     assert summary["stats"]["topLosses"][1]["protocol"] == "Drift Protocol"
     assert summary["stats"]["topLosses"][1]["source_urls"] == ["https://defillama.com/hacks"]
     assert summary["stats"]["attackVectorCounts"]["undisclosed"] >= 1
+    assert summary["stats"]["attackVectorCounts"]["rounding asymmetry and unsafe cast"] == 1
 
 
 def test_filter_incidents_limits_and_filters():
@@ -52,8 +53,8 @@ def test_detection_coverage_runs_dataset_through_signature_engine():
 
     assert coverage["schema"] == "0guard.detection_coverage.v1"
     assert coverage["incidentCount"] == 28
-    assert coverage["coveredCount"] >= 18
-    assert 0 < coverage["coverageRatio"] <= 1
+    assert coverage["coveredCount"] == 27
+    assert coverage["coverageRatio"] == 0.9643
     drift = next(row for row in coverage["coverage"] if row["incident"]["protocol"] == "Drift Protocol")
     assert drift["matched"] is True
     assert drift["blockerCount"] >= 1

@@ -1600,6 +1600,7 @@ def _detector_family_summary(sig_map: dict[str, Any]) -> list[dict[str, Any]]:
             "negative_amount_invariant",
             "token_accounting_invariant",
             "numeric_type_invariant",
+            "router_quote_denomination_invariant",
         ),
         "oracle_and_market": ("oracle_", "price_deviation", "sequence_oracle"),
         "governance_and_upgrade": ("governance_", "sequence_grant", "sequence_timelock"),
