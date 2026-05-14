@@ -51,10 +51,10 @@ can verify now from what remains before a production/mainnet launch.
 - 0G Compute scoring: current scoring is deterministic policy/signature logic,
   not live 0G Compute inference. Next step: add a Compute-backed anomaly scorer
   as an optional signal with clear provenance in the verdict.
-- Provenance completion: all April 2026 records still need per-incident source
-  URLs, evidence types, confidence, and transaction/report references. Next
-  step: enrich incidents one source family at a time while preserving rights
-  metadata and record hashes.
+- Provenance completion: 26 of 28 April 2026 records now carry per-incident
+  source URLs and reviewed derived source evidence. Next step: find stronger
+  public proof for `Silo V2` and `Denaria Finance`, then add transaction-level
+  or postmortem references where available.
 - Key custody: the workbench correctly contains no private keys, but production
   anchoring needs signer custody. Next step: use a dedicated deployer/signer
   path outside the browser workbench, with explicit confirmation and no custody

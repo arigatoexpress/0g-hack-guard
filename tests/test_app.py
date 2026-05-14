@@ -176,7 +176,8 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     assert provenance_body["schema"] == "0guard.incident_provenance_matrix.v1"
     assert provenance_body["coverage"]["incidentCount"] == 28
     assert provenance_body["coverage"]["withMatchedEvidence"] >= 20
-    assert provenance_body["sourceStatus"]["status"] == "reviewed_cache"
+    assert provenance_body["sourceStatus"]["status"] == "canonical_dataset"
+    assert provenance_body["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
     assert provenance_body["live"] is False
     assert provenance_body["safety"]["rawPayloadsReturned"] is False
 

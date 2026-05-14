@@ -40,6 +40,8 @@ loose demo copy.
    retrieval mode, TTL, output policy, and caveats.
 9. Optionally fetch live public metadata signals from enabled adapters without
    returning raw payload dumps.
+10. Promote reviewed derived source evidence into per-incident provenance fields
+   while leaving unresolved incidents explicitly aggregate-only.
 
 ## API Readbacks
 
@@ -55,6 +57,7 @@ loose demo copy.
 | `/api/osint/signals` | Normalized incident/research leads; `?live=1` fetches live public metadata. |
 | `/api/hackathon/submission-brief` | HackQuest-ready brief, data stats, 0G story, and operator TODOs. |
 | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields and explicit operator placeholders. |
+| `/api/hackathon/readiness` | Final HackQuest readiness audit with mainnet proof, demo, and X blockers. |
 
 Example:
 
@@ -67,13 +70,17 @@ curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/hackathon/readiness | python3 -m json.tool
 ```
 
 ## Provenance
 
-The dataset now carries aggregate upstream source URLs in `meta.source_urls`.
-Per-incident source URLs are still missing, and the validator reports that as a
-warning rather than pretending the records are fully sourced.
+The dataset carries aggregate upstream source URLs in `meta.source_urls`.
+It also now carries per-incident `source_urls` and `derived_source_evidence`
+for 26 of 28 incidents promoted from the reviewed provenance cache. The two
+remaining aggregate-only records are `Silo V2` and `Denaria Finance`; the
+validator reports those as a warning rather than pretending the records are
+fully sourced.
 
 `data/osint_sources.json` is the source-rights registry for the next layer of
 provenance. Each source records:
@@ -92,14 +99,14 @@ derived-evidence cache, so the judge demo remains useful without network access.
 It can also correlate canonical incidents against DeFiLlama's public hack index
 when `?live=1` is supplied. Both modes return matched source metadata,
 confidence, record hashes, and a recommended next step for each incident. This
-keeps live source evidence separate from the canonical dataset until a human
-promotes each source URL/evidence type into `data/april_2026_incidents.json`.
+keeps live source evidence separate from raw upstream payloads, while preserving
+the reviewed derived evidence in `data/april_2026_incidents.json`.
 
 Next durable upgrade:
 
-- Add `source_urls` per incident.
 - Add `evidence_type` per source, such as `postmortem`, `transaction`, `security_report`, or `news`.
-- Add `confidence` per incident.
+- Add protocol postmortem or transaction-level source URLs for `Silo V2` and
+  `Denaria Finance`.
 - Add `detection_seed` overrides for cases where the generic attack vector is
   too weak to exercise the signature engine.
 - Promote catalog-only sources with compatible licenses into normalized

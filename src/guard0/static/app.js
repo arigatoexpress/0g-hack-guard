@@ -21,6 +21,7 @@ function writeJson(id, value){
 function sourceStatusLabel(status){
   return {
     reviewed_cache: 'reviewed cache',
+    canonical_dataset: 'canonical',
     degraded_cache_fallback: 'cache fallback',
     injected_records: 'fixture',
     live_fetch_disabled: 'not live',

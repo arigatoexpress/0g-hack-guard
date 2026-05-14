@@ -224,7 +224,9 @@ curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 
 The validator fails on bad totals, duplicate IDs, malformed dates, missing
 required fields, or invalid losses. It also reports provenance warnings when
-records lack per-incident source URLs.
+records lack per-incident source URLs. Current canonical coverage is 26 of 28
+records with derived source evidence; `Silo V2` and `Denaria Finance` remain
+aggregate-only until stronger public proof exists.
 
 ### OSINT Pipeline
 

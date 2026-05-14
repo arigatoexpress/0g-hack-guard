@@ -256,7 +256,7 @@ def exercise_workbench(page: Page) -> None:
     assert provenance_body["schema"] == "0guard.incident_provenance_matrix.v1"
     assert provenance_body["coverage"]["incidentCount"] == 28
     assert provenance_body["coverage"]["withMatchedEvidence"] >= 20
-    assert provenance_body["sourceStatus"]["evidenceMode"] == "reviewed_derived_cache"
+    assert provenance_body["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
     assert provenance_body["safety"]["rawPayloadsReturned"] is False
 
     signature_readback = page.request.get(f"{BASE_URL}/api/data/signature-map")

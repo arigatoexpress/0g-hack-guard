@@ -55,6 +55,9 @@ explains detector coverage gaps instead of hiding them.
 `data/incident_provenance_cache.json` keeps a reviewed derived-evidence cache
 for offline judge demos, while `/api/data/provenance?live=1` can refresh
 against live public source records when the network path is healthy.
+The canonical incident dataset now includes per-incident source URLs and
+derived evidence for 26 of 28 records; `Silo V2` and `Denaria Finance` are the
+two explicit source-proof gaps.
 
 ## Safety Posture
 

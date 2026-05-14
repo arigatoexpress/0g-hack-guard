@@ -45,7 +45,9 @@ mistake that human teams already lost money to.
   research metadata.
 - A provenance matrix that correlates canonical incidents against live public
   source records without exposing raw upstream payloads, plus a reviewed
-  derived-evidence cache for offline judge demos.
+  derived-evidence cache for offline judge demos. The canonical dataset now has
+  per-incident source evidence for 26 of 28 records, with `Silo V2` and
+  `Denaria Finance` left as explicit source gaps.
 - A signature map that explains detector coverage gaps and recommended rule
   additions.
 - 0G Galileo read-only network proof through `/api/0g/status`.

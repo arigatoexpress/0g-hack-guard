@@ -295,7 +295,7 @@ def _validate_incident_date(value: Any, field: str, errors: list[str]) -> None:
 
 
 def _public_incident_fields(incident: dict[str, Any]) -> dict[str, Any]:
-    return {
+    public = {
         "id": incident.get("id"),
         "date": incident.get("date"),
         "protocol": incident.get("protocol"),
@@ -305,6 +305,13 @@ def _public_incident_fields(incident: dict[str, Any]) -> dict[str, Any]:
         "attribution": incident.get("attribution"),
         "lesson": incident.get("lesson"),
     }
+    source_urls = incident.get("source_urls")
+    if isinstance(source_urls, list) and source_urls:
+        public["source_urls"] = source_urls
+    derived_evidence = incident.get("derived_source_evidence")
+    if isinstance(derived_evidence, list) and derived_evidence:
+        public["derived_source_evidence"] = derived_evidence
+    return public
 
 
 def _sorted_counter(values) -> dict[str, int]:

@@ -279,6 +279,11 @@ def incident_provenance_matrix(
     aggregate_sources = meta.get("source_urls") if isinstance(meta, dict) else []
     if not isinstance(aggregate_sources, list):
         aggregate_sources = []
+    canonical_evidence_count = sum(
+        1
+        for incident in loaded.get("incidents", [])
+        if _canonical_evidence_for_incident(incident) is not None
+    )
 
     fetched = False
     records = defillama_records if defillama_records is not None else []
@@ -296,6 +301,7 @@ def incident_provenance_matrix(
         "error": None,
         "recordsLoaded": len(records),
         "cacheRecordsLoaded": len(cached_evidence),
+        "canonicalEvidenceRecordsLoaded": canonical_evidence_count,
         "evidenceMode": "injected_records" if defillama_records is not None else "none",
     }
 
@@ -328,6 +334,10 @@ def incident_provenance_matrix(
 
     if records:
         source_status["evidenceMode"] = "live_source_records" if fetched else "injected_records"
+    elif canonical_evidence_count:
+        if not live and defillama_records is None:
+            source_status["status"] = "canonical_dataset"
+        source_status["evidenceMode"] = "canonical_dataset_evidence"
     elif cached_evidence:
         if not live and defillama_records is None:
             source_status["status"] = "reviewed_cache"
@@ -337,6 +347,7 @@ def incident_provenance_matrix(
     linked_count = 0
     high_confidence_count = 0
     dataset_source_count = 0
+    use_canonical_fallback = defillama_records is None
     for incident in loaded.get("incidents", []):
         dataset_urls = incident.get("source_urls")
         if isinstance(dataset_urls, list) and dataset_urls:
@@ -345,7 +356,9 @@ def incident_provenance_matrix(
             dataset_urls = []
 
         evidence = _defillama_evidence_for_incident(incident, records) if records else None
-        if evidence is None and cached_evidence:
+        if evidence is None and use_canonical_fallback:
+            evidence = _canonical_evidence_for_incident(incident)
+        if evidence is None and use_canonical_fallback and cached_evidence:
             evidence = cached_evidence.get(int(incident.get("id", -1)))
         if evidence:
             linked_count += 1
@@ -1043,6 +1056,32 @@ def _load_provenance_cache(
     return indexed
 
 
+def _canonical_evidence_for_incident(incident: dict[str, Any]) -> dict[str, Any] | None:
+    records = incident.get("derived_source_evidence")
+    if not isinstance(records, list) or not records:
+        return None
+    record = next((item for item in records if isinstance(item, dict)), None)
+    if not record:
+        return None
+    confidence = record.get("confidence")
+    if isinstance(confidence, bool) or not isinstance(confidence, int | float):
+        confidence = 0.0
+    evidence = {
+        "sourceId": record.get("source_id"),
+        "sourceOwner": record.get("source_owner"),
+        "sourceUrl": record.get("source_url"),
+        "evidenceType": record.get("evidence_type"),
+        "matchedName": record.get("matched_name"),
+        "observedDate": record.get("observed_date"),
+        "confidence": float(confidence),
+        "recordHash": record.get("record_hash"),
+        "rightsEnvelope": record.get("rights_envelope"),
+        "canonicalReviewStatus": record.get("review_status"),
+        "canonicalDatasetEvidence": True,
+    }
+    return {key: value for key, value in evidence.items() if value is not None}
+
+
 def _defillama_match_score(incident: dict[str, Any], record: dict[str, Any]) -> float:
     incident_name = _normalize_name(incident.get("protocol"))
     record_name = _normalize_name(record.get("name"))
@@ -1077,6 +1116,8 @@ def _defillama_match_score(incident: dict[str, Any], record: dict[str, Any]) -> 
 
 
 def _provenance_next_step(incident: dict[str, Any], evidence: dict[str, Any] | None) -> str:
+    if evidence and evidence.get("canonicalDatasetEvidence"):
+        return "Add protocol postmortem, transaction, or security-report URL when available."
     if evidence and evidence["confidence"] >= 0.85:
         return "Add incident-specific source URL/evidence_type/confidence to the canonical dataset."
     if evidence:

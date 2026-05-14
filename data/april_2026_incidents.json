@@ -24,7 +24,24 @@
       "attack_vector": "social engineering",
       "description": "Attackers posed as a quant firm for 3 weeks, socially engineering Drift's Security Council into pre-signing durable nonce transactions. Fake CVT token whitelisted as collateral, vaults drained in 12 minutes.",
       "attribution": "Lazarus Group (DPRK)",
-      "lesson": "Durable nonce pre-signing is a fatal attack surface. Never pre-sign admin transactions for unverified counterparties."
+      "lesson": "Durable nonce pre-signing is a fatal attack surface. Never pre-sign admin transactions for unverified counterparties.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Drift Trade",
+          "observed_date": "2026-04-01",
+          "confidence": 1.0,
+          "record_hash": "50196e5bd6df9eb8fe8ec44a64ce54482baeec40a1b4f8c30d0b21c2f549e4b6",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 2,
@@ -46,7 +63,24 @@
       "attack_vector": "reserve manipulation",
       "description": "Attacker manipulated protocol reserves to mint unbacked tokens and dump them on open markets.",
       "attribution": "Unknown",
-      "lesson": "Reserve ratios must be continuously monitored and bounded by on-chain sanity checks."
+      "lesson": "Reserve ratios must be continuously monitored and bounded by on-chain sanity checks.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "BSC TMM/USDT",
+          "observed_date": "2026-04-04",
+          "confidence": 0.86,
+          "record_hash": "d007b468c62c0887e7c07314f6677e89c270044744f828f2b2d76fab4ddad59a",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 4,
@@ -68,7 +102,24 @@
       "attack_vector": "access control exploit",
       "description": "Malicious actor targeted ETH cross-chain bridge contract controlling GPU-cloud collateral. Team isolated the contract rapidly.",
       "attribution": "Unknown",
-      "lesson": "Bridge contracts need circuit breakers and real-time anomaly detection for rapid response."
+      "lesson": "Bridge contracts need circuit breakers and real-time anomaly detection for rapid response.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Aethir",
+          "observed_date": "2026-04-09",
+          "confidence": 0.92,
+          "record_hash": "805eed2174b8e315e6c2a3ad8ceca5d755c72d6455fc06f40e5c59b136425dd3",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 6,
@@ -79,7 +130,24 @@
       "attack_vector": "fake state proof",
       "description": "Attacker forged cross-chain messages via a Merkle Mountain Range (MMR) proof replay, minting 1B bridged DOT tokens and dumping them.",
       "attribution": "Unknown",
-      "lesson": "Bridge verification must reject replayed state proofs and enforce strict nonce uniqueness."
+      "lesson": "Bridge verification must reject replayed state proofs and enforce strict nonce uniqueness.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Hyperbridge",
+          "observed_date": "2026-04-12",
+          "confidence": 0.98,
+          "record_hash": "a2148c10930c9b78bee51382c66669b07c411e143b92226076a0077877ee097e",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 7,
@@ -90,7 +158,24 @@
       "attack_vector": "access control exploit",
       "description": "Broken permission model allowed unauthorized withdrawal from a treasury contract.",
       "attribution": "Unknown",
-      "lesson": "Treasury contracts should require multi-sig and timelocks for any outbound transfers."
+      "lesson": "Treasury contracts should require multi-sig and timelocks for any outbound transfers.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "SubQuery Network",
+          "observed_date": "2026-04-12",
+          "confidence": 0.92,
+          "record_hash": "206849c39a3e6b93116fb85f6de134e94d1220d3ef08777e4f0f5ed187e1b045",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 8,
@@ -101,7 +186,24 @@
       "attack_vector": "donate negative amounts",
       "description": "Bridge aggregator allowed 'donation' of negative amounts, crediting the attacker with tokens they never deposited.",
       "attribution": "Unknown",
-      "lesson": "Never trust unsigned input amounts. Validate donation parameters with strict lower bounds."
+      "lesson": "Never trust unsigned input amounts. Validate donation parameters with strict lower bounds.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Dango",
+          "observed_date": "2026-04-13",
+          "confidence": 0.92,
+          "record_hash": "026c1224ce3f3b1eb6b29460bcce6f5150718f5f5b94e274e81d0b44b74e330b",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 9,
@@ -112,7 +214,24 @@
       "attack_vector": "burnaddress accounting bug",
       "description": "BurnAddress accounting bug allowed attacker to manipulate token balances and extract excess value.",
       "attribution": "Unknown",
-      "lesson": "Accounting around burn/mint addresses must be audited as a first-class invariant."
+      "lesson": "Accounting around burn/mint addresses must be audited as a first-class invariant.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "MONA",
+          "observed_date": "2026-04-13",
+          "confidence": 0.92,
+          "record_hash": "9f362df29a90ba5a37ed93a03372f7ff8a1d1d0880a73440603656b7cbf99db1",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 10,
@@ -123,7 +242,24 @@
       "attack_vector": "hot wallet compromise",
       "description": "Hot wallet social-engineering incident led to unauthorized outbound transfers.",
       "attribution": "Unknown",
-      "lesson": "Hot wallets should be rate-limited and require dual approval for large transfers."
+      "lesson": "Hot wallets should be rate-limited and require dual approval for large transfers.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Zerion Wallet",
+          "observed_date": "2026-04-14",
+          "confidence": 0.92,
+          "record_hash": "311a75a02841e302c0aec219f382d072035f6cd163f057b8b03d65759f971951",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 11,
@@ -134,7 +270,24 @@
       "attack_vector": "flash loan oracle manipulation",
       "description": "Attacker prepared 423 wallets and 8 fake liquidity pools 2 days in advance to manipulate oracles, then used flash loans to extract $18.4M.",
       "attribution": "Unknown",
-      "lesson": "Oracle manipulation requires deep liquidity monitoring. Fake pool detection should be part of oracle risk models."
+      "lesson": "Oracle manipulation requires deep liquidity monitoring. Fake pool detection should be part of oracle risk models.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Rhea Lend",
+          "observed_date": "2026-04-16",
+          "confidence": 1.0,
+          "record_hash": "480a59414d3878df7f9a311765b8b98605e5e026bcb969f73ce3e57328d9bc26",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 12,
@@ -145,7 +298,24 @@
       "attack_vector": "hot wallet compromise",
       "description": "54 hot wallets drained in a coordinated attack. Platform suspended operations immediately.",
       "attribution": "Unknown (suspected exit scam)",
-      "lesson": "Exchange operational security must include HSMs, withdrawal limits, and geographic signing distribution."
+      "lesson": "Exchange operational security must include HSMs, withdrawal limits, and geographic signing distribution.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Grinex",
+          "observed_date": "2026-04-16",
+          "confidence": 1.0,
+          "record_hash": "233f8565b099baa8a3eeead06bcca9b70b26267e5ea0625f9cba5474d8262586",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 13,
@@ -156,7 +326,24 @@
       "attack_vector": "bridge message forgery",
       "description": "Attacker drained 116,500 rsETH via LayerZero OFT bridge with a 1-of-1 DVN configuration. Stolen rsETH deposited into Aave as collateral, borrowing $236M in real WETH.",
       "attribution": "Lazarus Group (DPRK)",
-      "lesson": "Single-DVN bridge configs are catastrophically fragile. Require >=2 independent verifiers and monitor DVN health."
+      "lesson": "Single-DVN bridge configs are catastrophically fragile. Require >=2 independent verifiers and monitor DVN health.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Kelp",
+          "observed_date": "2026-04-18",
+          "confidence": 0.84,
+          "record_hash": "e418424507b80510da83e14d13691f80b4e2119a2ee5f3967bb7777c7eed6a5a",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 14,
@@ -167,7 +354,24 @@
       "attack_vector": "undisclosed",
       "description": "Small-scale exploit of a Juicebox V3 treasury. Root cause not publicly disclosed.",
       "attribution": "Unknown",
-      "lesson": "Even small treasuries benefit from multi-sig, timelocks, and on-chain spending limits."
+      "lesson": "Even small treasuries benefit from multi-sig, timelocks, and on-chain spending limits.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Juicebox V3",
+          "observed_date": "2026-04-20",
+          "confidence": 1.0,
+          "record_hash": "91758a7064b424df6f08f021c0e2f7806082d64ce2d3d368768855030a9a5eac",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 15,
@@ -178,7 +382,24 @@
       "attack_vector": "undisclosed",
       "description": "Options vault protocol suffered an undisclosed exploit resulting in moderate losses.",
       "attribution": "Unknown",
-      "lesson": "Options and structured products need continuous Greeks monitoring and circuit breakers."
+      "lesson": "Options and structured products need continuous Greeks monitoring and circuit breakers.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Thetanuts Finance",
+          "observed_date": "2026-04-20",
+          "confidence": 1.0,
+          "record_hash": "4f8793f01bf7ba0bf61e5ee2d96db4d5a7171852d9355103ce65ca80ff6e7786",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 16,
@@ -189,7 +410,24 @@
       "attack_vector": "admin key compromise",
       "description": "Admin key leak led to unauthorized contract upgrades and fund extraction.",
       "attribution": "Unknown",
-      "lesson": "Admin keys must be stored in HSMs or hardware wallets. Single-EOA admin is indefensible."
+      "lesson": "Admin keys must be stored in HSMs or hardware wallets. Single-EOA admin is indefensible.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Volo Vault",
+          "observed_date": "2026-04-21",
+          "confidence": 1.0,
+          "record_hash": "195a9062cd748cdaa5d72fbc34aa5ff38c056272f8fa09537b3595b2559fb98c",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 17,
@@ -200,7 +438,24 @@
       "attack_vector": "undisclosed",
       "description": "Small lending protocol incident. Limited user impact due to low TVL.",
       "attribution": "Unknown",
-      "lesson": "Low-TVL protocols are not immune; attackers often use them as testing grounds."
+      "lesson": "Low-TVL protocols are not immune; attackers often use them as testing grounds.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Kipseli",
+          "observed_date": "2026-04-22",
+          "confidence": 0.92,
+          "record_hash": "fc152ea3cb56e162cede47fe378ebfbe83c569a17593960b96b9fb7e60888c3e",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 18,
@@ -211,7 +466,24 @@
       "attack_vector": "signature replay",
       "description": "EIP-712 signature replay combined with unlimited ERC-20 approval drained user wallets.",
       "attribution": "Unknown",
-      "lesson": "Signatures must be strictly non-replayable with chainId, contract address, and nonce binding."
+      "lesson": "Signatures must be strictly non-replayable with chainId, contract address, and nonce binding.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Giddy",
+          "observed_date": "2026-04-23",
+          "confidence": 0.86,
+          "record_hash": "b48b857a41e36aceb7a803eaf7ad1941440585111d9db46eb27fd7bbbeaec7da",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 19,
@@ -222,7 +494,24 @@
       "attack_vector": "undisclosed",
       "description": "Solana lending protocol exploit. Limited details available at time of recording.",
       "attribution": "Unknown",
-      "lesson": "Solana programs need the same rigor as EVM contracts: formal verification, audits, and fuzzing."
+      "lesson": "Solana programs need the same rigor as EVM contracts: formal verification, audits, and fuzzing.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Purrlend",
+          "observed_date": "2026-04-25",
+          "confidence": 0.92,
+          "record_hash": "463c4ac334b45d5af1a29f2b7e74dcdfc03795cbc98cb922d0ea875674656d89",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 20,
@@ -233,7 +522,24 @@
       "attack_vector": "undisclosed",
       "description": "Minor exploit on Scallop lending markets. Quickly contained by the team.",
       "attribution": "Unknown",
-      "lesson": "Rapid incident response and contract pausing can limit losses significantly."
+      "lesson": "Rapid incident response and contract pausing can limit losses significantly.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Scallop Lend",
+          "observed_date": "2026-04-26",
+          "confidence": 0.78,
+          "record_hash": "ff5cd003ef75b8e88f780b254b642587b699d9697227b48fbc06c199fa81ccec",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 21,
@@ -244,7 +550,24 @@
       "attack_vector": "undisclosed",
       "description": "Cross-chain yield protocol incident resulting in moderate losses.",
       "attribution": "Unknown",
-      "lesson": "Cross-chain yield strategies multiply attack surface — each bridge is a potential failure point."
+      "lesson": "Cross-chain yield strategies multiply attack surface — each bridge is a potential failure point.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Singularity Finance",
+          "observed_date": "2026-04-27",
+          "confidence": 0.92,
+          "record_hash": "ff31d427a2283a7a3b17e61a1207ff538eb840a8cb5dabd18c4a038e5447a2ab",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 22,
@@ -255,7 +578,24 @@
       "attack_vector": "smart contract bug",
       "description": "GatewayEVM smart contract exploit forced a halt of all cross-chain activity while the team patched.",
       "attribution": "Unknown",
-      "lesson": "Gateway contracts should be pausable with a security council that can act in minutes, not hours."
+      "lesson": "Gateway contracts should be pausable with a security council that can act in minutes, not hours.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "ZetaChain",
+          "observed_date": "2026-04-27",
+          "confidence": 0.98,
+          "record_hash": "dd9bcf229c25f29e6d3e42d42e2fc8aed27b999ddefa7cd18972d2b937302f51",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 23,
@@ -266,7 +606,24 @@
       "attack_vector": "undisclosed",
       "description": "DAO treasury drained via undisclosed vector. Governance token dumped sharply post-incident.",
       "attribution": "Unknown",
-      "lesson": "DAO treasuries should require on-chain voting + timelock for any non-routine outbound transfers."
+      "lesson": "DAO treasuries should require on-chain voting + timelock for any non-routine outbound transfers.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "JUDAO",
+          "observed_date": "2026-04-28",
+          "confidence": 0.92,
+          "record_hash": "65ae0606ad642c2658447c72c7792000e8785adbcb4d9b1293111492d69bf4d7",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 24,
@@ -277,7 +634,24 @@
       "attack_vector": "undisclosed",
       "description": "Over-the-counter settlement protocol incident. Limited public details.",
       "attribution": "Unknown",
-      "lesson": "OTC settlement needs atomic swaps or escrow — never trust-based finality."
+      "lesson": "OTC settlement needs atomic swaps or escrow — never trust-based finality.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Quant",
+          "observed_date": "2026-04-28",
+          "confidence": 1.0,
+          "record_hash": "5448fa703e0e3a464a632d2cb8d1ce3376312c9d6fec3300ba888cc9386f6802",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 25,
@@ -288,7 +662,24 @@
       "attack_vector": "smart contract bug",
       "description": "Signedness mismatch in perpetuals settlement math allowed attacker to extract excess collateral.",
       "attribution": "Unknown",
-      "lesson": "Numeric type safety (signed vs unsigned) is critical in financial contracts. Use checked math."
+      "lesson": "Numeric type safety (signed vs unsigned) is critical in financial contracts. Use checked math.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Aftermath Perps",
+          "observed_date": "2026-04-29",
+          "confidence": 1.0,
+          "record_hash": "ae729ae362829f405b027f7cfb4109055f10743fedf58644918692fc57f9177c",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 26,
@@ -299,7 +690,24 @@
       "attack_vector": "smart contract bug",
       "description": "Refund logic drain exploited a flaw in reward distribution, allowing repeated claims.",
       "attribution": "Unknown",
-      "lesson": "Refund and reward loops must be strictly idempotent and bounded by claim windows."
+      "lesson": "Refund and reward loops must be strictly idempotent and bounded by claim windows.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Sweat Foundation",
+          "observed_date": "2026-04-29",
+          "confidence": 1.0,
+          "record_hash": "f576be106ac37e0b0bd896bb34b6a808882c0c54c9890cb555c3f22ab1f2bc57",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 27,
@@ -310,7 +718,24 @@
       "attack_vector": "undisclosed",
       "description": "Investment syndicate smart contract incident. Limited user funds affected.",
       "attribution": "Unknown",
-      "lesson": "Investment pools should enforce deposit caps and withdrawal cooldowns to limit exploit blast radius."
+      "lesson": "Investment pools should enforce deposit caps and withdrawal cooldowns to limit exploit blast radius.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Syndicate",
+          "observed_date": "2026-04-29",
+          "confidence": 0.68,
+          "record_hash": "0ab7b2034c202b518a1e48a43cf5fc72afbd61f8581ec885db24451cc19bfe72",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     },
     {
       "id": 28,
@@ -321,7 +746,24 @@
       "attack_vector": "admin key compromise",
       "description": "Single EOA admin key (wasabideployer.eth) compromised across Ethereum, Base, Berachain, and Blast. Attacker granted admin role, upgraded UUPS proxies, and drained vaults in ~2 hours.",
       "attribution": "Unknown",
-      "lesson": "Single-EOA admin keys are indefensible. Multisig + timelock on all admin and upgrade functions is the baseline."
+      "lesson": "Single-EOA admin keys are indefensible. Multisig + timelock on all admin and upgrade functions is the baseline.",
+      "source_urls": [
+        "https://defillama.com/hacks"
+      ],
+      "derived_source_evidence": [
+        {
+          "source_id": "defillama_hacks",
+          "source_owner": "DeFiLlama",
+          "source_url": "https://defillama.com/hacks",
+          "evidence_type": "public_incident_index",
+          "matched_name": "Wasabi Perps",
+          "observed_date": "2026-04-30",
+          "confidence": 0.9,
+          "record_hash": "b479a421f5fa7fa547464d31351c1855d937f75a03a9b7a76254891420b5002d",
+          "review_status": "derived_pending_human_promotion",
+          "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        }
+      ]
     }
   ]
 }

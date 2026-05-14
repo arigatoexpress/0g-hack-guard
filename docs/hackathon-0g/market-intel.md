@@ -90,8 +90,9 @@ Winning proof sequence:
 - Operator must publish the required X post with screenshot or clip.
 - A prepared screenshot exists at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
-- Per-incident source URLs still need human review before promotion into
-  `data/april_2026_incidents.json`.
+- Per-incident source evidence is now promoted for 26 of 28 records; `Silo V2`
+  and `Denaria Finance` remain aggregate-only until stronger public proof is
+  available.
 
 ## Demo Advice
 

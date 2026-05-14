@@ -126,20 +126,38 @@ def test_incident_provenance_matrix_correlates_source_records():
     assert "trusted incident writeup" in denaria["recommendedNextStep"]
 
 
-def test_incident_provenance_matrix_uses_reviewed_cache_without_network():
+def test_incident_provenance_matrix_uses_canonical_evidence_without_network():
     matrix = incident_provenance_matrix()
 
     assert matrix["schema"] == "0guard.incident_provenance_matrix.v1"
-    assert matrix["sourceStatus"]["status"] == "reviewed_cache"
-    assert matrix["sourceStatus"]["evidenceMode"] == "reviewed_derived_cache"
+    assert matrix["sourceStatus"]["status"] == "canonical_dataset"
+    assert matrix["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
+    assert matrix["sourceStatus"]["cacheRecordsLoaded"] == 26
+    assert matrix["sourceStatus"]["canonicalEvidenceRecordsLoaded"] == 26
     assert matrix["coverage"]["withMatchedEvidence"] >= 20
+    assert matrix["coverage"]["withDatasetSourceUrls"] == 26
     assert matrix["coverage"]["aggregateOnlyCount"] <= 8
     assert matrix["safety"]["rawPayloadsReturned"] is False
 
     silo = next(row for row in matrix["rows"] if row["protocol"] == "Silo V2")
     assert silo["status"] == "aggregate_only"
     drift = next(row for row in matrix["rows"] if row["protocol"] == "Drift Protocol")
-    assert drift["evidence"][0]["cacheReviewStatus"] == "derived_pending_human_promotion"
+    assert drift["evidence"][0]["canonicalDatasetEvidence"] is True
+    assert drift["recommendedNextStep"].startswith("Add protocol postmortem")
+
+
+def test_incident_provenance_matrix_can_fallback_to_canonical_evidence(tmp_path):
+    missing_cache = tmp_path / "missing-cache.json"
+
+    matrix = incident_provenance_matrix(cache_path=missing_cache)
+
+    assert matrix["sourceStatus"]["status"] == "canonical_dataset"
+    assert matrix["sourceStatus"]["evidenceMode"] == "canonical_dataset_evidence"
+    assert matrix["coverage"]["withMatchedEvidence"] == 26
+    assert matrix["coverage"]["withDatasetSourceUrls"] == 26
+    drift = next(row for row in matrix["rows"] if row["protocol"] == "Drift Protocol")
+    assert drift["evidence"][0]["canonicalDatasetEvidence"] is True
+    assert drift["evidence"][0]["recordHash"]
 
 
 def test_hackathon_submission_brief_is_operator_ready():

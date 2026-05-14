@@ -19,7 +19,11 @@ def test_incident_dataset_validates_cleanly():
     assert report.computed_loss_usd == report.total_loss_usd
     assert len(report.fingerprint) == 64
     assert report.errors == ()
-    assert "per-incident source_urls" in report.warnings[0]
+    assert report.warnings == ("2 incident records missing per-incident source_urls",)
+
+    drift = next(item for item in dataset["incidents"] if item["protocol"] == "Drift Protocol")
+    assert drift["source_urls"] == ["https://defillama.com/hacks"]
+    assert drift["derived_source_evidence"][0]["source_id"] == "defillama_hacks"
 
 
 def test_incident_summary_exposes_top_losses_and_counts():
@@ -30,6 +34,7 @@ def test_incident_summary_exposes_top_losses_and_counts():
     assert summary["stats"]["incidentCount"] == 28
     assert summary["stats"]["topLosses"][0]["protocol"] == "Kelp DAO"
     assert summary["stats"]["topLosses"][1]["protocol"] == "Drift Protocol"
+    assert summary["stats"]["topLosses"][1]["source_urls"] == ["https://defillama.com/hacks"]
     assert summary["stats"]["attackVectorCounts"]["undisclosed"] >= 1
 
 
@@ -39,6 +44,7 @@ def test_filter_incidents_limits_and_filters():
     assert len(ethereum) == 3
     assert all(item["chain"] == "Ethereum" for item in ethereum)
     assert ethereum[0]["loss_usd"] >= ethereum[-1]["loss_usd"]
+    assert ethereum[0]["derived_source_evidence"][0]["record_hash"]
 
 
 def test_detection_coverage_runs_dataset_through_signature_engine():
