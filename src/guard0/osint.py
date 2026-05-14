@@ -59,6 +59,7 @@ PUBLIC_DEMO_VIDEO_URL = (
     "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/"
     "0guard-hackquest-demo-final.mp4"
 )
+PUBLIC_X_POST_URL = "https://x.com/rariwrldd/status/2054779961425461542"
 DEMO_VIDEO_PLACEHOLDER = "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
 X_POST_PLACEHOLDER = "OPERATOR_REQUIRED_X_POST_URL"
 HACKQUEST_ONE_LINER = (
@@ -1092,11 +1093,9 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         "safeAutonomousWorkRemaining": [
             "Keep source/provenance docs current if official requirements change.",
             "Run the readiness audit, tests, browser smoke, and public Pages readback before final submission.",
-            "Prepare copy updates after Ari provides demo and X links.",
+            "Replace the generated video or X link only if Ari wants a later edited version.",
         ],
         "operatorOnlyActions": [
-            "Record and upload the demo video.",
-            "Post publicly on X.",
             "Submit the HackQuest form.",
         ],
         "sources": [
@@ -1484,7 +1483,7 @@ def _demo_video_url() -> str:
 
 def _x_post_url() -> str:
     configured = os.getenv("HACKQUEST_X_POST_URL", "").strip()
-    return configured or X_POST_PLACEHOLDER
+    return configured or PUBLIC_X_POST_URL
 
 
 def _operator_required_steps() -> list[str]:

@@ -172,7 +172,7 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#osint-output")).to_contain_text(
         "0guard.hackquest_readiness_audit.v1"
     )
-    expect(page.locator("#osint-output")).to_contain_text('"submittableNow": false')
+    expect(page.locator("#osint-output")).to_contain_text('"submittableNow": true')
     page.locator("#load-cross-chain-readiness").click()
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard.crosschain_catalog.v1")
     expect(page.locator("#cross-chain-output")).to_contain_text('"readOnly": true')
@@ -329,14 +329,14 @@ def exercise_workbench(page: Page) -> None:
     assert packet.ok
     packet_body = packet.json()
     assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
-    assert packet_body["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
+    assert packet_body["formFields"]["xPostUrl"] == "https://x.com/rariwrldd/status/2054779961425461542"
 
     readiness = page.request.get(f"{BASE_URL}/api/hackathon/readiness")
     assert readiness.ok
     readiness_body = readiness.json()
     assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
     assert readiness_body["mainnetRequirement"]["chainId"] == 16661
-    assert readiness_body["submittableNow"] is False
+    assert readiness_body["submittableNow"] is True
 
     passport = page.request.get(f"{BASE_URL}/api/hackathon/threat-passport")
     assert passport.ok

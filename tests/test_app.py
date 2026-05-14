@@ -242,7 +242,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     readiness_body = readiness.get_json()
     assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
     assert readiness_body["mainnetRequirement"]["chainId"] == 16661
-    assert readiness_body["submittableNow"] is False
+    assert readiness_body["submittableNow"] is True
     assert readiness_body["safety"]["rawPayloadsReturned"] is False
 
     passport = client.get("/api/hackathon/threat-passport")

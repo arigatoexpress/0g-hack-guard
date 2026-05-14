@@ -109,7 +109,7 @@ https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-dem
 X post URL:
 
 ```text
-OPERATOR_REQUIRED_X_POST_URL
+https://x.com/rariwrldd/status/2054779961425461542
 ```
 
 0G contract address:

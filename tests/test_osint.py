@@ -176,7 +176,7 @@ def test_hackathon_submission_brief_is_operator_ready():
     assert brief["submissionRequirements"]["0gProof"]["status"] == "ready"
     assert brief["submissionRequirements"]["0gProof"]["contractAddress"].startswith("0x")
     assert not any("Record and upload" in item for item in brief["operatorRequired"])
-    assert any("Post public X post" in item for item in brief["operatorRequired"])
+    assert not any("Post public X post" in item for item in brief["operatorRequired"])
     assert any("Do not claim live 0G Compute" in item for item in brief["claimsToAvoid"])
 
 
@@ -186,7 +186,7 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     assert packet["schema"] == "0guard.hackquest_submission_packet.v1"
     assert packet["formFields"]["projectName"] == "0guard"
     assert packet["formFields"]["demoVideoUrl"].endswith("0guard-hackquest-demo-final.mp4")
-    assert packet["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
+    assert packet["formFields"]["xPostUrl"] == "https://x.com/rariwrldd/status/2054779961425461542"
     assert packet["formFields"]["0gContractAddress"] == (
         "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc"
     )
@@ -235,13 +235,13 @@ def test_hackquest_readiness_audit_uses_mainnet_proof_file():
     assert audit["event"]["deadline"]["utc8"] == "2026-05-16T23:59:00+08:00"
     assert audit["mainnetRequirement"]["chainId"] == 16661
     assert audit["current0GConfig"]["chainId"] == 16602
-    assert audit["submittableNow"] is False
+    assert audit["submittableNow"] is True
     assert audit["current0GConfig"]["mainnetProofReady"] is True
     blockers = {item["id"] for item in audit["operatorBlockers"]}
     assert "0g_mainnet_contract" not in blockers
     assert "0g_mainnet_explorer" not in blockers
     assert "demo_video" not in blockers
-    assert "public_x_post" in blockers
+    assert "public_x_post" not in blockers
     requirements = {item["id"]: item for item in audit["requirements"]}
     assert requirements["proof_packet"]["status"] == "ready"
     assert requirements["provenance_data"]["status"] == "ready"

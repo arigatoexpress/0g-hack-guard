@@ -218,7 +218,8 @@ receipt anchor, read-only workbench, and Storage-ready roots. @0G_labs @0g_CN
   Veo-enhanced cut if desired:
   `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
 - Optional: generate Veo clips only after reviewing the script.
-- Post the X draft and paste the public URL into HackQuest.
+- Use the published X post URL:
+  `https://x.com/rariwrldd/status/2054779961425461542`.
 - Paste `docs/hackathon-0g/submission-form-fields.md`.
 - Verify repo, Pages, contract, and anchor transaction from a logged-out window.
 - Submit before the deadline.

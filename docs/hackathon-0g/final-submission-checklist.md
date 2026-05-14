@@ -105,10 +105,10 @@ Live posting is operator-only:
 .venv/bin/python scripts/x_post.py --file content/hackquest_x_post.json --media docs/hackathon-0g/assets/0guard-workbench-provenance.png --live-post-confirm POST_TO_X_FROM_0GUARD
 ```
 
-Placeholder until posted:
+Published X post:
 
 ```text
-OPERATOR_REQUIRED_X_POST_URL
+https://x.com/rariwrldd/status/2054779961425461542
 ```
 
 ## Final Submit Order
