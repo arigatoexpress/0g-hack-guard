@@ -6,6 +6,7 @@ import re
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Literal
+from urllib.parse import urlparse
 
 import requests
 
@@ -28,11 +29,17 @@ _RE_CHAINSCAN_TX = re.compile(r"https://chainscan\.0g\.ai/tx/[a-fA-F0-9]{64}")
 
 
 def _normalize_x_link(raw: str) -> str:
-    if raw.startswith("https://"):
-        return raw
-    if raw.startswith("http://"):
-        return "https://" + raw[len("http://") :]
-    # HackQuest sometimes renders just `user/status/<id>` as a link.
+    raw = raw.strip()
+    if raw.startswith(("http://", "https://")):
+        parsed = urlparse(raw)
+        # HackQuest sometimes emits `https://<username>/status/<id>` (no real host).
+        if parsed.netloc and "." not in parsed.netloc and "/status/" in parsed.path:
+            return f"https://x.com/{parsed.netloc}{parsed.path}"
+        if "x.com" in parsed.netloc or "twitter.com" in parsed.netloc:
+            return raw.replace("http://", "https://", 1)
+        # If it's a full URL but not an X/Twitter host, keep it as-is.
+        return raw.replace("http://", "https://", 1)
+    # HackQuest sometimes renders just `user/status/<id>` as a relative-ish link.
     return f"https://x.com/{raw.lstrip('/')}"
 
 
