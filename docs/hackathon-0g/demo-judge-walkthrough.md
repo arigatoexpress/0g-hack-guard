@@ -93,10 +93,24 @@ Show that the evidence base is structured:
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 ```
 
 Position this as a data product, not a slide: the dataset is schema-validated,
 fingerprinted, summarized, filterable, and used as detector coverage input.
+The signature map also names the detector gaps instead of hiding misses behind
+one aggregate score.
+
+If time allows, show the OSINT source layer:
+
+```bash
+curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=5' | python3 -m json.tool
+```
+
+Call out source owner, rights envelope, output policy, caveats, and record
+hashes. 0guard sells derived evidence and guardrail decisions, not raw source
+payloads.
 
 ### 2:45-3:00 - Safety Close
 

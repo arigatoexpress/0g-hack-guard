@@ -32,6 +32,10 @@ mistake that human teams already lost money to.
 - Signature and behavior checks based on April 2026 crypto incident patterns.
 - A validated incident dataset with summary, filtering, fingerprint, and
   detection-coverage API readbacks.
+- A rights-aware OSINT registry and live signal route for public incident and
+  research metadata.
+- A signature map that explains detector coverage gaps and recommended rule
+  additions.
 - 0G Galileo read-only network proof through `/api/0g/status`.
 - 0G Chain receipt-anchor preflight payloads for `PolicyReceiptAnchor.sol`.
 - 0G Storage threat-intel payload/root-hash receipts.
@@ -97,7 +101,9 @@ shows the round-trip shape and intentionally labels the current anchor status as
    `zero_g.chain_anchor.status: preflight` plus the Storage `root_hash`.
 7. Show `/api/data/detection-coverage` to prove the incident dataset is wired
    through the detector rather than pasted into marketing copy.
-8. Show Telegram Mira preview only as a no-send opt-in surface.
+8. Show `/api/osint/sources` or `/api/osint/signals?live=1&limit=10` to prove
+   the OSINT pipeline has source owners, rights caveats, links, and hashes.
+9. Show Telegram Mira preview only as a no-send opt-in surface.
 
 ## Why This Can Win
 
@@ -108,6 +114,8 @@ shows the round-trip shape and intentionally labels the current anchor status as
 - It is honest about safety: no keys, no live writes, no fake trading bot.
 - It is grounded in real exploit patterns, so judges do not have to imagine the
   risk.
+- It turns open-source intelligence into a source-cited data product, not a
+  screenshot or one-off scrape.
 - It leaves a clear mainnet path: deploy receipt anchor, enable live Storage
   writes, add verifier readback, then productionize the compute scorer.
 

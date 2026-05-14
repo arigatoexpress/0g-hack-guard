@@ -19,9 +19,16 @@ from flask import Flask, Response, jsonify, render_template, request
 
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.mira import build_mira_security_preview
+from guard0.osint import (
+    hackathon_submission_brief,
+    osint_readiness,
+    osint_signals,
+    signature_map,
+    source_registry_public,
+)
 from guard0.policy import evaluate_intent
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
-from guard0.chain import build_0g_status, get_0g_config
+from guard0.chain import build_0g_status, get_0g_config, verify_anchor
 from guard0.telegram_bot import TelegramWebAppAuthError, validate_webapp_init_data
 from guard0.telegram_subscriptions import (
     DEFAULT_SCOPE,
@@ -62,6 +69,14 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#data-flow-output",
     "#load-data-summary",
     "#load-detection-coverage",
+    "#load-signature-map",
+    "#load-osint-sources",
+    "#load-osint-readiness",
+    "#load-osint-signals",
+    "#load-submission-brief",
+    "#osint-output",
+    "#verify-receipt-hash",
+    "#verify-receipt",
     "#telegram-register-output",
     "#mira-output",
     "#telegram-user-label",
@@ -314,9 +329,15 @@ def api_frontend_contract():
             "apiRoutes": [
                 "/api/health",
                 "/api/0g/status",
+                "/api/0g/receipt",
                 "/api/data/summary",
                 "/api/data/incidents",
                 "/api/data/detection-coverage",
+                "/api/data/signature-map",
+                "/api/osint/sources",
+                "/api/osint/readiness",
+                "/api/osint/signals",
+                "/api/hackathon/submission-brief",
                 "/api/telegram/status",
                 "/api/external-action-contracts",
                 "/api/evaluate",
@@ -331,6 +352,11 @@ def api_frontend_contract():
                 "run-domain-check",
                 "load-data-summary",
                 "load-detection-coverage",
+                "load-signature-map",
+                "load-osint-sources",
+                "load-osint-readiness",
+                "load-osint-signals",
+                "load-submission-brief",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -379,6 +405,40 @@ def api_data_incidents():
 @app.route("/api/data/detection-coverage", methods=["GET"])
 def api_data_detection_coverage():
     return jsonify(detection_coverage())
+
+
+@app.route("/api/data/signature-map", methods=["GET"])
+def api_data_signature_map():
+    return jsonify(signature_map())
+
+
+@app.route("/api/osint/sources", methods=["GET"])
+def api_osint_sources():
+    return jsonify(source_registry_public())
+
+
+@app.route("/api/osint/readiness", methods=["GET"])
+def api_osint_readiness():
+    live = _truthy_query_arg("live")
+    return jsonify(osint_readiness(live=live))
+
+
+@app.route("/api/osint/signals", methods=["GET"])
+def api_osint_signals():
+    live = _truthy_query_arg("live")
+    limit = request.args.get("limit")
+    try:
+        limit_value = int(limit) if limit is not None else 20
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit_value < 1 or limit_value > 100:
+        return jsonify({"error": "limit must be between 1 and 100"}), 400
+    return jsonify(osint_signals(live=live, limit=limit_value))
+
+
+@app.route("/api/hackathon/submission-brief", methods=["GET"])
+def api_hackathon_submission_brief():
+    return jsonify(hackathon_submission_brief())
 
 
 @app.route("/api/telegram/status", methods=["GET"])
@@ -585,6 +645,13 @@ def api_0g_status():
     return jsonify(build_0g_status())
 
 
+@app.route("/api/0g/receipt", methods=["GET"])
+def api_0g_receipt():
+    receipt_hash = request.args.get("receipt_hash", "")
+    tx_hash = request.args.get("tx_hash")
+    return jsonify(verify_anchor(receipt_hash=receipt_hash, tx_hash=tx_hash))
+
+
 @app.route("/api/evaluate", methods=["POST"])
 def api_evaluate():
     body = request.get_json(silent=True) or {}
@@ -625,6 +692,10 @@ def api_domain():
             "reasons": [] if is_allowed else ["Domain not in curated allowlist"],
         }
     )
+
+
+def _truthy_query_arg(name: str) -> bool:
+    return request.args.get(name, "").lower() in {"1", "true", "yes", "on"}
 
 
 def main() -> None:

@@ -12,6 +12,9 @@ private keys or real writes in the workbench.
 2. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
 3. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
+4. Use `/api/hackathon/submission-brief` for a machine-readable final brief
+   with deadline, repo/demo links, data stats, manual TODOs, and claims to
+   avoid.
 
 ## Winning Thesis
 
@@ -30,6 +33,12 @@ The current submission demonstrates the full integration shape without crossing
 unsafe boundaries: live/read-only 0G Galileo status, deterministic Storage
 payload/root-hash receipts, chain-anchor preflight payloads, and explicit gaps
 before mainnet broadcast or live decentralized storage writes.
+
+The new OSINT layer strengthens the evidence story: `data/osint_sources.json`
+tracks source ownership, URLs, retrieval mode, rights envelopes, TTLs, and
+caveats; `/api/osint/signals?live=1` normalizes public incident/research
+metadata into source-cited records with hashes; `/api/data/signature-map`
+explains detector coverage gaps instead of hiding them.
 
 ## Safety Posture
 

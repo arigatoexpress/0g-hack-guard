@@ -13,12 +13,13 @@
 | 3 | [Get X API credentials](#3-get-x-api-credentials) | 10 min | ☐ |
 | 4 | [Post X thread](#4-post-x-thread) | 5 min | ☐ |
 | 5 | [Set up Telegram bot](#5-set-up-telegram-bot-optional) | 10 min | ☐ |
-| 6 | [Record demo video](#6-record-demo-video) | 2-3 hrs | ☐ |
-| 7 | [Verify GitHub Pages](#7-verify-github-pages) | 30 sec | ✅ |
-| 8 | [Submit to HackQuest](#8-submit-to-hackquest) | 30 min | ☐ |
+| 6 | [Review OSINT/submission brief](#6-review-osintsubmission-brief) | 5 min | ✅ |
+| 7 | [Record demo video](#7-record-demo-video) | 2-3 hrs | ☐ |
+| 8 | [Verify GitHub Pages](#8-verify-github-pages) | 30 sec | ✅ |
+| 9 | [Submit to HackQuest](#9-submit-to-hackquest) | 30 min | ☐ |
 
 **Total active time:** ~3.5 hours  
-**Deadline:** May 16, 2026
+**Deadline:** May 16, 2026 at 23:59 UTC+8 / May 16, 2026 at 09:59 MDT
 
 ---
 
@@ -147,7 +148,8 @@ cd /Users/aribs/Code/0guard
 # 2. If it looks good, post live
 .venv/bin/python scripts/x_post.py \
   --file content/hack_guard_thread.json \
-  --thread
+  --thread \
+  --live-post-confirm POST_TO_X_FROM_0GUARD
 ```
 
 **Expected:** A 5-tweet thread will be posted. Save the thread URL for submission.
@@ -196,7 +198,28 @@ EOF
 
 ---
 
-## 6. Record Demo Video
+## 6. Review OSINT/Submission Brief
+
+**Why:** This is the current machine-readable summary of the build, data
+posture, 0G story, and remaining manual tasks.
+
+```bash
+cd /Users/aribs/Code/0guard
+.venv/bin/python -m guard0.app
+
+curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000000000000000000000000000000000000000000000000' | python3 -m json.tool
+```
+
+**What changed:** OSINT source registry, source readiness, live normalized
+signals, signature coverage gaps, submission brief, and read-only 0G receipt
+verifier are now in the app.
+
+---
+
+## 7. Record Demo Video
 
 **Why:** Required by hackathon. Must be ≤3 minutes. Must show real functionality.
 
@@ -243,7 +266,7 @@ open http://127.0.0.1:8109
 
 ---
 
-## 7. Verify GitHub Pages
+## 8. Verify GitHub Pages
 
 **Why:** Landing page is already live and should answer before you record or submit.
 
@@ -259,25 +282,25 @@ open http://127.0.0.1:8109
 
 ---
 
-## 8. Submit to HackQuest
+## 9. Submit to HackQuest
 
 **Why:** This is the actual hackathon submission.
 
 **Safe link:** https://hackquest.io/en/hackathons/0G-APAC-Hackathon
 
-**Prerequisites:** Steps 1, 2, 4, 6 complete.
+**Prerequisites:** Steps 1, 2, 4, 7 complete.
 
 **Form fields you need:**
 
 | Field | What to enter |
 |-------|---------------|
 | **Project Name** | `0guard` |
-| **One-Sentence Description** | `0guard is a pre-wallet AI firewall that uses real April 2026 exploit signatures to stop crypto hacks before autonomous agents reach signing keys, anchored natively on 0G.` |
+| **One-Sentence Description** | `0guard is a 0G-native pre-wallet firewall that checks AI-agent intents against real exploit intelligence before any signer can act.` |
 | **GitHub Repo** | `https://github.com/arigatoexpress/0guard` |
-| **0G Integration** | `0G Chain (PolicyReceiptAnchor.sol), 0G Storage (threat intel KV), 0G Compute (AI inference)` |
-| **Contract Address** | Your deployed contract address from Step 2 |
-| **Explorer Link** | `https://chainscan-galileo.0g.ai/tx/YOUR_TX_HASH` |
-| **Demo Video** | Your YouTube URL from Step 6 |
+| **0G Integration** | `0G Chain live read/status + PolicyReceiptAnchor preflight/verifier, 0G Storage-ready threat-intel root hashes, 0G Compute as the documented next scoring layer` |
+| **Contract Address** | Your deployed contract address from Step 2. HackQuest currently asks for mainnet proof; use mainnet only if you intentionally fund/deploy it, otherwise submit Galileo proof and explain the gap honestly. |
+| **Explorer Link** | `https://chainscan-galileo.0g.ai/tx/YOUR_TX_HASH` for Galileo, or `https://chainscan.0g.ai/tx/YOUR_TX_HASH` for mainnet |
+| **Demo Video** | Your YouTube URL from Step 7 |
 | **X Post** | URL of your posted thread from Step 4 |
 | **Track** | `Agentic Infrastructure` + `Privacy & Sovereign Infrastructure` |
 | **Team** | Sapphire Security (Security), arigatoexpress (Product) |
@@ -307,7 +330,7 @@ open http://127.0.0.1:8109
 | Problem | Fix |
 |---------|-----|
 | `ModuleNotFoundError: No module named 'guard0'` | `.venv/bin/python -m pip install -e '.[dev]'` |
-| Tests fail | `.venv/bin/python -m pytest -q` — all 55 should pass |
+| Tests fail | `.venv/bin/python -m pytest -q` — all 100 should pass |
 | Contract deploy fails (insufficient funds) | Go back to Step 1, request more from faucet |
 | X post fails (403) | Regenerate Access Token in X Developer Portal |
 | Video recording crashes | Follow fallback plan in `docs/DEMO_VIDEO_SCRIPT.md` |
@@ -352,10 +375,11 @@ cd /Users/aribs/Code/0guard
 **You have everything.** The code is done. The docs are done. The tests pass. The landing page is live.
 
 **Your only remaining work:**
-1. Get testnet funds (5 min)
-2. Deploy contract (10 min)
+1. Get 0G funds for the network you choose (5 min)
+2. Deploy contract and save explorer link (10 min)
 3. Record video (2-3 hrs)
-4. Submit form (30 min)
+4. Post the required X thread (5 min after credentials)
+5. Submit form (30 min)
 
 Total: **~3.5 hours of focused work.**
 

@@ -68,12 +68,33 @@
           </div>
 
           <div class="card">
+            <h2>0G Receipt Verifier</h2>
+            <input id="verify-receipt-hash" value="0x0000000000000000000000000000000000000000000000000000000000000000">
+            <div class="actions">
+              <button id="verify-receipt" type="button">Verify receipt</button>
+            </div>
+            <p class="mini">Read-only contract lookup when a PolicyReceiptAnchor address is configured.</p>
+          </div>
+
+          <div class="card">
             <h2>Data Flow</h2>
             <div class="actions">
               <button id="load-data-summary" type="button">Load data summary</button>
               <button id="load-detection-coverage" class="secondary" type="button">Detection coverage</button>
+              <button id="load-signature-map" class="secondary" type="button">Signature map</button>
             </div>
             <p class="mini">Validates the incident dataset, computes provenance fingerprints, and measures signature-engine coverage.</p>
+          </div>
+
+          <div class="card">
+            <h2>OSINT Pipeline</h2>
+            <div class="actions">
+              <button id="load-osint-sources" type="button">Source registry</button>
+              <button id="load-osint-readiness" class="secondary" type="button">Readiness</button>
+              <button id="load-osint-signals" class="secondary" type="button">Live signals</button>
+              <button id="load-submission-brief" class="secondary" type="button">Submission brief</button>
+            </div>
+            <p class="mini">Normalizes rights-aware public source metadata, live threat leads, and the HackQuest submission brief.</p>
           </div>
 
           <div class="card">
@@ -111,6 +132,10 @@
           <div class="card">
             <h2>Incident Data Flow</h2>
             <pre id="data-flow-output">Loading incident data summary.</pre>
+          </div>
+          <div class="card">
+            <h2>OSINT & Submission</h2>
+            <pre id="osint-output">Loading OSINT source registry.</pre>
           </div>
           <div class="card">
             <h2>Telegram Registration</h2>

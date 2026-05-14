@@ -105,8 +105,14 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_status.v1")
     expect(page.locator("#zg-status-output")).to_contain_text('"privateKeyRequired": false')
     expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
+    page.locator("#verify-receipt").click()
+    expect(page.locator("#zg-status-output")).to_contain_text("0guard.0g_receipt_verifier.v1")
+    expect(page.locator("#zg-status-output")).to_contain_text("contract_not_configured")
+    expect(page.locator("#zg-status-output")).to_contain_text('"signingEnabled": false')
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.incident_summary.v1")
     expect(page.locator("#data-flow-output")).to_contain_text('"incidentCount": 28')
+    expect(page.locator("#osint-output")).to_contain_text("0guard.osint_source_registry.v1")
+    expect(page.locator("#osint-output")).to_contain_text('"rawPayloadResaleAllowed": false')
     expect(page.locator("#telegram-register-output")).to_contain_text(
         "0guard.telegram_mira_status.v1"
     )
@@ -137,6 +143,18 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#load-detection-coverage").click()
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.detection_coverage.v1")
     expect(page.locator("#data-flow-output")).to_contain_text('"coverageRatio"')
+    page.locator("#load-signature-map").click()
+    expect(page.locator("#data-flow-output")).to_contain_text("0guard.signature_map.v1")
+    expect(page.locator("#data-flow-output")).to_contain_text('"gapCount"')
+
+    page.locator("#load-osint-readiness").click()
+    expect(page.locator("#osint-output")).to_contain_text("0guard.osint_readiness.v1")
+    expect(page.locator("#osint-output")).to_contain_text('"rawPayloadsReturned": false')
+    page.locator("#load-submission-brief").click()
+    expect(page.locator("#osint-output")).to_contain_text(
+        "0guard.hackathon_submission_brief.v1"
+    )
+    expect(page.locator("#osint-output")).to_contain_text("2026-05-16T23:59:00+08:00")
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -174,7 +192,10 @@ def exercise_workbench(page: Page) -> None:
     assert frontend_body["safety"]["transactionSigningEnabled"] is False
     assert frontend_body["safety"]["moneyMovementEnabled"] is False
     assert "/api/0g/status" in frontend_body["apiRoutes"]
+    assert "/api/0g/receipt" in frontend_body["apiRoutes"]
     assert "/api/data/summary" in frontend_body["apiRoutes"]
+    assert "/api/osint/sources" in frontend_body["apiRoutes"]
+    assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
@@ -206,6 +227,31 @@ def exercise_workbench(page: Page) -> None:
     assert detection_body["schema"] == "0guard.detection_coverage.v1"
     assert detection_body["coveredCount"] >= 12
 
+    signature_readback = page.request.get(f"{BASE_URL}/api/data/signature-map")
+    assert signature_readback.ok
+    signature_body = signature_readback.json()
+    assert signature_body["schema"] == "0guard.signature_map.v1"
+    assert signature_body["gapCount"] >= 1
+
+    osint_sources = page.request.get(f"{BASE_URL}/api/osint/sources")
+    assert osint_sources.ok
+    osint_body = osint_sources.json()
+    assert osint_body["schema"] == "0guard.osint_source_registry.v1"
+    assert osint_body["rightsPolicy"]["rawPayloadResaleAllowed"] is False
+
+    osint_readiness = page.request.get(f"{BASE_URL}/api/osint/readiness")
+    assert osint_readiness.ok
+    readiness_body = osint_readiness.json()
+    assert readiness_body["schema"] == "0guard.osint_readiness.v1"
+    assert readiness_body["live"] is False
+    assert readiness_body["safety"]["readOnly"] is True
+
+    submission = page.request.get(f"{BASE_URL}/api/hackathon/submission-brief")
+    assert submission.ok
+    submission_body = submission.json()
+    assert submission_body["schema"] == "0guard.hackathon_submission_brief.v1"
+    assert submission_body["project"]["name"] == "0guard"
+
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok
     zg_body = zg_status.json()
@@ -214,6 +260,13 @@ def exercise_workbench(page: Page) -> None:
     assert zg_body["safety"]["privateKeyRequired"] is False
     assert zg_body["safety"]["signingEnabled"] is False
     assert zg_body["safety"]["broadcastingEnabled"] is False
+
+    receipt = page.request.get(f"{BASE_URL}/api/0g/receipt?receipt_hash=0x{'a' * 64}")
+    assert receipt.ok
+    receipt_body = receipt.json()
+    assert receipt_body["schema"] == "0guard.0g_receipt_verifier.v1"
+    assert receipt_body["status"] == "contract_not_configured"
+    assert receipt_body["safety"]["signingEnabled"] is False
 
     evaluate = page.request.post(
         f"{BASE_URL}/api/evaluate",

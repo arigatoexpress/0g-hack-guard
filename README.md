@@ -27,8 +27,9 @@
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
 3. **0G-Native Proofs** — Reads live 0G Galileo RPC status, prepares policy receipt hashes, and keeps chain/storage writes operator-controlled.
-4. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
-5. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
+4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
+5. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
+6. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
 ---
 
@@ -112,9 +113,15 @@ python3 -m guard0.cli serve --port 8109
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
 | `GET`  | `/api/0g/status` | Live read-only 0G Galileo RPC proof, chain ID, latest block, and receipt-anchor config |
+| `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
 | `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
 | `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
 | `GET`  | `/api/data/detection-coverage` | Runs incident-derived seeds through the signature engine and reports coverage |
+| `GET`  | `/api/data/signature-map` | Explains per-incident signature matches, coverage gaps, and recommended detector additions |
+| `GET`  | `/api/osint/sources` | Rights-aware OSINT source registry with owners, URLs, retrieval modes, TTLs, and caveats |
+| `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
+| `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
+| `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
@@ -175,6 +182,7 @@ Check live 0G RPC proof without any private key:
 
 ```bash
 curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000000000000000000000000000000000000000000000000' | python3 -m json.tool
 ```
 
 ### Incident Data Flow
@@ -186,11 +194,33 @@ signature engine as detection-coverage seeds.
 ```bash
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 ```
 
 The validator fails on bad totals, duplicate IDs, malformed dates, missing
 required fields, or invalid losses. It also reports provenance warnings when
 records lack per-incident source URLs.
+
+### OSINT Pipeline
+
+The source registry lives in `data/osint_sources.json` and records source owner,
+URL, retrieval mode, TTL, rights envelope, output policy, and caveats for each
+adapter. Default routes return derived metadata, links, hashes, and defensive
+analysis only; they do not return raw payload dumps.
+
+```bash
+curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/osint/readiness | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/osint/readiness?live=1' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python3 -m json.tool
+```
+
+Current default source families include DeFiLlama Hacks, Chainalysis RSS,
+Forta labelled datasets, CryptoScamDB, Rekt News, SlowMist, CISA KEV, OFAC,
+URLhaus, Chainabuse, GoPlus, Scam Sniffer, and MetaMask phishing data. Sources
+with credential, license, or redistribution caveats stay catalog-only or
+disabled until explicitly reviewed.
 
 ### Telegram Mira Opt-In Preview
 

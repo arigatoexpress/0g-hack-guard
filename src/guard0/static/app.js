@@ -60,6 +60,12 @@ async function load0gStatus(){
   const j = await r.json();
   writeJson('zg-status-output', j);
 }
+async function verifyReceipt(){
+  const receiptHash = encodeURIComponent(document.getElementById('verify-receipt-hash').value);
+  const r = await fetch('/api/0g/receipt?receipt_hash=' + receiptHash);
+  const j = await r.json();
+  writeJson('zg-status-output', j);
+}
 async function loadDataSummary(){
   const r = await fetch('/api/data/summary');
   const j = await r.json();
@@ -69,6 +75,31 @@ async function loadDetectionCoverage(){
   const r = await fetch('/api/data/detection-coverage');
   const j = await r.json();
   writeJson('data-flow-output', j);
+}
+async function loadSignatureMap(){
+  const r = await fetch('/api/data/signature-map');
+  const j = await r.json();
+  writeJson('data-flow-output', j);
+}
+async function loadOsintSources(){
+  const r = await fetch('/api/osint/sources');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadOsintReadiness(){
+  const r = await fetch('/api/osint/readiness');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadOsintSignals(){
+  const r = await fetch('/api/osint/signals?live=1&limit=10');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadSubmissionBrief(){
+  const r = await fetch('/api/hackathon/submission-brief');
+  const j = await r.json();
+  writeJson('osint-output', j);
 }
 async function loadTelegramStatus(){
   const r = await fetch('/api/telegram/status');
@@ -125,8 +156,14 @@ async function runMiraPreview(){
 document.getElementById('run-evaluate').addEventListener('click', evaluateIntent);
 document.getElementById('run-hack-check').addEventListener('click', hackCheck);
 document.getElementById('run-domain-check').addEventListener('click', domainCheck);
+document.getElementById('verify-receipt').addEventListener('click', verifyReceipt);
 document.getElementById('load-data-summary').addEventListener('click', loadDataSummary);
 document.getElementById('load-detection-coverage').addEventListener('click', loadDetectionCoverage);
+document.getElementById('load-signature-map').addEventListener('click', loadSignatureMap);
+document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);
+document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
+document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
+document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);
@@ -139,4 +176,5 @@ document.getElementById('load-allow-sample').addEventListener('click', () => {
 loadContracts();
 load0gStatus();
 loadDataSummary();
+loadOsintSources();
 loadTelegramStatus();

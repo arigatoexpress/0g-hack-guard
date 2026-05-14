@@ -8,14 +8,15 @@
 
 | Component | Status | Lines/Tests |
 |-----------|--------|-------------|
-| **Core Engine** | ✅ | `guard0` package, 67 tests passing |
+| **Core Engine** | ✅ | `guard0` package, 100 tests passing |
 | **Hack Signatures** | ✅ | 60+ incidents (2020-2026), 10 attack vectors, 29 IOCs, 32 selectors |
 | **0G Chain** | ✅ | Live Galileo status endpoint, `PolicyReceiptAnchor.sol`, deployment scripts ready |
 | **0G Storage** | ✅ | Threat-intel payload/root-hash preparation; external writes opt-in |
+| **OSINT Pipeline** | ✅ | Source registry, live public metadata signals, source readiness, signature gap map |
 | **Content Engine** | ✅ | Generates tweets/threads/summaries from incident data |
 | **X Bot** | ✅ | Posts via explicit confirmation workflow; no surprise sends |
 | **Landing Page** | ✅ | GitHub Pages live, self-contained, animated, responsive |
-| **Flask API + Dashboard** | ✅ | `/api/evaluate`, `/api/hack-check`, `/api/health`, `/api/0g/status`, `/api/domain` |
+| **Flask API + Dashboard** | ✅ | `/api/evaluate`, `/api/hack-check`, `/api/0g/status`, `/api/0g/receipt`, `/api/osint/*`, `/api/hackathon/submission-brief` |
 | **CLI** | ✅ | `0guard evaluate`, `hack-check`, `health`, `serve` |
 | **Docker** | ✅ | Dockerfile + docker-compose.yml |
 | **CI/CD** | ✅ | GitHub Actions (test, lint, browser smoke, Docker health, Pages deploy, confirmed X workflow) |
@@ -103,7 +104,10 @@ source .venv/bin/activate
 python scripts/x_post.py --file content/hack_guard_thread.json --thread --dry-run
 
 # If it looks good, post live
-python scripts/x_post.py --file content/hack_guard_thread.json --thread
+python scripts/x_post.py \
+  --file content/hack_guard_thread.json \
+  --thread \
+  --live-post-confirm POST_TO_X_FROM_0GUARD
 ```
 
 **Copy is already written.** See `content/hack_guard_thread.json`.
@@ -113,7 +117,26 @@ python scripts/x_post.py --file content/hack_guard_thread.json --thread
 
 ---
 
-### 4. Record the Demo Video (≤3 min)
+### 4. Review the OSINT/Submission Brief
+**Why:** This is now the fastest way to inspect the data-product and HackQuest
+submission posture.
+
+```bash
+cd /Users/aribs/Code/0guard
+source .venv/bin/activate
+python -m guard0.app
+
+curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python -m json.tool
+curl -s http://127.0.0.1:8109/api/data/signature-map | python -m json.tool
+curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python -m json.tool
+```
+
+**What it proves:** source-rights metadata, live OSINT leads, detector gaps,
+data stats, 0G story, and the manual operator TODO list.
+
+---
+
+### 5. Record the Demo Video (≤3 min)
 **Why:** Required by hackathon submission. Slide-only videos are REJECTED.
 
 Follow `docs/DEMO_VIDEO_SCRIPT.md` step-by-step:
@@ -135,7 +158,7 @@ Follow `docs/DEMO_VIDEO_SCRIPT.md` step-by-step:
 
 ---
 
-### 5. Verify GitHub Pages
+### 6. Verify GitHub Pages
 **Why:** The landing page is already live at `https://arigatoexpress.github.io/0guard/`.
 
 ```bash
@@ -149,7 +172,7 @@ The workflow `.github/workflows/pages.yml` auto-deploys on every push that chang
 
 ---
 
-### 6. Submit to HackQuest
+### 7. Submit to HackQuest
 **Why:** The actual hackathon submission.
 
 Go to https://hackquest.io/en/hackathons/0G-APAC-Hackathon
@@ -158,7 +181,9 @@ Go to https://hackquest.io/en/hackathons/0G-APAC-Hackathon
 - [ ] Project name: `0guard`
 - [ ] One-sentence description (copy from README)
 - [ ] GitHub repo link: `https://github.com/arigatoexpress/0guard`
-- [ ] 0G testnet contract address + explorer link
+- [ ] 0G contract address + explorer link. Current HackQuest wording asks for
+      mainnet proof; use mainnet only if you intentionally fund/deploy it.
+      Otherwise submit Galileo proof and state the mainnet gap clearly.
 - [ ] Demo video URL (YouTube)
 - [ ] README with architecture diagram
 - [ ] X post URL (with `#0GHackathon #BuildOn0G`)
@@ -228,14 +253,16 @@ make fmt
 
 ## 🎯 Bottom Line
 
-**You have 12 days until May 16.**
+**Submission is due May 16, 2026 at 23:59 UTC+8 / 09:59 MDT.**
 
 The code is done. The docs are done. The tests pass. The landing page is live.
+The OSINT/source-readiness and submission-brief surfaces are now in the app.
 
 **Your only real blockers are:**
-1. Get testnet funds → deploy contract (15 min)
+1. Get 0G funds for the chosen network → deploy contract (15 min)
 2. Record video (2-3 hrs)
-3. Submit form (30 min)
+3. Post required X thread (5 min after credentials)
+4. Submit form (30 min)
 
 Everything else is ready to copy-paste.
 

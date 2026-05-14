@@ -1,10 +1,10 @@
 {
   "title": "0G Hack Guard — 5-Tweet Thread",
   "tweets": [
-    "🛡️ Introducing 0G Hack Guard — a read-only, pre-wallet security copilot for AI agents in DeFi. Every intent is evaluated before a signing key is ever touched. Built entirely on @0G_labs. 🧵",
-    "1/ In April 2026, $635M+ was stolen across 28 DeFi incidents. 76% traced to Lazarus. The kicker? Most hacks had zero smart-contract bugs. They were op-sec failures: social engineering, bridge misconfigs, stolen deployer keys.",
-    "2/ 0G Hack Guard detects attack signatures in real time: durable-nonce social engineering, unlimited ERC-20 approvals, UUPS proxy upgrades, flash-loan initiations, and known malicious addresses. It says allow, review, or deny.",
-    "3/ Every evaluation is cryptographically signed and anchored on 0G Chain via PolicyReceiptAnchor.sol. Tamper-evident forever. Threat intel is persisted to 0G Storage so the entire agent federation shares new exploit signatures.",
-    "4/ Autonomous finance is coming. But autonomy without safety is chaos. 0G Hack Guard is how we make it actually safe. Check the repo → github.com/arigatoexpress/0g-hack-guard #0G #Hackathon #DeFiSecurity"
+    "Introducing 0guard: a read-only, pre-wallet firewall for AI agents. It checks intent, calldata, domains, and exploit intelligence before a signing key is touched. Built for @0G_labs infra. #0GHackathon #BuildOn0G",
+    "1/ The problem: agent wallets can bridge, approve, and sign at machine speed. 0guard moves safety earlier than wallet simulation: goal and tool intent first, signer later.",
+    "2/ The demo blocks incident-derived patterns: durable-nonce social engineering, unlimited ERC-20 approvals, UUPS/admin upgrades, bridge-verifier risk, oracle manipulation, replay paths, and known malicious IOCs.",
+    "3/ The data layer is source-aware: validated incident dataset, DeFiLlama/Chainalysis/Forta/CryptoScamDB-style OSINT registry, record hashes, rights caveats, source readiness, and detector gap mapping.",
+    "4/ The 0G path is honest: live Galileo read proof today, PolicyReceiptAnchor preflight for 0G Chain, Storage-ready threat-intel root hashes, and no browser signing or fund movement. @0g_CN @0g_Eco @HackQuest_ github.com/arigatoexpress/0guard"
   ]
 }

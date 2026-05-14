@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import time
+from pathlib import Path
 from typing import Any
 
 from web3 import Web3
@@ -18,6 +19,8 @@ from web3 import Web3
 DEFAULT_ZGG_CHAIN_RPC = "https://evmrpc-testnet.0g.ai"
 DEFAULT_ZGG_CHAIN_ID = 16602
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+POLICY_RECEIPT_ARTIFACT = REPO_ROOT / "contracts" / "PolicyReceiptAnchor.json"
 
 
 def get_0g_config() -> dict[str, Any]:
@@ -129,9 +132,117 @@ def anchor_receipt(
 
 def verify_anchor(receipt_hash: str, tx_hash: str | None = None) -> dict[str, Any]:
     """Verify that a receipt hash has been anchored on 0G Chain."""
+    cfg = get_0g_config()
+    normalized_hash = _normalize_receipt_hash(receipt_hash)
+    contract = cfg["receipt_contract"]
+    if not normalized_hash:
+        return {
+            "schema": "0guard.0g_receipt_verifier.v1",
+            "receipt_hash": receipt_hash,
+            "tx_hash": tx_hash,
+            "verified": False,
+            "status": "invalid_receipt_hash",
+            "error": "receipt_hash must be a 32-byte hex string",
+            "safety": _read_only_verifier_safety(),
+        }
+    if contract.lower() == ZERO_ADDRESS.lower():
+        return {
+            "schema": "0guard.0g_receipt_verifier.v1",
+            "receipt_hash": normalized_hash,
+            "tx_hash": tx_hash,
+            "verified": False,
+            "status": "contract_not_configured",
+            "chain_id": cfg["chain_id"],
+            "contract": contract,
+            "note": "Set ZGG_RECEIPT_CONTRACT after deploying PolicyReceiptAnchor.",
+            "safety": _read_only_verifier_safety(),
+        }
+
+    started = time.perf_counter()
+    try:
+        w3 = Web3(Web3.HTTPProvider(cfg["rpc"], request_kwargs={"timeout": 5}))
+        checksum_contract = Web3.to_checksum_address(contract)
+        code = w3.eth.get_code(checksum_contract)
+        if not code:
+            return {
+                "schema": "0guard.0g_receipt_verifier.v1",
+                "receipt_hash": normalized_hash,
+                "tx_hash": tx_hash,
+                "verified": False,
+                "status": "no_code_at_contract",
+                "chain_id": cfg["chain_id"],
+                "contract": contract,
+                "latencyMs": int((time.perf_counter() - started) * 1000),
+                "safety": _read_only_verifier_safety(),
+            }
+
+        artifact = _load_policy_receipt_artifact()
+        receipt_contract = w3.eth.contract(address=checksum_contract, abi=artifact["abi"])
+        receipt = receipt_contract.functions.getReceipt(
+            Web3.to_bytes(hexstr=normalized_hash)
+        ).call()
+        timestamp = int(receipt[4])
+        verified = timestamp > 0
+        return {
+            "schema": "0guard.0g_receipt_verifier.v1",
+            "receipt_hash": normalized_hash,
+            "tx_hash": tx_hash,
+            "verified": verified,
+            "status": "verified" if verified else "not_found",
+            "chain_id": cfg["chain_id"],
+            "contract": contract,
+            "receipt": {
+                "decision": receipt[1],
+                "severity": receipt[2],
+                "agent_id": receipt[3],
+                "timestamp": timestamp,
+                "submitter": receipt[5],
+            }
+            if verified
+            else None,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "safety": _read_only_verifier_safety(),
+        }
+    except Exception as exc:  # pragma: no cover - live RPC/contract dependent
+        return {
+            "schema": "0guard.0g_receipt_verifier.v1",
+            "receipt_hash": normalized_hash,
+            "tx_hash": tx_hash,
+            "verified": False,
+            "status": "degraded",
+            "chain_id": cfg["chain_id"],
+            "contract": contract,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "error": f"{type(exc).__name__}: {exc}",
+            "safety": _read_only_verifier_safety(),
+        }
+
+
+def _normalize_receipt_hash(receipt_hash: str) -> str | None:
+    value = str(receipt_hash or "").strip().lower()
+    if value.startswith("0x"):
+        value = value[2:]
+    if len(value) != 64:
+        return None
+    try:
+        int(value, 16)
+    except ValueError:
+        return None
+    return f"0x{value}"
+
+
+def _load_policy_receipt_artifact() -> dict[str, Any]:
+    import json
+
+    with POLICY_RECEIPT_ARTIFACT.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _read_only_verifier_safety() -> dict[str, Any]:
     return {
-        "receipt_hash": receipt_hash,
-        "tx_hash": tx_hash,
-        "verified": False,
-        "note": "Verification requires a live RPC call to the PolicyReceiptAnchor contract.",
+        "readOnly": True,
+        "privateKeyRequired": False,
+        "signingEnabled": False,
+        "broadcastingEnabled": False,
+        "moneyMovementEnabled": False,
     }

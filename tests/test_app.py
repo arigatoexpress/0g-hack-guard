@@ -76,14 +76,23 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert data["safety"]["moneyMovementEnabled"] is False
     assert "/api/external-action-contracts" in data["apiRoutes"]
     assert "/api/0g/status" in data["apiRoutes"]
+    assert "/api/0g/receipt" in data["apiRoutes"]
     assert "/api/data/summary" in data["apiRoutes"]
     assert "/api/data/incidents" in data["apiRoutes"]
     assert "/api/data/detection-coverage" in data["apiRoutes"]
+    assert "/api/data/signature-map" in data["apiRoutes"]
+    assert "/api/osint/sources" in data["apiRoutes"]
+    assert "/api/osint/readiness" in data["apiRoutes"]
+    assert "/api/osint/signals" in data["apiRoutes"]
+    assert "/api/hackathon/submission-brief" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
     assert "#zg-status-output" in data["requiredSelectors"]
+    assert "#verify-receipt-hash" in data["requiredSelectors"]
+    assert "#verify-receipt" in data["requiredSelectors"]
     assert "#data-flow-output" in data["requiredSelectors"]
+    assert "#osint-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -153,6 +162,50 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     assert coverage_body["schema"] == "0guard.detection_coverage.v1"
     assert coverage_body["coveredCount"] >= 12
 
+    signature_map = client.get("/api/data/signature-map")
+    assert signature_map.status_code == 200
+    signature_body = signature_map.get_json()
+    assert signature_body["schema"] == "0guard.signature_map.v1"
+    assert signature_body["incidentCount"] == 28
+    assert signature_body["gapCount"] >= 1
+
+
+def test_osint_and_hackathon_routes_are_read_only(client):
+    sources = client.get("/api/osint/sources")
+    assert sources.status_code == 200
+    source_body = sources.get_json()
+    assert source_body["schema"] == "0guard.osint_source_registry.v1"
+    assert source_body["rightsPolicy"]["rawPayloadResaleAllowed"] is False
+    assert source_body["sourceCount"] >= 8
+
+    readiness = client.get("/api/osint/readiness")
+    assert readiness.status_code == 200
+    readiness_body = readiness.get_json()
+    assert readiness_body["schema"] == "0guard.osint_readiness.v1"
+    assert readiness_body["live"] is False
+    assert readiness_body["safety"]["readOnly"] is True
+    assert readiness_body["safety"]["rawPayloadsReturned"] is False
+
+    signals = client.get("/api/osint/signals?limit=3")
+    assert signals.status_code == 200
+    signal_body = signals.get_json()
+    assert signal_body["schema"] == "0guard.osint_signals.v1"
+    assert signal_body["live"] is False
+    assert signal_body["safety"]["rawPayloadsReturned"] is False
+
+    brief = client.get("/api/hackathon/submission-brief")
+    assert brief.status_code == 200
+    brief_body = brief.get_json()
+    assert brief_body["schema"] == "0guard.hackathon_submission_brief.v1"
+    assert brief_body["project"]["name"] == "0guard"
+    assert brief_body["dataProduct"]["incidentCount"] == 28
+
+
+def test_osint_signal_route_rejects_bad_limit(client):
+    assert client.get("/api/osint/signals?limit=bad").status_code == 400
+    assert client.get("/api/osint/signals?limit=0").status_code == 400
+    assert client.get("/api/osint/signals?limit=101").status_code == 400
+
 
 def test_data_incident_filters_reject_bad_inputs(client):
     assert client.get("/api/data/incidents?min_loss_usd=bad").status_code == 400
@@ -187,6 +240,23 @@ def test_0g_status_is_read_only_and_reports_runtime_config(monkeypatch, client):
     assert data["safety"]["privateKeyRequired"] is False
     assert data["safety"]["signingEnabled"] is False
     assert data["safety"]["broadcastingEnabled"] is False
+
+
+def test_0g_receipt_verifier_is_read_only_without_contract(client):
+    receipt_hash = "0x" + "a" * 64
+    r = client.get(f"/api/0g/receipt?receipt_hash={receipt_hash}")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.0g_receipt_verifier.v1"
+    assert data["verified"] is False
+    assert data["status"] == "contract_not_configured"
+    assert data["safety"]["privateKeyRequired"] is False
+    assert data["safety"]["signingEnabled"] is False
+    assert data["safety"]["broadcastingEnabled"] is False
+
+    bad = client.get("/api/0g/receipt?receipt_hash=not-a-hash")
+    assert bad.status_code == 200
+    assert bad.get_json()["status"] == "invalid_receipt_hash"
 
 
 def test_telegram_mira_status_is_preview_only(client):

@@ -57,6 +57,21 @@ Useful 0G references:
 | Harpie | Wallet firewall/recovery posture: https://harpie.io/ | Human-wallet protection; 0guard protects autonomous agent actions. |
 | Rabby/Tenderly | Simulation, preview, and debugging: https://www.rabby.is/en/features.html and https://docs.tenderly.co/ | Simulation is one input; 0guard converts findings into enforceable agent policy. |
 
+## OSINT Wedge
+
+The next product edge is a provenance-backed evidence layer for agents:
+
+1. Fetch or catalog public source leads from DeFiLlama, Chainalysis, Forta,
+   CryptoScamDB, Rekt, SlowMist, and other reviewed feeds.
+2. Preserve source owner, URL, rights envelope, TTL, caveats, and normalized
+   record hashes.
+3. Convert source signals into detector coverage and human-readable gaps.
+4. Return guardrail decisions with evidence, confidence, and a 0G receipt path.
+
+This is how 0guard avoids becoming a thin wallet-warning clone. It is the
+agent-readable layer that explains why an action is blocked and what evidence
+supports the verdict.
+
 ## Demo Message
 
 The strongest short pitch:
