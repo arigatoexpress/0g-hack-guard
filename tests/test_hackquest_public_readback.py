@@ -1,4 +1,4 @@
-from scripts.hackquest_public_readback import parse_hackquest_project_html
+from guard0.hackquest_public_readback import parse_hackquest_project_html
 
 
 def test_parse_hackquest_project_html_extracts_links_and_proofs() -> None:
