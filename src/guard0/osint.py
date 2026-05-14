@@ -41,6 +41,7 @@ OSINT_REGISTRY_SCHEMA = "0guard.osint_source_registry.v1"
 OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
 SIGNATURE_MAP_SCHEMA = "0guard.signature_map.v1"
+EVOLVING_THREAT_INTEL_SCHEMA = "0guard.evolving_threat_intelligence.v1"
 HACKATHON_BRIEF_SCHEMA = "0guard.hackathon_submission_brief.v1"
 HACKQUEST_PACKET_SCHEMA = "0guard.hackquest_submission_packet.v1"
 HACKQUEST_READINESS_SCHEMA = "0guard.hackquest_readiness_audit.v1"
@@ -281,6 +282,113 @@ def signature_map(dataset: dict[str, Any] | None = None) -> dict[str, Any]:
         "coverageRatio": round(matched / total, 4) if total else 0,
         "topGaps": _top_gap_counts(rows),
         "rows": rows,
+    }
+
+
+def evolving_threat_intelligence(
+    *,
+    live: bool = False,
+    limit: int = 10,
+) -> dict[str, Any]:
+    """Return the current detector roadmap as an evidence-backed intelligence loop."""
+    summary = incident_summary()
+    coverage = detection_coverage()
+    sig_map = signature_map()
+    provenance = incident_provenance_matrix(live=False)
+    signals = osint_signals(live=live, limit=limit)
+    mainnet_proof = _load_mainnet_proof()
+    evidence_root = _record_hash(
+        {
+            "datasetFingerprint": summary["validation"]["fingerprint"],
+            "provenanceCoverage": provenance["coverage"],
+            "signatureCoverage": {
+                "matched": sig_map["matchedCount"],
+                "gaps": sig_map["gapCount"],
+            },
+        }
+    )
+    signal_source_ids = sorted(
+        {
+            status.get("sourceId")
+            for status in signals["sourceStatus"]
+            if isinstance(status, dict) and status.get("sourceId")
+        }
+    )
+
+    return {
+        "schema": EVOLVING_THREAT_INTEL_SCHEMA,
+        "generatedAt": _now(),
+        "live": live,
+        "purpose": (
+            "Turn source-cited incidents and public threat leads into pre-wallet "
+            "detectors, receipt proofs, and quality-gated wallet alerts."
+        ),
+        "currentDataset": {
+            "incidentCount": summary["stats"]["incidentCount"],
+            "totalLossUsd": summary["stats"]["totalLossUsd"],
+            "datasetFingerprint": summary["validation"]["fingerprint"],
+            "sourceEvidenceCoverage": provenance["coverage"]["evidenceCoverageRatio"],
+            "detectionCoverageRatio": coverage["coverageRatio"],
+            "signatureCoverageRatio": sig_map["coverageRatio"],
+        },
+        "detectorFamilies": _detector_family_summary(sig_map),
+        "emergingDetectorQueue": _emerging_detector_queue(sig_map),
+        "liveSourceSignals": {
+            "liveFetchAttempted": live,
+            "signalCount": signals["signalCount"],
+            "sourceStatus": signals["sourceStatus"],
+            "sampleSignals": signals["signals"][: min(3, len(signals["signals"]))],
+        },
+        "intelligenceLoops": [
+            {
+                "id": "source_to_detector",
+                "state": "active",
+                "inputs": [
+                    "canonical April 2026 incident dataset",
+                    "reviewed provenance URLs",
+                    "optional live OSINT signals",
+                ],
+                "outputs": [
+                    "signature_map",
+                    "emerging_detector_queue",
+                    "wallet_alert_quality_policy",
+                ],
+            },
+            {
+                "id": "intent_to_receipt",
+                "state": "active",
+                "inputs": ["agent intent", "calldata", "mode", "signature requirement"],
+                "outputs": [
+                    "allow_review_deny verdict",
+                    "receipt_hash",
+                    "0G Chain anchor preflight",
+                    "0G Storage-ready root hash",
+                ],
+            },
+            {
+                "id": "wallet_alert_triage",
+                "state": "active_preview_no_send",
+                "inputs": ["wallet address", "current intent", "detector result"],
+                "outputs": [
+                    "deduped high-signal alert preview",
+                    "digest-only emerging risk notes",
+                    "Telegram Mini App message preview",
+                ],
+            },
+        ],
+        "zeroGSuite": _zero_g_suite_map(mainnet_proof, evidence_root, signal_source_ids),
+        "qualityBar": {
+            "noMockThreatClaims": True,
+            "rawPayloadsReturned": False,
+            "liveComputeClaimed": False,
+            "telegramSendsClaimed": False,
+            "walletTrackingDefault": "preview_no_send_read_only",
+            "promotionRule": (
+                "A new detector becomes alert-eligible only after it has a source id, "
+                "a reproducible intent/calldata pattern, and a regression test."
+            ),
+        },
+        "safety": _osint_safety(),
     }
 
 
@@ -1480,6 +1588,137 @@ def _top_gap_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
         if gap:
             counts[gap] = counts.get(gap, 0) + 1
     return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
+
+
+def _detector_family_summary(sig_map: dict[str, Any]) -> list[dict[str, Any]]:
+    family_rules = {
+        "ioc_and_address": ("critical_selector:", "soceng:", "durable_nonce", "drain_language"),
+        "calldata_signature": ("critical_selector:", "unlimited_approval", "flash_loan_init"),
+        "behavior_sequence": ("sequence_", "risk_pair:"),
+        "bridge_and_da": ("bridge_", "single_dvn", "sequence_bridge"),
+        "oracle_and_market": ("oracle_", "price_deviation", "sequence_oracle"),
+        "governance_and_upgrade": ("governance_", "sequence_grant", "sequence_timelock"),
+    }
+    rows = sig_map.get("rows") or []
+    summary = []
+    for family_id, prefixes in family_rules.items():
+        matched_rows = []
+        signatures = set()
+        for row in rows:
+            row_sigs = row.get("signaturesMatched") or []
+            if not isinstance(row_sigs, list):
+                continue
+            family_hits = [
+                sig for sig in row_sigs if any(str(sig).startswith(prefix) for prefix in prefixes)
+            ]
+            if family_hits:
+                matched_rows.append(row)
+                signatures.update(str(sig) for sig in family_hits)
+        summary.append(
+            {
+                "id": family_id,
+                "matchedIncidentCount": len(matched_rows),
+                "sampleSignatures": sorted(signatures)[:5],
+                "alertEligible": family_id in {
+                    "calldata_signature",
+                    "behavior_sequence",
+                    "bridge_and_da",
+                    "governance_and_upgrade",
+                },
+            }
+        )
+    return summary
+
+
+def _emerging_detector_queue(sig_map: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = sig_map.get("rows") or []
+    queue = []
+    for gap, count in _top_gap_counts(rows).items():
+        examples = [
+            {
+                "incidentId": row.get("incidentId"),
+                "protocol": row.get("protocol"),
+                "attackVector": row.get("attackVector"),
+                "recommendedDetector": row.get("recommendedDetector"),
+            }
+            for row in rows
+            if row.get("gap") == gap
+        ][:3]
+        queue.append(
+            {
+                "gap": gap,
+                "incidentCount": count,
+                "priority": _detector_gap_priority(gap),
+                "status": "research_required"
+                if gap == "insufficient_public_root_cause"
+                else "detector_candidate",
+                "examples": examples,
+            }
+        )
+    return queue
+
+
+def _detector_gap_priority(gap: str) -> str:
+    if gap in {"cross_chain_gateway_invariant", "settlement_atomicity_invariant"}:
+        return "high"
+    if gap in {
+        "signed_amount_or_accounting_invariant",
+        "token_accounting_invariant",
+        "numeric_type_or_math_invariant",
+    }:
+        return "medium"
+    return "watch"
+
+
+def _zero_g_suite_map(
+    mainnet_proof: dict[str, Any] | None,
+    evidence_root: str,
+    signal_source_ids: list[str],
+) -> dict[str, Any]:
+    mainnet_ready = _mainnet_proof_ready(mainnet_proof)
+    return {
+        "chain": {
+            "status": "mainnet_anchor_live" if mainnet_ready else "preflight_ready",
+            "chainId": ZGG_MAINNET_CHAIN_ID,
+            "contractAddress": mainnet_proof.get("contract_address") if mainnet_proof else None,
+            "anchorExplorerUrl": mainnet_proof.get("anchor_explorer_url") if mainnet_proof else None,
+            "readableEventFields": [
+                "receiptHash",
+                "decision",
+                "severity",
+                "agentId",
+                "timestamp",
+                "submitter",
+            ],
+            "readableV2Ready": {
+                "contract": "contracts/PolicyReceiptAnchorV2.sol",
+                "memoFields": ["policyVersion", "shortMemo", "sourceIds"],
+                "hashFields": ["datasetFingerprint", "evidenceRoot", "storageRoot"],
+                "liveDeployed": False,
+            },
+        },
+        "storage": {
+            "status": "storage_ready_root_hashes",
+            "currentRootHash": evidence_root,
+            "payloadPolicy": "derived_metadata_links_hashes_and_defensive_analysis",
+            "officialSource": "https://docs.0g.ai/developer-hub/building-on-0g/storage/sdk",
+        },
+        "da": {
+            "status": "planned_batch_availability_layer",
+            "currentUse": "not_live_claimed",
+            "candidatePayloads": ["detector bundle roots", "provenance matrix roots"],
+            "officialSource": "https://docs.0g.ai/concepts/da",
+        },
+        "compute": {
+            "status": "planned_no_live_inference_claim",
+            "candidateUse": "behavioral anomaly scoring beside deterministic policy checks",
+            "guardrail": "Compute output can suggest review, but deterministic blockers stay auditable.",
+            "officialSource": (
+                "https://docs.0g.ai/developer-hub/building-on-0g/compute-network/overview"
+            ),
+        },
+        "sourceIdsInCurrentLoop": signal_source_ids,
+    }
 
 
 def _public_source_fields(source: dict[str, Any]) -> dict[str, Any]:

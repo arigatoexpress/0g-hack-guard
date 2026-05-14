@@ -302,6 +302,11 @@ async function loadOsintSignals(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadEvolvingIntel(){
+  const r = await fetch('/api/intelligence/evolving?limit=10');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadSubmissionBrief(){
   const r = await fetch('/api/hackathon/submission-brief');
   const j = await r.json();
@@ -347,7 +352,7 @@ async function createTelegramRegistration(){
   const r = await fetch('/api/telegram/registrations', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_label:userLabel, scopes:['mira_alerts','security.digest']})
+    body:JSON.stringify({user_label:userLabel, scopes:['mira_alerts','security.digest','wallet.alerts']})
   });
   const j = await r.json();
   latestTelegramChallenge = j.challenge || null;
@@ -368,7 +373,7 @@ async function completeTelegramOptIn(){
         language_code:'en',
         is_bot:false
       },
-      scopes:['mira_alerts','security.digest']
+      scopes:['mira_alerts','security.digest','wallet.alerts']
     })
   });
   const j = await r.json();
@@ -389,6 +394,32 @@ async function runMiraPreview(){
   const j = await r.json();
   writeJson('mira-output', j);
 }
+async function runWalletAlertPreview(){
+  const intent = JSON.parse(document.getElementById('intent-input').value);
+  const address = document.getElementById('wallet-address-input').value;
+  const r = await fetch('/api/wallet/alert-preview', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({address, intent, max_alerts:5})
+  });
+  const j = await r.json();
+  writeJson('wallet-alert-output', j);
+}
+async function runTelegramWalletAlertPreview(){
+  const intent = JSON.parse(document.getElementById('intent-input').value);
+  const address = document.getElementById('wallet-address-input').value;
+  const body = {address, intent, max_alerts:3};
+  if(latestTelegramRecord && latestTelegramRecord.record_id){
+    body.record_id = latestTelegramRecord.record_id;
+  }
+  const r = await fetch('/api/telegram/wallet-alert-preview', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  const j = await r.json();
+  writeJson('wallet-alert-output', j);
+}
 document.getElementById('run-evaluate').addEventListener('click', evaluateIntent);
 document.getElementById('play-story').addEventListener('click', playStory);
 document.getElementById('run-drift-scenario').addEventListener('click', () => runStoryScenario('drift'));
@@ -406,6 +437,7 @@ document.getElementById('load-signature-map').addEventListener('click', loadSign
 document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);
 document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
+document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);
 document.getElementById('load-submission-readiness').addEventListener('click', loadSubmissionReadiness);
@@ -416,6 +448,8 @@ document.getElementById('load-virtuals-facilitator').addEventListener('click', l
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);
+document.getElementById('run-wallet-alert-preview').addEventListener('click', runWalletAlertPreview);
+document.getElementById('run-telegram-wallet-alert-preview').addEventListener('click', runTelegramWalletAlertPreview);
 document.getElementById('load-deny-sample').addEventListener('click', () => {
   document.getElementById('intent-input').value = JSON.stringify(denySample, null, 2);
 });

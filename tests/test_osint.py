@@ -3,6 +3,7 @@
 import json
 
 from guard0.osint import (
+    evolving_threat_intelligence,
     hackathon_submission_brief,
     hackquest_readiness_audit,
     hackquest_submission_packet,
@@ -102,6 +103,25 @@ def test_signature_map_explains_coverage_gaps():
     undisclosed = next(row for row in mapping["rows"] if row["attackVector"] == "undisclosed")
     assert undisclosed["matched"] is False
     assert undisclosed["recommendedDetector"]
+
+
+def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
+    intel = evolving_threat_intelligence(live=False, limit=5)
+
+    assert intel["schema"] == "0guard.evolving_threat_intelligence.v1"
+    assert intel["live"] is False
+    assert intel["currentDataset"]["incidentCount"] == 28
+    assert intel["currentDataset"]["sourceEvidenceCoverage"] >= 0.9
+    assert intel["detectorFamilies"]
+    assert any(family["id"] == "behavior_sequence" for family in intel["detectorFamilies"])
+    assert intel["emergingDetectorQueue"]
+    assert intel["liveSourceSignals"]["signalCount"] == 0
+    assert intel["zeroGSuite"]["chain"]["status"] == "mainnet_anchor_live"
+    assert "shortMemo" in intel["zeroGSuite"]["chain"]["readableV2Ready"]["memoFields"]
+    assert intel["zeroGSuite"]["storage"]["currentRootHash"]
+    assert intel["zeroGSuite"]["compute"]["status"] == "planned_no_live_inference_claim"
+    assert intel["qualityBar"]["telegramSendsClaimed"] is False
+    assert intel["safety"]["rawPayloadsReturned"] is False
 
 
 def test_incident_provenance_matrix_correlates_source_records():

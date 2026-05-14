@@ -182,6 +182,7 @@
               <button id="load-osint-sources" type="button">Source registry</button>
               <button id="load-osint-readiness" class="secondary" type="button">Readiness</button>
               <button id="load-osint-signals" class="secondary" type="button">Live signals</button>
+              <button id="load-evolving-intel" class="secondary" type="button">Evolving intel</button>
               <button id="load-submission-brief" class="secondary" type="button">Submission brief</button>
               <button id="load-submission-packet" class="secondary" type="button">Submission packet</button>
               <button id="load-submission-readiness" class="secondary" type="button">Readiness audit</button>
@@ -216,6 +217,16 @@
               <button id="run-mira-preview" type="button">Build Mira preview</button>
             </div>
             <p class="mini">Uses the current intent payload and produces a Telegram-safe response preview.</p>
+          </div>
+
+          <div class="card">
+            <h2>Wallet Alert Preview</h2>
+            <input id="wallet-address-input" value="0x885b0892D241Cb5033C9995e09cA521d54f936b5">
+            <div class="actions">
+              <button id="run-wallet-alert-preview" type="button">Preview alerts</button>
+              <button id="run-telegram-wallet-alert-preview" class="secondary" type="button">Telegram preview</button>
+            </div>
+            <p class="mini">Quality-gated wallet alerts are preview-only here. Live Telegram sends stay off.</p>
           </div>
         </div>
 
@@ -256,6 +267,10 @@
           <div class="card">
             <h2>Mira Preview</h2>
             <pre id="mira-output">Awaiting Mira preview.</pre>
+          </div>
+          <div class="card">
+            <h2>Wallet Alerts</h2>
+            <pre id="wallet-alert-output">Awaiting wallet alert preview.</pre>
           </div>
         </div>
       </section>

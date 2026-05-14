@@ -145,6 +145,8 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/sources` | Rights-aware OSINT source registry with owners, URLs, retrieval modes, TTLs, and caveats |
 | `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
+| `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
+| `GET/POST` | `/api/wallet/alert-preview` | Read-only wallet alert preview with quality gates, dedupe keys, cooldowns, and no sends |
 | `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, Lighter/LIT, and Celestia/TIA |
 | `GET`  | `/api/integrations/cross-chain/readiness` | Read-only cross-chain readiness; add `?live=1` for safe EVM RPC probes plus supported non-EVM status probes |
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
@@ -158,6 +160,7 @@ python3 -m guard0.cli serve --port 8109
 | `POST` | `/api/telegram/webapp/verify` | Validate Telegram Mini App `initData` server-side when `TELEGRAM_BOT_TOKEN` is configured |
 | `POST` | `/api/telegram/webhook` | Inbound `/start`, `/stop`, and Mira preview handling with Telegram secret-header verification; no send |
 | `POST` | `/api/telegram/mira-preview` | Build a Telegram-safe Mira security response preview; no send |
+| `POST` | `/api/telegram/wallet-alert-preview` | Build a Telegram Mini App wallet alert message preview; no send |
 | `GET`  | `/api/frontend-contract` | Browser smoke contract, selectors, and safety posture |
 | `GET`  | `/api/external-action-contracts` | Dry-run/default contract for X, Telegram, deploy, and signing paths |
 | `POST` | `/api/evaluate` | Full intent evaluation |
@@ -250,6 +253,7 @@ curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/osint/readiness | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/readiness?live=1' | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/intelligence/evolving?limit=10' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/submission-brief | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
 ```
@@ -273,6 +277,11 @@ curl -s -X POST http://127.0.0.1:8109/api/telegram/registrations \
   | python3 -m json.tool
 
 curl -s http://127.0.0.1:8109/api/telegram/status | python3 -m json.tool
+
+curl -s -X POST http://127.0.0.1:8109/api/telegram/wallet-alert-preview \
+  -H "Content-Type: application/json" \
+  -d '{"address":"0x885b0892D241Cb5033C9995e09cA521d54f936b5","intent":{"action":"approve","mode":"live_transaction","requires_signature":true,"calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}}' \
+  | python3 -m json.tool
 ```
 
 For a real Telegram Mini App, send `window.Telegram.WebApp.initData` to
@@ -324,6 +333,8 @@ gitleaks detect --no-git --source . --redact --verbose
   the exact live confirmation flag.
 - Telegram/Mira registration and preview routes are local-only by default:
   they validate tokens, redact identifiers, and never send Telegram messages.
+- Wallet alert previews are quality-gated and read-only: they can optionally
+  run public RPC balance/nonce probes, but they never sign, broadcast, or send.
 - The browser workbench cannot trigger external sends, deploys, signatures, or
   transaction broadcasts.
 
@@ -335,10 +346,11 @@ gitleaks detect --no-git --source . --redact --verbose
 2. ✅ Live read-only 0G proof + mainnet receipt anchor
 3. ✅ 0G Storage threat-intel payload/root-hash preparation
 4. ✅ Telegram Mira secure registration primitives and no-send preview
-5. 🔄 Persistent Telegram opt-in registry behind admin auth
-6. 🔄 Real-time mempool monitoring via 0G DA subscription
-7. 🔄 TEE-sealed inference for private risk scoring
-8. 🔄 On-chain bounty program for community-submitted signatures
+5. ✅ Evolving threat-intel loop and no-spam wallet alert previews
+6. 🔄 Persistent Telegram opt-in registry behind admin auth
+7. 🔄 Real-time mempool monitoring via 0G DA subscription
+8. 🔄 TEE-sealed inference for private risk scoring
+9. 🔄 On-chain bounty program for community-submitted signatures
 
 ---
 

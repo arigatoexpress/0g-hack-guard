@@ -127,6 +127,7 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#telegram-register-output")).to_contain_text(
         '"telegramSendsEnabled": false'
     )
+    expect(page.locator("body")).to_contain_text("Wallet Alert Preview")
 
     page.locator("#load-deny-sample").click()
     page.locator("#run-evaluate").click()
@@ -175,6 +176,11 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#load-osint-readiness").click()
     expect(page.locator("#osint-output")).to_contain_text("0guard.osint_readiness.v1")
     expect(page.locator("#osint-output")).to_contain_text('"rawPayloadsReturned": false')
+    page.locator("#load-evolving-intel").click()
+    expect(page.locator("#osint-output")).to_contain_text(
+        "0guard.evolving_threat_intelligence.v1"
+    )
+    expect(page.locator("#osint-output")).to_contain_text("preview_no_send_read_only")
     page.locator("#load-submission-brief").click()
     expect(page.locator("#osint-output")).to_contain_text(
         "0guard.hackathon_submission_brief.v1"
@@ -216,6 +222,18 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#mira-output")).to_contain_text("preview_no_send")
     expect(page.locator("#mira-output")).to_contain_text('"telegram_send": false')
 
+    page.locator("#run-wallet-alert-preview").click()
+    expect(page.locator("#wallet-alert-output")).to_contain_text(
+        "0guard.wallet_alert_preview.v1"
+    )
+    expect(page.locator("#wallet-alert-output")).to_contain_text("preview_no_send")
+    expect(page.locator("#wallet-alert-output")).to_contain_text('"telegramSendEnabled": false')
+    page.locator("#run-telegram-wallet-alert-preview").click()
+    expect(page.locator("#wallet-alert-output")).to_contain_text(
+        "0guard.telegram_wallet_alert_preview.v1"
+    )
+    expect(page.locator("#wallet-alert-output")).to_contain_text('"telegram_send": false')
+
     health = page.request.get(f"{BASE_URL}/api/health")
     assert health.ok
     health_body = health.json()
@@ -239,6 +257,8 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/data/summary" in frontend_body["apiRoutes"]
     assert "/api/data/provenance" in frontend_body["apiRoutes"]
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
+    assert "/api/intelligence/evolving" in frontend_body["apiRoutes"]
+    assert "/api/wallet/alert-preview" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
     assert "/api/hackathon/readiness" in frontend_body["apiRoutes"]
@@ -247,7 +267,9 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/integrations/cross-chain/readiness" in frontend_body["apiRoutes"]
     assert "/api/integrations/virtuals-facilitator" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
+    assert "/api/telegram/wallet-alert-preview" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
+    assert "#load-evolving-intel" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
     assert "#load-submission-packet" in frontend_body["requiredSelectors"]
     assert "#load-submission-readiness" in frontend_body["requiredSelectors"]
@@ -255,6 +277,8 @@ def exercise_workbench(page: Page) -> None:
     assert "#load-cross-chain-catalog" in frontend_body["requiredSelectors"]
     assert "#load-cross-chain-readiness" in frontend_body["requiredSelectors"]
     assert "#load-virtuals-facilitator" in frontend_body["requiredSelectors"]
+    assert "#run-wallet-alert-preview" in frontend_body["requiredSelectors"]
+    assert "#run-telegram-wallet-alert-preview" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok

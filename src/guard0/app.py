@@ -25,6 +25,7 @@ from guard0.crosschain import (
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.mira import build_mira_security_preview
 from guard0.osint import (
+    evolving_threat_intelligence,
     hackathon_submission_brief,
     hackquest_readiness_audit,
     hackquest_submission_packet,
@@ -48,6 +49,7 @@ from guard0.telegram_subscriptions import (
     public_opt_in_status,
     verify_telegram_registration_token,
 )
+from guard0.wallet_alerts import build_wallet_alert_preview, wallet_alert_quality_policy
 
 app = Flask(__name__)
 
@@ -95,6 +97,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-sources",
     "#load-osint-readiness",
     "#load-osint-signals",
+    "#load-evolving-intel",
     "#load-submission-brief",
     "#load-submission-packet",
     "#load-submission-readiness",
@@ -108,6 +111,10 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#verify-receipt",
     "#telegram-register-output",
     "#mira-output",
+    "#wallet-address-input",
+    "#run-wallet-alert-preview",
+    "#run-telegram-wallet-alert-preview",
+    "#wallet-alert-output",
     "#telegram-user-label",
     "#create-telegram-registration",
     "#complete-telegram-opt-in",
@@ -190,6 +197,7 @@ def _telegram_mira_status_payload() -> dict:
                 1 for record in _TELEGRAM_OPT_IN_RECORDS.values() if record.get("status") == "opted_in"
             ),
             "defaultScopes": [DEFAULT_SCOPE],
+            "walletAlertPolicy": wallet_alert_quality_policy(),
             "telegramBotUsernameConfigured": bool(bot_username),
         },
         "miniAppAuth": {
@@ -204,6 +212,7 @@ def _telegram_mira_status_payload() -> dict:
             "/api/telegram/webapp/verify",
             "/api/telegram/webhook",
             "/api/telegram/mira-preview",
+            "/api/telegram/wallet-alert-preview",
         ],
         "safety": {
             "telegramSendsEnabled": False,
@@ -349,9 +358,10 @@ def api_frontend_contract():
                 "Hack Signature Check",
                 "Domain Guard",
                 "Data Flow",
-                "Telegram Mira Opt-In",
-                "Mira Telegram Preview",
-                "External Action Contract",
+            "Telegram Mira Opt-In",
+            "Mira Telegram Preview",
+            "Wallet Alert Preview",
+            "External Action Contract",
                 "Safety Inspector",
                 "no signing",
                 "external sends blocked",
@@ -369,6 +379,8 @@ def api_frontend_contract():
                 "/api/osint/sources",
                 "/api/osint/readiness",
                 "/api/osint/signals",
+                "/api/intelligence/evolving",
+                "/api/wallet/alert-preview",
                 "/api/integrations/cross-chain",
                 "/api/integrations/cross-chain/readiness",
                 "/api/integrations/virtuals-facilitator",
@@ -377,6 +389,7 @@ def api_frontend_contract():
                 "/api/hackathon/readiness",
                 "/api/hackathon/threat-passport",
                 "/api/telegram/status",
+                "/api/telegram/wallet-alert-preview",
                 "/api/external-action-contracts",
                 "/api/evaluate",
                 "/api/hack-check",
@@ -401,6 +414,7 @@ def api_frontend_contract():
                 "load-osint-sources",
                 "load-osint-readiness",
                 "load-osint-signals",
+                "load-evolving-intel",
                 "load-submission-brief",
                 "load-submission-packet",
                 "load-submission-readiness",
@@ -408,6 +422,8 @@ def api_frontend_contract():
                 "load-cross-chain-catalog",
                 "load-cross-chain-readiness",
                 "load-virtuals-facilitator",
+                "run-wallet-alert-preview",
+                "run-telegram-wallet-alert-preview",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -491,6 +507,39 @@ def api_osint_signals():
     if limit_value < 1 or limit_value > 100:
         return jsonify({"error": "limit must be between 1 and 100"}), 400
     return jsonify(osint_signals(live=live, limit=limit_value))
+
+
+@app.route("/api/intelligence/evolving", methods=["GET"])
+def api_evolving_threat_intelligence():
+    live = _truthy_query_arg("live")
+    limit = request.args.get("limit")
+    try:
+        limit_value = int(limit) if limit is not None else 10
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    if limit_value < 1 or limit_value > 50:
+        return jsonify({"error": "limit must be between 1 and 50"}), 400
+    return jsonify(evolving_threat_intelligence(live=live, limit=limit_value))
+
+
+@app.route("/api/wallet/alert-preview", methods=["GET", "POST"])
+def api_wallet_alert_preview():
+    body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
+    address = body.get("address") or request.args.get("address") or ""
+    intent = body.get("intent")
+    live = _truthy_value(body.get("live")) if request.method == "POST" else _truthy_query_arg("live")
+    max_alerts_raw = body.get("max_alerts") or request.args.get("max_alerts") or 5
+    try:
+        max_alerts = int(max_alerts_raw)
+        preview = build_wallet_alert_preview(
+            address,
+            intent=intent,
+            live=live,
+            max_alerts=max_alerts,
+        )
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify(preview)
 
 
 @app.route("/api/integrations/cross-chain", methods=["GET"])
@@ -707,6 +756,39 @@ def api_telegram_mira_preview():
     return jsonify(preview)
 
 
+@app.route("/api/telegram/wallet-alert-preview", methods=["POST"])
+def api_telegram_wallet_alert_preview():
+    body = request.get_json(silent=True) or {}
+    record_id = body.get("record_id")
+    record = _TELEGRAM_OPT_IN_RECORDS.get(record_id) if record_id else None
+    if record_id and not record:
+        return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
+
+    address = body.get("address") or ""
+    try:
+        preview = build_wallet_alert_preview(
+            address,
+            intent=body.get("intent"),
+            live=_truthy_value(body.get("live", False)),
+            max_alerts=int(body.get("max_alerts", 5)),
+        )
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify(
+        {
+            "schema": "0guard.telegram_wallet_alert_preview.v1",
+            "delivery": "preview_no_send",
+            "telegram_send": False,
+            "network_calls": preview["safety"]["networkCalls"],
+            "opt_in_status": (record or {}).get("status", "not_attached"),
+            "record_id": (record or {}).get("record_id"),
+            "message": preview["telegramPreview"],
+            "walletAlert": preview,
+            "safety": _telegram_mira_status_payload()["safety"],
+        }
+    )
+
+
 @app.route("/api/health", methods=["GET"])
 def api_health():
     cfg = get_0g_config()
@@ -787,6 +869,14 @@ def api_domain():
 
 def _truthy_query_arg(name: str) -> bool:
     return request.args.get(name, "").lower() in {"1", "true", "yes", "on"}
+
+
+def _truthy_value(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in {"1", "true", "yes", "on"}
+    return bool(value)
 
 
 def main() -> None:

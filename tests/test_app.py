@@ -85,6 +85,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/sources" in data["apiRoutes"]
     assert "/api/osint/readiness" in data["apiRoutes"]
     assert "/api/osint/signals" in data["apiRoutes"]
+    assert "/api/intelligence/evolving" in data["apiRoutes"]
+    assert "/api/wallet/alert-preview" in data["apiRoutes"]
     assert "/api/integrations/cross-chain" in data["apiRoutes"]
     assert "/api/integrations/cross-chain/readiness" in data["apiRoutes"]
     assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
@@ -93,6 +95,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/hackathon/readiness" in data["apiRoutes"]
     assert "/api/hackathon/threat-passport" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
+    assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#play-story" in data["requiredSelectors"]
     assert "#flow-canvas" in data["requiredSelectors"]
@@ -108,6 +111,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-provenance-matrix" in data["requiredSelectors"]
     assert "#load-live-provenance" in data["requiredSelectors"]
     assert "#osint-output" in data["requiredSelectors"]
+    assert "#load-evolving-intel" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
     assert "#load-threat-passport" in data["requiredSelectors"]
@@ -117,6 +121,10 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#cross-chain-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
+    assert "#wallet-address-input" in data["requiredSelectors"]
+    assert "#run-wallet-alert-preview" in data["requiredSelectors"]
+    assert "#run-telegram-wallet-alert-preview" in data["requiredSelectors"]
+    assert "#wallet-alert-output" in data["requiredSelectors"]
 
 
 def test_frontend_contract_selectors_match_static_shell(client):
@@ -226,6 +234,14 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert signal_body["live"] is False
     assert signal_body["safety"]["rawPayloadsReturned"] is False
 
+    evolving = client.get("/api/intelligence/evolving")
+    assert evolving.status_code == 200
+    evolving_body = evolving.get_json()
+    assert evolving_body["schema"] == "0guard.evolving_threat_intelligence.v1"
+    assert evolving_body["zeroGSuite"]["storage"]["currentRootHash"]
+    assert evolving_body["qualityBar"]["walletTrackingDefault"] == "preview_no_send_read_only"
+    assert evolving_body["safety"]["rawPayloadsReturned"] is False
+
     brief = client.get("/api/hackathon/submission-brief")
     assert brief.status_code == 200
     brief_body = brief.get_json()
@@ -294,6 +310,9 @@ def test_osint_signal_route_rejects_bad_limit(client):
     assert client.get("/api/osint/signals?limit=bad").status_code == 400
     assert client.get("/api/osint/signals?limit=0").status_code == 400
     assert client.get("/api/osint/signals?limit=101").status_code == 400
+    assert client.get("/api/intelligence/evolving?limit=bad").status_code == 400
+    assert client.get("/api/intelligence/evolving?limit=0").status_code == 400
+    assert client.get("/api/intelligence/evolving?limit=51").status_code == 400
 
 
 def test_data_incident_filters_reject_bad_inputs(client):
@@ -359,6 +378,55 @@ def test_telegram_mira_status_is_preview_only(client):
     assert data["safety"]["telegramSendsEnabled"] is False
     assert data["safety"]["networkCalls"] is False
     assert "/api/telegram/opt-ins" in data["apiRoutes"]
+    assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
+    assert data["registration"]["walletAlertPolicy"]["telegramSendEnabled"] is False
+
+
+def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
+    address = "0x885b0892D241Cb5033C9995e09cA521d54f936b5"
+    preview_response = client.post(
+        "/api/wallet/alert-preview",
+        json={
+            "address": address,
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "calldata": (
+                    "0x095ea7b3ffffffffffffffffffffffffffffffff"
+                    "ffffffffffffffffffffffffffffffff"
+                ),
+            },
+        },
+    )
+    assert preview_response.status_code == 200
+    preview = preview_response.get_json()
+    assert preview["schema"] == "0guard.wallet_alert_preview.v1"
+    assert preview["mode"] == "preview_no_send"
+    assert preview["decision"]["decision"] == "deny"
+    assert preview["alertCount"] == 1
+    assert preview["alerts"][0]["sendPolicy"]["wouldSendFromWorkbench"] is False
+    assert preview["safety"]["telegramSendEnabled"] is False
+    assert preview["safety"]["networkCalls"] is False
+
+    telegram_preview = client.post(
+        "/api/telegram/wallet-alert-preview",
+        json={
+            "address": address,
+            "live": "false",
+            "intent": {"action": "read_balance", "mode": "simulation"},
+        },
+    )
+    assert telegram_preview.status_code == 200
+    telegram_body = telegram_preview.get_json()
+    assert telegram_body["schema"] == "0guard.telegram_wallet_alert_preview.v1"
+    assert telegram_body["delivery"] == "preview_no_send"
+    assert telegram_body["telegram_send"] is False
+    assert telegram_body["network_calls"] is False
+    assert telegram_body["walletAlert"]["safety"]["workbenchCanSend"] is False
+
+    bad = client.post("/api/wallet/alert-preview", json={"address": "not-an-address"})
+    assert bad.status_code == 400
 
 
 def test_telegram_registration_and_mira_preview_are_local_and_redacted(monkeypatch, client):

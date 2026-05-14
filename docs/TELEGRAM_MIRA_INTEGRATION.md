@@ -51,6 +51,7 @@ The workbench exposes a demo-safe API surface:
 | `POST` | `/api/telegram/webapp/verify` | Validates Telegram Mini App `initData` with `TELEGRAM_BOT_TOKEN`. |
 | `POST` | `/api/telegram/webhook` | Handles inbound `/start`, `/stop`, and Mira preview after secret-header verification. |
 | `POST` | `/api/telegram/mira-preview` | Builds a deterministic Mira policy response preview. No Telegram send. |
+| `POST` | `/api/telegram/wallet-alert-preview` | Builds a no-send wallet alert message preview with score, dedupe, cooldown, and source ids. |
 
 For a real Telegram Mini App, send the raw
 `window.Telegram.WebApp.initData` string to `/api/telegram/webapp/verify`.
@@ -77,3 +78,15 @@ https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app
 - Webhook handling requires `TELEGRAM_WEBHOOK_SECRET_TOKEN` and checks the
   `X-Telegram-Bot-Api-Secret-Token` header. The app does not call
   `setWebhook`; webhook registration remains an explicit operator action.
+
+## Wallet Alert Quality Gate
+
+`guard0.wallet_alerts` adds the Telegram Mini App alert layer. It validates an
+EVM address, evaluates the current intent, attaches source/detector evidence,
+and returns only high-signal direct wallet alerts. Emerging detector gaps are
+kept as digest-only notes until a matching intent, calldata pattern, or source
+signal makes them wallet-specific.
+
+The quality policy requires direct wallet relevance, a source or detector id,
+a dedupe key, cooldowns, and opt-in scope before a future live bot could send.
+The current Flask and workbench routes always return `preview_no_send`.

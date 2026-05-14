@@ -42,6 +42,10 @@ loose demo copy.
    returning raw payload dumps.
 10. Promote reviewed derived source evidence into per-incident provenance fields
    while leaving unresolved incidents explicitly aggregate-only.
+11. Build an evolving detector queue from uncovered incident gaps and expose the
+    current 0G Chain, Storage, DA, and Compute proof plan.
+12. Convert intent verdicts into wallet-specific alert previews with score,
+    dedupe, cooldown, and Telegram no-send message text.
 
 ## API Readbacks
 
@@ -55,6 +59,8 @@ loose demo copy.
 | `/api/osint/sources` | Rights-aware source registry and output policy. |
 | `/api/osint/readiness` | Catalog posture; `?live=1` performs public availability checks. |
 | `/api/osint/signals` | Normalized incident/research leads; `?live=1` fetches live public metadata. |
+| `/api/intelligence/evolving` | Detector loop, emerging gaps, live-source status, and 0G suite map. |
+| `/api/wallet/alert-preview` | Wallet-specific alert scoring and digest-only emerging risk notes. |
 | `/api/hackathon/submission-brief` | HackQuest-ready brief, data stats, 0G story, and operator TODOs. |
 | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields and explicit operator placeholders. |
 | `/api/hackathon/readiness` | Final HackQuest readiness audit with mainnet proof, demo, and X blockers. |
@@ -69,6 +75,11 @@ curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/osint/sources | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/osint/signals?live=1&limit=10' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/intelligence/evolving | python3 -m json.tool
+curl -s -X POST http://127.0.0.1:8109/api/wallet/alert-preview \
+  -H "Content-Type: application/json" \
+  -d '{"address":"0x885b0892D241Cb5033C9995e09cA521d54f936b5","intent":{"action":"read_balance","mode":"simulation","method":"eth_getBalance"}}' \
+  | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/submission-packet | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/readiness | python3 -m json.tool
 ```
@@ -109,6 +120,8 @@ Next durable upgrade:
   `Denaria Finance`.
 - Add `detection_seed` overrides for cases where the generic attack vector is
   too weak to exercise the signature engine.
+- Promote detector-gap candidates from `/api/intelligence/evolving` only after
+  a reproducible source-backed pattern and regression test exist.
 - Promote catalog-only sources with compatible licenses into normalized
   adapters one at a time.
 - Store the normalized dataset fingerprint in 0G Storage once live storage
