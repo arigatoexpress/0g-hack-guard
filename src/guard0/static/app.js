@@ -158,6 +158,21 @@ async function loadThreatPassport(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadCrossChainCatalog(){
+  const r = await fetch('/api/integrations/cross-chain');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadCrossChainReadiness(){
+  const r = await fetch('/api/integrations/cross-chain/readiness?live=1');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadVirtualsFacilitator(){
+  const r = await fetch('/api/integrations/virtuals-facilitator');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function loadTelegramStatus(){
   const r = await fetch('/api/telegram/status');
   const j = await r.json();
@@ -226,6 +241,9 @@ document.getElementById('load-submission-brief').addEventListener('click', loadS
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);
 document.getElementById('load-submission-readiness').addEventListener('click', loadSubmissionReadiness);
 document.getElementById('load-threat-passport').addEventListener('click', loadThreatPassport);
+document.getElementById('load-cross-chain-catalog').addEventListener('click', loadCrossChainCatalog);
+document.getElementById('load-cross-chain-readiness').addEventListener('click', loadCrossChainReadiness);
+document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);
@@ -239,4 +257,5 @@ loadContracts();
 load0gStatus();
 loadDataSummary();
 loadOsintSources();
+loadCrossChainCatalog();
 loadTelegramStatus();

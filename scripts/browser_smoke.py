@@ -113,6 +113,8 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#data-flow-output")).to_contain_text('"incidentCount": 28')
     expect(page.locator("#osint-output")).to_contain_text("0guard.osint_source_registry.v1")
     expect(page.locator("#osint-output")).to_contain_text('"rawPayloadResaleAllowed": false')
+    expect(page.locator("#cross-chain-output")).to_contain_text("0guard.crosschain_catalog.v1")
+    expect(page.locator("#cross-chain-output")).to_contain_text('"moneyMovementEnabled": false')
     expect(page.locator("#telegram-register-output")).to_contain_text(
         "0guard.telegram_mira_status.v1"
     )
@@ -171,6 +173,14 @@ def exercise_workbench(page: Page) -> None:
         "0guard.hackquest_readiness_audit.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text('"submittableNow": false')
+    page.locator("#load-cross-chain-readiness").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text("0guard.crosschain_readiness.v1")
+    expect(page.locator("#cross-chain-output")).to_contain_text('"liveSettlementAllowed": false')
+    page.locator("#load-virtuals-facilitator").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "0guard.virtuals_facilitator_manifest.v1"
+    )
+    expect(page.locator("#cross-chain-output")).to_contain_text("0guard Facilitator")
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -216,12 +226,18 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
     assert "/api/hackathon/readiness" in frontend_body["apiRoutes"]
     assert "/api/hackathon/threat-passport" in frontend_body["apiRoutes"]
+    assert "/api/integrations/cross-chain" in frontend_body["apiRoutes"]
+    assert "/api/integrations/cross-chain/readiness" in frontend_body["apiRoutes"]
+    assert "/api/integrations/virtuals-facilitator" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
     assert "#load-submission-packet" in frontend_body["requiredSelectors"]
     assert "#load-submission-readiness" in frontend_body["requiredSelectors"]
     assert "#load-threat-passport" in frontend_body["requiredSelectors"]
+    assert "#load-cross-chain-catalog" in frontend_body["requiredSelectors"]
+    assert "#load-cross-chain-readiness" in frontend_body["requiredSelectors"]
+    assert "#load-virtuals-facilitator" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -279,6 +295,28 @@ def exercise_workbench(page: Page) -> None:
     assert readiness_body["schema"] == "0guard.osint_readiness.v1"
     assert readiness_body["live"] is False
     assert readiness_body["safety"]["readOnly"] is True
+
+    crosschain = page.request.get(f"{BASE_URL}/api/integrations/cross-chain")
+    assert crosschain.ok
+    crosschain_body = crosschain.json()
+    assert crosschain_body["schema"] == "0guard.crosschain_catalog.v1"
+    assert crosschain_body["x402"]["mode"] == "prepared_not_live"
+    assert crosschain_body["safety"]["bridgingEnabled"] is False
+
+    crosschain_readiness = page.request.get(
+        f"{BASE_URL}/api/integrations/cross-chain/readiness"
+    )
+    assert crosschain_readiness.ok
+    crosschain_readiness_body = crosschain_readiness.json()
+    assert crosschain_readiness_body["schema"] == "0guard.crosschain_readiness.v1"
+    assert crosschain_readiness_body["live"] is False
+    assert crosschain_readiness_body["paymentReadiness"]["x402Ready"] is False
+
+    virtuals = page.request.get(f"{BASE_URL}/api/integrations/virtuals-facilitator")
+    assert virtuals.ok
+    virtuals_body = virtuals.json()
+    assert virtuals_body["schema"] == "0guard.virtuals_facilitator_manifest.v1"
+    assert virtuals_body["agent"]["launchStatus"] == "prepared_operator_required"
 
     submission = page.request.get(f"{BASE_URL}/api/hackathon/submission-brief")
     assert submission.ok

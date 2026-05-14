@@ -35,7 +35,7 @@ One-line description:
 ## Summary
 
 ```text
-0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, and Storage-ready threat-intel root hashes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, or sends Telegram messages.
+0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, Storage-ready threat-intel root hashes, and a read-only cross-chain integration fabric for Virtuals/Base, x402, EVM expansion chains, and Celestia/TIA proof lanes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, launches agents, settles payments, or sends Telegram messages.
 ```
 
 ## Problem
@@ -63,6 +63,8 @@ Proof routes to show:
 /api/evaluate with enable_0g_anchor=true and enable_0g_storage=true
 /api/data/provenance
 /api/data/provenance?live=1
+/api/integrations/cross-chain
+/api/integrations/virtuals-facilitator
 docs/hackathon-0g/mainnet-proof.json
 ```
 
@@ -174,4 +176,6 @@ Readiness audit:
 - Do not claim live 0G Compute inference.
 - Do not imply the browser can sign, trade, bridge, send Telegram messages, or
   move funds.
+- Do not claim live Virtuals launch, x402 settlement, or custom 0G x402
+  facilitation until those paths are separately configured and verified.
 - Do not mirror or resell raw upstream OSINT payloads.

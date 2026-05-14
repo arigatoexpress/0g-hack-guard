@@ -17,6 +17,11 @@ import secrets
 
 from flask import Flask, Response, jsonify, render_template, request
 
+from guard0.crosschain import (
+    cross_chain_catalog,
+    cross_chain_readiness,
+    virtuals_facilitator_manifest,
+)
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.mira import build_mira_security_preview
 from guard0.osint import (
@@ -84,6 +89,10 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-submission-packet",
     "#load-submission-readiness",
     "#load-threat-passport",
+    "#load-cross-chain-catalog",
+    "#load-cross-chain-readiness",
+    "#load-virtuals-facilitator",
+    "#cross-chain-output",
     "#osint-output",
     "#verify-receipt-hash",
     "#verify-receipt",
@@ -348,6 +357,9 @@ def api_frontend_contract():
                 "/api/osint/sources",
                 "/api/osint/readiness",
                 "/api/osint/signals",
+                "/api/integrations/cross-chain",
+                "/api/integrations/cross-chain/readiness",
+                "/api/integrations/virtuals-facilitator",
                 "/api/hackathon/submission-brief",
                 "/api/hackathon/submission-packet",
                 "/api/hackathon/readiness",
@@ -376,6 +388,9 @@ def api_frontend_contract():
                 "load-submission-packet",
                 "load-submission-readiness",
                 "load-threat-passport",
+                "load-cross-chain-catalog",
+                "load-cross-chain-readiness",
+                "load-virtuals-facilitator",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -459,6 +474,25 @@ def api_osint_signals():
     if limit_value < 1 or limit_value > 100:
         return jsonify({"error": "limit must be between 1 and 100"}), 400
     return jsonify(osint_signals(live=live, limit=limit_value))
+
+
+@app.route("/api/integrations/cross-chain", methods=["GET"])
+def api_cross_chain_catalog():
+    return jsonify(cross_chain_catalog())
+
+
+@app.route("/api/integrations/cross-chain/readiness", methods=["GET"])
+def api_cross_chain_readiness():
+    live = _truthy_query_arg("live")
+    include_non_default = _truthy_query_arg("include_non_default")
+    return jsonify(
+        cross_chain_readiness(live=live, include_non_default=include_non_default)
+    )
+
+
+@app.route("/api/integrations/virtuals-facilitator", methods=["GET"])
+def api_virtuals_facilitator():
+    return jsonify(virtuals_facilitator_manifest())
 
 
 @app.route("/api/hackathon/submission-brief", methods=["GET"])

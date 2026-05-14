@@ -28,8 +28,9 @@
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **real April 2026 exploits** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
 3. **0G-Native Proofs** — Reads live 0G status, prepares policy receipt hashes, and includes a public 0G mainnet receipt anchor proof while keeping workbench writes operator-controlled.
 4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
-5. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
-6. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
+5. **Cross-Chain Integration Fabric** — Catalogs 0G, Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, and Celestia/TIA proof lanes with read-only readiness probes.
+6. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
+7. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
 ---
 
@@ -45,6 +46,8 @@
 ### Smart Contract
 
 `contracts/PolicyReceiptAnchor.sol` — A minimal 0G Chain contract that stores `(receipt_hash, decision, severity, agent_id, timestamp)` events. Fully auditable and queryable via 0G Explorer.
+
+`contracts/PolicyReceiptAnchorV2.sol` — A prepared upgrade path for explorer-readable logs with `policyVersion`, `datasetFingerprint`, `evidenceRoot`, `storageRoot`, `shortMemo`, and `sourceIds`. It is not the deployed mainnet contract yet.
 
 ---
 
@@ -142,6 +145,9 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/sources` | Rights-aware OSINT source registry with owners, URLs, retrieval modes, TTLs, and caveats |
 | `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
+| `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, and Celestia/TIA |
+| `GET`  | `/api/integrations/cross-chain/readiness` | Read-only cross-chain readiness; add `?live=1` for safe EVM RPC probes |
+| `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |
 | `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |

@@ -512,6 +512,11 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "storage": "Deterministic Storage-ready threat-intel receipts and root hashes.",
             "compute": "Planned 0G Compute anomaly scorer; not claimed as live inference today.",
             "agentIdentity": "Receipts can include agent_id for accountable agent sessions.",
+            "crossChain": (
+                "Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, "
+                "and Celestia/TIA are exposed through a read-only integration fabric; live "
+                "agent launch, settlement, bridges, swaps, and signatures remain operator-only."
+            ),
         },
         "dataProduct": {
             "incidentCount": summary["stats"]["incidentCount"],
@@ -531,6 +536,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Incident provenance matrix with live DeFiLlama correlation support.",
             "Submission brief API for judge/operator readback.",
             "0G mainnet PolicyReceiptAnchor deployment and one anchored threat receipt.",
+            "Read-only cross-chain integration catalog and Virtuals/Base facilitator manifest.",
         ],
         "operatorRequired": [
             "Record and upload the <=3 minute demo video.",
@@ -540,6 +546,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
         "claimsToAvoid": [
             "Do not claim live 0G Compute inference until a real router call is wired.",
             "Do not imply the browser can sign, trade, send Telegram messages, or move funds.",
+            "Do not claim live Virtuals launch or x402 settlement until an operator enables and verifies those paths.",
         ],
     }
 

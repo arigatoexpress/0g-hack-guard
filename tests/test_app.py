@@ -85,6 +85,9 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/sources" in data["apiRoutes"]
     assert "/api/osint/readiness" in data["apiRoutes"]
     assert "/api/osint/signals" in data["apiRoutes"]
+    assert "/api/integrations/cross-chain" in data["apiRoutes"]
+    assert "/api/integrations/cross-chain/readiness" in data["apiRoutes"]
+    assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
     assert "/api/hackathon/submission-packet" in data["apiRoutes"]
     assert "/api/hackathon/readiness" in data["apiRoutes"]
@@ -103,6 +106,10 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
     assert "#load-threat-passport" in data["requiredSelectors"]
+    assert "#load-cross-chain-catalog" in data["requiredSelectors"]
+    assert "#load-cross-chain-readiness" in data["requiredSelectors"]
+    assert "#load-virtuals-facilitator" in data["requiredSelectors"]
+    assert "#cross-chain-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -247,6 +254,35 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 26
     assert passport_body["signatureCoverage"]["incidentCount"] == 28
     assert passport_body["safety"]["rawPayloadsReturned"] is False
+
+
+def test_cross_chain_integration_routes_are_read_only(client):
+    catalog = client.get("/api/integrations/cross-chain")
+    assert catalog.status_code == 200
+    catalog_body = catalog.get_json()
+    assert catalog_body["schema"] == "0guard.crosschain_catalog.v1"
+    assert catalog_body["targetCount"] >= 8
+    assert catalog_body["x402"]["mode"] == "prepared_not_live"
+    assert catalog_body["safety"]["bridgingEnabled"] is False
+    assert catalog_body["safety"]["moneyMovementEnabled"] is False
+
+    readiness = client.get("/api/integrations/cross-chain/readiness")
+    assert readiness.status_code == 200
+    readiness_body = readiness.get_json()
+    assert readiness_body["schema"] == "0guard.crosschain_readiness.v1"
+    assert readiness_body["live"] is False
+    assert readiness_body["attemptedRpcProbes"] == 0
+    assert readiness_body["paymentReadiness"]["x402Ready"] is False
+    assert readiness_body["agentReadiness"]["virtualsLiveAgentLaunched"] is False
+    assert readiness_body["safety"]["transactionSigningEnabled"] is False
+
+    manifest = client.get("/api/integrations/virtuals-facilitator")
+    assert manifest.status_code == 200
+    manifest_body = manifest.get_json()
+    assert manifest_body["schema"] == "0guard.virtuals_facilitator_manifest.v1"
+    assert manifest_body["agent"]["name"] == "0guard Facilitator"
+    assert manifest_body["agent"]["launchStatus"] == "prepared_operator_required"
+    assert manifest_body["safety"]["externalAgentLaunchEnabled"] is False
 
 
 def test_osint_signal_route_rejects_bad_limit(client):

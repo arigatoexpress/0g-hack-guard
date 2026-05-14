@@ -1,0 +1,621 @@
+"""Cross-chain integration fabric for 0guard.
+
+This module is intentionally read-only. It exposes verified network metadata,
+payment/agent integration posture, and optional RPC health probes without
+signing, broadcasting, bridging, swapping, or launching agents.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import time
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any
+
+CROSSCHAIN_CATALOG_SCHEMA = "0guard.crosschain_catalog.v1"
+CROSSCHAIN_READINESS_SCHEMA = "0guard.crosschain_readiness.v1"
+AGENT_FACILITATOR_SCHEMA = "0guard.virtuals_facilitator_manifest.v1"
+
+
+@dataclass(frozen=True)
+class ChainTarget:
+    id: str
+    name: str
+    kind: str
+    status: str
+    chain_id: int | None
+    rpc_env: str | None
+    default_rpc: str | None
+    explorer: str | None
+    native_asset: str
+    evm_compatible: bool
+    probe_default: bool
+    capabilities: tuple[str, ...]
+    x402_posture: str
+    proof_strategy: str
+    official_sources: tuple[str, ...]
+    caveats: tuple[str, ...] = ()
+
+    def public(self) -> dict[str, Any]:
+        rpc = configured_rpc(self)
+        return {
+            "id": self.id,
+            "name": self.name,
+            "kind": self.kind,
+            "status": self.status,
+            "chainId": self.chain_id,
+            "nativeAsset": self.native_asset,
+            "evmCompatible": self.evm_compatible,
+            "rpc": rpc,
+            "rpcEnv": self.rpc_env,
+            "rpcConfigured": bool(rpc),
+            "explorer": self.explorer,
+            "probeDefault": self.probe_default,
+            "capabilities": list(self.capabilities),
+            "x402Posture": self.x402_posture,
+            "proofStrategy": self.proof_strategy,
+            "officialSources": list(self.official_sources),
+            "caveats": list(self.caveats),
+        }
+
+
+CHAIN_TARGETS: tuple[ChainTarget, ...] = (
+    ChainTarget(
+        id="0g_mainnet",
+        name="0G Mainnet",
+        kind="proof_anchor",
+        status="mainnet",
+        chain_id=16661,
+        rpc_env="ZGG_CHAIN_RPC",
+        default_rpc="https://evmrpc.0g.ai",
+        explorer="https://chainscan.0g.ai",
+        native_asset="0G",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=(
+            "policy_receipt_anchor",
+            "read_only_rpc",
+            "storage_ready_root_hashes",
+            "custom_x402_facilitator_candidate",
+        ),
+        x402_posture=(
+            "custom_facilitator_required; current public x402 facilitators do not list 0G "
+            "as a default settlement network"
+        ),
+        proof_strategy="Anchor receipt hashes and readable summaries on 0G; store full receipt JSON in 0G Storage when configured.",
+        official_sources=(
+            "https://docs.0g.ai/developer-hub/mainnet/mainnet-overview",
+            "https://docs.0g.ai/developer-hub/building-on-0g/contracts-on-0g/deploy-contracts",
+        ),
+    ),
+    ChainTarget(
+        id="base_mainnet",
+        name="Base Mainnet",
+        kind="agent_payment_network",
+        status="mainnet",
+        chain_id=8453,
+        rpc_env="BASE_RPC_URL",
+        default_rpc="https://mainnet.base.org",
+        explorer="https://basescan.org",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("virtuals_protocol", "x402_default_network", "agent_identity", "read_only_rpc"),
+        x402_posture="supported_default_network_for_x402_payments",
+        proof_strategy="Use Base/x402 for paid artifact access; anchor the resulting 0guard policy proof to 0G.",
+        official_sources=(
+            "https://docs.base.org/base-chain/network-information",
+            "https://docs.cdp.coinbase.com/x402/network-support",
+            "https://whitepaper.virtuals.io/",
+        ),
+        caveats=("Launching or tokenizing an agent on Virtuals is an external side effect and stays operator-only.",),
+    ),
+    ChainTarget(
+        id="arbitrum_one",
+        name="Arbitrum One",
+        kind="agent_payment_network",
+        status="mainnet",
+        chain_id=42161,
+        rpc_env="ARBITRUM_RPC_URL",
+        default_rpc="https://arb1.arbitrum.io/rpc",
+        explorer="https://arbiscan.io",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("x402_default_network", "read_only_rpc", "artifact_access"),
+        x402_posture="supported_default_network_for_x402_payments",
+        proof_strategy="Offer paid read access to derived threat receipts while preserving 0G as the proof anchor.",
+        official_sources=(
+            "https://docs.arbitrum.io/for-devs/dev-tools-and-resources/chain-info",
+            "https://docs.cdp.coinbase.com/x402/network-support",
+        ),
+    ),
+    ChainTarget(
+        id="polygon_pos",
+        name="Polygon PoS",
+        kind="agent_payment_network",
+        status="mainnet",
+        chain_id=137,
+        rpc_env="POLYGON_RPC_URL",
+        default_rpc=None,
+        explorer="https://polygonscan.com",
+        native_asset="POL",
+        evm_compatible=True,
+        probe_default=False,
+        capabilities=("x402_default_network", "polygon_x402_facilitator", "read_only_rpc"),
+        x402_posture="supported_default_network_for_x402_payments",
+        proof_strategy="Use x402 facilitator support for low-cost paid API gates; settle proof hashes separately on 0G.",
+        official_sources=(
+            "https://docs.polygon.technology/pos/reference/rpc-endpoints/",
+            "https://docs.polygon.technology/tools/x402/",
+            "https://docs.cdp.coinbase.com/x402/network-support",
+        ),
+        caveats=(
+            "Set POLYGON_RPC_URL from an approved provider for read-only probes; "
+            "unauthenticated public endpoints may reject requests.",
+        ),
+    ),
+    ChainTarget(
+        id="megaeth_mainnet",
+        name="MegaETH Mainnet",
+        kind="evm_expansion_network",
+        status="mainnet",
+        chain_id=4326,
+        rpc_env="MEGAETH_MAINNET_RPC_URL",
+        default_rpc="https://mainnet.megaeth.com/rpc",
+        explorer="https://megaexplorer.xyz",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("read_only_rpc", "evm_policy_simulation", "future_low_latency_agent_flow"),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy="Treat MegaETH mainnet as a fast EVM readiness lane until payment support is explicit.",
+        official_sources=("https://docs.megaeth.com/tools/rpc",),
+        caveats=("Use for read-only readiness unless a separate operator approves deployment or settlement.",),
+    ),
+    ChainTarget(
+        id="megaeth_testnet",
+        name="MegaETH Testnet",
+        kind="evm_expansion_network",
+        status="public_testnet",
+        chain_id=6343,
+        rpc_env="MEGAETH_RPC_URL",
+        default_rpc="https://carrot.megaeth.com/rpc",
+        explorer="https://www.megaexplorer.xyz",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("read_only_rpc", "evm_policy_simulation", "future_low_latency_agent_flow"),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy="Treat MegaETH as a fast EVM policy simulation/readiness lane until payment support is explicit.",
+        official_sources=("https://docs.megaeth.com/tools/rpc",),
+        caveats=("Use as testnet/readiness evidence, not production settlement.",),
+    ),
+    ChainTarget(
+        id="monad_mainnet",
+        name="Monad Mainnet",
+        kind="evm_expansion_network",
+        status="mainnet_or_emerging",
+        chain_id=143,
+        rpc_env="MONAD_RPC_URL",
+        default_rpc=None,
+        explorer="https://explorer.monad.xyz",
+        native_asset="MON",
+        evm_compatible=True,
+        probe_default=False,
+        capabilities=("evm_policy_simulation", "catalog_ready_env_rpc_required"),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy="Catalog chain metadata and allow read-only probes when MONAD_RPC_URL is explicitly configured.",
+        official_sources=("https://docs.monad.xyz/network-reference/network-information",),
+        caveats=("No unauthenticated official RPC endpoint is assumed by default.",),
+    ),
+    ChainTarget(
+        id="hyperevm_mainnet",
+        name="HyperEVM Mainnet",
+        kind="evm_expansion_network",
+        status="mainnet",
+        chain_id=999,
+        rpc_env="HYPEREVM_RPC_URL",
+        default_rpc="https://rpc.hyperliquid.xyz/evm",
+        explorer="https://hyperevmscan.io",
+        native_asset="HYPE",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("read_only_rpc", "evm_policy_simulation", "hype_ecosystem_guardrail"),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy="Add HyperEVM calldata/intent checks while leaving trade/order execution out of scope.",
+        official_sources=("https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",),
+    ),
+    ChainTarget(
+        id="tempo_moderato_testnet",
+        name="Tempo Moderato Testnet",
+        kind="payment_expansion_network",
+        status="testnet",
+        chain_id=42431,
+        rpc_env="TEMPO_RPC_URL",
+        default_rpc="https://rpc.testnet.tempo.xyz",
+        explorer="https://explorer.testnet.tempo.xyz",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=("read_only_rpc", "payment_chain_watchlist", "future_agentic_payments"),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy="Track Tempo as an emerging payment chain and gate claims to testnet readback until mainnet support is explicit.",
+        official_sources=("https://docs.tempo.xyz/testnet/getting-started",),
+        caveats=("Tempo is treated as testnet/integration-watchlist in 0guard until mainnet details are configured.",),
+    ),
+    ChainTarget(
+        id="celestia_blobstream",
+        name="Celestia / TIA Blobstream",
+        kind="data_availability_proof",
+        status="mainnet_da_layer",
+        chain_id=None,
+        rpc_env="CELESTIA_RPC_URL",
+        default_rpc=None,
+        explorer="https://celenium.io",
+        native_asset="TIA",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=("data_availability", "blobstream_evm_proof_bridge", "catalog_ready_env_rpc_required"),
+        x402_posture="not_an_evm_settlement_target_for_x402_by_default",
+        proof_strategy="Use Celestia as a DA/Blobstream proof lane for receipt bundles, not as an EVM payment rail.",
+        official_sources=(
+            "https://docs.celestia.org/how-to-guides/blobstream",
+            "https://docs.celestia.org/how-to-guides/interact",
+        ),
+        caveats=("TIA is not an EVM chain target; integrate via DA proofs or Blobstream, not EVM tx assumptions.",),
+    ),
+)
+
+
+def configured_rpc(target: ChainTarget) -> str | None:
+    if target.rpc_env:
+        configured = os.getenv(target.rpc_env)
+        if configured:
+            return configured
+    return target.default_rpc
+
+
+def cross_chain_catalog() -> dict[str, Any]:
+    """Return source-cited cross-chain integration metadata."""
+    targets = [target.public() for target in CHAIN_TARGETS]
+    return {
+        "schema": CROSSCHAIN_CATALOG_SCHEMA,
+        "generatedAt": _now(),
+        "targetCount": len(targets),
+        "evmTargetCount": sum(1 for target in targets if target["evmCompatible"]),
+        "probeDefaultCount": sum(1 for target in targets if target["probeDefault"]),
+        "targets": targets,
+        "virtualsOnBase": virtuals_facilitator_manifest(include_catalog=False)["virtuals"],
+        "x402": _x402_posture(),
+        "readableReceiptPlan": _readable_receipt_plan(),
+        "safety": _crosschain_safety(live=False),
+    }
+
+
+def cross_chain_readiness(
+    *,
+    live: bool = False,
+    timeout_seconds: float = 3.0,
+    include_non_default: bool = False,
+) -> dict[str, Any]:
+    """Return cross-chain readiness, optionally with read-only RPC probes."""
+    probes = []
+    attempted = 0
+    ok = 0
+    for target in CHAIN_TARGETS:
+        should_probe = (
+            live
+            and target.evm_compatible
+            and bool(configured_rpc(target))
+            and (target.probe_default or include_non_default)
+        )
+        if should_probe:
+            attempted += 1
+            probe = _probe_evm_rpc(target, timeout_seconds=timeout_seconds)
+            if probe["status"] == "ok":
+                ok += 1
+        else:
+            probe = _not_probed(target, live=live, include_non_default=include_non_default)
+        probes.append(probe)
+
+    return {
+        "schema": CROSSCHAIN_READINESS_SCHEMA,
+        "generatedAt": _now(),
+        "live": live,
+        "attemptedRpcProbes": attempted,
+        "okRpcProbes": ok,
+        "rpcReadinessRatio": round(ok / attempted, 4) if attempted else None,
+        "paymentReadiness": _payment_readiness(),
+        "agentReadiness": _agent_readiness(),
+        "probes": probes,
+        "nextOperatorActions": _next_operator_actions(),
+        "safety": _crosschain_safety(live=live),
+    }
+
+
+def virtuals_facilitator_manifest(*, include_catalog: bool = True) -> dict[str, Any]:
+    """Return a deployable-but-not-deployed Virtuals/Base facilitator manifest."""
+    manifest = {
+        "schema": AGENT_FACILITATOR_SCHEMA,
+        "generatedAt": _now(),
+        "agent": {
+            "name": "0guard Facilitator",
+            "purpose": (
+                "Broker pre-wallet risk checks, paid threat-receipt access, and 0G proof "
+                "verification for agentic wallet workflows."
+            ),
+            "network": "Base",
+            "chainId": 8453,
+            "launchStatus": "prepared_operator_required",
+            "deploymentMode": "manifest_only_no_external_side_effects",
+            "operatorRequired": [
+                "Create or connect Virtuals account/project.",
+                "Review any Virtuals launch/token/agent terms.",
+                "Provide explicit approval before any on-chain launch, payment, or agent publish.",
+                "Configure BASE_RPC_URL and any Virtuals/GAME credentials outside the repo.",
+            ],
+        },
+        "virtuals": {
+            "protocol": "Virtuals Protocol",
+            "primaryNetwork": "Base",
+            "integrationUse": "agent_identity_and_distribution",
+            "officialSources": [
+                "https://whitepaper.virtuals.io/",
+                "https://whitepaper.virtuals.io/developer-documents/game-framework/",
+            ],
+            "caveats": [
+                "0guard has not launched a live Virtuals agent in this repo state.",
+                "Any Virtuals launch or token action is an external side effect and is not triggered by API routes.",
+            ],
+        },
+        "capabilities": [
+            {
+                "id": "risk_assess_intent",
+                "route": "/api/evaluate",
+                "mode": "read_only_pre_wallet",
+                "output": "allow_review_deny_receipt",
+            },
+            {
+                "id": "verify_0g_receipt",
+                "route": "/api/0g/receipt",
+                "mode": "read_only_contract_lookup",
+                "output": "verified_receipt_or_not_found",
+            },
+            {
+                "id": "cross_chain_readiness",
+                "route": "/api/integrations/cross-chain/readiness",
+                "mode": "read_only_rpc_probe_optional",
+                "output": "chain_probe_and_payment_readiness",
+            },
+            {
+                "id": "quote_paid_threat_packet",
+                "route": "planned:/api/x402/threat-packets/<packet_id>/quote",
+                "mode": "planned_x402_no_live_settlement_yet",
+                "output": "payment_requirements_plus_rights_envelope",
+            },
+        ],
+        "paymentPolicy": _x402_posture(),
+        "safety": _crosschain_safety(live=False),
+    }
+    if include_catalog:
+        manifest["crossChainTargets"] = [target.public() for target in CHAIN_TARGETS]
+    return manifest
+
+
+def _probe_evm_rpc(target: ChainTarget, *, timeout_seconds: float) -> dict[str, Any]:
+    started = time.perf_counter()
+    rpc = configured_rpc(target)
+    if not rpc:
+        return _not_probed(target, live=True, include_non_default=True)
+    try:
+        observed_chain_id = _rpc_int(rpc, "eth_chainId", timeout_seconds=timeout_seconds)
+        latest_block = _rpc_int(rpc, "eth_blockNumber", timeout_seconds=timeout_seconds)
+        chain_id_matches = target.chain_id is None or observed_chain_id == target.chain_id
+        return {
+            "id": target.id,
+            "name": target.name,
+            "status": "ok" if chain_id_matches else "chain_id_mismatch",
+            "rpc": rpc,
+            "chainId": target.chain_id,
+            "observedChainId": observed_chain_id,
+            "latestBlockNumber": latest_block,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "error": None,
+            "readOnly": True,
+        }
+    except Exception as exc:  # pragma: no cover - live network dependent
+        return {
+            "id": target.id,
+            "name": target.name,
+            "status": "degraded",
+            "rpc": rpc,
+            "chainId": target.chain_id,
+            "observedChainId": None,
+            "latestBlockNumber": None,
+            "latencyMs": int((time.perf_counter() - started) * 1000),
+            "error": f"{type(exc).__name__}: {exc}",
+            "readOnly": True,
+        }
+
+
+def _rpc_int(rpc: str, method: str, *, timeout_seconds: float) -> int:
+    payload = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": []}).encode()
+    request = urllib.request.Request(
+        rpc,
+        data=payload,
+        headers={"Content-Type": "application/json", "User-Agent": "0guard-crosschain/0.1"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+        body = response.read(4096)
+    decoded = json.loads(body.decode("utf-8"))
+    if "error" in decoded:
+        raise RuntimeError(decoded["error"])
+    result = decoded.get("result")
+    if not isinstance(result, str):
+        raise RuntimeError(f"{method} returned no hex result")
+    return int(result, 16)
+
+
+def _not_probed(target: ChainTarget, *, live: bool, include_non_default: bool) -> dict[str, Any]:
+    if not target.evm_compatible:
+        status = "catalog_only_non_evm"
+        reason = "Target is not an EVM RPC endpoint; use its native/DA proof path."
+    elif not live:
+        status = "not_checked"
+        reason = "Live RPC probing disabled."
+    elif not configured_rpc(target):
+        status = "env_rpc_required"
+        reason = f"Set {target.rpc_env} to enable a read-only probe." if target.rpc_env else "No RPC configured."
+    elif not target.probe_default and not include_non_default:
+        status = "not_default_probed"
+        reason = "Set include_non_default=1 to probe configured non-default targets."
+    else:
+        status = "not_checked"
+        reason = "No probe attempted."
+    return {
+        "id": target.id,
+        "name": target.name,
+        "status": status,
+        "rpc": configured_rpc(target),
+        "chainId": target.chain_id,
+        "observedChainId": None,
+        "latestBlockNumber": None,
+        "latencyMs": None,
+        "error": reason,
+        "readOnly": True,
+    }
+
+
+def _payment_readiness() -> dict[str, Any]:
+    supported = [
+        target.id
+        for target in CHAIN_TARGETS
+        if target.x402_posture == "supported_default_network_for_x402_payments"
+    ]
+    custom = [
+        target.id
+        for target in CHAIN_TARGETS
+        if target.x402_posture.startswith("custom_facilitator_required")
+    ]
+    return {
+        "x402Ready": False,
+        "liveSettlementAllowed": False,
+        "defaultSupportedNetworkIds": supported,
+        "customFacilitatorCandidateIds": custom,
+        "payToConfigured": bool(os.getenv("X402_PAY_TO_ADDRESS")),
+        "middlewareActive": False,
+        "note": (
+            "This repo exposes payment posture only. Live x402 middleware should be enabled "
+            "after pay-to address, facilitator, auth, and replay controls are reviewed."
+        ),
+    }
+
+
+def _agent_readiness() -> dict[str, Any]:
+    return {
+        "virtualsBaseAgentPrepared": True,
+        "virtualsLiveAgentLaunched": False,
+        "operatorLaunchRequired": True,
+        "baseRpcConfigured": bool(configured_rpc(_target_by_id("base_mainnet"))),
+        "externalSideEffectsAllowed": False,
+    }
+
+
+def _x402_posture() -> dict[str, Any]:
+    return {
+        "mode": "prepared_not_live",
+        "recommendedFirstSettlementNetworks": ["base_mainnet", "polygon_pos", "arbitrum_one"],
+        "proofAnchorNetwork": "0g_mainnet",
+        "sellableArtifacts": [
+            "derived_threat_receipt_packets",
+            "source_cited_detector_gap_reports",
+            "cross_chain_agent_safety_readiness",
+        ],
+        "rightsEnvelope": {
+            "paymentIsNotPermission": True,
+            "rawPayloadResaleAllowed": False,
+            "outputPolicy": "derived_metadata_links_hashes_receipts_and_defensive_analysis",
+        },
+        "claimsToAvoid": [
+            "Do not claim x402 settlement is live until middleware verifies and settles a real payment.",
+            "Do not claim 0G-native x402 without a configured facilitator for eip155:16661.",
+            "Do not resell raw upstream OSINT payloads behind payment.",
+        ],
+    }
+
+
+def _readable_receipt_plan() -> dict[str, Any]:
+    return {
+        "currentContract": "PolicyReceiptAnchor",
+        "currentReadableFields": ["decision", "severity", "agentId", "timestamp", "submitter"],
+        "preparedNextContract": "contracts/PolicyReceiptAnchorV2.sol",
+        "recommendedEventFields": [
+            "receiptHash",
+            "decision",
+            "severity",
+            "agentId",
+            "policyVersion",
+            "datasetFingerprint",
+            "evidenceRoot",
+            "storageRoot",
+            "shortMemo",
+            "sourceIds",
+        ],
+        "memoExample": "Blocked unlimited ERC20 approval before signer",
+        "why": (
+            "Keep explorer logs human-readable while storing full receipt JSON in Storage or "
+            "off-chain artifacts addressed by hashes."
+        ),
+    }
+
+
+def _next_operator_actions() -> list[dict[str, str]]:
+    return [
+        {
+            "id": "virtuals_launch",
+            "owner": "operator",
+            "action": "Review and explicitly approve any Virtuals/Base agent launch or token action.",
+        },
+        {
+            "id": "x402_pay_to",
+            "owner": "operator",
+            "action": "Configure X402_PAY_TO_ADDRESS and facilitator choice before enabling middleware.",
+        },
+        {
+            "id": "non_default_rpcs",
+            "owner": "operator",
+            "action": "Add MONAD_RPC_URL or CELESTIA_RPC_URL only if readback from official/provider docs is desired.",
+        },
+    ]
+
+
+def _target_by_id(target_id: str) -> ChainTarget:
+    for target in CHAIN_TARGETS:
+        if target.id == target_id:
+            return target
+    raise KeyError(target_id)
+
+
+def _crosschain_safety(*, live: bool) -> dict[str, Any]:
+    return {
+        "readOnly": True,
+        "liveRpcProbes": live,
+        "rawPayloadsReturned": False,
+        "privateKeyRequired": False,
+        "transactionSigningEnabled": False,
+        "broadcastingEnabled": False,
+        "bridgingEnabled": False,
+        "swappingEnabled": False,
+        "moneyMovementEnabled": False,
+        "externalAgentLaunchEnabled": False,
+    }
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()

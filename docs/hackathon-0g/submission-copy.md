@@ -54,6 +54,11 @@ mistake that human teams already lost money to.
 - 0G mainnet `PolicyReceiptAnchor` proof with one anchored deny receipt.
 - 0G Chain receipt-anchor preflight payloads from the browser workbench.
 - 0G Storage threat-intel payload/root-hash receipts.
+- A cross-chain integration fabric for Virtuals/Base, x402 payment lanes,
+  Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, and Celestia/TIA data
+  availability, exposed as read-only catalog/readiness APIs.
+- A prepared `0guard Facilitator` manifest for future Virtuals/Base deployment;
+  live launch, token, payment, bridge, and swap actions stay operator-only.
 - Telegram Mira opt-in and preview primitives that never send messages from the
   judge workbench.
 
@@ -140,7 +145,10 @@ anchored on 0G mainnet by the dedicated deployer.
    against live public source records with confidence and record hashes.
 9. Show `/api/osint/sources` or `/api/osint/signals?live=1&limit=10` to prove
    the OSINT pipeline has source owners, rights caveats, links, and hashes.
-10. Show Telegram Mira preview only as a no-send opt-in surface.
+10. Show `/api/integrations/cross-chain` and
+    `/api/integrations/virtuals-facilitator` to prove the Base/Virtuals/x402
+    expansion path is prepared without claiming live settlement or launch.
+11. Show Telegram Mira preview only as a no-send opt-in surface.
 
 ## Why This Can Win
 
@@ -154,6 +162,9 @@ anchored on 0G mainnet by the dedicated deployer.
   risk.
 - It turns open-source intelligence into a source-cited data product, not a
   screenshot or one-off scrape.
+- It shows how 0guard can become a cross-chain agent safety/payment layer:
+  x402 for paid derived artifacts, Virtuals/Base for agent distribution, and 0G
+  for proof anchoring.
 - It leaves a clear production path: enable live Storage writes, add runtime
   verifier config/readback, then productionize the compute scorer.
 

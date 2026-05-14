@@ -13,6 +13,8 @@ def test_public_pages_demo_examples_match_real_routes_and_assets():
     assert "docs/og-image.png" not in html
     assert "0guard-workbench-provenance.png" in html
     assert "/api/hackathon/threat-passport" in html
+    assert "/api/integrations/cross-chain" in html
+    assert "/api/integrations/virtuals-facilitator" in html
     assert (
         REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-workbench-provenance.png"
     ).exists()
