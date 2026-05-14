@@ -12,14 +12,20 @@ private keys or real writes in the workbench.
 2. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
 3. Use `submission-form-fields.md` as the final copy/paste packet for the
    HackQuest form.
-4. Use `market-intel.md` for current HackQuest requirements, track fit, and
+4. Run `scripts/submission_readiness.py --format markdown` or open
+   `/api/hackathon/readiness` for the final readiness audit.
+5. Use `final-submission-checklist.md` for the manual submission sequence,
+   mainnet proof requirement, demo video, and X post.
+6. Use `threat-receipt-passport.md` as the one-page judge proof drill: intent,
+   verdict, provenance, receipt hash, and 0G proof slots.
+7. Use `market-intel.md` for current HackQuest requirements, track fit, and
    competitor positioning.
-5. Reference `mainnet-gap-register.md` when judges ask what is real today
+8. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
-6. Use `/api/hackathon/submission-brief` for a machine-readable final brief
+9. Use `/api/hackathon/submission-brief` for a machine-readable final brief
    with deadline, repo/demo links, data stats, manual TODOs, and claims to
    avoid.
-7. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
+10. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
    explicit operator placeholders.
 
 ## Winning Thesis
@@ -38,7 +44,8 @@ positioned to provide:
 The current submission demonstrates the full integration shape without crossing
 unsafe boundaries: live/read-only 0G Galileo status, deterministic Storage
 payload/root-hash receipts, chain-anchor preflight payloads, and explicit gaps
-before mainnet broadcast or live decentralized storage writes.
+before mainnet broadcast or live decentralized storage writes. HackQuest-final
+proof still requires a 0G mainnet contract address and 0G Explorer link.
 
 The new OSINT layer strengthens the evidence story: `data/osint_sources.json`
 tracks source ownership, URLs, retrieval mode, rights envelopes, TTLs, and
@@ -54,6 +61,8 @@ against live public source records when the network path is healthy.
 - No private keys in the repo or workbench.
 - No transaction signing or broadcasting.
 - No real 0G writes from the demo path.
+- No claim of HackQuest-valid mainnet proof until the mainnet contract and
+  explorer URL exist.
 - No trading or money movement claims.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.

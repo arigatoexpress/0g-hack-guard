@@ -103,8 +103,9 @@ For the 0G APAC Hackathon, the fastest review path is:
    intel, and mainnet gap register.
 
 Current operator-only submission gaps: public X post, <=3 minute demo video,
-and 0G contract/explorer proof after receipt-anchor deployment or
-configuration.
+and 0G mainnet contract/explorer proof after receipt-anchor deployment or
+configuration. Run `scripts/submission_readiness.py --format markdown` for the
+current final-submit audit.
 
 ---
 
@@ -142,6 +143,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and operator placeholders |
+| `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |

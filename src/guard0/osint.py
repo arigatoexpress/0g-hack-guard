@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import socket
 import time
 import urllib.error
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
+from guard0.chain import ZERO_ADDRESS, get_0g_config
 from guard0.incident_data import (
     dataset_fingerprint,
     detection_coverage,
@@ -33,10 +35,24 @@ OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
 SIGNATURE_MAP_SCHEMA = "0guard.signature_map.v1"
 HACKATHON_BRIEF_SCHEMA = "0guard.hackathon_submission_brief.v1"
 HACKQUEST_PACKET_SCHEMA = "0guard.hackquest_submission_packet.v1"
+HACKQUEST_READINESS_SCHEMA = "0guard.hackquest_readiness_audit.v1"
 PROVENANCE_MATRIX_SCHEMA = "0guard.incident_provenance_matrix.v1"
 PROVENANCE_CACHE_SCHEMA = "0guard.incident_provenance_cache.v1"
 USER_AGENT = "0guard-osint/0.1 (+https://github.com/arigatoexpress/0guard)"
 MAX_FETCH_BYTES = 2_000_000
+HACKQUEST_OFFICIAL_URL = "https://www.hackquest.io/hackathons/0G-APAC-Hackathon"
+HACKQUEST_DEADLINE_UTC8 = "2026-05-16T23:59:00+08:00"
+HACKQUEST_DEADLINE_MDT = "2026-05-16T09:59:00-06:00"
+ZGG_MAINNET_CHAIN_ID = 16661
+ZGG_MAINNET_RPC = "https://evmrpc.0g.ai"
+ZGG_MAINNET_EXPLORER = "https://chainscan.0g.ai"
+ZGG_STORAGE_SCAN = "https://storagescan.0g.ai"
+HACKQUEST_REQUIRED_HASHTAGS = ["#0GHackathon", "#BuildOn0G"]
+HACKQUEST_REQUIRED_TAGS = ["@0G_labs", "@0g_CN", "@0g_Eco", "@HackQuest_"]
+HACKQUEST_ONE_LINER = (
+    "0guard is a 0G-native pre-wallet firewall that checks AI-agent intents "
+    "against exploit intelligence before any signer can act."
+)
 DEFILLAMA_INCIDENT_ALIASES = {
     "driftprotocol": {"drifttrade"},
     "rheafinance": {"rhealend"},
@@ -390,17 +406,14 @@ def hackathon_submission_brief() -> dict[str, Any]:
         "generatedAt": _now(),
         "project": {
             "name": "0guard",
-            "oneLiner": (
-                "0guard is a 0G-native pre-wallet firewall that checks AI-agent "
-                "intents against real exploit intelligence before any signer can act."
-            ),
+            "oneLiner": HACKQUEST_ONE_LINER,
             "repo": "https://github.com/arigatoexpress/0guard",
             "publicDemo": "https://arigatoexpress.github.io/0guard/",
         },
         "deadline": {
             "source": "HackQuest 0G APAC Hackathon",
-            "submissionDeadline": "2026-05-16T23:59:00+08:00",
-            "submissionDeadlineMdt": "2026-05-16T09:59:00-06:00",
+            "submissionDeadline": HACKQUEST_DEADLINE_UTC8,
+            "submissionDeadlineMdt": HACKQUEST_DEADLINE_MDT,
             "submissionDeadlineEdt": "2026-05-16T11:59:00-04:00",
             "preliminaryReview": "2026-05-16 to 2026-05-24",
             "rewardAnnouncement": "2026-05-29T15:59:00+08:00",
@@ -424,8 +437,8 @@ def hackathon_submission_brief() -> dict[str, Any]:
                 "required": True,
                 "status": "operator_required",
                 "needs": [
-                    "0G contract address",
-                    "0G Explorer link",
+                    "0G mainnet contract address",
+                    "0G mainnet Explorer link with verifiable activity",
                     "Clear proof of at least one 0G component",
                 ],
             },
@@ -442,8 +455,8 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "publicXPost": {
                 "mandatory": True,
                 "status": "operator_required",
-                "requiredTags": ["@0G_labs", "@0g_CN", "@0g_Eco", "@HackQuest_"],
-                "requiredHashtags": ["#0GHackathon", "#BuildOn0G"],
+                "requiredTags": HACKQUEST_REQUIRED_TAGS,
+                "requiredHashtags": HACKQUEST_REQUIRED_HASHTAGS,
                 "needs": ["project name", "demo screenshot or short demo clip"],
             },
             "documentation": {
@@ -468,11 +481,14 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Show live /api/0g/status readback.",
             "Show /api/evaluate with 0G anchor/storage flags and the preflight receipt payload.",
             "Show /api/data/provenance?live=1 with source match counts and record hashes.",
-            "Show the contract address and explorer link after operator deployment.",
+            "Show the 0G mainnet contract address and explorer link after operator deployment.",
             "Show the public X post link and <=3 minute demo video link in the HackQuest form.",
         ],
         "0gIntegration": {
-            "chain": "Live read-only Galileo RPC proof plus PolicyReceiptAnchor preflight.",
+            "chain": (
+                "Live read-only Galileo RPC proof plus PolicyReceiptAnchor preflight today; "
+                "HackQuest-final proof requires mainnet chain ID 16661 and a 0G Explorer link."
+            ),
             "storage": "Deterministic Storage-ready threat-intel receipts and root hashes.",
             "compute": "Planned 0G Compute anomaly scorer; not claimed as live inference today.",
             "agentIdentity": "Receipts can include agent_id for accountable agent sessions.",
@@ -496,9 +512,9 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Submission brief API for judge/operator readback.",
         ],
         "operatorRequired": [
-            "Deploy PolicyReceiptAnchor to 0G and save contract/explorer link.",
+            "Deploy PolicyReceiptAnchor to 0G mainnet and save contract/explorer link.",
             "Record and upload the <=3 minute demo video.",
-            "Post public X thread with required HackQuest tags.",
+            "Post public X post with required HackQuest tags.",
             "Submit HackQuest form with repo, demo video, X URL, and 0G proof.",
         ],
         "claimsToAvoid": [
@@ -515,12 +531,10 @@ def hackquest_submission_packet() -> dict[str, Any]:
     provenance = incident_provenance_matrix(live=False)
     screenshot_path = "docs/hackathon-0g/assets/0guard-workbench-provenance.png"
     demo_script_path = "docs/DEMO_VIDEO_SCRIPT.md"
+    checklist_path = "docs/hackathon-0g/final-submission-checklist.md"
     repo_url = brief["project"]["repo"]
     public_demo_url = brief["project"]["publicDemo"]
-    one_liner = (
-        "0guard is a 0G-native pre-wallet firewall that checks AI-agent intents "
-        "against exploit intelligence before any signer can act."
-    )
+    one_liner = HACKQUEST_ONE_LINER
 
     return {
         "schema": HACKQUEST_PACKET_SCHEMA,
@@ -528,7 +542,7 @@ def hackquest_submission_packet() -> dict[str, Any]:
         "event": {
             "name": "0G APAC Hackathon",
             "host": "HackQuest",
-            "officialUrl": "https://www.hackquest.io/hackathons/0G-APAC-Hackathon",
+            "officialUrl": HACKQUEST_OFFICIAL_URL,
             "deadline": brief["deadline"],
         },
         "readiness": {
@@ -547,9 +561,13 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "receipt_preflight_payload",
                 "storage_ready_root_hashes",
                 "provenance_cache",
+                "readiness_audit",
+                "threat_receipt_passport",
             ],
             "operatorRequired": brief["operatorRequired"],
             "claimsToAvoid": brief["claimsToAvoid"],
+            "readinessRoute": "/api/hackathon/readiness",
+            "readinessCommand": ".venv/bin/python scripts/submission_readiness.py --format markdown",
         },
         "recommendedTrack": brief["trackRecommendation"]["primary"],
         "alternateTrack": brief["trackRecommendation"]["secondary"],
@@ -592,10 +610,12 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "publicDemoUrl": public_demo_url,
             "demoVideoUrl": "OPERATOR_REQUIRED_DEMO_VIDEO_URL",
             "xPostUrl": "OPERATOR_REQUIRED_X_POST_URL",
-            "0gContractAddress": "OPERATOR_REQUIRED_0G_CONTRACT_ADDRESS_OR_EXPLICIT_GAP",
-            "0gExplorerUrl": "OPERATOR_REQUIRED_0G_EXPLORER_URL_OR_EXPLICIT_GAP",
+            "0gContractAddress": "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS",
+            "0gExplorerUrl": "OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL",
             "screenshotAsset": screenshot_path,
             "demoScript": demo_script_path,
+            "finalChecklist": checklist_path,
+            "threatReceiptPassport": "docs/hackathon-0g/threat-receipt-passport.md",
         },
         "proofPoints": [
             {
@@ -625,6 +645,7 @@ def hackquest_submission_packet() -> dict[str, Any]:
         ],
         "xPost": {
             "threadFile": "content/hack_guard_thread.json",
+            "singlePostFile": "content/hackquest_x_post.json",
             "mediaPath": screenshot_path,
             "requiredHashtags": brief["submissionRequirements"]["publicXPost"][
                 "requiredHashtags"
@@ -632,10 +653,20 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "requiredTags": brief["submissionRequirements"]["publicXPost"]["requiredTags"],
             "dryRunCommand": (
                 ".venv/bin/python scripts/x_post.py --file "
+                "content/hackquest_x_post.json --media "
+                f"{screenshot_path} --dry-run --verbose"
+            ),
+            "threadDryRunCommand": (
+                ".venv/bin/python scripts/x_post.py --file "
                 "content/hack_guard_thread.json --thread --media "
                 f"{screenshot_path} --dry-run --verbose"
             ),
             "liveCommand": (
+                ".venv/bin/python scripts/x_post.py --file "
+                "content/hackquest_x_post.json --media "
+                f"{screenshot_path} --live-post-confirm POST_TO_X_FROM_0GUARD"
+            ),
+            "threadLiveCommand": (
                 ".venv/bin/python scripts/x_post.py --file "
                 "content/hack_guard_thread.json --thread --media "
                 f"{screenshot_path} --live-post-confirm POST_TO_X_FROM_0GUARD"
@@ -643,10 +674,194 @@ def hackquest_submission_packet() -> dict[str, Any]:
         },
         "manualSubmitOrder": [
             "Record and upload the <=3 minute demo video.",
-            "Decide whether to deploy/configure PolicyReceiptAnchor or submit explicit gap.",
-            "Post the required X thread with screenshot or short clip.",
+            "Deploy/configure PolicyReceiptAnchor on 0G mainnet and capture explorer proof.",
+            "Post the required X post with screenshot or short clip.",
             "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
             "Before final submit, re-open the public repo and Pages URL from an incognito window.",
+        ],
+        "safety": _osint_safety(),
+    }
+
+
+def hackquest_readiness_audit() -> dict[str, Any]:
+    """Audit HackQuest submission readiness from local artifacts and runtime config."""
+    cfg = get_0g_config()
+    contract = str(cfg.get("receipt_contract") or ZERO_ADDRESS)
+    contract_configured = contract.lower() != ZERO_ADDRESS.lower()
+    mainnet_selected = int(cfg.get("chain_id", 0)) == ZGG_MAINNET_CHAIN_ID
+    explorer_url = os.getenv("ZGG_RECEIPT_EXPLORER_URL") or os.getenv("ZGG_EXPLORER_URL") or ""
+    mainnet_contract_ready = mainnet_selected and contract_configured
+    mainnet_proof_ready = mainnet_contract_ready and bool(explorer_url)
+    x_post = _load_x_post_text(REPO_ROOT / "content" / "hackquest_x_post.json")
+    x_thread = _load_x_post_text(REPO_ROOT / "content" / "hack_guard_thread.json")
+
+    requirements = [
+        _requirement(
+            "project_info",
+            "Basic project information",
+            "ready" if _word_count(HACKQUEST_ONE_LINER) <= 30 else "needs_fix",
+            [
+                "Project name: 0guard",
+                f"One-line description words: {_word_count(HACKQUEST_ONE_LINER)}/30",
+            ],
+            "Paste the provided project name, one-liner, and summary into HackQuest.",
+        ),
+        _requirement(
+            "public_repo",
+            "Public or judge-accessible repository",
+            "ready",
+            ["Repository: https://github.com/arigatoexpress/0guard"],
+            "Confirm the GitHub repo is public or explicitly shared with judges.",
+        ),
+        _requirement(
+            "0g_mainnet_contract",
+            "0G mainnet contract address",
+            "ready" if mainnet_contract_ready else "operator_required",
+            [
+                f"Configured chain ID: {cfg.get('chain_id')}",
+                f"Required chain ID: {ZGG_MAINNET_CHAIN_ID}",
+                f"Configured contract: {contract}",
+            ],
+            (
+                "Deploy PolicyReceiptAnchor on 0G mainnet, then set "
+                "ZGG_CHAIN_ID=16661, ZGG_CHAIN_RPC=https://evmrpc.0g.ai, "
+                "and ZGG_RECEIPT_CONTRACT."
+            ),
+        ),
+        _requirement(
+            "0g_mainnet_explorer",
+            "0G Explorer link with verifiable activity",
+            "ready" if mainnet_proof_ready else "operator_required",
+            [
+                f"Explorer URL env configured: {bool(explorer_url)}",
+                f"Expected explorer: {ZGG_MAINNET_EXPLORER}",
+            ],
+            "Anchor at least one receipt and save the 0G mainnet explorer transaction URL.",
+        ),
+        _requirement(
+            "demo_video",
+            "Public demo video, 3 minutes or less",
+            "operator_required",
+            ["Recording script: docs/DEMO_VIDEO_SCRIPT.md"],
+            "Record the live product flow and upload a public YouTube or Loom link.",
+        ),
+        _requirement(
+            "readme_docs",
+            "README and technical documentation",
+            "ready" if _paths_exist("README.md", "docs/hackathon-0g/README.md") else "needs_fix",
+            [
+                "README.md",
+                "docs/hackathon-0g/README.md",
+                "docs/hackathon-0g/submission-form-fields.md",
+            ],
+            "Keep the README and docs aligned with the current mainnet proof boundary.",
+        ),
+        _requirement(
+            "public_x_post",
+            "Public X post with required tags, hashtags, and media",
+            "operator_required",
+            [
+                "Draft: content/hackquest_x_post.json",
+                f"Draft length: {len(x_post)}/280",
+                f"Required tags present: {_contains_all(x_post + x_thread, HACKQUEST_REQUIRED_TAGS)}",
+                (
+                    "Required hashtags present: "
+                    f"{_contains_all(x_post + x_thread, HACKQUEST_REQUIRED_HASHTAGS)}"
+                ),
+                "Media: docs/hackathon-0g/assets/0guard-workbench-provenance.png",
+            ],
+            "Post the prepared draft with the screenshot or demo clip, then paste the X URL.",
+        ),
+        _requirement(
+            "proof_packet",
+            "Copy-ready submission packet",
+            "ready",
+            [
+                "/api/hackathon/submission-packet",
+                "docs/hackathon-0g/submission-form-fields.md",
+                "docs/hackathon-0g/final-submission-checklist.md",
+            ],
+            "Use the packet as the final form source of truth.",
+        ),
+        _requirement(
+            "provenance_data",
+            "Source-aware OSINT/provenance evidence",
+            "ready",
+            [
+                "/api/data/provenance",
+                "/api/data/provenance?live=1",
+                "data/incident_provenance_cache.json",
+            ],
+            "Show provenance counts and raw-payload safety in the demo.",
+        ),
+        _requirement(
+            "safety_boundary",
+            "No secret, signing, send, or money-movement path in the workbench",
+            "ready",
+            ["/api/external-action-contracts", "/api/frontend-contract"],
+            "Keep all live actions outside the browser workbench and operator-confirmed.",
+        ),
+    ]
+    counts: dict[str, int] = {}
+    for requirement in requirements:
+        counts[requirement["status"]] = counts.get(requirement["status"], 0) + 1
+
+    blockers = [
+        item
+        for item in requirements
+        if item["status"] in {"operator_required", "needs_fix"}
+    ]
+    return {
+        "schema": HACKQUEST_READINESS_SCHEMA,
+        "generatedAt": _now(),
+        "event": {
+            "name": "0G APAC Hackathon",
+            "officialUrl": HACKQUEST_OFFICIAL_URL,
+            "deadline": {
+                "utc8": HACKQUEST_DEADLINE_UTC8,
+                "denver": HACKQUEST_DEADLINE_MDT,
+            },
+        },
+        "mainnetRequirement": {
+            "chainId": ZGG_MAINNET_CHAIN_ID,
+            "rpc": ZGG_MAINNET_RPC,
+            "explorer": ZGG_MAINNET_EXPLORER,
+            "storageExplorer": ZGG_STORAGE_SCAN,
+            "note": "HackQuest requires a 0G mainnet contract address and explorer proof.",
+        },
+        "current0GConfig": {
+            "rpc": cfg.get("rpc"),
+            "chainId": cfg.get("chain_id"),
+            "receiptContract": contract,
+            "mainnetSelected": mainnet_selected,
+            "receiptContractConfigured": contract_configured,
+            "explorerUrlConfigured": bool(explorer_url),
+        },
+        "submittableNow": len(blockers) == 0,
+        "statusCounts": counts,
+        "requirements": requirements,
+        "operatorBlockers": [
+            {
+                "id": item["id"],
+                "label": item["label"],
+                "operatorAction": item["operatorAction"],
+            }
+            for item in blockers
+        ],
+        "safeAutonomousWorkRemaining": [
+            "Keep source/provenance docs current if official requirements change.",
+            "Run the readiness audit, tests, browser smoke, and public Pages readback before final submission.",
+            "Prepare copy updates after Ari provides demo, X, and mainnet proof links.",
+        ],
+        "operatorOnlyActions": [
+            "Deploy/sign/broadcast the 0G mainnet receipt anchor.",
+            "Record and upload the demo video.",
+            "Post publicly on X.",
+            "Submit the HackQuest form.",
+        ],
+        "sources": [
+            HACKQUEST_OFFICIAL_URL,
+            "https://docs.0g.ai/developer-hub/mainnet/mainnet-overview",
         ],
         "safety": _osint_safety(),
     }
@@ -939,6 +1154,52 @@ def _public_source_fields(source: dict[str, Any]) -> dict[str, Any]:
         "outputPolicy": source["output_policy"],
         "caveats": source.get("caveats", ""),
     }
+
+
+def _requirement(
+    requirement_id: str,
+    label: str,
+    status: str,
+    evidence: list[str],
+    operator_action: str,
+) -> dict[str, Any]:
+    return {
+        "id": requirement_id,
+        "label": label,
+        "requiredByHackQuest": True,
+        "status": status,
+        "evidence": evidence,
+        "operatorAction": operator_action,
+    }
+
+
+def _paths_exist(*paths: str) -> bool:
+    return all((REPO_ROOT / path).exists() for path in paths)
+
+
+def _word_count(value: str) -> int:
+    return len([word for word in value.split() if word.strip()])
+
+
+def _contains_all(haystack: str, needles: list[str]) -> bool:
+    return all(needle in haystack for needle in needles)
+
+
+def _load_x_post_text(path: Path) -> str:
+    if not path.exists():
+        return ""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return path.read_text(encoding="utf-8")
+    if isinstance(payload, dict):
+        if isinstance(payload.get("text"), str):
+            return payload["text"]
+        if isinstance(payload.get("tweets"), list):
+            return "\n".join(str(item) for item in payload["tweets"])
+    if isinstance(payload, list):
+        return "\n".join(str(item) for item in payload)
+    return str(payload)
 
 
 def _osint_safety() -> dict[str, Any]:

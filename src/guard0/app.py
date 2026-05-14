@@ -21,6 +21,7 @@ from guard0.incident_data import detection_coverage, filter_incidents, incident_
 from guard0.mira import build_mira_security_preview
 from guard0.osint import (
     hackathon_submission_brief,
+    hackquest_readiness_audit,
     hackquest_submission_packet,
     incident_provenance_matrix,
     osint_readiness,
@@ -80,6 +81,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-signals",
     "#load-submission-brief",
     "#load-submission-packet",
+    "#load-submission-readiness",
     "#osint-output",
     "#verify-receipt-hash",
     "#verify-receipt",
@@ -346,6 +348,7 @@ def api_frontend_contract():
                 "/api/osint/signals",
                 "/api/hackathon/submission-brief",
                 "/api/hackathon/submission-packet",
+                "/api/hackathon/readiness",
                 "/api/telegram/status",
                 "/api/external-action-contracts",
                 "/api/evaluate",
@@ -368,6 +371,7 @@ def api_frontend_contract():
                 "load-osint-signals",
                 "load-submission-brief",
                 "load-submission-packet",
+                "load-submission-readiness",
             ],
             "safety": external_action_contracts_payload(),
         }
@@ -461,6 +465,11 @@ def api_hackathon_submission_brief():
 @app.route("/api/hackathon/submission-packet", methods=["GET"])
 def api_hackathon_submission_packet():
     return jsonify(hackquest_submission_packet())
+
+
+@app.route("/api/hackathon/readiness", methods=["GET"])
+def api_hackathon_readiness():
+    return jsonify(hackquest_readiness_audit())
 
 
 @app.route("/api/telegram/status", methods=["GET"])

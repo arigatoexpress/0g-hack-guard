@@ -68,8 +68,9 @@ mistake that human teams already lost money to.
   @HackQuest_`. A ready screenshot asset is available at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
 - 0G proof: live read-only Galileo status and receipt preflight are ready;
-  the contract address and explorer link require operator deployment or
-  configuration before claiming full chain proof.
+  HackQuest-final proof requires operator deployment/configuration of a 0G
+  mainnet contract address and mainnet Explorer link before claiming full chain
+  proof.
 
 ## 0G Integration
 
@@ -152,8 +153,10 @@ shows the round-trip shape and intentionally labels the current anchor status as
 
 ## Mainnet Honesty Statement
 
-This submission is testnet/read-only and preflight by design. It does not sign
-transactions, broadcast 0G writes, move funds, or claim production mainnet
-coverage. The mainnet gap is explicit: deploy and verify the receipt anchor,
-wire live 0G Storage uploads/readbacks, harden key custody outside the workbench,
-and add a contract-level verifier readback before any production launch.
+This submission is safe/read-only and preflight by design until Ari performs the
+operator-only mainnet step. It does not sign transactions, broadcast 0G writes,
+move funds, or claim production mainnet coverage from the browser workbench.
+The mainnet gap is explicit: deploy and verify the receipt anchor on 0G mainnet,
+wire live 0G Storage uploads/readbacks, harden key custody outside the
+workbench, and add a contract-level verifier readback before any production
+launch.

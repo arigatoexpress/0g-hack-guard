@@ -13,6 +13,9 @@ Source: [0G APAC Hackathon on HackQuest](https://www.hackquest.io/hackathons/0G-
 - Valid submissions need basic project info, a public or judge-accessible
   GitHub repo, 0G integration proof, a demo video of no more than 3 minutes,
   README/docs, and a public X post.
+- The 0G proof needs a mainnet contract address and 0G Explorer link showing
+  verifiable on-chain activity. Testnet/Galileo proof is useful demo evidence
+  but should not be framed as the final mainnet proof.
 - The X post is mandatory and must include the project name, a demo screenshot
   or short clip, `#0GHackathon`, `#BuildOn0G`, and tags for `@0G_labs`,
   `@0g_CN`, `@0g_Eco`, and `@HackQuest_`.
@@ -82,7 +85,7 @@ Winning proof sequence:
 ## Current Gaps
 
 - Operator must deploy or configure a receipt anchor contract and provide the
-  explorer link before claiming full 0G Chain proof.
+  0G mainnet explorer link before claiming full HackQuest 0G Chain proof.
 - Operator must record and upload a demo video of 3 minutes or less.
 - Operator must publish the required X post with screenshot or clip.
 - A prepared screenshot exists at

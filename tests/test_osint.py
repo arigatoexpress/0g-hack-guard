@@ -4,6 +4,7 @@ import json
 
 from guard0.osint import (
     hackathon_submission_brief,
+    hackquest_readiness_audit,
     hackquest_submission_packet,
     incident_provenance_matrix,
     load_source_registry,
@@ -164,10 +165,35 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     assert packet["formFields"]["projectName"] == "0guard"
     assert packet["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
     assert packet["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
+    assert packet["formFields"]["0gContractAddress"] == (
+        "OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS"
+    )
     assert packet["formFields"]["screenshotAsset"].endswith("0guard-workbench-provenance.png")
+    assert packet["formFields"]["threatReceiptPassport"].endswith("threat-receipt-passport.md")
     assert packet["recommendedTrack"].startswith("Track 5")
     assert "/api/data/provenance" in {proof["route"] for proof in packet["proofPoints"]}
     assert packet["xPost"]["mediaPath"] == packet["formFields"]["screenshotAsset"]
+    assert packet["xPost"]["singlePostFile"] == "content/hackquest_x_post.json"
     assert "--dry-run" in packet["xPost"]["dryRunCommand"]
     assert "POST_TO_X_FROM_0GUARD" in packet["xPost"]["liveCommand"]
+    assert packet["readiness"]["readinessRoute"] == "/api/hackathon/readiness"
     assert packet["safety"]["rawPayloadsReturned"] is False
+
+
+def test_hackquest_readiness_audit_separates_operator_mainnet_work():
+    audit = hackquest_readiness_audit()
+
+    assert audit["schema"] == "0guard.hackquest_readiness_audit.v1"
+    assert audit["event"]["deadline"]["utc8"] == "2026-05-16T23:59:00+08:00"
+    assert audit["mainnetRequirement"]["chainId"] == 16661
+    assert audit["current0GConfig"]["chainId"] == 16602
+    assert audit["submittableNow"] is False
+    blockers = {item["id"] for item in audit["operatorBlockers"]}
+    assert "0g_mainnet_contract" in blockers
+    assert "0g_mainnet_explorer" in blockers
+    assert "demo_video" in blockers
+    assert "public_x_post" in blockers
+    requirements = {item["id"]: item for item in audit["requirements"]}
+    assert requirements["proof_packet"]["status"] == "ready"
+    assert requirements["provenance_data"]["status"] == "ready"
+    assert audit["safety"]["rawPayloadsReturned"] is False

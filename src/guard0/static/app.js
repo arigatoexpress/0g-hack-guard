@@ -147,6 +147,11 @@ async function loadSubmissionPacket(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadSubmissionReadiness(){
+  const r = await fetch('/api/hackathon/readiness');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadTelegramStatus(){
   const r = await fetch('/api/telegram/status');
   const j = await r.json();
@@ -213,6 +218,7 @@ document.getElementById('load-osint-readiness').addEventListener('click', loadOs
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);
+document.getElementById('load-submission-readiness').addEventListener('click', loadSubmissionReadiness);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);
 document.getElementById('complete-telegram-opt-in').addEventListener('click', completeTelegramOptIn);
 document.getElementById('run-mira-preview').addEventListener('click', runMiraPreview);

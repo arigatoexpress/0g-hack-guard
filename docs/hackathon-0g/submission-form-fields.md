@@ -85,6 +85,12 @@ Screenshot asset:
 docs/hackathon-0g/assets/0guard-workbench-provenance.png
 ```
 
+Final readiness checklist:
+
+```text
+docs/hackathon-0g/final-submission-checklist.md
+```
+
 Demo script:
 
 ```text
@@ -106,13 +112,13 @@ OPERATOR_REQUIRED_X_POST_URL
 0G contract address:
 
 ```text
-OPERATOR_REQUIRED_0G_CONTRACT_ADDRESS_OR_EXPLICIT_GAP
+OPERATOR_REQUIRED_0G_MAINNET_CONTRACT_ADDRESS
 ```
 
 0G explorer URL:
 
 ```text
-OPERATOR_REQUIRED_0G_EXPLORER_URL_OR_EXPLICIT_GAP
+OPERATOR_REQUIRED_0G_MAINNET_EXPLORER_URL
 ```
 
 ## X Post
@@ -127,21 +133,27 @@ Required tags and hashtags:
 Dry-run command:
 
 ```bash
-.venv/bin/python scripts/x_post.py --file content/hack_guard_thread.json --thread --media docs/hackathon-0g/assets/0guard-workbench-provenance.png --dry-run --verbose
+.venv/bin/python scripts/x_post.py --file content/hackquest_x_post.json --media docs/hackathon-0g/assets/0guard-workbench-provenance.png --dry-run --verbose
 ```
 
 Live command after Ari review:
 
 ```bash
-.venv/bin/python scripts/x_post.py --file content/hack_guard_thread.json --thread --media docs/hackathon-0g/assets/0guard-workbench-provenance.png --live-post-confirm POST_TO_X_FROM_0GUARD
+.venv/bin/python scripts/x_post.py --file content/hackquest_x_post.json --media docs/hackathon-0g/assets/0guard-workbench-provenance.png --live-post-confirm POST_TO_X_FROM_0GUARD
+```
+
+Readiness audit:
+
+```bash
+.venv/bin/python scripts/submission_readiness.py --format markdown
 ```
 
 ## Final Submit Order
 
 1. Record and upload the demo video.
-2. Decide whether to deploy/configure `PolicyReceiptAnchor` or submit an
-   explicit proof gap.
-3. Post the required X thread with screenshot or clip.
+2. Deploy/configure `PolicyReceiptAnchor` on 0G mainnet and save the contract
+   address plus explorer URL.
+3. Post the required X post with screenshot or clip.
 4. Paste the fields above into HackQuest.
 5. Re-open the public repo and Pages URL from an incognito window.
 6. Submit before May 16, 2026 at 23:59 UTC+8.

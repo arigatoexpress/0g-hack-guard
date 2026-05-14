@@ -10,12 +10,12 @@
   <meta property="og:url" content="https://arigatoexpress.github.io/0guard/">
   <meta property="og:title" content="0guard — AI Agent Firewall for Crypto Hacks">
   <meta property="og:description" content="Pre-wallet safety layer using source-cited OSINT and 60+ real exploit signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/og-image.png">
+  <meta property="og:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="0guard — AI Agent Firewall for Crypto Hacks">
   <meta name="twitter:description" content="Pre-wallet safety layer using source-cited OSINT and 60+ real exploit signatures to block crypto hacks before an AI agent reaches a signing key. Built on 0G.">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/og-image.png">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/arigatoexpress/0guard/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png">
   <style>
     :root {
       --bg: #0b0c10;
@@ -886,13 +886,22 @@
         <ul>
           <li><strong>Copy/paste packet:</strong> `docs/hackathon-0g/submission-form-fields.md` maps HackQuest fields to ready text and explicit operator placeholders.</li>
           <li><strong>Machine-readable packet:</strong> `/api/hackathon/submission-packet` returns track choice, form fields, proof points, X commands, and submit order.</li>
+          <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` separate ready artifacts from operator-only mainnet proof, demo video, and X post work.</li>
+          <li><strong>Threat receipt passport:</strong> `docs/hackathon-0g/threat-receipt-passport.md` gives judges a one-page proof drill with intent, verdict, provenance, receipt hash, and 0G proof slots.</li>
           <li><strong>Proof-first story:</strong> live 0G Galileo readback, receipt-anchor preflight, Storage-ready root hashes, and provenance cache with no raw upstream payload mirroring.</li>
+          <li><strong>Mainnet boundary:</strong> HackQuest-final proof still needs a 0G mainnet contract address and Explorer URL before submission.</li>
           <li><strong>Prepared media:</strong> `docs/hackathon-0g/assets/0guard-workbench-provenance.png` is ready for the required X post or demo thumbnail.</li>
         </ul>
       </div>
       <div class="hero-ctas reveal" style="margin-top:28px">
         <a class="btn btn-primary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/submission-form-fields.md" target="_blank" rel="noopener">
           Open Submission Fields
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/final-submission-checklist.md" target="_blank" rel="noopener">
+          Final Checklist
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/threat-receipt-passport.md" target="_blank" rel="noopener">
+          Receipt Passport
         </a>
         <a class="btn btn-secondary" href="https://github.com/arigatoexpress/0guard/blob/main/docs/hackathon-0g/assets/0guard-workbench-provenance.png" target="_blank" rel="noopener">
           View Screenshot Asset
@@ -916,54 +925,54 @@
         <div class="api-panel active">
           <div class="code-block">
 <span class="comment"># Block an unlimited approval attempt</span><br>
-<span class="cmd">curl</span> -X POST https://0guard.example/api/evaluate \<br>
+<span class="cmd">curl</span> -X POST http://127.0.0.1:8109/api/evaluate \<br>
 &nbsp;&nbsp;-H <span class="string">"Content-Type: application/json"</span> \<br>
-&nbsp;&nbsp;-d <span class="string">'{"action":"approve","spender":"0xbad...","amount":"115792089237316195423570985008687907853269984665640564039457584007913129639935"}'</span><br>
+&nbsp;&nbsp;-d <span class="string">'{"intent":{"action":"approve","mode":"live_transaction","requires_signature":true,"calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},"enable_0g_anchor":true,"enable_0g_storage":true,"agent_id":"agent-7857-demo"}'</span><br>
 <br>
 <span class="comment"># Response</span><br>
 {<br>
-&nbsp;&nbsp;<span class="key">"verdict"</span>: <span class="string">"DENY"</span>,<br>
-&nbsp;&nbsp;<span class="key">"reason"</span>: <span class="string">"Unlimited ERC-20 approval to unknown contract"</span>,<br>
-&nbsp;&nbsp;<span class="key">"risk_score"</span>: <span class="num">98</span>,<br>
-&nbsp;&nbsp;<span class="key">"matched_signatures"</span>: [<span class="string">"unlimited_approve"</span>, <span class="string">"unknown_spender"</span>],<br>
-&nbsp;&nbsp;<span class="key">"receipt_hash"</span>: <span class="string">"0x7a3f...e9d2"</span><br>
+&nbsp;&nbsp;<span class="key">"decision"</span>: <span class="string">"deny"</span>,<br>
+&nbsp;&nbsp;<span class="key">"severity"</span>: <span class="string">"critical"</span>,<br>
+&nbsp;&nbsp;<span class="key">"blockers"</span>: [<span class="string">"Unlimited ERC-20 approval (max uint256) detected."</span>],<br>
+&nbsp;&nbsp;<span class="key">"receipt_hash"</span>: <span class="string">"9739db...afd1"</span>,<br>
+&nbsp;&nbsp;<span class="key">"zero_g"</span>: {<span class="key">"chain_anchor"</span>: {<span class="key">"status"</span>: <span class="string">"preflight"</span>}, <span class="key">"storage_receipt"</span>: {<span class="key">"stored"</span>: true}}<br>
 }
           </div>
         </div>
         <div class="api-panel">
           <div class="code-block">
 <span class="comment"># Detect a Drift-style social-engineering attack</span><br>
-<span class="cmd">curl</span> -X POST https://0guard.example/api/hack-check \<br>
+<span class="cmd">curl</span> -X POST http://127.0.0.1:8109/api/hack-check \<br>
 &nbsp;&nbsp;-H <span class="string">"Content-Type: application/json"</span> \<br>
-&nbsp;&nbsp;-d <span class="string">'{"tx_data":"0xdurable_nonce_admin_transfer...","chain":"solana"}'</span><br>
+&nbsp;&nbsp;-d <span class="string">'{"action":"approve","calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}'</span><br>
 <br>
 <span class="comment"># Response</span><br>
 {<br>
-&nbsp;&nbsp;<span class="key">"verdict"</span>: <span class="string">"CRITICAL"</span>,<br>
-&nbsp;&nbsp;<span class="key">"threat_type"</span>: <span class="string">"social_engineering"</span>,<br>
-&nbsp;&nbsp;<span class="key">"historical_match"</span>: <span class="string">"Drift Protocol ($285M)"</span>,<br>
-&nbsp;&nbsp;<span class="key">"indicators"</span>: [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"durable_nonce_admin_transfer"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"pre_signed_tx_authority_change"</span><br>
+&nbsp;&nbsp;<span class="key">"blockers"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Critical selector detected: approve(address,uint256) (0x095ea7b3)"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Unlimited ERC-20 approval (max uint256) detected."</span><br>
 &nbsp;&nbsp;],<br>
-&nbsp;&nbsp;<span class="key">"recommended_action"</span>: <span class="string">"IMMEDIATE_DENY_AND_ALERT"</span><br>
+&nbsp;&nbsp;<span class="key">"signatures_matched"</span>: [<span class="string">"critical_selector:approve(address,uint256)"</span>, <span class="string">"unlimited_approval"</span>],<br>
+&nbsp;&nbsp;<span class="key">"iocs_hit"</span>: []<br>
 }
           </div>
         </div>
         <div class="api-panel">
           <div class="code-block">
 <span class="comment"># CLI: evaluate a transaction file</span><br>
-$ <span class="cmd">0guard</span> eval tx.json --chain ethereum<br>
+$ <span class="cmd">0guard</span> evaluate --intent-json '{"action":"approve","mode":"live_transaction","requires_signature":true,"calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}' --anchor --storage --agent-id agent-7857-demo<br>
 <br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">INFO</span>  Loading signature DB (60 incidents, 10 vectors)<br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">WARN</span>  Matched: <span class="string">sequence_flash_swap_withdraw</span><br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">WARN</span>  Historical match: <span class="string">Rhea Finance ($18.4M)</span><br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">CRIT</span>  Verdict: <span class="string">DENY</span> — Flash-loan attack sequence detected<br>
-[<span class="num">2026-05-03T11:42:11Z</span>] <span class="key">INFO</span>  0G Galileo RPC ok; observed chain id <span class="num">16602</span><br>
-[<span class="num">2026-05-03T11:42:12Z</span>] <span class="key">INFO</span>  Receipt prepared for 0G anchor; broadcast disabled<br>
+{<br>
+&nbsp;&nbsp;<span class="key">"decision"</span>: <span class="string">"deny"</span>,<br>
+&nbsp;&nbsp;<span class="key">"severity"</span>: <span class="string">"critical"</span>,<br>
+&nbsp;&nbsp;<span class="key">"zero_g"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"chain_anchor"</span>: {<span class="key">"status"</span>: <span class="string">"preflight"</span>, <span class="key">"chain_id"</span>: <span class="num">16602</span>},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"storage_receipt"</span>: {<span class="key">"stored"</span>: true, <span class="key">"root_hash"</span>: <span class="string">"43fd61...b8bb"</span>}<br>
+&nbsp;&nbsp;}<br>
+}<br>
 <br>
 <span class="comment"># Summary</span><br>
-Risk Score: <span class="num">94</span>/100 | Vectors: <span class="num">2</span> | IOCs: <span class="num">1</span> | 0G Proof: <span class="string">preflight_sha256</span>
+Decision: <span class="string">deny</span> | Chain anchor: <span class="string">preflight</span> | Storage root: <span class="string">ready</span> | Live writes: <span class="string">operator-only</span>
           </div>
         </div>
       </div>

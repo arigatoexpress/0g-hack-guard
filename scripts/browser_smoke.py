@@ -166,6 +166,11 @@ def exercise_workbench(page: Page) -> None:
         "0guard.hackquest_submission_packet.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text("OPERATOR_REQUIRED_DEMO_VIDEO_URL")
+    page.locator("#load-submission-readiness").click()
+    expect(page.locator("#osint-output")).to_contain_text(
+        "0guard.hackquest_readiness_audit.v1"
+    )
+    expect(page.locator("#osint-output")).to_contain_text('"submittableNow": false')
 
     page.locator("#telegram-user-label").fill("browser-smoke")
     page.locator("#create-telegram-registration").click()
@@ -209,10 +214,12 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
+    assert "/api/hackathon/readiness" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
     assert "#load-submission-packet" in frontend_body["requiredSelectors"]
+    assert "#load-submission-readiness" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -283,6 +290,13 @@ def exercise_workbench(page: Page) -> None:
     packet_body = packet.json()
     assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
     assert packet_body["formFields"]["xPostUrl"] == "OPERATOR_REQUIRED_X_POST_URL"
+
+    readiness = page.request.get(f"{BASE_URL}/api/hackathon/readiness")
+    assert readiness.ok
+    readiness_body = readiness.json()
+    assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
+    assert readiness_body["mainnetRequirement"]["chainId"] == 16661
+    assert readiness_body["submittableNow"] is False
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")
     assert zg_status.ok

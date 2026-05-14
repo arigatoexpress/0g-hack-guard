@@ -87,6 +87,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
     assert "/api/hackathon/submission-packet" in data["apiRoutes"]
+    assert "/api/hackathon/readiness" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
@@ -99,6 +100,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-live-provenance" in data["requiredSelectors"]
     assert "#osint-output" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
+    assert "#load-submission-readiness" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
 
@@ -224,6 +226,14 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert packet_body["formFields"]["demoVideoUrl"] == "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
     assert packet_body["xPost"]["mediaPath"].endswith("0guard-workbench-provenance.png")
     assert packet_body["safety"]["rawPayloadsReturned"] is False
+
+    readiness = client.get("/api/hackathon/readiness")
+    assert readiness.status_code == 200
+    readiness_body = readiness.get_json()
+    assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
+    assert readiness_body["mainnetRequirement"]["chainId"] == 16661
+    assert readiness_body["submittableNow"] is False
+    assert readiness_body["safety"]["rawPayloadsReturned"] is False
 
 
 def test_osint_signal_route_rejects_bad_limit(client):
@@ -515,6 +525,27 @@ def test_x_post_cli_dry_run_does_not_require_credentials():
     )
     assert result.returncode == 0
     assert "Dry-run complete" in result.stderr
+
+
+def test_cli_evaluate_runs_without_budget_argument_regression():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "guard0.cli",
+            "evaluate",
+            "--intent-json",
+            '{"action":"simulate","mode":"simulation","requires_signature":false}',
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert '"decision": "allow"' in result.stdout
+    assert "AttributeError" not in result.stderr
 
 
 def test_telegram_post_cli_requires_live_confirmation_before_credentials():

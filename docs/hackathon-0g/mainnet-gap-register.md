@@ -34,10 +34,12 @@ can verify now from what remains before a production/mainnet launch.
 
 ## Mainnet/Testnet Gaps
 
-- Receipt contract deployment: judges can inspect preflight payloads, but
-  on-chain audit requires deployed bytecode. Next step: deploy
-  `PolicyReceiptAnchor.sol` to 0G Galileo with a dedicated testnet deployer,
-  then configure `ZGG_RECEIPT_CONTRACT`.
+- HackQuest-final mainnet proof: judges can inspect preflight payloads and
+  Galileo readbacks, but the final HackQuest requirement is a 0G mainnet
+  contract address plus a 0G Explorer link. Next step: deploy
+  `PolicyReceiptAnchor.sol` to 0G mainnet with a dedicated operator deployer,
+  then configure `ZGG_CHAIN_RPC=https://evmrpc.0g.ai`,
+  `ZGG_CHAIN_ID=16661`, `ZGG_RECEIPT_CONTRACT`, and the final explorer URL.
 - On-chain verifier readback with deployed contract: the route exists, but it
   needs a configured deployed contract to return `verified`. Next step: deploy
   the contract, set `ZGG_RECEIPT_CONTRACT`, anchor at least one receipt, and
@@ -75,4 +77,5 @@ can verify now from what remains before a production/mainnet launch.
 0guard demonstrates the end-to-end safety architecture on 0G without crossing
 dangerous boundaries: live Galileo read proof, deterministic policy receipts,
 Chain anchor preflight, Storage-ready threat-intel receipts, and a clear path to
-testnet/mainnet verification.
+mainnet verification. HackQuest-valid proof starts only after Ari provides the
+0G mainnet contract and explorer link.
