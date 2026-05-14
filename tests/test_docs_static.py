@@ -31,9 +31,9 @@ def test_hackquest_proof_page_exposes_current_evidence_baseline():
 
     assert "assets/0guard-hackquest-demo-final.mp4" in html
     assert "28/28" in html
-    assert "27/28" in html
-    assert "0.9643" in html
-    assert "Quant root cause" in html
+    assert "signature and detection coverage ratio" in html
+    assert "1.0" in html
+    assert "EIP-7702" in html
     assert "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc" in html
     assert "No signing. No broadcasts." in html
     assert "29894a7" in html

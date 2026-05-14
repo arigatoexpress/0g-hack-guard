@@ -267,6 +267,11 @@ def incident_to_detection_payload(incident: dict[str, Any]) -> dict[str, Any]:
             {"action": "grantRole", "calldata": "0x2f2ff15d"},
             {"action": "upgradeTo", "calldata": "0x3659cfe6"},
         ]
+    if "eip-7702" in text.lower() or "batchcall" in text.lower():
+        payload["prompt_text"] += (
+            " EIP-7702 delegated code BatchExecutor BatchCall.batch lacks access control "
+            "permissionless authorized caller reserve pool"
+        )
     if "signature replay" in vector:
         payload["calldata"] = (
             "0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"

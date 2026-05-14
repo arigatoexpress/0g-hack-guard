@@ -94,17 +94,18 @@ def test_signature_map_explains_coverage_gaps():
 
     assert mapping["schema"] == "0guard.signature_map.v1"
     assert mapping["incidentCount"] == 28
-    assert mapping["matchedCount"] == 27
-    assert mapping["gapCount"] == 1
-    assert mapping["coverageRatio"] == 0.9643
-    assert mapping["topGaps"] == {"insufficient_public_root_cause": 1}
+    assert mapping["matchedCount"] == 28
+    assert mapping["gapCount"] == 0
+    assert mapping["coverageRatio"] == 1.0
+    assert mapping["topGaps"] == {}
     drift = next(row for row in mapping["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["matched"] is True
     assert drift["gap"] is None
     quant = next(row for row in mapping["rows"] if row["protocol"] == "Quant")
-    assert quant["attackVector"] == "undisclosed"
-    assert quant["matched"] is False
-    assert quant["recommendedDetector"]
+    assert quant["attackVector"] == "EIP-7702 delegated batch access-control failure"
+    assert quant["matched"] is True
+    assert quant["gap"] is None
+    assert "eip7702_delegated_batch_access_control" in quant["signaturesMatched"]
 
 
 def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
@@ -114,7 +115,7 @@ def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
     assert intel["live"] is False
     assert intel["currentDataset"]["incidentCount"] == 28
     assert intel["currentDataset"]["sourceEvidenceCoverage"] == 1.0
-    assert intel["currentDataset"]["signatureCoverageRatio"] == 0.9643
+    assert intel["currentDataset"]["signatureCoverageRatio"] == 1.0
     assert intel["detectorFamilies"]
     assert any(family["id"] == "behavior_sequence" for family in intel["detectorFamilies"])
     assert any(
@@ -122,7 +123,7 @@ def test_evolving_threat_intelligence_stitches_detector_loop_and_0g_suite():
         and family["matchedIncidentCount"] >= 3
         for family in intel["detectorFamilies"]
     )
-    assert intel["emergingDetectorQueue"]
+    assert intel["emergingDetectorQueue"] == []
     assert intel["liveSourceSignals"]["signalCount"] == 0
     assert intel["zeroGSuite"]["chain"]["status"] == "mainnet_anchor_live"
     assert "shortMemo" in intel["zeroGSuite"]["chain"]["readableV2Ready"]["memoFields"]
@@ -251,7 +252,7 @@ def test_threat_receipt_passport_stitches_judge_proof_packet():
     assert passport["provenance"]["coverage"]["withMatchedEvidence"] == 28
     assert passport["provenance"]["aggregateOnlyGaps"] == []
     assert passport["signatureCoverage"]["incidentCount"] == 28
-    assert passport["signatureCoverage"]["gapCount"] == 1
+    assert passport["signatureCoverage"]["gapCount"] == 0
     assert passport["0gProofBoundary"]["currentStatus"] == (
         "mainnet_anchor_live_plus_read_only_workbench"
     )

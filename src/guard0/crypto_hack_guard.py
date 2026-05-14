@@ -230,6 +230,17 @@ ROUTER_QUOTE_RE = re.compile(
     r"output.?token\s+amount|denomination\s+mismatch)\b",
     re.IGNORECASE,
 )
+ACCESS_CONTROL_RE = re.compile(
+    r"\b(lack\s+of\s+access\s+control|missing\s+access\s+control|missing\s+onlyowner|"
+    r"permissionless\s+(?:caller|batch|function)|unauthorized\s+privileged|"
+    r"privileged\s+actions?|authorized\s+caller|caller\s+authorization)\b",
+    re.IGNORECASE,
+)
+EIP7702_DELEGATED_BATCH_RE = re.compile(
+    r"\b(eip-?7702|delegated?\s+code|delegate\s+code\s+execution|"
+    r"batchexecutor|batchcall(?:\.batch)?|reserve\s+pool)\b",
+    re.IGNORECASE,
+)
 
 # ── High-Risk Action Combinations ────────────────────────────────────────────
 
@@ -692,6 +703,12 @@ def _check_textual_signatures(payload: dict[str, Any]) -> tuple[list[str], list[
     if ROUTER_QUOTE_RE.search(text) or ROUTER_QUOTE_RE.search(action):
         warnings.append("Router quote, decimal, or token-denomination mismatch risk detected.")
         sigs.append("router_quote_denomination_invariant")
+    if ACCESS_CONTROL_RE.search(text) or ACCESS_CONTROL_RE.search(action):
+        blockers.append("Access-control or unauthorized privileged-action risk detected.")
+        sigs.append("access_control_privileged_action")
+    if EIP7702_DELEGATED_BATCH_RE.search(text) or EIP7702_DELEGATED_BATCH_RE.search(action):
+        blockers.append("EIP-7702 delegated account / permissionless batch-call risk detected.")
+        sigs.append("eip7702_delegated_batch_access_control")
 
     # Action-pair risk
     # We look at action + method combinations

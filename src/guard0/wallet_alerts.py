@@ -214,6 +214,19 @@ def _digest_items(
     provenance: dict[str, Any],
 ) -> list[dict[str, Any]]:
     items = []
+    if not (sig_map.get("topGaps") or {}):
+        items.append(
+            {
+                "type": "detector_coverage_complete",
+                "incidentCount": sig_map.get("incidentCount", coverage.get("incidentCount")),
+                "matchedCount": sig_map.get("matchedCount", coverage.get("coveredCount")),
+                "priority": "digest_only",
+                "sourceEvidenceCoverage": provenance["coverage"]["evidenceCoverageRatio"],
+                "coverageRatio": coverage["coverageRatio"],
+                "alertEligible": False,
+                "reason": "All source-linked incident patterns currently map to detector signatures.",
+            }
+        )
     for gap, count in (sig_map.get("topGaps") or {}).items():
         items.append(
             {

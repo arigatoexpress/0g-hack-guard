@@ -103,8 +103,8 @@ shows:
 - `/api/evaluate` with `enable_0g_anchor=true` and `enable_0g_storage=true`
 - `/api/data/provenance` and `/api/data/provenance?live=1`
 - the mainnet contract/explorer proof
-- the signature map showing 27/28 detector coverage and the remaining
-  research-only `Quant` gap
+- the signature map showing 28/28 detector coverage, including the promoted
+  `Quant` EIP-7702 delegated batch access-control detector
 
 ## Required X Post
 

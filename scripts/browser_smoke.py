@@ -339,7 +339,8 @@ def exercise_workbench(page: Page) -> None:
     assert signature_readback.ok
     signature_body = signature_readback.json()
     assert signature_body["schema"] == "0guard.signature_map.v1"
-    assert signature_body["gapCount"] >= 1
+    assert signature_body["gapCount"] == 0
+    assert signature_body["matchedCount"] == 28
 
     osint_sources = page.request.get(f"{BASE_URL}/api/osint/sources")
     assert osint_sources.ok
@@ -429,7 +430,7 @@ def exercise_workbench(page: Page) -> None:
     assert passport_body["receipt"]["decision"] == "deny"
     assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
     assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 28
-    assert passport_body["signatureCoverage"]["gapCount"] == 1
+    assert passport_body["signatureCoverage"]["gapCount"] == 0
     assert passport_body["safety"]["rawPayloadsReturned"] is False
 
     zg_status = page.request.get(f"{BASE_URL}/api/0g/status")

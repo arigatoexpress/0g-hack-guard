@@ -150,8 +150,9 @@ hashes that can be verified without exposing raw upstream data.
 - A prepared screenshot still exists at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
 - Per-incident source evidence is now promoted for 28 of 28 records.
-- The detector map covers 27 of 28 incident-derived patterns. `Quant` remains
-  research-only until stronger public root-cause evidence exists.
+- The detector map covers 28 of 28 incident-derived patterns after promoting
+  SlowMist-syndicated public evidence for the `Quant` EIP-7702 delegated
+  account / permissionless batch-call access-control failure.
 - Remaining production gaps are live 0G Storage upload/readback and 0G Compute
   inference, both documented as future work rather than submitted live claims.
 

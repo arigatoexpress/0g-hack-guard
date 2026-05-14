@@ -241,14 +241,15 @@ required fields, invalid losses, or malformed provenance fields. It reports
 provenance warnings when records lack per-incident source URLs; the current
 dataset is fully source-linked at the incident level.
 
-The signature engine currently covers 27 of 28 incident-derived detection
-seeds (`0.9643` coverage). Newly promoted source-backed categories include
+The signature engine currently covers 28 of 28 incident-derived detection
+seeds (`1.0` coverage). Newly promoted source-backed categories include
 Denaria unsafe-cast math, REVLoans/Juicebox accounting-source spoofing,
 Thetanuts first-depositor vault inflation, Kipseli router quote mismatch,
 Purrlend key compromise, Scallop accounting/index injection, Singularity fee
 tier/oracle misconfiguration, JUDAO access control, and Syndicate bridge
-control risk. The remaining `Quant` row stays
-`insufficient_public_root_cause` because the public naming is still ambiguous.
+control risk. The latest promoted `Quant` row uses SlowMist-syndicated public
+reporting on an EIP-7702 delegated account / permissionless batch-call
+access-control failure.
 
 ### OSINT Pipeline
 

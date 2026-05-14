@@ -1,6 +1,6 @@
 # 0guard Final Demo Video Script
 
-Final generated length: 2:18.0.
+Final generated length: 2:20.1.
 
 Submission rule: HackQuest requires a public demo video of no more than three
 minutes that shows product functionality, user flow, and actual 0G component
@@ -43,7 +43,7 @@ mainnet receipt anchor, source-aware provenance, and the current signature map.
 | 1:20-1:30 | "Every verdict becomes a receipt hash. The browser workbench stays safe: no private key, no signing, no broadcast, and no money movement." | Show the 0G read-only status and safety flags. |
 | 1:30-1:39 | "For this submission, one deny receipt is already anchored on 0G mainnet, so judges can verify that the proof is not just a local demo." | Show the PolicyReceiptAnchor proof data from `docs/hackathon-0g/mainnet-proof.json`. |
 | 1:39-1:49 | "0guard also prepares Storage-ready roots and a provenance matrix. Every incident has source evidence and hashes, while raw upstream payloads stay out of resale." | Show provenance coverage, source matches, and raw-payload safety. |
-| 1:49-1:59 | "The detector map is honest and measurable. It matches 27 of the 28 incident patterns, and leaves Quant in research mode until the public root-cause evidence is stronger." | Click `Load signature map`. Show `matchedCount=27`, `gapCount=1`, and `Quant` as the only unmatched row. |
+| 1:49-1:59 | "The detector map is honest and measurable. It now matches all 28 incident patterns. The last gap was Quant, promoted from SlowMist-syndicated EIP-7702 batch-call evidence." | Click `Load signature map`. Show `matchedCount=28`, `gapCount=0`, and the Quant EIP-7702 detector row. |
 | 1:59-2:08 | "For external systems, 0guard is a checkpoint, not a launch button. Base and Virtuals, paid API rails, Ethereum-compatible networks, Celestia, Lighter exchange intents, and bridge protocols all stay read-only here." | Show the read-only cross-chain catalog. |
 | 2:08-2:20 | "Autonomous finance needs more than smart agents. It needs a clear checkpoint before the wallet, real technical proof, and provenance. That is 0guard, built on 0G." | End on the cross-chain/read-only guardrail surface and final 0guard caption. |
 

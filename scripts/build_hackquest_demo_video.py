@@ -91,9 +91,9 @@ NARRATION_SEGMENTS = [
         "payloads stay out of resale."
     ),
     (
-        "The detector map is honest and measurable. It matches 27 of the 28 "
-        "incident patterns, and leaves Quant in research mode until the public "
-        "root-cause evidence is stronger."
+        "The detector map is honest and measurable. It now matches all 28 "
+        "incident patterns. The last gap was Quant, promoted from "
+        "SlowMist-syndicated EIP-7702 batch-call evidence."
     ),
     (
         "For external systems, zero guard is a checkpoint, not a launch button. "
@@ -268,7 +268,7 @@ def _record_workbench(work_dir: Path) -> Path:
         page.locator("#data-flow-output").scroll_into_view_if_needed()
         page.wait_for_timeout(6800)
 
-        _caption(page, "Detector coverage: 27 of 28 matched. Quant stays research-only until stronger proof.")
+        _caption(page, "Detector coverage: 28 of 28 matched. Quant now maps to EIP-7702 batch-call access control.")
         page.locator("#load-signature-map").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
         page.wait_for_timeout(7000)

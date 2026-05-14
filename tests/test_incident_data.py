@@ -35,7 +35,9 @@ def test_incident_summary_exposes_top_losses_and_counts():
     assert summary["stats"]["topLosses"][0]["protocol"] == "Kelp DAO"
     assert summary["stats"]["topLosses"][1]["protocol"] == "Drift Protocol"
     assert summary["stats"]["topLosses"][1]["source_urls"] == ["https://defillama.com/hacks"]
-    assert summary["stats"]["attackVectorCounts"]["undisclosed"] >= 1
+    assert summary["stats"]["attackVectorCounts"][
+        "EIP-7702 delegated batch access-control failure"
+    ] == 1
     assert summary["stats"]["attackVectorCounts"]["rounding asymmetry and unsafe cast"] == 1
 
 
@@ -53,8 +55,11 @@ def test_detection_coverage_runs_dataset_through_signature_engine():
 
     assert coverage["schema"] == "0guard.detection_coverage.v1"
     assert coverage["incidentCount"] == 28
-    assert coverage["coveredCount"] == 27
-    assert coverage["coverageRatio"] == 0.9643
+    assert coverage["coveredCount"] == 28
+    assert coverage["coverageRatio"] == 1.0
     drift = next(row for row in coverage["coverage"] if row["incident"]["protocol"] == "Drift Protocol")
     assert drift["matched"] is True
     assert drift["blockerCount"] >= 1
+    quant = next(row for row in coverage["coverage"] if row["incident"]["protocol"] == "Quant")
+    assert quant["matched"] is True
+    assert "eip7702_delegated_batch_access_control" in quant["signaturesMatched"]

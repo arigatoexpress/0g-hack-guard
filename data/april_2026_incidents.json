@@ -756,12 +756,14 @@
       "protocol": "Quant",
       "loss_usd": 138000,
       "chain": "Ethereum",
-      "attack_vector": "undisclosed",
-      "description": "Over-the-counter settlement protocol incident. Limited public details.",
+      "attack_vector": "EIP-7702 delegated batch access-control failure",
+      "description": "SlowMist-syndicated reporting described a QNT reserve-pool incident where an administrator EOA delegated code execution to a BatchExecutor contract, which authorized a permissionless BatchCall.batch path lacking access-control checks.",
       "attribution": "Unknown",
-      "lesson": "OTC settlement needs atomic swaps or escrow \u2014 never trust-based finality.",
+      "lesson": "EIP-7702 delegated accounts and batch executors need strict caller authorization, least-privilege allowlists, and emergency revocation before reserve-pool assets can be touched.",
       "source_urls": [
-        "https://defillama.com/hacks"
+        "https://defillama.com/hacks",
+        "https://www.techflowpost.com/en-US/newsletter/121195",
+        "https://x.com/SlowMist_Team/status/2049333031371210854?s=20"
       ],
       "derived_source_evidence": [
         {
@@ -775,6 +777,30 @@
           "record_hash": "5448fa703e0e3a464a632d2cb8d1ce3376312c9d6fec3300ba888cc9386f6802",
           "review_status": "derived_pending_human_promotion",
           "rights_envelope": "Public API metadata. Use as source-cited defensive evidence; do not mirror raw dumps."
+        },
+        {
+          "source_id": "techflow_slowmist_newsletter",
+          "source_owner": "TechFlow / SlowMist-syndicated news",
+          "source_url": "https://www.techflowpost.com/en-US/newsletter/121195",
+          "evidence_type": "public_security_brief",
+          "matched_name": "SlowMist: EIP-7702 Account Vulnerability Exploited, 1,988.5 QNT Stolen",
+          "observed_date": "2026-04-29",
+          "confidence": 0.9,
+          "record_hash": "fc469a266e08e45f6beef6344bd50c56c9a5661298f882251c72b1c084e45f7f",
+          "review_status": "promoted_detector_seed",
+          "rights_envelope": "Public article metadata and short defensive summary only; do not mirror raw article text."
+        },
+        {
+          "source_id": "slowmist_x",
+          "source_owner": "SlowMist Team",
+          "source_url": "https://x.com/SlowMist_Team/status/2049333031371210854?s=20",
+          "evidence_type": "source_social_post",
+          "matched_name": "QNT EIP-7702 account vulnerability",
+          "observed_date": "2026-04-29",
+          "confidence": 0.85,
+          "record_hash": "11652ea55164a7d1419057b19588e8e2f74080e74cec3ed20e50187edc84ee12",
+          "review_status": "promoted_detector_seed",
+          "rights_envelope": "Link and derived defensive metadata only."
         }
       ]
     },

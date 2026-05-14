@@ -65,9 +65,9 @@ explains detector coverage gaps instead of hiding them.
 for offline judge demos, while `/api/data/provenance?live=1` can refresh
 against live public source records when the network path is healthy.
 The canonical incident dataset now includes per-incident source URLs and
-derived evidence for 28 of 28 records. The detector map covers 27 of 28
-incident-derived patterns; `Quant` remains the single research-only detector
-gap until stronger public root-cause evidence exists.
+derived evidence for 28 of 28 records. The detector map covers 28 of 28
+incident-derived patterns, including the promoted `Quant` EIP-7702 delegated
+account / permissionless batch-call access-control detector.
 
 The cross-chain layer is now explicit instead of implied. `/api/integrations/cross-chain`
 documents where 0guard can safely plug into Virtuals/Base, x402-supported

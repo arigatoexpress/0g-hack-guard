@@ -58,6 +58,7 @@ def test_wallet_alert_preview_keeps_safe_readonly_check_as_digest_only():
     assert preview["alertCount"] == 0
     assert preview["alerts"] == []
     assert preview["digestOnly"]
+    assert preview["digestOnly"][0]["type"] == "detector_coverage_complete"
     assert "No direct wallet alert" in preview["telegramPreview"]
     assert preview["wallet"]["liveProbes"]["attempted"] == 0
     assert all(row["status"] == "not_checked" for row in preview["wallet"]["liveProbes"]["probes"])

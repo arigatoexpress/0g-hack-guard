@@ -52,9 +52,9 @@ can verify now from what remains before a production/mainnet launch.
   not live 0G Compute inference. Next step: add a Compute-backed anomaly scorer
   as an optional signal with clear provenance in the verdict.
 - Provenance completion: 28 of 28 April 2026 records now carry per-incident
-  source URLs and reviewed derived source evidence. Detector coverage is 27 of
-  28 incident-derived patterns; `Quant` remains research-only until stronger
-  public root-cause evidence exists.
+  source URLs and reviewed derived source evidence. Detector coverage is 28 of
+  28 incident-derived patterns after the `Quant` row was promoted from
+  SlowMist-syndicated EIP-7702 delegated batch access-control evidence.
 - Key custody: the workbench correctly contains no private keys, but production
   anchoring needs signer custody. Next step: use a dedicated deployer/signer
   path outside the browser workbench, with explicit confirmation and no custody

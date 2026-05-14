@@ -46,9 +46,9 @@ mistake that human teams already lost money to.
 - A provenance matrix that correlates canonical incidents against live public
   source records without exposing raw upstream payloads, plus a reviewed
   derived-evidence cache for offline judge demos. The canonical dataset now has
-  per-incident source evidence for all 28 records; the remaining detector gap
-  is the intentionally unpromoted `Quant` row, whose public root-cause naming is
-  still ambiguous.
+  per-incident source evidence for all 28 records, and the detector map covers
+  all 28 incident-derived patterns after promoting the `Quant` EIP-7702
+  delegated batch access-control evidence.
 - A signature map that explains detector coverage gaps and recommended rule
   additions.
 - 0G read-only network proof through `/api/0g/status`.

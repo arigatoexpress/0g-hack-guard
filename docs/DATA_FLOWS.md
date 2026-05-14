@@ -113,20 +113,21 @@ confidence, record hashes, and a recommended next step for each incident. This
 keeps live source evidence separate from raw upstream payloads, while preserving
 the reviewed derived evidence in `data/april_2026_incidents.json`.
 
-As of the source-enrichment pass, the signature engine covers 27 of 28
-incident-derived seeds (`0.9643` coverage). Added coverage includes negative
+As of the source-enrichment pass, the signature engine covers 28 of 28
+incident-derived seeds (`1.0` coverage). Added coverage includes negative
 amount/accounting invariants, unsafe casts and decimal mismatches, first
 depositor vault share inflation, router quote-denomination mismatches,
 account-binding and rewards-accounting faults, cross-chain bridge/control
-risks, and hot-wallet or privileged-key operational-security context. The lone
-remaining gap is `Quant`, kept as `insufficient_public_root_cause` until public
-evidence disambiguates the incident naming and concrete behavior.
+risks, hot-wallet or privileged-key operational-security context, and the
+promoted `Quant` EIP-7702 delegated account / permissionless batch-call
+access-control failure.
 
 Next durable upgrade:
 
 - Add more protocol-authored postmortem or transaction-level URLs when they
   appear, especially for high-level BlockSec/SlowMist classifications.
-- Disambiguate the remaining `Quant`/`QNT` record before detector promotion.
+- Keep monitoring the `Quant`/`QNT` record for protocol-authored postmortems or
+  transaction-level traces that can further sharpen the promoted detector.
 - Add `detection_seed` overrides for cases where the generic attack vector is
   too weak to exercise the signature engine.
 - Promote detector-gap candidates from `/api/intelligence/evolving` only after

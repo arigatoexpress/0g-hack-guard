@@ -195,7 +195,7 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     assert coverage.status_code == 200
     coverage_body = coverage.get_json()
     assert coverage_body["schema"] == "0guard.detection_coverage.v1"
-    assert coverage_body["coveredCount"] == 27
+    assert coverage_body["coveredCount"] == 28
 
     provenance = client.get("/api/data/provenance")
     assert provenance.status_code == 200
@@ -213,8 +213,8 @@ def test_data_summary_and_detection_coverage_are_read_only(client):
     signature_body = signature_map.get_json()
     assert signature_body["schema"] == "0guard.signature_map.v1"
     assert signature_body["incidentCount"] == 28
-    assert signature_body["matchedCount"] == 27
-    assert signature_body["topGaps"] == {"insufficient_public_root_cause": 1}
+    assert signature_body["matchedCount"] == 28
+    assert signature_body["topGaps"] == {}
 
 
 def test_osint_and_hackathon_routes_are_read_only(client):
@@ -280,7 +280,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert passport_body["receipt"]["zeroG"]["chain_anchor"]["status"] == "preflight"
     assert passport_body["provenance"]["coverage"]["withMatchedEvidence"] == 28
     assert passport_body["signatureCoverage"]["incidentCount"] == 28
-    assert passport_body["signatureCoverage"]["gapCount"] == 1
+    assert passport_body["signatureCoverage"]["gapCount"] == 0
     assert passport_body["safety"]["rawPayloadsReturned"] is False
 
 
