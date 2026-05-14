@@ -446,6 +446,8 @@ def configured_http_status_url(target: ChainTarget) -> str | None:
 def cross_chain_catalog() -> dict[str, Any]:
     """Return source-cited cross-chain integration metadata."""
     targets = [target.public() for target in CHAIN_TARGETS]
+    safety = _crosschain_safety(live=False)
+    x402 = _x402_posture()
     return {
         "schema": CROSSCHAIN_CATALOG_SCHEMA,
         "generatedAt": _now(),
@@ -454,9 +456,11 @@ def cross_chain_catalog() -> dict[str, Any]:
         "probeDefaultCount": sum(1 for target in targets if target["probeDefault"]),
         "targets": targets,
         "virtualsOnBase": virtuals_facilitator_manifest(include_catalog=False)["virtuals"],
-        "x402": _x402_posture(),
+        "x402": x402,
+        "x402Mode": x402.get("mode"),
         "readableReceiptPlan": _readable_receipt_plan(),
-        "safety": _crosschain_safety(live=False),
+        "safety": safety,
+        "moneyMovementEnabled": safety.get("moneyMovementEnabled"),
     }
 
 

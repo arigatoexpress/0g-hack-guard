@@ -512,6 +512,7 @@ def incident_provenance_matrix(
         )
 
     incident_count = len(rows)
+    evidence_coverage_ratio = round(linked_count / incident_count, 4) if incident_count else 0
     return {
         "schema": PROVENANCE_MATRIX_SCHEMA,
         "generatedAt": _now(),
@@ -519,15 +520,17 @@ def incident_provenance_matrix(
         "liveFetchAttempted": fetched,
         "datasetFingerprint": dataset_fingerprint(loaded),
         "sourceStatus": source_status,
+        "incidentCount": incident_count,
+        "withDatasetSourceUrls": dataset_source_count,
+        "withMatchedEvidence": linked_count,
+        "evidenceCoverageRatio": evidence_coverage_ratio,
         "coverage": {
             "incidentCount": incident_count,
             "withDatasetSourceUrls": dataset_source_count,
             "withMatchedEvidence": linked_count,
             "highConfidenceEvidenceCount": high_confidence_count,
             "aggregateOnlyCount": sum(1 for row in rows if row["status"] == "aggregate_only"),
-            "evidenceCoverageRatio": round(linked_count / incident_count, 4)
-            if incident_count
-            else 0,
+            "evidenceCoverageRatio": evidence_coverage_ratio,
         },
         "rows": rows,
         "safety": _osint_safety(),

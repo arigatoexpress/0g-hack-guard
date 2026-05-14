@@ -837,6 +837,14 @@ def api_health():
     )
 
 
+@app.route("/healthz", methods=["GET"])
+def healthz():
+    payload = api_health().get_json()
+    payload["schema"] = "0guard.healthz.v1"
+    payload["ok"] = True
+    return jsonify(payload)
+
+
 @app.route("/api/0g/status", methods=["GET"])
 def api_0g_status():
     return jsonify(build_0g_status())
