@@ -7,13 +7,24 @@ Official source: https://www.hackquest.io/hackathons/0G-APAC-Hackathon
 Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 09:59 MDT in Denver.
 
-## Ready to Paste
+Status: submitted to HackQuest and verified by public readback on May 14, 2026
+at 05:32:38 UTC.
+
+Public project: https://www.hackquest.io/projects/0guard
+
+Submission proof artifact: `docs/hackathon-0g/hackquest-submission-proof.json`
+
+## Submitted Values
 
 - HackQuest draft:
   https://www.hackquest.io/projects/setup/f8333543-559e-48f4-b6fa-4ff447777966
+- HackQuest public project:
+  https://www.hackquest.io/projects/0guard
+- HackQuest submission state: `isSubmit=true`
+- Hackathon ID: `57e543a9-0b08-4ba3-8326-e5cd751c0248`
 - Project name: `0guard`
-- Track: `Track 5: Privacy & Sovereign Infrastructure`
-- Backup track: `Track 1: Agentic Infrastructure & OpenClaw Lab`
+- Prize track submitted: `Grand Prizes`
+- Sector saved on public profile: `Privacy`
 - One-liner: `0guard is a 0G-native pre-wallet firewall that checks AI-agent intents against exploit intelligence before any signer can act.`
 - Repository: https://github.com/arigatoexpress/0guard
 - Public demo page: https://arigatoexpress.github.io/0guard/
@@ -113,20 +124,38 @@ Published X post:
 https://x.com/rariwrldd/status/2054779961425461542
 ```
 
-## Final Submit Order
+## Verification Commands
 
-1. Run the readiness audit and verify only HackQuest form completion remains.
-2. Open the HackQuest draft URL above.
-3. Paste `docs/hackathon-0g/submission-form-fields.md` into HackQuest.
-4. Use the already-published demo video and X post URLs from this checklist.
-5. Open the public repo, Pages URL, demo video URL, X post URL, and 0G Explorer URLs from a logged-out/incognito window.
-6. Submit before May 16, 2026 at 09:59 MDT.
+Use this public readback to verify the submitted state without browser cookies:
+
+```bash
+curl -sS 'https://api.hackquest.io/graphql' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/graphql-response+json' \
+  --data '{"query":"query FindUniqueProject($where: ProjectV3WhereUniqueInput!) { findUniqueProject(where: $where) { id name alias hackathonId hackathonName hackathonAlias isSubmit demoVideo prizeTrack fields contractAddress fillProgress } }","variables":{"where":{"alias":"0guard"}}}' \
+  | python3 -m json.tool
+```
+
+Expected high-signal fields:
+
+- `isSubmit`: `true`
+- `hackathonAlias`: `0G-APAC-Hackathon`
+- `contractAddress`: `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
+- `prizeTrack`: `["Grand Prizes"]`
+
+## Final Submit Order Completed
+
+1. Saved the HackQuest project setup fields through HackQuest GraphQL.
+2. Submitted the project through the `ProjectSubmit` mutation.
+3. Verified public readback shows `isSubmit=true`.
+4. Verified the public project page returns HTTP 200 at
+   https://www.hackquest.io/projects/0guard.
 
 ## Manual Recovery Note
 
-The HackQuest draft was created under the signed-in `rari` account, but
-coordinate-based browser filling was unreliable. Continue manually from the
-draft URL; do not run blind UI automation against the form.
+Coordinate-based browser filling was unreliable and is no longer needed. Future
+automation should use read-only public verification unless Ari explicitly asks
+for a narrow browser action.
 
 ## Claims to Avoid
 

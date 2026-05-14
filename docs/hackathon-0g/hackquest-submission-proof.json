@@ -1,0 +1,54 @@
+{
+  "schema": "0guard.hackquest_submission_proof.v1",
+  "verified_at": "2026-05-14T05:32:38Z",
+  "verification_method": "public_hackquest_graphql_readback",
+  "project": {
+    "id": "f8333543-559e-48f4-b6fa-4ff447777966",
+    "name": "0guard",
+    "alias": "0guard",
+    "url": "https://www.hackquest.io/projects/0guard",
+    "setup_url": "https://www.hackquest.io/projects/setup/f8333543-559e-48f4-b6fa-4ff447777966"
+  },
+  "hackathon": {
+    "id": "57e543a9-0b08-4ba3-8326-e5cd751c0248",
+    "name": "0G APAC Hackathon",
+    "alias": "0G-APAC-Hackathon",
+    "url": "https://www.hackquest.io/hackathons/0G-APAC-Hackathon"
+  },
+  "submission": {
+    "is_submit": true,
+    "fill_progress": 90,
+    "prize_track": ["Grand Prizes"],
+    "contract_address": "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc",
+    "demo_video": "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4",
+    "repository": "https://github.com/arigatoexpress/0guard",
+    "x_post": "https://x.com/rariwrldd/status/2054779961425461542",
+    "mainnet_anchor_tx": "https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed"
+  },
+  "custom_fields": [
+    {
+      "id": "ec6a6425-08a5-4dc7-869a-56e13e590df8",
+      "label": "Which 0G Component(s) Does Your Project Use?",
+      "value": ["0G Storage", "0G Chain", "Agent ID"]
+    },
+    {
+      "id": "15b3b905-776b-4505-bb90-4fdd97ca557b",
+      "label": "0G On-Chain Integration Proof",
+      "value": "0G Chain anchors policy receipt hashes. Contract: 0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc. Tx: https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed. Storage-ready root hashes are returned by the app."
+    },
+    {
+      "id": "0391a584-29eb-4ed7-a2f3-e17da729216b",
+      "label": "GitHub Repository Link",
+      "value": "https://github.com/arigatoexpress/0guard"
+    },
+    {
+      "id": "49bd7090-fddb-49da-a767-268b65b7d899",
+      "label": "Project X Post Link",
+      "value": "https://x.com/rariwrldd/status/2054779961425461542"
+    }
+  ],
+  "not_done": [
+    "No X post/media deletion was run from this repo update.",
+    "No wallet signing, bridge, swap, settlement, order, or external send was performed."
+  ]
+}

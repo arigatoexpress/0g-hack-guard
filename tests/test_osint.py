@@ -166,6 +166,8 @@ def test_hackathon_submission_brief_is_operator_ready():
 
     assert brief["schema"] == "0guard.hackathon_submission_brief.v1"
     assert brief["project"]["name"] == "0guard"
+    assert brief["project"]["hackQuestProject"] == "https://www.hackquest.io/projects/0guard"
+    assert brief["hackQuestSubmission"]["status"] == "submitted_verified"
     assert brief["deadline"]["submissionDeadline"] == "2026-05-16T23:59:00+08:00"
     assert brief["dataProduct"]["incidentCount"] == 28
     assert brief["dataProduct"]["sourceRegistryCount"] >= 8
@@ -194,6 +196,8 @@ def test_hackquest_submission_packet_is_copy_ready_and_safe():
     assert packet["formFields"]["screenshotAsset"].endswith("0guard-workbench-provenance.png")
     assert packet["formFields"]["threatReceiptPassport"].endswith("threat-receipt-passport.md")
     assert packet["formFields"]["threatReceiptPassportApi"] == "/api/hackathon/threat-passport"
+    assert packet["formFields"]["hackQuestProjectUrl"] == "https://www.hackquest.io/projects/0guard"
+    assert packet["hackQuestSubmission"]["status"] == "submitted_verified"
     assert packet["recommendedTrack"].startswith("Track 5")
     assert "/api/data/provenance" in {proof["route"] for proof in packet["proofPoints"]}
     assert packet["xPost"]["mediaPath"] == packet["formFields"]["screenshotAsset"]
@@ -233,6 +237,7 @@ def test_hackquest_readiness_audit_uses_mainnet_proof_file():
 
     assert audit["schema"] == "0guard.hackquest_readiness_audit.v1"
     assert audit["event"]["deadline"]["utc8"] == "2026-05-16T23:59:00+08:00"
+    assert audit["event"]["publicProjectUrl"] == "https://www.hackquest.io/projects/0guard"
     assert audit["mainnetRequirement"]["chainId"] == 16661
     assert audit["current0GConfig"]["chainId"] == 16602
     assert audit["submittableNow"] is True
@@ -245,4 +250,7 @@ def test_hackquest_readiness_audit_uses_mainnet_proof_file():
     requirements = {item["id"]: item for item in audit["requirements"]}
     assert requirements["proof_packet"]["status"] == "ready"
     assert requirements["provenance_data"]["status"] == "ready"
+    assert requirements["hackquest_submission"]["status"] == "ready"
+    assert audit["hackQuestSubmission"]["submitted"] is True
+    assert audit["operatorOnlyActions"] == []
     assert audit["safety"]["rawPayloadsReturned"] is False

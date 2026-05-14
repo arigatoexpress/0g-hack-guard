@@ -1,10 +1,11 @@
 # HackQuest Submission Form Fields
 
-Generated for final operator submission on May 14, 2026.
+Generated for final operator submission on May 14, 2026. The project was
+submitted and publicly verified on May 14, 2026 at 05:32:38 UTC.
 
-Use this as the copy/paste packet for HackQuest. Values marked
-`OPERATOR_REQUIRED` need Ari to provide the final public link before
-submission.
+This file remains the copy/paste packet and historical record. Current
+submitted-state proof lives in
+`docs/hackathon-0g/hackquest-submission-proof.json`.
 
 ## Project
 
@@ -12,6 +13,20 @@ HackQuest draft URL:
 
 ```text
 https://www.hackquest.io/projects/setup/f8333543-559e-48f4-b6fa-4ff447777966
+```
+
+HackQuest public project:
+
+```text
+https://www.hackquest.io/projects/0guard
+```
+
+Submitted state:
+
+```text
+isSubmit=true
+hackathonId=57e543a9-0b08-4ba3-8326-e5cd751c0248
+prizeTrack=Grand Prizes
 ```
 
 Project name:
@@ -171,17 +186,17 @@ Readiness audit:
 
 ## Final Submit Order
 
-1. Open the HackQuest draft URL above.
-2. Verify the saved name/intro, then paste the remaining fields above.
-3. Use the public demo video URL and published X URL already listed in this packet.
-4. Re-open the public repo, Pages URL, demo video URL, X post URL, and 0G Explorer links from an incognito window.
-5. Submit before May 16, 2026 at 23:59 UTC+8.
+Completed on May 14, 2026:
+
+1. Saved the HackQuest project setup fields via HackQuest GraphQL.
+2. Submitted the HackQuest project with the 0G custom submission fields.
+3. Verified public readback at `https://www.hackquest.io/projects/0guard`.
 
 ## Manual Recovery Note
 
-The signed-in HackQuest draft exists, but browser-coordinate automation proved
-unreliable on the form. Do not continue blind UI automation. The fastest safe
-path is manual copy/paste from this packet into the draft URL above.
+The signed-in HackQuest draft exists and the project is now submitted. Do not
+continue blind UI automation. Future checks should use public readback unless a
+specific field must be edited.
 
 ## Claims To Avoid
 

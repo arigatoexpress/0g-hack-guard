@@ -7,18 +7,22 @@ proof, and no private keys or real writes in the workbench.
 
 ## Recommended Judge Path
 
-1. Start with `submission-copy.md` for the project summary, track fit, and
+Submitted public project: https://www.hackquest.io/projects/0guard
+
+Submission proof artifact: `hackquest-submission-proof.json`
+
+1. Start with `final-submission-checklist.md` for the submitted HackQuest
+   readback, public project URL, 0G proof, demo video, and X post.
+2. Use `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
-2. Use `final-demo-video-script.md` as the locked three-minute recording
+3. Use `final-demo-video-script.md` as the locked three-minute recording
    script, and `ai-submission-production-package.md` for Veo/Gemini prompt
    production.
-3. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
-4. Use `submission-form-fields.md` as the final copy/paste packet for the
-   HackQuest form.
-5. Run `scripts/submission_readiness.py --format markdown` or open
+4. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
+5. Use `submission-form-fields.md` as the historical copy/paste packet for the
+   submitted HackQuest form.
+6. Run `scripts/submission_readiness.py --format markdown` or open
    `/api/hackathon/readiness` for the final readiness audit.
-6. Use `final-submission-checklist.md` for the manual submission sequence,
-   mainnet proof requirement, demo video, and X post.
 7. Use `threat-receipt-passport.md` as the one-page judge proof drill: intent,
    verdict, provenance, receipt hash, and 0G proof slots.
 8. Use `market-intel.md` for current HackQuest requirements, track fit, and
@@ -26,10 +30,10 @@ proof, and no private keys or real writes in the workbench.
 9. Reference `mainnet-gap-register.md` when judges ask what is real today
    versus what remains before a production/mainnet launch.
 10. Use `/api/hackathon/submission-brief` for a machine-readable final brief
-   with deadline, repo/demo links, data stats, manual TODOs, and claims to
-   avoid.
+   with deadline, repo/demo links, submitted-state proof, data stats, and
+   claims to avoid.
 11. Use `/api/hackathon/submission-packet` for copy-ready HackQuest fields and
-   remaining operator placeholders.
+   submitted-state monitoring notes.
 
 ## Winning Thesis
 

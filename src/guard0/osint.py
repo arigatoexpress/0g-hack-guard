@@ -31,6 +31,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
 DEFAULT_PROVENANCE_CACHE_PATH = REPO_ROOT / "data" / "incident_provenance_cache.json"
 DEFAULT_MAINNET_PROOF_PATH = REPO_ROOT / "docs" / "hackathon-0g" / "mainnet-proof.json"
+DEFAULT_HACKQUEST_SUBMISSION_PROOF_PATH = (
+    REPO_ROOT / "docs" / "hackathon-0g" / "hackquest-submission-proof.json"
+)
 DEFAULT_DEMO_VIDEO_PATH = (
     REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-hackquest-demo-final.mp4"
 )
@@ -47,6 +50,9 @@ PROVENANCE_CACHE_SCHEMA = "0guard.incident_provenance_cache.v1"
 USER_AGENT = "0guard-osint/0.1 (+https://github.com/arigatoexpress/0guard)"
 MAX_FETCH_BYTES = 2_000_000
 HACKQUEST_OFFICIAL_URL = "https://www.hackquest.io/hackathons/0G-APAC-Hackathon"
+HACKQUEST_PUBLIC_PROJECT_URL = "https://www.hackquest.io/projects/0guard"
+HACKQUEST_PROJECT_ID = "f8333543-559e-48f4-b6fa-4ff447777966"
+HACKQUEST_HACKATHON_ID = "57e543a9-0b08-4ba3-8326-e5cd751c0248"
 HACKQUEST_DEADLINE_UTC8 = "2026-05-16T23:59:00+08:00"
 HACKQUEST_DEADLINE_MDT = "2026-05-16T09:59:00-06:00"
 ZGG_MAINNET_CHAIN_ID = 16661
@@ -429,6 +435,10 @@ def hackathon_submission_brief() -> dict[str, Any]:
     provenance = incident_provenance_matrix(live=False)
     mainnet_proof = _load_mainnet_proof()
     mainnet_proof_ready = _mainnet_proof_ready(mainnet_proof)
+    submission_proof = _load_hackquest_submission_proof()
+    submission_ready = _hackquest_submission_ready(submission_proof)
+    demo_video_ready = _demo_video_url() != DEMO_VIDEO_PLACEHOLDER
+    x_post_ready = _x_post_url() != X_POST_PLACEHOLDER
     return {
         "schema": HACKATHON_BRIEF_SCHEMA,
         "generatedAt": _now(),
@@ -437,6 +447,17 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "oneLiner": HACKQUEST_ONE_LINER,
             "repo": "https://github.com/arigatoexpress/0guard",
             "publicDemo": "https://arigatoexpress.github.io/0guard/",
+            "hackQuestProject": HACKQUEST_PUBLIC_PROJECT_URL,
+        },
+        "hackQuestSubmission": {
+            "status": "submitted_verified" if submission_ready else "ready_to_submit",
+            "projectId": HACKQUEST_PROJECT_ID,
+            "hackathonId": HACKQUEST_HACKATHON_ID,
+            "publicProjectUrl": HACKQUEST_PUBLIC_PROJECT_URL,
+            "proofFile": str(
+                DEFAULT_HACKQUEST_SUBMISSION_PROOF_PATH.relative_to(REPO_ROOT)
+            ),
+            "verifiedAt": submission_proof.get("verified_at") if submission_proof else None,
         },
         "deadline": {
             "source": "HackQuest 0G APAC Hackathon",
@@ -474,7 +495,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             },
             "demoVideo": {
                 "required": True,
-                "status": "operator_required",
+                "status": "ready" if demo_video_ready else "operator_required",
                 "maxDurationSeconds": 180,
                 "mustShow": [
                     "core product flow",
@@ -484,7 +505,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             },
             "publicXPost": {
                 "mandatory": True,
-                "status": "operator_required",
+                "status": "ready" if x_post_ready else "operator_required",
                 "requiredTags": HACKQUEST_REQUIRED_TAGS,
                 "requiredHashtags": HACKQUEST_REQUIRED_HASHTAGS,
                 "needs": ["project name", "demo screenshot or short demo clip"],
@@ -571,6 +592,8 @@ def hackquest_submission_packet() -> dict[str, Any]:
     demo_video_url = _demo_video_url()
     x_post_url = _x_post_url()
     one_liner = HACKQUEST_ONE_LINER
+    submission_proof = _load_hackquest_submission_proof()
+    submission_ready = _hackquest_submission_ready(submission_proof)
 
     return {
         "schema": HACKQUEST_PACKET_SCHEMA,
@@ -602,6 +625,14 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "readiness_audit",
                 "threat_receipt_passport",
                 "threat_receipt_passport_api",
+                *(
+                    [
+                        "hackquest_project_submitted",
+                        "hackquest_public_readback_verified",
+                    ]
+                    if submission_ready
+                    else []
+                ),
             ],
             "operatorRequired": brief["operatorRequired"],
             "claimsToAvoid": brief["claimsToAvoid"],
@@ -663,7 +694,12 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "finalChecklist": checklist_path,
             "threatReceiptPassport": "docs/hackathon-0g/threat-receipt-passport.md",
             "threatReceiptPassportApi": "/api/hackathon/threat-passport",
+            "hackQuestProjectUrl": HACKQUEST_PUBLIC_PROJECT_URL,
+            "hackQuestSubmissionProof": (
+                "docs/hackathon-0g/hackquest-submission-proof.json"
+            ),
         },
+        "hackQuestSubmission": brief["hackQuestSubmission"],
         "proofPoints": [
             {
                 "label": "Live 0G read proof",
@@ -724,12 +760,19 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 f"{screenshot_path} --live-post-confirm POST_TO_X_FROM_0GUARD"
             ),
         },
-        "manualSubmitOrder": [
-            "Record and upload the <=3 minute demo video.",
-            "Post the required X post with screenshot or short clip.",
-            "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
-            "Before final submit, re-open the public repo and Pages URL from an incognito window.",
-        ],
+        "manualSubmitOrder": (
+            [
+                "Public readback already verifies isSubmit=true for the 0G APAC Hackathon.",
+                "Monitor the public HackQuest project page and judge messages during review.",
+            ]
+            if submission_ready
+            else [
+                "Record and upload the <=3 minute demo video.",
+                "Post the required X post with screenshot or short clip.",
+                "Paste the formFields into HackQuest and attach repo/demo/X/0G proof links.",
+                "Before final submit, re-open the public repo and Pages URL from an incognito window.",
+            ]
+        ),
         "safety": _osint_safety(),
     }
 
@@ -901,6 +944,8 @@ def hackquest_readiness_audit() -> dict[str, Any]:
     proof_ready = _mainnet_proof_ready(proof)
     proof_contract = str(proof.get("contract_address", "")) if proof else ""
     proof_explorer = str(proof.get("anchor_explorer_url", "")) if proof else ""
+    submission_proof = _load_hackquest_submission_proof()
+    submission_ready = _hackquest_submission_ready(submission_proof)
     mainnet_contract_ready = (mainnet_selected and contract_configured) or bool(proof_contract)
     mainnet_proof_ready = (mainnet_selected and contract_configured and bool(explorer_url)) or proof_ready
     demo_video_url = _demo_video_url()
@@ -1038,6 +1083,23 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             ["/api/external-action-contracts", "/api/frontend-contract"],
             "Keep all live actions outside the browser workbench and operator-confirmed.",
         ),
+        _requirement(
+            "hackquest_submission",
+            "HackQuest final project submission",
+            "ready" if submission_ready else "operator_required",
+            [
+                f"Project URL: {HACKQUEST_PUBLIC_PROJECT_URL}",
+                f"Project ID: {HACKQUEST_PROJECT_ID}",
+                f"Hackathon ID: {HACKQUEST_HACKATHON_ID}",
+                "Proof file: docs/hackathon-0g/hackquest-submission-proof.json",
+                f"Proof loaded: {bool(submission_proof)}",
+            ],
+            (
+                "No form work remains; monitor public project page and judge messages."
+                if submission_ready
+                else "Submit the HackQuest form with repo, demo, X URL, and 0G proof."
+            ),
+        ),
     ]
     counts: dict[str, int] = {}
     for requirement in requirements:
@@ -1054,6 +1116,9 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         "event": {
             "name": "0G APAC Hackathon",
             "officialUrl": HACKQUEST_OFFICIAL_URL,
+            "publicProjectUrl": HACKQUEST_PUBLIC_PROJECT_URL,
+            "projectId": HACKQUEST_PROJECT_ID,
+            "hackathonId": HACKQUEST_HACKATHON_ID,
             "deadline": {
                 "utc8": HACKQUEST_DEADLINE_UTC8,
                 "denver": HACKQUEST_DEADLINE_MDT,
@@ -1079,6 +1144,14 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "mainnetProofContract": proof_contract or None,
             "mainnetProofExplorerUrl": proof_explorer or None,
         },
+        "hackQuestSubmission": {
+            "submitted": submission_ready,
+            "proofFile": str(
+                DEFAULT_HACKQUEST_SUBMISSION_PROOF_PATH.relative_to(REPO_ROOT)
+            ),
+            "verifiedAt": submission_proof.get("verified_at") if submission_proof else None,
+            "projectUrl": HACKQUEST_PUBLIC_PROJECT_URL,
+        },
         "submittableNow": len(blockers) == 0,
         "statusCounts": counts,
         "requirements": requirements,
@@ -1092,12 +1165,12 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         ],
         "safeAutonomousWorkRemaining": [
             "Keep source/provenance docs current if official requirements change.",
-            "Run the readiness audit, tests, browser smoke, and public Pages readback before final submission.",
+            "Run the readiness audit, tests, browser smoke, and public readbacks during review.",
             "Replace the generated video or X link only if Ari wants a later edited version.",
         ],
-        "operatorOnlyActions": [
-            "Submit the HackQuest form.",
-        ],
+        "operatorOnlyActions": []
+        if submission_ready
+        else ["Submit the HackQuest form."],
         "sources": [
             HACKQUEST_OFFICIAL_URL,
             "https://docs.0g.ai/developer-hub/mainnet/mainnet-overview",
@@ -1472,6 +1545,36 @@ def _mainnet_proof_ready(proof: dict[str, Any] | None) -> bool:
     )
 
 
+def _load_hackquest_submission_proof(
+    path: Path = DEFAULT_HACKQUEST_SUBMISSION_PROOF_PATH,
+) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
+def _hackquest_submission_ready(proof: dict[str, Any] | None) -> bool:
+    if not proof:
+        return False
+    project = proof.get("project") or {}
+    hackathon = proof.get("hackathon") or {}
+    submission = proof.get("submission") or {}
+    return (
+        project.get("id") == HACKQUEST_PROJECT_ID
+        and hackathon.get("id") == HACKQUEST_HACKATHON_ID
+        and submission.get("is_submit") is True
+        and str(submission.get("contract_address") or "").lower()
+        == "0xbac59b1571b7c7195915c5b36d8a719ed7182abc"
+        and str(submission.get("mainnet_anchor_tx") or "").startswith(ZGG_MAINNET_EXPLORER)
+    )
+
+
 def _demo_video_url() -> str:
     configured = os.getenv("HACKQUEST_DEMO_VIDEO_URL", "").strip()
     if configured:
@@ -1492,7 +1595,8 @@ def _operator_required_steps() -> list[str]:
         steps.append("Record and upload the <=3 minute demo video.")
     if _x_post_url() == X_POST_PLACEHOLDER:
         steps.append("Post public X post with required HackQuest tags.")
-    steps.append("Submit HackQuest form with repo, demo video, X URL, and 0G proof.")
+    if not _hackquest_submission_ready(_load_hackquest_submission_proof()):
+        steps.append("Submit HackQuest form with repo, demo video, X URL, and 0G proof.")
     return steps
 
 
