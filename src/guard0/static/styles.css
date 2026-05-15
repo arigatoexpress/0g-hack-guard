@@ -121,16 +121,16 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
   position:relative;
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  grid-template-rows:minmax(132px,auto) 56px minmax(104px,auto);
+  grid-template-rows:minmax(152px,auto) 74px minmax(118px,auto);
   grid-template-areas:
     "agent guard wallet"
     ". . ."
     ". receipt .";
-  gap:20px;
+  gap:24px;
   align-items:start;
-  min-height:340px;
+  min-height:392px;
   margin:18px 0;
-  padding:22px;
+  padding:26px;
   border:1px solid rgba(124,199,255,.18);
   border-radius:8px;
   background:
@@ -142,7 +142,7 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
   position:absolute;
   left:13%;
   right:13%;
-  top:178px;
+  top:208px;
   height:2px;
   background:linear-gradient(90deg,rgba(124,199,255,.12),rgba(36,211,165,.75),rgba(255,107,107,.35));
   overflow:hidden;
@@ -157,7 +157,7 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
 }
 .flow-packet{
   position:absolute;
-  top:161px;
+  top:190px;
   left:16.66%;
   transform:translateX(-50%);
   z-index:4;
@@ -201,8 +201,8 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
   display:grid;
   justify-items:center;
   gap:6px;
-  min-height:132px;
-  padding:18px;
+  min-height:152px;
+  padding:20px 18px;
   border:1px solid var(--border);
   border-radius:8px;
   background:rgba(12,17,26,.92);
@@ -210,7 +210,12 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
   box-shadow:0 24px 90px rgba(0,0,0,.25);
 }
 .flow-node strong{font-size:18px}
-.flow-node small{min-height:30px;color:var(--muted);line-height:1.25}
+.flow-node small{
+  min-height:44px;
+  max-width:190px;
+  color:var(--muted);
+  line-height:1.32;
+}
 .agent-node{grid-area:agent}
 .guard-node{
   grid-area:guard;
@@ -256,7 +261,7 @@ h3{font-size:14px;margin-bottom:8px;color:var(--muted);text-transform:uppercase}
   margin-top:12px;
 }
 .story-card,.explain-grid>div{
-  min-height:118px;
+  min-height:132px;
   padding:14px;
   border:1px solid rgba(124,199,255,.18);
   border-radius:8px;

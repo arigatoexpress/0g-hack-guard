@@ -26,15 +26,16 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSET_DIR = ROOT / "docs" / "hackathon-0g" / "assets"
 OUT_MP4 = ASSET_DIR / "0guard-hackquest-demo-final.mp4"
 LOGO_ASSET = ASSET_DIR / "0guard-logo.png"
+BANNER_ASSET = ASSET_DIR / "0guard-x-banner.png"
 PORT = int(os.getenv("DEMO_PORT", "8127"))
 BASE_URL = f"http://127.0.0.1:{PORT}"
 
 VOICE = os.getenv("DEMO_VOICE", "Samantha")
 VOICE_RATE = os.getenv("DEMO_VOICE_RATE", "166")
 TTS_ENGINE = os.getenv("DEMO_TTS_ENGINE", "auto").strip().lower()
-EDGE_TTS_VOICE = os.getenv("DEMO_EDGE_TTS_VOICE", "en-US-BrianNeural")
-EDGE_TTS_RATE = os.getenv("DEMO_EDGE_TTS_RATE", "+2%")
-EDGE_TTS_PITCH = os.getenv("DEMO_EDGE_TTS_PITCH", "+0Hz")
+EDGE_TTS_VOICE = os.getenv("DEMO_EDGE_TTS_VOICE", "en-US-BrianMultilingualNeural")
+EDGE_TTS_RATE = os.getenv("DEMO_EDGE_TTS_RATE", "-2%")
+EDGE_TTS_PITCH = os.getenv("DEMO_EDGE_TTS_PITCH", "-1Hz")
 EXTERNAL_NARRATION_AUDIO = os.getenv("DEMO_NARRATION_AUDIO", "").strip()
 EDGE_TTS_PATHS = (
     ROOT / ".venv" / "bin" / "edge-tts",
@@ -44,66 +45,69 @@ EDGE_TTS_PATHS = (
 
 NARRATION_SEGMENTS = [
     (
-        "Picture this: an A I agent is about to use your wallet. Before the "
-        "wallet ever opens, zero guard reads the intent and asks whether this "
-        "is safe to put in front of a signer."
+        "I built zero guard for one very specific moment: an AI agent is about "
+        "to ask your wallet for a signature. Before the signer opens, zero "
+        "guard reads the intent, the calldata, and the policy context."
     ),
     (
-        "The flow is simple: request, policy check, then wallet. Simulations can "
-        "keep moving. Anything that moves funds, changes ownership, or asks for "
-        "a live signature has to pass the guard first."
+        "For a normal user, the model is simple. The agent asks, zero guard "
+        "checks, and the wallet stays out of it until the request earns a clean "
+        "verdict."
     ),
     (
-        "Here, the agent is tricked into pre-signing an admin transfer. Zero "
-        "guard catches the social-engineering pattern before the wallet is "
-        "even asked."
+        "Here the agent is being nudged to pre-sign an admin transfer. That is "
+        "the kind of social engineering that looks harmless in a chat window, "
+        "but becomes dangerous at the wallet."
     ),
     (
-        "Now the request changes: release bridge funds through a weak verifier "
-        "setup. That is exactly the kind of cross-chain shortcut zero guard is "
-        "built to stop."
+        "Now the request changes to a bridge release through a weak verifier "
+        "setup. Zero guard catches the shortcut before a cross-chain mistake "
+        "can become a real transaction."
     ),
     (
-        "Then a compromised admin path tries to upgrade a contract. The system "
-        "does not need to guess; it sees the risky sequence and blocks the "
-        "wallet step."
+        "Then we test a compromised admin path trying to upgrade a contract. "
+        "The system does not have to guess. It sees the risky sequence and "
+        "blocks the signer step."
     ),
     (
         "Good requests still work. A read-only simulation does not move funds, "
-        "does not need a signature, and should be allowed to continue."
+        "does not need a signature, and should keep moving without creating "
+        "noise for the operator."
     ),
     (
-        "Now we move from plain English to proof. This is the April twenty "
-        "twenty six source-linked incident set: 28 cases, with about 635 "
-        "million dollars in reported losses."
+        "That is the simple story. The proof layer is where zero guard gets "
+        "serious: 28 public April twenty twenty-six incidents, source-linked, "
+        "hashed, and turned into detector coverage."
     ),
     (
-        "Every verdict becomes a receipt hash. The browser workbench stays "
-        "safe: no private key, no signing, no broadcast, and no money movement."
+        "Every verdict can become a receipt hash. In this browser workbench, "
+        "there is still no private key, no signing, no broadcast, and no money "
+        "movement."
     ),
     (
         "For this submission, one deny receipt is already anchored on zero G "
-        "mainnet, so judges can verify that the proof is not just a local demo."
+        "mainnet. That gives judges a public receipt path instead of just a "
+        "local screen recording."
     ),
     (
         "Zero guard also prepares Storage-ready roots and a provenance matrix. "
-        "Every incident has source evidence and hashes, while raw upstream "
-        "payloads stay out of resale."
+        "The important part is that every incident stays traceable, while raw "
+        "upstream payloads stay out of resale."
     ),
     (
-        "The detector map is honest and measurable. It now matches all 28 "
-        "incident patterns. The last gap was Quant, promoted from "
-        "SlowMist-syndicated EIP-7702 batch-call evidence."
+        "The detector map is measurable. It now covers all 28 incident-derived "
+        "patterns, including the Quant EIP seven seven zero two batch-call "
+        "evidence that closed the last gap."
     ),
     (
         "For external systems, zero guard is a checkpoint, not a launch button. "
-        "Base and Virtuals, paid API rails, Ethereum-compatible networks, "
-        "Celestia, Lighter exchange intents, and bridge protocols all stay read-only here."
+        "Base and Virtuals, x four oh two, EVM networks, Celestia, Lighter "
+        "order intents, and bridge protocols stay read-only here."
     ),
     (
-        "Autonomous finance needs more than smart agents. It needs a clear "
-        "checkpoint before the wallet, real technical proof, and provenance. "
-        "That is zero guard, built on zero G."
+        "That is the thesis: autonomous finance needs a clear checkpoint before "
+        "the wallet, and proof people can inspect. That is zero guard, built "
+        "on zero G."
     ),
 ]
 
@@ -223,63 +227,149 @@ def _record_workbench(work_dir: Path) -> Path:
         page.goto(BASE_URL, wait_until="networkidle")
         page.wait_for_function("() => Boolean(window.__runStoryScenario)")
         _install_overlays(page)
+        _show_intro(page)
+        _caption(
+            page,
+            "An AI agent is about to ask for a wallet signature. 0guard checks first.",
+            "1/13 | Why this exists",
+            "Intent + calldata + policy context before signer exposure.",
+            1,
+        )
+        page.wait_for_timeout(7200)
+        _hide_intro(page)
         page.locator(".story-board").scroll_into_view_if_needed()
-        _caption(page, "Plain English: an AI agent asks. 0guard checks. The wallet stays protected.")
-        page.wait_for_timeout(6500)
 
-        _caption(page, "Visual model: request first, policy check second, wallet last.")
-        page.wait_for_timeout(6000)
+        _caption(
+            page,
+            "The user model is simple: agent asks, 0guard checks, wallet waits.",
+            "2/13 | Plain-English model",
+            "Safe simulations continue; risky live actions must earn a clean verdict.",
+            2,
+        )
+        page.wait_for_timeout(6600)
 
-        _caption(page, "Scenario 1: social engineering asks for an admin transfer signature.")
+        _caption(
+            page,
+            "Scenario 1: a chat-style prompt tries to turn into an admin transfer.",
+            "3/13 | Social-engineering ask",
+            "The wallet is not asked to sign.",
+            3,
+        )
         _run_story_scenario(page, "drift")
+        page.wait_for_timeout(8000)
+
+        _caption(
+            page,
+            "Scenario 2: a bridge release tries to pass through weak verification.",
+            "4/13 | Cross-chain shortcut",
+            "The request stops before execution.",
+            4,
+        )
+        _run_story_scenario(page, "bridge")
+        page.wait_for_timeout(7900)
+
+        _caption(
+            page,
+            "Scenario 3: a compromised admin path tries to upgrade a contract.",
+            "5/13 | Admin upgrade risk",
+            "The signer step is blocked.",
+            5,
+        )
+        _run_story_scenario(page, "upgrade")
         page.wait_for_timeout(7800)
 
-        _caption(page, "Scenario 2: bridge release request with weak verifier risk.")
-        _run_story_scenario(page, "bridge")
-        page.wait_for_timeout(7600)
-
-        _caption(page, "Scenario 3: proxy upgrade request from a compromised admin path.")
-        _run_story_scenario(page, "upgrade")
-        page.wait_for_timeout(7600)
-
-        _caption(page, "Safe lane: read-only simulations can continue without wallet custody.")
+        _caption(
+            page,
+            "Safe lane: read-only simulation continues without wallet custody.",
+            "6/13 | Not everything is denied",
+            "No funds moved, no signature requested.",
+            6,
+        )
         _run_story_scenario(page, "safe")
         page.wait_for_timeout(7000)
 
-        _caption(page, "Technical proof: source-linked April 2026 incident dataset.")
+        _caption(
+            page,
+            "Now the proof layer: 28 public April 2026 incidents become detector coverage.",
+            "7/13 | Real incident intelligence",
+            "Source-linked, hashed, and measurable.",
+            7,
+        )
         page.locator("#load-data-summary").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7600)
+        page.wait_for_timeout(8200)
 
-        _caption(page, "Live 0G readback stays safe: no private key, signing, or broadcast.")
+        _caption(
+            page,
+            "Each verdict can produce a receipt while the browser remains read-only.",
+            "8/13 | Safe proof generation",
+            "No private key, signing, broadcast, or money movement.",
+            8,
+        )
         page.locator("#zg-status-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7200)
+        page.wait_for_timeout(7400)
 
-        _caption(page, "Each verdict creates a receipt hash and Storage-ready root.")
+        _caption(
+            page,
+            "The workbench shows a deterministic receipt hash and Storage-ready root.",
+            "9/13 | Receipt and root",
+            "Proof payloads are prepared without custody.",
+            9,
+        )
         _show_anchor_storage_receipt(page)
-        page.wait_for_timeout(7200)
-
-        _caption(page, "0G mainnet proof: PolicyReceiptAnchor contract plus one anchored deny receipt.")
-        _show_mainnet_proof(page)
         page.wait_for_timeout(7600)
 
-        _caption(page, "Provenance: 28 of 28 incidents source-linked, with hashes and rights boundaries.")
+        _caption(
+            page,
+            "0G mainnet proof: a PolicyReceiptAnchor contract and one anchored deny receipt.",
+            "10/13 | Public chain readback",
+            "Judges can verify this outside the local app.",
+            10,
+        )
+        _show_mainnet_proof(page)
+        page.wait_for_timeout(8100)
+
+        _caption(
+            page,
+            "The provenance matrix keeps the dataset auditable without reselling raw upstream data.",
+            "11/13 | Rights-aware evidence",
+            "28 of 28 incidents are source-linked.",
+            11,
+        )
         page.locator("#load-provenance-matrix").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(6800)
+        page.wait_for_timeout(7200)
 
-        _caption(page, "Detector coverage: 28 of 28 matched. Quant now maps to EIP-7702 batch-call access control.")
+        _caption(
+            page,
+            "Detector coverage is measurable: 28 of 28 matched, with the Quant gap closed.",
+            "12/13 | Signature map",
+            "EIP-7702 batch-call access control evidence is now covered.",
+            12,
+        )
         page.locator("#load-signature-map").click()
         page.locator("#data-flow-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7000)
+        page.wait_for_timeout(8200)
 
-        _caption(page, "External guardrails stay read-only: Virtuals, x402, EVMs, Celestia, Lighter, CCIP, LayerZero, and Wormhole.")
+        _caption(
+            page,
+            "External integrations are treated as guardrail surfaces first, not launch buttons.",
+            "13/13 | Cross-chain checkpoint",
+            "Virtuals, x402, EVMs, Celestia, Lighter, CCIP, LayerZero, and Wormhole stay read-only.",
+            13,
+        )
         page.locator("#load-cross-chain-catalog").click()
         page.locator("#cross-chain-output").scroll_into_view_if_needed()
-        page.wait_for_timeout(7600)
+        page.wait_for_timeout(8400)
 
-        _caption(page, "0guard: simple pre-wallet protection, technical proof, and provenance. Built on 0G.")
-        page.wait_for_timeout(35000)
+        _caption(
+            page,
+            "0guard: pre-wallet protection for autonomous finance, with proof people can inspect.",
+            "Built on 0G",
+            "Real UI capture. Public anchor. Explicit no-signing boundary.",
+            13,
+        )
+        page.wait_for_timeout(36000)
 
         context.close()
         browser.close()
@@ -290,37 +380,90 @@ def _record_workbench(work_dir: Path) -> Path:
 
 def _install_overlays(page) -> None:
     logo_src = _logo_data_uri()
+    banner_src = _banner_data_uri()
     page.evaluate(
         """
-        (logoSrc) => {
-          document.body.style.zoom = "0.9";
+        ({logoSrc, bannerSrc}) => {
+          document.body.style.zoom = "0.84";
           const style = document.createElement("style");
           style.textContent = `
             .demo-caption {
               position: fixed;
-              left: 42px;
-              right: 42px;
-              bottom: 34px;
+              left: 56px;
+              right: 56px;
+              bottom: 30px;
               z-index: 99999;
-              padding: 20px 26px;
-              border: 1px solid rgba(36, 211, 165, .55);
+              display: grid;
+              grid-template-columns: minmax(0, 1fr) auto;
+              gap: 14px;
+              align-items: center;
+              min-height: 124px;
+              padding: 18px 24px 18px 26px;
+              border: 1px solid rgba(125, 211, 252, .34);
+              border-left: 6px solid rgba(36, 211, 165, .95);
               border-radius: 8px;
-              background: rgba(5, 7, 11, .92);
+              background:
+                linear-gradient(90deg, rgba(5, 7, 11, .95), rgba(7, 14, 23, .91)),
+                rgba(5, 7, 11, .92);
               color: #f3fbff;
-              font: 700 34px/1.25 Inter, system-ui, sans-serif;
-              box-shadow: 0 24px 80px rgba(0,0,0,.45);
+              box-shadow: 0 24px 90px rgba(0,0,0,.46);
+              backdrop-filter: blur(14px);
               pointer-events: none;
+            }
+            .demo-caption-text {
+              display: grid;
+              gap: 6px;
+              min-width: 0;
+            }
+            .demo-kicker {
+              color: #34d399;
+              font: 900 17px/1 Inter, system-ui, sans-serif;
+              letter-spacing: .08em;
+              text-transform: uppercase;
+            }
+            .demo-title {
+              color: #f3fbff;
+              font: 850 33px/1.13 Inter, system-ui, sans-serif;
+              letter-spacing: 0;
+            }
+            .demo-proof {
+              color: #b8c8da;
+              font: 700 19px/1.35 Inter, system-ui, sans-serif;
+            }
+            .demo-progress {
+              width: 210px;
+              display: grid;
+              gap: 8px;
+              justify-items: end;
+            }
+            .demo-progress-label {
+              color: #7cc7ff;
+              font: 900 18px/1 Inter, system-ui, sans-serif;
+            }
+            .demo-progress-track {
+              width: 210px;
+              height: 9px;
+              overflow: hidden;
+              border-radius: 999px;
+              background: rgba(125, 211, 252, .14);
+              border: 1px solid rgba(125, 211, 252, .20);
+            }
+            .demo-progress-fill {
+              height: 100%;
+              width: 8%;
+              border-radius: inherit;
+              background: linear-gradient(90deg, #34d399, #7cc7ff);
+              transition: width .55s ease;
             }
             .demo-brand {
               position: fixed;
               top: 24px;
-              left: 50%;
-              transform: translateX(-50%);
+              left: 56px;
               z-index: 99999;
               display: inline-flex;
               align-items: center;
               gap: 10px;
-              padding: 8px 13px;
+              padding: 8px 12px;
               border: 1px solid rgba(124, 199, 255, .4);
               border-radius: 8px;
               background: rgba(8, 10, 15, .78);
@@ -338,10 +481,107 @@ def _install_overlays(page) -> None:
             }
             .demo-brand span {
               color: #7cc7ff;
+            }
+            .demo-safety-strip {
+              position: fixed;
+              top: 24px;
+              right: 56px;
+              z-index: 99999;
+              display: flex;
+              gap: 8px;
+              align-items: center;
+              pointer-events: none;
+            }
+            .demo-safety-strip span {
+              padding: 10px 12px;
+              border: 1px solid rgba(52, 211, 153, .33);
+              border-radius: 8px;
+              background: rgba(8, 12, 20, .78);
+              color: #dffcf3;
+              font: 900 14px/1 Inter, system-ui, sans-serif;
+              text-transform: uppercase;
+            }
+            .demo-intro {
+              position: fixed;
+              inset: 0;
+              z-index: 99998;
+              display: grid;
+              grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr);
+              gap: 46px;
+              align-items: center;
+              padding: 92px 76px 150px;
+              background:
+                linear-gradient(90deg, rgba(5,7,11,.98), rgba(6,12,19,.94) 45%, rgba(5,7,11,.88)),
+                radial-gradient(circle at 20% 18%, rgba(52,211,153,.18), transparent 32rem),
+                radial-gradient(circle at 82% 24%, rgba(125,211,252,.16), transparent 30rem);
+              color: #f3fbff;
+              opacity: 0;
+              transform: translateY(8px);
+              transition: opacity .45s ease, transform .45s ease;
+              pointer-events: none;
+            }
+            .demo-intro.show {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            .demo-intro-logo {
+              width: 178px;
+              height: 178px;
+              border-radius: 28px;
+              object-fit: cover;
+              box-shadow: 0 0 84px rgba(52,211,153,.28);
+              border: 1px solid rgba(52,211,153,.55);
+            }
+            .demo-intro h1 {
+              margin: 20px 0 16px;
+              color: #f3fbff;
+              font: 900 76px/.94 Inter, system-ui, sans-serif;
+              letter-spacing: 0;
+            }
+            .demo-intro p {
+              margin: 0;
+              max-width: 660px;
+              color: #bdd0e4;
+              font: 700 27px/1.34 Inter, system-ui, sans-serif;
+            }
+            .demo-intro-banner {
+              width: 100%;
+              aspect-ratio: 3 / 1;
+              border-radius: 8px;
+              object-fit: cover;
+              border: 1px solid rgba(125,211,252,.24);
+              box-shadow: 0 28px 110px rgba(0,0,0,.38);
+            }
+            .demo-intro-flow {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+              margin-top: 18px;
+            }
+            .demo-intro-flow span {
+              min-height: 58px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 8px;
+              border: 1px solid rgba(125,211,252,.24);
+              background: rgba(8,13,22,.86);
+              color: #e9f8ff;
+              font: 900 18px/1 Inter, system-ui, sans-serif;
             }`;
           document.head.appendChild(style);
           const caption = document.createElement("div");
           caption.className = "demo-caption";
+          caption.innerHTML = `
+            <div class="demo-caption-text">
+              <div class="demo-kicker"></div>
+              <div class="demo-title"></div>
+              <div class="demo-proof"></div>
+            </div>
+            <div class="demo-progress">
+              <div class="demo-progress-label">01 / 13</div>
+              <div class="demo-progress-track"><div class="demo-progress-fill"></div></div>
+            </div>`;
           document.body.appendChild(caption);
           const brand = document.createElement("div");
           brand.className = "demo-brand";
@@ -353,15 +593,60 @@ def _install_overlays(page) -> None:
           brand.appendChild(logo);
           brand.appendChild(label);
           document.body.appendChild(brand);
-          window.__setDemoCaption = (text) => { caption.textContent = text; };
+          const safety = document.createElement("div");
+          safety.className = "demo-safety-strip";
+          safety.innerHTML = "<span>real UI capture</span><span>no signing</span><span>0G proof</span>";
+          document.body.appendChild(safety);
+          const intro = document.createElement("div");
+          intro.className = "demo-intro";
+          intro.innerHTML = `
+            <div>
+              <img class="demo-intro-logo" src="${logoSrc}" alt="">
+              <h1>Pre-wallet protection for AI agents.</h1>
+              <p>0guard checks the intent before a wallet ever has to decide whether to sign.</p>
+            </div>
+            <div>
+              <img class="demo-intro-banner" src="${bannerSrc || logoSrc}" alt="">
+              <div class="demo-intro-flow">
+                <span>Agent</span>
+                <span>0guard</span>
+                <span>Wallet</span>
+                <span>0G receipt</span>
+              </div>
+            </div>`;
+          document.body.appendChild(intro);
+          window.__setDemoCaption = (payload) => {
+            const total = payload.total || 13;
+            const step = Math.max(1, Math.min(total, payload.step || 1));
+            caption.querySelector(".demo-kicker").textContent = payload.kicker || "";
+            caption.querySelector(".demo-title").textContent = payload.title || "";
+            caption.querySelector(".demo-proof").textContent = payload.proof || "";
+            caption.querySelector(".demo-progress-label").textContent =
+              String(step).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+            caption.querySelector(".demo-progress-fill").style.width =
+              Math.max(8, Math.round((step / total) * 100)) + "%";
+          };
+          window.__showDemoIntro = () => intro.classList.add("show");
+          window.__hideDemoIntro = () => intro.classList.remove("show");
         }
         """,
-        logo_src,
+        {"logoSrc": logo_src, "bannerSrc": banner_src},
     )
 
 
-def _caption(page, text: str) -> None:
-    page.evaluate("(text) => window.__setDemoCaption(text)", text)
+def _caption(page, title: str, kicker: str, proof: str, step: int) -> None:
+    page.evaluate(
+        "(payload) => window.__setDemoCaption(payload)",
+        {"title": title, "kicker": kicker, "proof": proof, "step": step, "total": 13},
+    )
+
+
+def _show_intro(page) -> None:
+    page.evaluate("() => window.__showDemoIntro()")
+
+
+def _hide_intro(page) -> None:
+    page.evaluate("() => window.__hideDemoIntro()")
 
 
 def _evaluate(page, intent: dict) -> None:
@@ -666,6 +951,12 @@ def _logo_data_uri() -> str:
     if not LOGO_ASSET.exists():
         return ""
     return "data:image/png;base64," + b64encode(LOGO_ASSET.read_bytes()).decode("ascii")
+
+
+def _banner_data_uri() -> str:
+    if not BANNER_ASSET.exists():
+        return ""
+    return "data:image/png;base64," + b64encode(BANNER_ASSET.read_bytes()).decode("ascii")
 
 
 if __name__ == "__main__":

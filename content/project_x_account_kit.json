@@ -15,7 +15,8 @@
     "location": "Built on 0G",
     "website": "https://arigatoexpress.github.io/0guard/hackathon-0g/",
     "profileImage": "docs/hackathon-0g/assets/0guard-logo.png",
-    "headerImageRecommendation": "Use the proof-page screenshot or a 1500x500 crop of the workbench showing the agent -> 0guard -> wallet flow."
+    "headerImage": "docs/hackathon-0g/assets/0guard-x-banner.png",
+    "headerImageRecommendation": "Use docs/hackathon-0g/assets/0guard-x-banner.png. It is a 1500x500 launch banner designed to complement the 0guard profile icon and show the agent -> 0guard -> wallet -> 0G proof flow."
   },
   "pinnedPost": {
     "text": "Introducing 0guard: a pre-wallet firewall for AI agents.\n\nIt checks intent, calldata, policy, and source-linked exploit intelligence before a wallet is ever asked to sign.\n\nBuilt on 0G with a public mainnet receipt anchor.\n\nDemo: https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4\nProof: https://arigatoexpress.github.io/0guard/hackathon-0g/\n\n#0GHackathon #BuildOn0G",
