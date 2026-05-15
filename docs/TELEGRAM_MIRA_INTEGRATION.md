@@ -75,6 +75,9 @@ message-delivery APIs from the browser.
 Current Cloud Run preview URL:
 `https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram`
 
+Current Telegram bot:
+`https://t.me/Raris0guardBot`
+
 The intended flow is:
 
 1. BotFather points the Mini App URL to the deployed `/telegram` route.
@@ -90,8 +93,12 @@ BotFather setup values:
 - Web App URL: `https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram`
 - Short description: `Pre-wallet firewall for AI-agent wallet intents.`
 - Description: `0guard previews wallet risk, hack signatures, and Mira explanations before an agent reaches a signer. Preview only; no Telegram sends from the Mini App.`
-- Production env still needed for real Telegram launch validation:
-  `TELEGRAM_BOT_TOKEN` and optional `TELEGRAM_BOT_USERNAME`.
+- Production env is configured on Cloud Run via Secret Manager:
+  `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, and
+  `TELEGRAM_REGISTRATION_SECRET`. Do not commit or print those values.
+- The bot menu button is configured as `Open 0guard` and launches the Mini App.
+- The webhook is configured for message updates only and uses Telegram's
+  `X-Telegram-Bot-Api-Secret-Token` header. The Flask route remains no-send.
 
 Opening `/telegram` in a normal browser is still useful for judging and local
 QA: it becomes `local_browser_preview`, keeps the same no-send contract, and

@@ -14,6 +14,9 @@ Submission proof artifact: `hackquest-submission-proof.json`
 Live Telegram Mini App preview:
 https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
 
+Live Telegram bot:
+https://t.me/Raris0guardBot
+
 1. Start with `final-submission-checklist.md` for the submitted HackQuest
    readback, public project URL, 0G proof, demo video, and X post.
 2. Use `submission-copy.md` for the project summary, track fit, and
@@ -88,7 +91,9 @@ The Telegram layer is now demoable as a Mini App at
 the mobile wallet-alert surface; `/api/telegram/miniapp/session` validates
 Telegram `initData` when present; `/api/telegram/miniapp/preview` returns one
 combined wallet-alert + Mira response with quality-gate metadata and
-`telegram_send=false`.
+`telegram_send=false`. The bot at `https://t.me/Raris0guardBot` has its Mini
+App menu button, descriptions, commands, webhook, and profile image configured;
+the webhook still routes to preview/no-send handling only.
 
 ## Safety Posture
 
