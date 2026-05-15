@@ -1321,6 +1321,8 @@ def api_health():
     cfg = get_0g_config()
     return jsonify(
         {
+            "schema": "0guard.health.v1",
+            "ok": True,
             "service": "zg-hack-guard",
             "version": "0.1.0",
             "0g_chain_id": cfg["chain_id"],
