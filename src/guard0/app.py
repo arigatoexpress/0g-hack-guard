@@ -537,6 +537,20 @@ def api_wallet_alert_preview():
     body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
     address = body.get("address") or request.args.get("address") or ""
     intent = body.get("intent")
+    if intent is None and request.method == "GET":
+        intent_type = request.args.get("intent") or request.args.get("type")
+        amount = request.args.get("amount")
+        to_address = request.args.get("to")
+        chain = request.args.get("chain")
+        asset = request.args.get("asset")
+        if any(value is not None for value in (intent_type, amount, to_address, chain, asset)):
+            intent = {
+                "type": intent_type,
+                "amount": amount,
+                "to": to_address,
+                "chain": chain,
+                "asset": asset,
+            }
     live = _truthy_value(body.get("live")) if request.method == "POST" else _truthy_query_arg("live")
     max_alerts_raw = body.get("max_alerts") or request.args.get("max_alerts") or 5
     try:
@@ -780,21 +794,38 @@ def api_telegram_mira_preview():
     return jsonify(preview)
 
 
-@app.route("/api/telegram/wallet-alert-preview", methods=["POST"])
+@app.route("/api/telegram/wallet-alert-preview", methods=["GET", "POST"])
 def api_telegram_wallet_alert_preview():
-    body = request.get_json(silent=True) or {}
+    body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
     record_id = body.get("record_id")
     record = _TELEGRAM_OPT_IN_RECORDS.get(record_id) if record_id else None
     if record_id and not record:
         return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
 
-    address = body.get("address") or ""
+    address = body.get("address") or request.args.get("address") or ""
+    intent = body.get("intent")
+    if intent is None and request.method == "GET":
+        intent_type = request.args.get("intent") or request.args.get("type")
+        amount = request.args.get("amount")
+        to_address = request.args.get("to")
+        chain = request.args.get("chain")
+        asset = request.args.get("asset")
+        if any(value is not None for value in (intent_type, amount, to_address, chain, asset)):
+            intent = {
+                "type": intent_type,
+                "amount": amount,
+                "to": to_address,
+                "chain": chain,
+                "asset": asset,
+            }
     try:
         preview = build_wallet_alert_preview(
             address,
-            intent=body.get("intent"),
-            live=_truthy_value(body.get("live", False)),
-            max_alerts=int(body.get("max_alerts", 5)),
+            intent=intent,
+            live=_truthy_value(body.get("live", False))
+            if request.method == "POST"
+            else _truthy_query_arg("live"),
+            max_alerts=int(body.get("max_alerts", 5) if request.method == "POST" else (request.args.get("max_alerts") or 5)),
         )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
