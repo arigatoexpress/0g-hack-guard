@@ -1,7 +1,8 @@
 # HackQuest Submission Form Fields
 
 Generated for final operator submission on May 14, 2026. The project was
-submitted and publicly verified on May 14, 2026 at 05:32:38 UTC.
+submitted and publicly verified on May 14, 2026 at 05:32:38 UTC, then updated
+and publicly re-verified on May 15, 2026 at 20:28:18 UTC.
 
 This file remains the copy/paste packet and historical record. Current
 submitted-state proof lives in
@@ -50,13 +51,13 @@ Track 1: Agentic Infrastructure & OpenClaw Lab
 One-line description:
 
 ```text
-0guard is a 0G-native pre-wallet firewall that checks AI-agent intents against exploit intelligence before any signer can act.
+0guard is a 0G-native pre-wallet firewall and Telegram Mini App that checks AI-agent wallet intents before any signer can act.
 ```
 
 ## Summary
 
 ```text
-0guard is a pre-wallet firewall for AI agents. It evaluates prompts, action mode, calldata, target contracts, domains, policy context, and incident-derived exploit intelligence before an agent can reach a signer. The product returns allow/review/deny verdicts, deterministic receipt hashes, a live 0G mainnet receipt anchor, Storage-ready threat-intel root hashes, and a read-only cross-chain integration fabric for Virtuals/Base, x402, EVM expansion chains, Lighter exchange/API guardrails, Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/TIA proof lanes. The workbench stays read-only and never holds keys, signs, broadcasts, trades, takes exchange account actions, launches agents, settles payments, or sends Telegram messages.
+0guard is a pre-wallet firewall for AI agents. It checks intent, calldata, policy context, and source-linked exploit intelligence before a wallet is asked to sign. The current stack includes a live Telegram Mini App, server-side Telegram initData validation, wallet-alert plus Mira previews, deterministic receipts, 28/28 incident-derived detector coverage, and one deny receipt anchored on 0G mainnet. The workbench and Mini App stay read-only: no signing, broadcasts, trading, bridging, x402 settlement, exchange actions, or Telegram sends.
 ```
 
 ## Problem
@@ -100,7 +101,26 @@ https://github.com/arigatoexpress/0guard
 Public demo page:
 
 ```text
-https://arigatoexpress.github.io/0guard/
+https://arigatoexpress.github.io/0guard/hackathon-0g/
+```
+
+Telegram Mini App:
+
+```text
+https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
+```
+
+Telegram bot:
+
+```text
+https://t.me/Raris0guardBot
+```
+
+Project images submitted to HackQuest:
+
+```text
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-workbench-provenance.png
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-x-banner.png
 ```
 
 Screenshot asset:
@@ -157,6 +177,12 @@ Anchored receipt hash:
 0x9739dbd4afb6ab21f15ccb634b49dabc9144550ef06d346cb4e7cd363e74afd1
 ```
 
+0G on-chain integration proof field:
+
+```text
+0G Chain anchors policy receipt hashes. Contract: 0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc. Anchor tx: https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed. Public proof packet: https://arigatoexpress.github.io/0guard/hackathon-0g/. The live Telegram Mini App and browser workbench keep signing/broadcasting disabled while returning Storage-ready root hashes and receipt payloads.
+```
+
 ## X Post
 
 Required tags and hashtags:
@@ -186,11 +212,14 @@ Readiness audit:
 
 ## Final Submit Order
 
-Completed on May 14, 2026:
+Completed on May 14, 2026 and refreshed on May 15, 2026:
 
 1. Saved the HackQuest project setup fields via HackQuest GraphQL.
 2. Submitted the HackQuest project with the 0G custom submission fields.
 3. Verified public readback at `https://www.hackquest.io/projects/0guard`.
+4. Updated the public MVP link, one-liner, description, progress note,
+   project images, deployment details, and 0G proof field to include the
+   Telegram Mini App and current proof packet.
 
 ## Manual Recovery Note
 

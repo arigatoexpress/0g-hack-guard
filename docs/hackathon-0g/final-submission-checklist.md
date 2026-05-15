@@ -1,14 +1,14 @@
 # 0guard Final HackQuest Submission Checklist
 
-Snapshot date: May 14, 2026.
+Snapshot date: May 15, 2026.
 
 Official source: https://www.hackquest.io/hackathons/0G-APAC-Hackathon
 
 Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 09:59 MDT in Denver.
 
-Status: submitted to HackQuest and verified by public readback on May 14, 2026
-at 05:32:38 UTC.
+Status: submitted to HackQuest, updated with Telegram Mini App proof, and
+verified by public readback on May 15, 2026 at 20:28:18 UTC.
 
 Public project: https://www.hackquest.io/projects/0guard
 
@@ -25,9 +25,15 @@ Submission proof artifact: `docs/hackathon-0g/hackquest-submission-proof.json`
 - Project name: `0guard`
 - Prize track submitted: `Grand Prizes`
 - Sector saved on public profile: `Privacy`
-- One-liner: `0guard is a 0G-native pre-wallet firewall that checks AI-agent intents against exploit intelligence before any signer can act.`
+- One-liner: `0guard is a 0G-native pre-wallet firewall and Telegram Mini App that checks AI-agent wallet intents before any signer can act.`
 - Repository: https://github.com/arigatoexpress/0guard
-- Public demo page: https://arigatoexpress.github.io/0guard/
+- Public demo/proof packet: https://arigatoexpress.github.io/0guard/hackathon-0g/
+- Telegram Mini App: https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
+- Telegram bot: https://t.me/Raris0guardBot
+- Project images:
+  https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-workbench-provenance.png
+  and
+  https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-x-banner.png
 - Screenshot asset: `docs/hackathon-0g/assets/0guard-workbench-provenance.png`
 - 0G mainnet contract:
   `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
@@ -161,6 +167,9 @@ Expected high-signal fields:
 - `hackathonAlias`: `0G-APAC-Hackathon`
 - `contractAddress`: `0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc`
 - `prizeTrack`: `["Grand Prizes"]`
+- `fillProgress`: `100`
+- `projectLinks.mvpLink`: `https://arigatoexpress.github.io/0guard/hackathon-0g/`
+- `deploymentDetails`: includes the Telegram Mini App and bot URLs
 
 ## Final Submit Order Completed
 
@@ -169,6 +178,9 @@ Expected high-signal fields:
 3. Verified public readback shows `isSubmit=true`.
 4. Verified the public project page returns HTTP 200 at
    https://www.hackquest.io/projects/0guard.
+5. Refreshed the submitted application copy and custom 0G proof field with the
+   production Telegram Mini App, proof packet, 100% fill progress, and current
+   project-image assets.
 
 ## Manual Recovery Note
 
