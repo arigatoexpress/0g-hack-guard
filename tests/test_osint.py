@@ -97,6 +97,7 @@ def test_signature_map_explains_coverage_gaps():
     assert mapping["matchedCount"] == 28
     assert mapping["gapCount"] == 0
     assert mapping["coverageRatio"] == 1.0
+    assert mapping["signatureCoverageRatio"] == 1.0
     assert mapping["topGaps"] == {}
     drift = next(row for row in mapping["rows"] if row["protocol"] == "Drift Protocol")
     assert drift["matched"] is True

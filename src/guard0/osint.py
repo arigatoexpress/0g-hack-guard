@@ -273,13 +273,15 @@ def signature_map(dataset: dict[str, Any] | None = None) -> dict[str, Any]:
         )
 
     total = len(rows)
+    coverage_ratio = round(matched / total, 4) if total else 0
     return {
         "schema": SIGNATURE_MAP_SCHEMA,
         "datasetFingerprint": dataset_fingerprint(loaded),
         "incidentCount": total,
         "matchedCount": matched,
         "gapCount": total - matched,
-        "coverageRatio": round(matched / total, 4) if total else 0,
+        "coverageRatio": coverage_ratio,
+        "signatureCoverageRatio": coverage_ratio,
         "topGaps": _top_gap_counts(rows),
         "rows": rows,
     }
