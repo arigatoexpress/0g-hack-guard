@@ -471,6 +471,30 @@ def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
     assert bad.status_code == 400
 
 
+def test_wallet_alert_preview_denies_negative_amount_intents(client):
+    address = "0x885b0892D241Cb5033C9995e09cA521d54f936b5"
+    preview_response = client.post(
+        "/api/wallet/alert-preview",
+        json={
+            "address": address,
+            "intent": {
+                "type": "transfer",
+                "asset": "ETH",
+                "amount": -1,
+                "to": "0x000000000000000000000000000000000000dEaD",
+                "chain": "0g_mainnet",
+            },
+        },
+    )
+    assert preview_response.status_code == 200
+    preview = preview_response.get_json()
+    assert preview["schema"] == "0guard.wallet_alert_preview.v1"
+    assert preview["decision"]["decision"] == "deny"
+    assert any("amount invariant" in blocker.lower() for blocker in preview["decision"]["blockers"])
+    assert preview["safety"]["telegramSendEnabled"] is False
+    assert preview["safety"]["transactionBroadcastingEnabled"] is False
+
+
 def test_telegram_registration_and_mira_preview_are_local_and_redacted(monkeypatch, client):
     monkeypatch.setenv("TELEGRAM_REGISTRATION_SECRET", "test-secret-for-telegram-registration")
 

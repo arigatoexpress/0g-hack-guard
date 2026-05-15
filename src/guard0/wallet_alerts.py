@@ -65,18 +65,21 @@ def build_wallet_alert_preview(
     """Build a wallet-specific alert preview without sending or signing anything."""
     normalized_address = normalize_evm_address(address)
     limit = _validate_max_alerts(max_alerts)
-    evaluation_intent = intent or {
+    evaluation_intent = _normalize_wallet_intent(intent) if intent is not None else {
         "action": "read_balance",
         "mode": "simulation",
         "method": "eth_getBalance",
         "requires_signature": False,
     }
+    amount_issue = _detect_amount_invariant_violation(intent)
     decision = evaluate_intent(
         evaluation_intent,
         agent_id=f"wallet-alert:{normalized_address[:10]}",
         enable_0g_anchor=True,
         enable_0g_storage=True,
     ).to_dict()
+    if amount_issue:
+        decision = _force_deny_for_amount_issue(decision, amount_issue)
     sig_map = signature_map()
     coverage = detection_coverage()
     provenance = incident_provenance_matrix(live=False)
@@ -124,6 +127,82 @@ def build_wallet_alert_preview(
             "rawPayloadsReturned": False,
         },
     }
+
+
+def _normalize_wallet_intent(intent: dict[str, Any] | None) -> dict[str, Any]:
+    """Normalize user-facing wallet intents into the policy evaluation schema.
+
+    The HackQuest demo and steward checks sometimes pass a lightweight
+    transaction-like shape (type/amount/to/chain). We translate those into an
+    explicit spend-term action so the policy engine can reason about it.
+    """
+    if not isinstance(intent, dict) or not intent:
+        return {
+            "action": "read_balance",
+            "mode": "simulation",
+            "method": "eth_getBalance",
+            "requires_signature": False,
+        }
+
+    if any(key in intent for key in ("action", "method", "requires_signature", "mode")):
+        return intent
+
+    intent_type = str(intent.get("type") or intent.get("kind") or "").strip().lower()
+    if intent_type in {"transfer", "send"}:
+        return {
+            "action": "token_transfer",
+            "mode": "simulation",
+            "requires_signature": True,
+            "prompt_text": _summarize_intent(intent),
+            "target_contract": str(intent.get("to") or ""),
+        }
+    if intent_type in {"approve", "approval"}:
+        return {
+            "action": "token_approval",
+            "mode": "simulation",
+            "requires_signature": True,
+            "prompt_text": _summarize_intent(intent),
+            "target_contract": str(intent.get("token") or intent.get("spender") or ""),
+        }
+    return {
+        "action": "unknown_wallet_intent",
+        "mode": "simulation",
+        "requires_signature": False,
+        "prompt_text": _summarize_intent(intent),
+    }
+
+
+def _summarize_intent(intent: dict[str, Any]) -> str:
+    parts = []
+    for key in ("type", "asset", "amount", "to", "chain"):
+        if key in intent:
+            parts.append(f"{key}={intent.get(key)!r}")
+    return "wallet_intent(" + ", ".join(parts) + ")"
+
+
+def _detect_amount_invariant_violation(intent: dict[str, Any] | None) -> str | None:
+    if not isinstance(intent, dict):
+        return None
+    if "amount" not in intent:
+        return None
+    try:
+        amount = float(intent["amount"])
+    except (TypeError, ValueError):
+        return "amount must be a number"
+    if amount <= 0:
+        return "negative or zero amount is invalid"
+    return None
+
+
+def _force_deny_for_amount_issue(decision: dict[str, Any], reason: str) -> dict[str, Any]:
+    updated = dict(decision)
+    blockers = list(updated.get("blockers") or [])
+    blockers.insert(0, f"Wallet intent amount invariant: {reason}.")
+    updated["blockers"] = blockers
+    updated["warnings"] = list(updated.get("warnings") or [])
+    updated["decision"] = "deny"
+    updated["severity"] = "critical"
+    return updated
 
 
 def build_wallet_alert_message(
