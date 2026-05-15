@@ -155,10 +155,14 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |
 | `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |
 | `GET`  | `/api/hackathon/threat-passport` | Judge proof drill with sample intent, verdict receipt, source evidence, detector coverage, and 0G proof slots |
+| `GET`  | `/telegram` | Mobile Telegram Mini App wallet-alert surface; browser preview outside Telegram |
 | `GET`  | `/api/telegram/status` | Telegram/Mira registration posture, Mini App auth support, and no-send safety flags |
 | `POST` | `/api/telegram/registrations` | Create a local HMAC registration challenge; no Telegram send |
 | `POST` | `/api/telegram/opt-ins` | Complete a local redacted Telegram opt-in record from a verified challenge |
 | `POST` | `/api/telegram/webapp/verify` | Validate Telegram Mini App `initData` server-side when `TELEGRAM_BOT_TOKEN` is configured |
+| `GET`  | `/api/telegram/miniapp/contract` | Mini App selectors, routes, Telegram Web App posture, and no-send safety contract |
+| `POST` | `/api/telegram/miniapp/session` | Detect browser preview versus Telegram launch and validate raw `initData` when present |
+| `POST` | `/api/telegram/miniapp/preview` | Combined wallet-alert + Mira preview for the Mini App; no Telegram send |
 | `POST` | `/api/telegram/webhook` | Inbound `/start`, `/stop`, and Mira preview handling with Telegram secret-header verification; no send |
 | `POST` | `/api/telegram/mira-preview` | Build a Telegram-safe Mira security response preview; no send |
 | `POST` | `/api/telegram/wallet-alert-preview` | Build a Telegram Mini App wallet alert message preview; no send |
