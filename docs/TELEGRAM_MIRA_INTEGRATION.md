@@ -53,9 +53,15 @@ The workbench exposes a demo-safe API surface:
 | `GET` | `/api/telegram/miniapp/contract` | Returns required Mini App selectors, routes, Telegram Web App posture, and no-send safety. |
 | `POST` | `/api/telegram/miniapp/session` | Detects browser preview versus Telegram launch and validates raw `initData` when present. |
 | `POST` | `/api/telegram/miniapp/preview` | Builds one combined wallet-alert + Mira preview response for the Mini App. |
+| `POST` | `/api/telegram/miniapp/ton-preview` | Builds a TON Risk Passport plus Mira claim preview for Telegram. No send, no tonProof, no transaction. |
 | `POST` | `/api/telegram/webhook` | Handles inbound `/start`, `/stop`, and Mira preview after secret-header verification. |
 | `POST` | `/api/telegram/mira-preview` | Builds a deterministic Mira policy response preview. No Telegram send. |
+| `POST` | `/api/mira/claim-preview` | Builds an external-Mira-ready claim/evidence packet without making an external Mira call. |
 | `POST` | `/api/telegram/wallet-alert-preview` | Builds a no-send wallet alert message preview with score, dedupe, cooldown, and source ids. |
+| `GET` | `/tonconnect-manifest.json` | Presentation-only TON Connect manifest for wallet UI context. |
+| `GET` | `/api/ton/status` | TON integration posture and safety flags. |
+| `GET` | `/api/ton/risk-rules` | Source-cited TON risk rules. |
+| `POST` | `/api/ton/wallet-risk-preview` | Read-only TON wallet risk passport. |
 
 For a real Telegram Mini App, send the raw
 `window.Telegram.WebApp.initData` string to `/api/telegram/webapp/verify`.
@@ -87,6 +93,9 @@ The intended flow is:
 5. The user previews a wallet intent through `/api/telegram/miniapp/preview`.
 6. The response includes `walletAlert`, `mira`, a Telegram-safe message string,
    quality-gate metadata, and explicit `telegram_send=false`.
+7. The user can paste or connect a TON address for `/api/telegram/miniapp/ton-preview`;
+   the response is a TON Risk Passport with a Mira claim packet and no wallet
+   prompt.
 
 BotFather setup values:
 
@@ -166,3 +175,20 @@ sit behind the same contract and keep the current fields:
 - `delivery="preview_no_send"` until live sends are explicitly enabled
 - `telegram_send=false` unless the separate live-send CLI path is reviewed
 - `network_calls` truthfully set to the actual runtime behavior
+
+## TON Boundary
+
+The TON integration is a native Telegram wallet lane, not a bridge. The current
+repo exposes a TON Connect manifest and risk-passport APIs, but it does not call
+TON Connect `sendTransaction`, `signData`, or `tonProof`, and it does not fetch
+live account activity unless a future read-only indexer adapter is explicitly
+enabled.
+
+This gives 0guard a clean Telegram-native story:
+
+1. Validate Telegram Mini App `initData` server-side.
+2. Accept a TON wallet address for preview.
+3. Apply TON-specific phishing, payload, Jetton/NFT spam, and live-coverage
+   rules.
+4. Prepare a receipt hash and Mira-ready claim packet.
+5. Keep all sends, signatures, and transactions outside the Mini App.

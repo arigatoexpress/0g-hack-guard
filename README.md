@@ -146,7 +146,13 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/readiness` | Source-readiness posture; add `?live=1` for public availability checks |
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
+| `GET`  | `/api/intelligence/data-streams` | Ranked data-stream plan with free/paid source options, rights posture, and integration phases |
+| `GET`  | `/api/roadmap` | No-bridge ecosystem roadmap for 0G, Telegram/TON, EVM L2s, Solana, Hyperliquid, and agent distribution |
 | `GET/POST` | `/api/wallet/alert-preview` | Read-only wallet alert preview with quality gates, dedupe keys, cooldowns, and no sends |
+| `GET`  | `/tonconnect-manifest.json` | TON Connect manifest for presentation-only wallet context |
+| `GET`  | `/api/ton/status` | TON/Telegram wallet integration posture, supported networks, and no-sign safety flags |
+| `GET`  | `/api/ton/risk-rules` | Source-cited TON risk passport rules |
+| `POST` | `/api/ton/wallet-risk-preview` | Read-only TON wallet risk passport; no tonProof, signature, send, or bridge |
 | `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, Lighter exchange/API, bridge protocol guardrails, and Celestia/TIA |
 | `GET`  | `/api/integrations/cross-chain/readiness` | Read-only cross-chain readiness; add `?live=1` for safe EVM RPC probes plus supported non-EVM status probes |
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
@@ -163,8 +169,10 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/telegram/miniapp/contract` | Mini App selectors, routes, Telegram Web App posture, and no-send safety contract |
 | `POST` | `/api/telegram/miniapp/session` | Detect browser preview versus Telegram launch and validate raw `initData` when present |
 | `POST` | `/api/telegram/miniapp/preview` | Combined wallet-alert + Mira preview for the Mini App; no Telegram send |
+| `POST` | `/api/telegram/miniapp/ton-preview` | Telegram-safe TON risk passport plus Mira claim preview; no Telegram send |
 | `POST` | `/api/telegram/webhook` | Inbound `/start`, `/stop`, and Mira preview handling with Telegram secret-header verification; no send |
 | `POST` | `/api/telegram/mira-preview` | Build a Telegram-safe Mira security response preview; no send |
+| `POST` | `/api/mira/claim-preview` | Deterministic Mira Verify-ready claim packet with evidence hashes; no external Mira call |
 | `POST` | `/api/telegram/wallet-alert-preview` | Build a Telegram Mini App wallet alert message preview; no send |
 | `GET`  | `/api/frontend-contract` | Browser smoke contract, selectors, and safety posture |
 | `GET`  | `/api/external-action-contracts` | Dry-run/default contract for X, Telegram, deploy, and signing paths |
@@ -208,7 +216,8 @@ curl -X POST http://127.0.0.1:8109/api/evaluate \
       "chain_id": 16602
     },
     "storage_receipt": {
-      "stored": true,
+      "stored": false,
+      "storage_mode": "receipt_only_no_live_upload",
       "root_hash": "..."
     }
   },

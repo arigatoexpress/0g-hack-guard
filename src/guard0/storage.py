@@ -30,10 +30,7 @@ def store_threat_intel(
     data: dict[str, Any],
     tags: list[str] | None = None,
 ) -> dict[str, Any]:
-    """
-    Store a threat-intel record to 0G Storage KV layer.
-    Returns the storage receipt (root hash + tx metadata).
-    """
+    """Prepare a threat-intel receipt for 0G Storage without uploading it."""
     payload = {
         "version": "zg-hack-guard/0.1.0",
         "timestamp": time.time(),
@@ -45,15 +42,19 @@ def store_threat_intel(
     root_hash = hashlib.sha256(blob).hexdigest()
 
     # In a production deployment this would POST to the 0G Storage KV gateway.
-    # For hackathon demo & testing we return the canonical receipt so the flow
-    # can be exercised even before mainnet credentials are configured.
+    # The local/hackathon path is deliberately honest: it prepares the canonical
+    # root hash but does not claim that a live 0G upload happened.
     receipt = {
-        "stored": True,
+        "stored": False,
+        "storage_mode": "receipt_only_no_live_upload",
+        "upload_enabled": False,
         "root_hash": root_hash,
         "size_bytes": len(blob),
         "zgs_node": ZGS_NODE_URL,
         "key": key,
-        "note": "Receipt generated for hackathon demo. Set ZGS_NODE_URL to enable live upload.",
+        "note": (
+            "Receipt root prepared for 0G Storage. No live upload was performed by this code path."
+        ),
     }
     return receipt
 

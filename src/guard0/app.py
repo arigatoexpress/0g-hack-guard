@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from urllib.parse import urlparse
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -27,7 +28,7 @@ from guard0.external_guardrails import (
     external_guardrail_catalog,
 )
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
-from guard0.mira import build_mira_security_preview
+from guard0.mira import build_mira_claim_preview, build_mira_security_preview
 from guard0.osint import (
     evolving_threat_intelligence,
     hackathon_submission_brief,
@@ -41,6 +42,13 @@ from guard0.osint import (
     threat_receipt_passport,
 )
 from guard0.policy import evaluate_intent
+from guard0.roadmap import ecosystem_roadmap, intelligence_stream_plan
+from guard0.ton import (
+    build_ton_wallet_risk_preview,
+    ton_risk_rules,
+    ton_status,
+    tonconnect_manifest,
+)
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
 from guard0.chain import build_0g_status, get_0g_config, verify_anchor
 from guard0.telegram_bot import TelegramWebAppAuthError, validate_webapp_init_data
@@ -131,6 +139,8 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#telegram-status",
     "#deploy-status",
     "#open-telegram-miniapp",
+    "#load-intelligence-stream-plan",
+    "#load-ecosystem-roadmap",
 )
 
 MINIAPP_REQUIRED_SELECTORS = (
@@ -146,10 +156,20 @@ MINIAPP_REQUIRED_SELECTORS = (
     "#miniapp-to",
     "#miniapp-preview-alert",
     "#miniapp-run-mira",
+    "#miniapp-ton-address",
+    "#miniapp-preview-ton",
     "#miniapp-alert-message",
+    "#miniapp-ton-output",
     "#miniapp-output",
     "#miniapp-mira-output",
     "#miniapp-quality-output",
+)
+
+DOMAIN_ALLOWLIST = (
+    "0g.ai",
+    "docs.0g.ai",
+    "hackquest.io",
+    "github.com",
 )
 
 
@@ -241,9 +261,14 @@ def _telegram_mira_status_payload() -> dict:
             "/api/telegram/miniapp/contract",
             "/api/telegram/miniapp/session",
             "/api/telegram/miniapp/preview",
+            "/api/telegram/miniapp/ton-preview",
             "/api/telegram/webhook",
             "/api/telegram/mira-preview",
             "/api/telegram/wallet-alert-preview",
+            "/api/mira/claim-preview",
+            "/api/ton/status",
+            "/api/ton/risk-rules",
+            "/api/ton/wallet-risk-preview",
         ],
         "safety": {
             "telegramSendsEnabled": False,
@@ -473,6 +498,7 @@ def _telegram_miniapp_contract_payload() -> dict:
             "Mira add-on",
             "Preview only",
             "No Telegram sends",
+            "TON Risk Passport",
         ],
         "requiredSelectors": list(MINIAPP_REQUIRED_SELECTORS),
         "telegramApi": {
@@ -487,10 +513,17 @@ def _telegram_miniapp_contract_payload() -> dict:
             "/api/telegram/miniapp/contract",
             "/api/telegram/miniapp/session",
             "/api/telegram/miniapp/preview",
+            "/api/telegram/miniapp/ton-preview",
             "/api/telegram/mira-preview",
             "/api/telegram/wallet-alert-preview",
+            "/api/mira/claim-preview",
+            "/api/ton/status",
+            "/api/ton/risk-rules",
+            "/api/ton/wallet-risk-preview",
+            "/tonconnect-manifest.json",
         ],
         "mira": status["mira"],
+        "ton": ton_status(),
         "qualityPolicy": wallet_alert_quality_policy(),
         "safety": status["safety"],
     }
@@ -546,6 +579,7 @@ def api_frontend_contract():
                 "Mira Telegram Preview",
                 "Wallet Alert Preview",
                 "Telegram Mini App",
+                "TON Risk Passport",
                 "External Action Contract",
                 "Safety Inspector",
                 "no signing",
@@ -565,7 +599,13 @@ def api_frontend_contract():
                 "/api/osint/readiness",
                 "/api/osint/signals",
                 "/api/intelligence/evolving",
+                "/api/intelligence/data-streams",
+                "/api/roadmap",
                 "/api/wallet/alert-preview",
+                "/api/ton/status",
+                "/api/ton/risk-rules",
+                "/api/ton/wallet-risk-preview",
+                "/tonconnect-manifest.json",
                 "/api/integrations/cross-chain",
                 "/api/integrations/cross-chain/readiness",
                 "/api/integrations/virtuals-facilitator",
@@ -580,8 +620,10 @@ def api_frontend_contract():
                 "/api/telegram/miniapp/contract",
                 "/api/telegram/miniapp/session",
                 "/api/telegram/miniapp/preview",
+                "/api/telegram/miniapp/ton-preview",
                 "/api/telegram/mira-preview",
                 "/api/telegram/wallet-alert-preview",
+                "/api/mira/claim-preview",
                 "/api/external-action-contracts",
                 "/api/evaluate",
                 "/api/hack-check",
@@ -607,6 +649,8 @@ def api_frontend_contract():
                 "load-osint-readiness",
                 "load-osint-signals",
                 "load-evolving-intel",
+                "load-intelligence-stream-plan",
+                "load-ecosystem-roadmap",
                 "load-submission-brief",
                 "load-submission-packet",
                 "load-submission-readiness",
@@ -641,6 +685,8 @@ def api_data_incidents():
         min_loss_usd = int(min_loss) if min_loss is not None else None
     except ValueError:
         return jsonify({"error": "min_loss_usd must be an integer"}), 400
+    if min_loss_usd is not None and min_loss_usd < 0:
+        return jsonify({"error": "min_loss_usd must be non-negative"}), 400
 
     limit = request.args.get("limit")
     try:
@@ -716,6 +762,16 @@ def api_evolving_threat_intelligence():
     return jsonify(evolving_threat_intelligence(live=live, limit=limit_value))
 
 
+@app.route("/api/intelligence/data-streams", methods=["GET"])
+def api_intelligence_data_streams():
+    return jsonify(intelligence_stream_plan())
+
+
+@app.route("/api/roadmap", methods=["GET"])
+def api_roadmap():
+    return jsonify(ecosystem_roadmap())
+
+
 @app.route("/api/wallet/alert-preview", methods=["GET", "POST"])
 def api_wallet_alert_preview():
     body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
@@ -738,7 +794,7 @@ def api_wallet_alert_preview():
                 "asset": asset,
             }
     live = _truthy_value(body.get("live")) if request.method == "POST" else _truthy_query_arg("live")
-    max_alerts_raw = body.get("max_alerts") or request.args.get("max_alerts") or 5
+    max_alerts_raw = _request_value(body, "max_alerts", 5)
     try:
         max_alerts = int(max_alerts_raw)
         preview = build_wallet_alert_preview(
@@ -808,7 +864,10 @@ def api_hackathon_threat_passport():
 @app.route("/api/telegram/status", methods=["GET"])
 def api_telegram_status():
     payload = _telegram_mira_status_payload()
-    webhook = _telegram_webhook_info()
+    live_readback = _truthy_query_arg("live")
+    payload["liveReadback"] = live_readback
+    payload["safety"] = {**payload["safety"], "networkCalls": live_readback}
+    webhook = _telegram_webhook_info() if live_readback else None
     compat = {
         "botTokenConfigured": (payload.get("miniAppAuth") or {}).get("botTokenConfigured"),
         "telegramBotUsernameConfigured": (payload.get("registration") or {}).get(
@@ -996,11 +1055,7 @@ def api_telegram_miniapp_preview():
             address,
             intent=intent,
             live=_truthy_value(body.get("live", False)),
-            max_alerts=int(
-                body.get("max_alerts", 3)
-                if request.method == "POST"
-                else (request.args.get("max_alerts") or 3)
-            ),
+            max_alerts=int(_request_value(body, "max_alerts", 3)),
         )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
@@ -1032,6 +1087,52 @@ def api_telegram_miniapp_preview():
                 "recommendedAction": top_alert["recommendedAction"] if top_alert else "keep watching",
             },
             "qualityPolicy": wallet_preview["qualityPolicy"],
+            "safety": _telegram_mira_status_payload()["safety"],
+        }
+    )
+
+
+@app.route("/api/telegram/miniapp/ton-preview", methods=["POST"])
+def api_telegram_miniapp_ton_preview():
+    body = request.get_json(silent=True) or {}
+    auth, _auth_record, error = _telegram_miniapp_auth(_request_init_data(body))
+    if error:
+        return error
+    try:
+        preview = build_ton_wallet_risk_preview(
+            body.get("address") or body.get("tonAddress") or "",
+            intent=body.get("intent") or {},
+            network=body.get("network") or "mainnet",
+            live=_truthy_value(body.get("live", False)),
+            include_activity=_truthy_value(body.get("include_activity", False)),
+        )
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    mira_claim_preview = _build_mira_claim_response(
+        subject={
+            "type": "ton_wallet_risk_passport",
+            "addressHash": preview["address"]["hash"],
+            "network": preview["network"],
+        },
+        claims=preview["miraClaims"],
+        evidence=preview["evidence"],
+    )
+    return jsonify(
+        {
+            "schema": "0guard.telegram_miniapp_ton_preview.v1",
+            "delivery": "preview_no_send",
+            "telegram_send": False,
+            "network_calls": preview["safety"]["networkCalls"],
+            "mode": auth["mode"],
+            "auth": auth,
+            "ton": preview,
+            "miraClaimPreview": mira_claim_preview,
+            "message": (
+                f"0guard TON passport: {preview['decision']['decision'].upper()} "
+                f"({preview['decision']['severity']}). "
+                "Preview only; no TON transaction, signature, tonProof, or Telegram send."
+            ),
             "safety": _telegram_mira_status_payload()["safety"],
         }
     )
@@ -1152,7 +1253,7 @@ def api_telegram_wallet_alert_preview():
             live=_truthy_value(body.get("live", False))
             if request.method == "POST"
             else _truthy_query_arg("live"),
-            max_alerts=int(body.get("max_alerts", 5) if request.method == "POST" else (request.args.get("max_alerts") or 5)),
+            max_alerts=int(_request_value(body, "max_alerts", 5)),
         )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
@@ -1168,6 +1269,50 @@ def api_telegram_wallet_alert_preview():
             "walletAlert": preview,
             "safety": _telegram_mira_status_payload()["safety"],
         }
+    )
+
+
+@app.route("/tonconnect-manifest.json", methods=["GET"])
+def api_tonconnect_manifest():
+    return jsonify(tonconnect_manifest(request.host_url))
+
+
+@app.route("/api/ton/status", methods=["GET"])
+def api_ton_status():
+    return jsonify(ton_status())
+
+
+@app.route("/api/ton/risk-rules", methods=["GET"])
+def api_ton_risk_rules():
+    return jsonify(ton_risk_rules())
+
+
+@app.route("/api/ton/wallet-risk-preview", methods=["POST"])
+def api_ton_wallet_risk_preview():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(
+            build_ton_wallet_risk_preview(
+                body.get("address") or "",
+                intent=body.get("intent") or {},
+                network=body.get("network") or "mainnet",
+                live=_truthy_value(body.get("live", False)),
+                include_activity=_truthy_value(body.get("include_activity", False)),
+            )
+        )
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/mira/claim-preview", methods=["POST"])
+def api_mira_claim_preview():
+    body = request.get_json(silent=True) or {}
+    return jsonify(
+        _build_mira_claim_response(
+            subject=body.get("subject") or {},
+            claims=body.get("claims") or [],
+            evidence=body.get("evidence") or [],
+        )
     )
 
 
@@ -1245,16 +1390,41 @@ def api_domain():
     url = request.args.get("url", "")
     if not url:
         return jsonify({"error": "Missing url parameter"}), 400
-    # Simple domain guard — can be expanded
-    allowed = ["0g.ai", "hackquest.io", "github.com", "docs.0g.ai"]
-    is_allowed = any(a in url.lower() for a in allowed)
+    domain = _domain_decision(url)
     return jsonify(
         {
             "url": url,
-            "decision": "allow" if is_allowed else "review",
-            "reasons": [] if is_allowed else ["Domain not in curated allowlist"],
+            "host": domain["host"],
+            "matchedAllowlistHost": domain["matched"],
+            "decision": "allow" if domain["allowed"] else "review",
+            "reasons": [] if domain["allowed"] else ["Domain not in curated allowlist"],
         }
     )
+
+
+def _request_value(body: dict, name: str, default: object) -> object:
+    if request.method == "POST" and name in body:
+        return body[name]
+    return request.args.get(name, default)
+
+
+def _build_mira_claim_response(
+    *,
+    subject: dict,
+    claims: list[dict],
+    evidence: list[dict],
+) -> dict:
+    return build_mira_claim_preview(subject=subject, claims=claims, evidence=evidence)
+
+
+def _domain_decision(url: str) -> dict:
+    parsed = urlparse(url if "://" in url else f"https://{url}")
+    host = (parsed.hostname or "").lower().rstrip(".")
+    for allowed in DOMAIN_ALLOWLIST:
+        allowed_host = allowed.lower()
+        if host == allowed_host or host.endswith(f".{allowed_host}"):
+            return {"host": host, "allowed": True, "matched": allowed_host}
+    return {"host": host, "allowed": False, "matched": None}
 
 
 def _truthy_query_arg(name: str) -> bool:

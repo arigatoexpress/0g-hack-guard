@@ -74,6 +74,24 @@ function miniappPreviewPayload(){
   return payload;
 }
 
+function miniappTonPayload(){
+  const payload = {
+    address: document.getElementById('miniapp-ton-address').value,
+    network: 'mainnet',
+    intent: {
+      surface: 'telegram_mini_app',
+      context: 'TON Risk Passport preview before any wallet prompt',
+      walletAlertDecision: document.getElementById('miniapp-verdict').textContent
+    },
+    include_activity: false,
+    live: false
+  };
+  if(telegramInitData){
+    payload.initData = telegramInitData;
+  }
+  return payload;
+}
+
 function miniappRenderPreview(data){
   const verdict = data.uiSummary && data.uiSummary.verdict ? data.uiSummary.verdict : 'review';
   const reason = data.uiSummary && data.uiSummary.topReason ? data.uiSummary.topReason : 'No reason returned.';
@@ -143,6 +161,22 @@ async function miniappRunMira(){
   }
 }
 
+async function miniappRunTonPreview(){
+  const button = document.getElementById('miniapp-preview-ton');
+  button.disabled = true;
+  try{
+    const data = await miniappPostJson('/api/telegram/miniapp/ton-preview', miniappTonPayload());
+    miniappWriteJson('miniapp-ton-output', data);
+    if(data.message){
+      document.getElementById('miniapp-alert-message').textContent = data.message;
+    }
+  } catch(error){
+    miniappWriteJson('miniapp-ton-output', error.payload || {error: error.message});
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function miniappWireTelegramChrome(){
   if(!telegramApp){
     return;
@@ -161,5 +195,6 @@ function miniappWireTelegramChrome(){
 
 document.getElementById('miniapp-preview-alert').addEventListener('click', miniappRunPreview);
 document.getElementById('miniapp-run-mira').addEventListener('click', miniappRunMira);
+document.getElementById('miniapp-preview-ton').addEventListener('click', miniappRunTonPreview);
 miniappWireTelegramChrome();
 miniappLoadSession();

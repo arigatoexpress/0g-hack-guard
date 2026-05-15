@@ -87,7 +87,13 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/readiness" in data["apiRoutes"]
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/intelligence/evolving" in data["apiRoutes"]
+    assert "/api/intelligence/data-streams" in data["apiRoutes"]
+    assert "/api/roadmap" in data["apiRoutes"]
     assert "/api/wallet/alert-preview" in data["apiRoutes"]
+    assert "/api/ton/status" in data["apiRoutes"]
+    assert "/api/ton/risk-rules" in data["apiRoutes"]
+    assert "/api/ton/wallet-risk-preview" in data["apiRoutes"]
+    assert "/tonconnect-manifest.json" in data["apiRoutes"]
     assert "/api/integrations/cross-chain" in data["apiRoutes"]
     assert "/api/integrations/cross-chain/readiness" in data["apiRoutes"]
     assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
@@ -102,8 +108,10 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/telegram/miniapp/contract" in data["apiRoutes"]
     assert "/api/telegram/miniapp/session" in data["apiRoutes"]
     assert "/api/telegram/miniapp/preview" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/ton-preview" in data["apiRoutes"]
     assert "/api/telegram/mira-preview" in data["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
+    assert "/api/mira/claim-preview" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#play-story" in data["requiredSelectors"]
     assert "#flow-canvas" in data["requiredSelectors"]
@@ -120,6 +128,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-live-provenance" in data["requiredSelectors"]
     assert "#osint-output" in data["requiredSelectors"]
     assert "#load-evolving-intel" in data["requiredSelectors"]
+    assert "#load-intelligence-stream-plan" in data["requiredSelectors"]
+    assert "#load-ecosystem-roadmap" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
     assert "#load-threat-passport" in data["requiredSelectors"]
@@ -175,6 +185,8 @@ def test_telegram_miniapp_shell_contract_and_static_assets(client):
     assert contract["safety"]["telegramSendsEnabled"] is False
     assert "/api/telegram/miniapp/session" in contract["apiRoutes"]
     assert "/api/telegram/miniapp/preview" in contract["apiRoutes"]
+    assert "/api/telegram/miniapp/ton-preview" in contract["apiRoutes"]
+    assert "/api/ton/wallet-risk-preview" in contract["apiRoutes"]
 
     html = client.get("/telegram").get_data(as_text=True)
     for selector in contract["requiredSelectors"]:
@@ -279,6 +291,20 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert evolving_body["zeroGSuite"]["storage"]["currentRootHash"]
     assert evolving_body["qualityBar"]["walletTrackingDefault"] == "preview_no_send_read_only"
     assert evolving_body["safety"]["rawPayloadsReturned"] is False
+
+    streams = client.get("/api/intelligence/data-streams")
+    assert streams.status_code == 200
+    stream_body = streams.get_json()
+    assert stream_body["schema"] == "0guard.intelligence_stream_plan.v1"
+    assert stream_body["rightsPolicy"]["rawPayloadResaleAllowed"] is False
+    assert stream_body["streams"][0]["id"] == "unified_reputation_adapter"
+
+    roadmap = client.get("/api/roadmap")
+    assert roadmap.status_code == 200
+    roadmap_body = roadmap.get_json()
+    assert roadmap_body["schema"] == "0guard.ecosystem_roadmap.v1"
+    assert roadmap_body["positioning"]["category"] == "pre-wallet safety layer for autonomous agents"
+    assert roadmap_body["safety"]["bridgingEnabled"] is False
 
     brief = client.get("/api/hackathon/submission-brief")
     assert brief.status_code == 200
@@ -391,6 +417,7 @@ def test_osint_signal_route_rejects_bad_limit(client):
 
 def test_data_incident_filters_reject_bad_inputs(client):
     assert client.get("/api/data/incidents?min_loss_usd=bad").status_code == 400
+    assert client.get("/api/data/incidents?min_loss_usd=-1").status_code == 400
     assert client.get("/api/data/incidents?limit=0").status_code == 400
     assert client.get("/api/data/incidents?limit=201").status_code == 400
 
@@ -454,7 +481,9 @@ def test_telegram_mira_status_is_preview_only(client):
     assert "/api/telegram/opt-ins" in data["apiRoutes"]
     assert "/api/telegram/miniapp/session" in data["apiRoutes"]
     assert "/api/telegram/miniapp/preview" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/ton-preview" in data["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
+    assert "/api/ton/status" in data["apiRoutes"]
     assert data["registration"]["walletAlertPolicy"]["telegramSendEnabled"] is False
     # Compatibility keys for steward readbacks (flat shape)
     assert isinstance(data["botTokenConfigured"], bool)
@@ -567,6 +596,71 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
     assert get_data["mira"]["schema"] == "0guard.mira_preview.v1"
 
 
+def test_ton_and_mira_claim_preview_routes_are_read_only(client):
+    manifest = client.get("/tonconnect-manifest.json")
+    assert manifest.status_code == 200
+    manifest_body = manifest.get_json()
+    assert manifest_body["name"] == "0guard"
+    assert manifest_body["safety"]["sendTransactionEnabled"] is False
+
+    status = client.get("/api/ton/status")
+    assert status.status_code == 200
+    status_body = status.get_json()
+    assert status_body["schema"] == "0guard.ton_status.v1"
+    assert status_body["tonConnect"]["sendTransactionEnabled"] is False
+    assert status_body["tonConnect"]["tonProofRequested"] is False
+
+    rules = client.get("/api/ton/risk-rules")
+    assert rules.status_code == 200
+    assert rules.get_json()["schema"] == "0guard.ton_risk_rules.v1"
+
+    preview = client.post(
+        "/api/ton/wallet-risk-preview",
+        json={
+            "address": "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
+            "intent": {"comment": "urgent claim airdrop"},
+        },
+    )
+    assert preview.status_code == 200
+    preview_body = preview.get_json()
+    assert preview_body["schema"] == "0guard.ton_wallet_risk_preview.v1"
+    assert preview_body["decision"]["decision"] == "deny"
+    assert preview_body["safety"]["sendTransactionEnabled"] is False
+    assert preview_body["receipt"]["liveUploadPerformed"] is False
+
+    miniapp = client.post(
+        "/api/telegram/miniapp/ton-preview",
+        json={
+            "address": "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
+            "intent": {"comment": "check before wallet prompt"},
+        },
+    )
+    assert miniapp.status_code == 200
+    miniapp_body = miniapp.get_json()
+    assert miniapp_body["schema"] == "0guard.telegram_miniapp_ton_preview.v1"
+    assert miniapp_body["telegram_send"] is False
+    assert miniapp_body["ton"]["safety"]["tonProofRequested"] is False
+    assert miniapp_body["miraClaimPreview"]["schema"] == "0guard.mira_claim_preview.v1"
+    assert miniapp_body["miraClaimPreview"]["externalMiraCalls"] is False
+
+    claim = client.post(
+        "/api/mira/claim-preview",
+        json={
+            "subject": {"type": "demo"},
+            "claims": [{"id": "demo", "claim": "0guard did not request a signature."}],
+            "evidence": [{"sourceId": "0guard_runtime", "kind": "test"}],
+        },
+    )
+    assert claim.status_code == 200
+    claim_body = claim.get_json()
+    assert claim_body["schema"] == "0guard.mira_claim_preview.v1"
+    assert claim_body["miraVerifyReady"] is True
+    assert claim_body["network_calls"] is False
+
+    bad = client.post("/api/ton/wallet-risk-preview", json={"address": "not-ton"})
+    assert bad.status_code == 400
+
+
 def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
     address = "0x885b0892D241Cb5033C9995e09cA521d54f936b5"
     preview_response = client.post(
@@ -626,6 +720,9 @@ def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
 
     bad = client.post("/api/wallet/alert-preview", json={"address": "not-an-address"})
     assert bad.status_code == 400
+
+    max_zero = client.post("/api/wallet/alert-preview", json={"address": address, "max_alerts": 0})
+    assert max_zero.status_code == 400
 
 
 def test_wallet_alert_preview_denies_negative_amount_intents(client):
@@ -875,6 +972,11 @@ def test_domain_check(client):
     assert r.status_code == 200
     data = r.get_json()
     assert data["decision"] == "allow"
+
+    spoof = client.get("/api/domain?url=https://docs.0g.ai.evil.example")
+    assert spoof.status_code == 200
+    spoof_data = spoof.get_json()
+    assert spoof_data["decision"] == "review"
 
 
 def test_x_post_cli_requires_live_confirmation_before_credentials():

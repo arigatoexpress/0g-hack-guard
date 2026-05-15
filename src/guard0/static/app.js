@@ -307,6 +307,16 @@ async function loadEvolvingIntel(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadIntelligenceStreamPlan(){
+  const r = await fetch('/api/intelligence/data-streams');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadEcosystemRoadmap(){
+  const r = await fetch('/api/roadmap');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadSubmissionBrief(){
   const r = await fetch('/api/hackathon/submission-brief');
   const j = await r.json();
@@ -462,6 +472,8 @@ document.getElementById('load-osint-sources').addEventListener('click', loadOsin
 document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
+document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
+document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);
 document.getElementById('load-submission-readiness').addEventListener('click', loadSubmissionReadiness);

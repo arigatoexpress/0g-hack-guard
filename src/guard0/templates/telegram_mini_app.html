@@ -40,6 +40,11 @@
           <strong>Alert preview</strong>
           <small>No bot send. No wallet signature. No transaction.</small>
         </div>
+        <div class="miniapp-flow-node">
+          <span>4</span>
+          <strong>TON Risk Passport</strong>
+          <small>Telegram-native wallet context without tonProof or transaction prompts.</small>
+        </div>
       </div>
       <div class="miniapp-verdict">
         <div>
@@ -88,6 +93,20 @@
         <button id="miniapp-preview-alert" type="button">Preview alert</button>
         <button id="miniapp-run-mira" class="secondary" type="button">Ask Mira</button>
       </div>
+    </section>
+
+    <section class="miniapp-panel" aria-label="TON wallet risk passport">
+      <h2>TON Risk Passport</h2>
+      <div class="miniapp-form-grid">
+        <label>
+          TON wallet
+          <input id="miniapp-ton-address" value="EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c" inputmode="text" autocomplete="off">
+        </label>
+      </div>
+      <div class="actions miniapp-actions">
+        <button id="miniapp-preview-ton" class="secondary" type="button">Preview TON passport</button>
+      </div>
+      <pre id="miniapp-ton-output">Awaiting TON passport preview.</pre>
     </section>
 
     <section class="miniapp-panel" aria-label="Telegram message preview">

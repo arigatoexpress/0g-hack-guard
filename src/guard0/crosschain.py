@@ -123,6 +123,40 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         caveats=("Launching or tokenizing an agent on Virtuals is an external side effect and stays operator-only.",),
     ),
     ChainTarget(
+        id="abstract_mainnet",
+        name="Abstract Mainnet",
+        kind="consumer_l2_guardrail",
+        status="mainnet",
+        chain_id=2741,
+        rpc_env="ABSTRACT_RPC_URL",
+        default_rpc="https://api.mainnet.abs.xyz",
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://abscan.org",
+        native_asset="ETH",
+        evm_compatible=True,
+        probe_default=True,
+        capabilities=(
+            "read_only_rpc",
+            "abstract_global_wallet_context",
+            "consumer_app_risk_preview",
+            "native_l2_receipt_context",
+        ),
+        x402_posture="custom_facilitator_required_or_supported_network_bridge_needed",
+        proof_strategy=(
+            "Use Abstract as a native consumer-wallet risk lane; keep 0G as the common "
+            "receipt/provenance anchor instead of requiring bridge flows."
+        ),
+        official_sources=(
+            "https://docs.abs.xyz/connect-to-abstract",
+            "https://docs.abs.xyz/what-is-abstract",
+            "https://docs.abs.xyz/abstract-global-wallet/agw-client/wallet-linking/overview",
+        ),
+        caveats=(
+            "Abstract funding, portal, and wallet-linking actions are external side effects and stay outside API routes.",
+        ),
+    ),
+    ChainTarget(
         id="arbitrum_one",
         name="Arbitrum One",
         kind="agent_payment_network",
@@ -305,6 +339,102 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
             "Lighter is integrated as a verifiable exchange/API guardrail, not as an EVM deployment network.",
             "Token, fee-credit, deposit, order, transfer, and withdrawal operations are external side effects.",
         ),
+    ),
+    ChainTarget(
+        id="ton_telegram",
+        name="TON / Telegram Wallet",
+        kind="telegram_wallet_network",
+        status="mainnet_read_only_preview",
+        chain_id=None,
+        rpc_env="TONCENTER_API_BASE",
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://tonscan.org",
+        native_asset="TON",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "telegram_mini_app_context",
+            "ton_connect_manifest",
+            "ton_wallet_risk_passport",
+            "future_jetton_nft_activity_enrichment",
+        ),
+        x402_posture="not_an_evm_settlement_target_for_x402; protect as Telegram wallet risk lane",
+        proof_strategy=(
+            "Generate a TON risk passport in Telegram, hash the claim packet, and anchor "
+            "selected receipts to 0G without asking TON wallets to sign."
+        ),
+        official_sources=(
+            "https://core.telegram.org/bots/blockchain-guidelines",
+            "https://docs.ton.org/v3/guidelines/ton-connect/overview",
+            "https://docs.ton.org/ecosystem/api/toncenter/v3/overview",
+        ),
+        caveats=(
+            "TON Connect transaction, signData, tonProof, and wallet-send flows are not called by 0guard.",
+        ),
+    ),
+    ChainTarget(
+        id="solana_mainnet",
+        name="Solana Mainnet",
+        kind="non_evm_wallet_monitor",
+        status="planned_read_only_adapter",
+        chain_id=None,
+        rpc_env="SOLANA_RPC_URL",
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://explorer.solana.com",
+        native_asset="SOL",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "parsed_transaction_monitoring",
+            "spl_token_risk_context",
+            "helius_webhook_candidate",
+            "no_signing_read_only",
+        ),
+        x402_posture="not_an_evm_settlement_target_for_x402; protect as native Solana risk lane",
+        proof_strategy=(
+            "Use parsed Solana activity as derived risk evidence and anchor 0guard verdict "
+            "receipts to 0G; do not bridge funds into the product story."
+        ),
+        official_sources=(
+            "https://solana.com/docs/rpc/http",
+            "https://www.helius.dev/docs/webhooks",
+        ),
+        caveats=("No Solana signing, transaction submission, or wallet adapter is wired in this repo slice.",),
+    ),
+    ChainTarget(
+        id="hyperliquid_info_api",
+        name="Hyperliquid Info API",
+        kind="exchange_read_only_monitor",
+        status="planned_read_only_adapter",
+        chain_id=None,
+        rpc_env=None,
+        default_rpc=None,
+        http_status_env=None,
+        default_http_status_url=None,
+        explorer="https://app.hyperliquid.xyz",
+        native_asset="HYPE",
+        evm_compatible=False,
+        probe_default=False,
+        capabilities=(
+            "account_exposure_context",
+            "order_and_fill_readback",
+            "market_risk_digest",
+            "no_exchange_actions",
+        ),
+        x402_posture="not_an_x402_settlement_target; protect as read-only exposure lane",
+        proof_strategy=(
+            "Read account/exposure context through official info endpoints only; keep orders, "
+            "withdrawals, and signed exchange actions out of 0guard routes."
+        ),
+        official_sources=(
+            "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint",
+            "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/websocket",
+        ),
+        caveats=("Do not call exchange endpoints that place/cancel orders, transfer, or withdraw funds.",),
     ),
     ChainTarget(
         id="chainlink_ccip",
