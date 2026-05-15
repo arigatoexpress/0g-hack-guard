@@ -456,6 +456,12 @@ def test_telegram_mira_status_is_preview_only(client):
     assert "/api/telegram/miniapp/preview" in data["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
     assert data["registration"]["walletAlertPolicy"]["telegramSendEnabled"] is False
+    # Compatibility keys for steward readbacks (flat shape)
+    assert isinstance(data["botTokenConfigured"], bool)
+    assert isinstance(data["telegramBotUsernameConfigured"], bool)
+    assert data["secretSource"] in ("env", "ephemeral_demo")
+    assert isinstance(data["secretConfiguredForProduction"], bool)
+    assert data["telegramSendsEnabled"] is False
 
 
 def test_telegram_miniapp_session_allows_browser_preview_without_sends(client):
@@ -470,6 +476,13 @@ def test_telegram_miniapp_session_allows_browser_preview_without_sends(client):
     assert data["launch"]["sendDataUsed"] is False
     assert data["qualityPolicy"]["telegramSendEnabled"] is False
     assert data["safety"]["telegramSendsEnabled"] is False
+
+    get_r = client.get("/api/telegram/miniapp/session")
+    assert get_r.status_code == 200
+    get_data = get_r.get_json()
+    assert get_data["schema"] == "0guard.telegram_miniapp_session.v1"
+    assert get_data["mode"] == "local_browser_preview"
+    assert get_data["local_browser_preview"] is True
 
 
 def test_telegram_miniapp_session_validates_signed_init_data(monkeypatch, client):
@@ -544,6 +557,15 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
     assert data["safety"]["telegramSendsEnabled"] is False
     assert data["uiSummary"]["verdict"] == "deny"
 
+    get_r = client.get("/api/telegram/miniapp/preview?approval_intent=deny")
+    assert get_r.status_code == 200
+    get_data = get_r.get_json()
+    assert get_data["schema"] == "0guard.telegram_miniapp_preview.v1"
+    assert get_data["delivery"] == "preview_no_send"
+    assert get_data["telegram_send"] is False
+    assert get_data["walletAlert"]["decision"]["decision"] == "deny"
+    assert get_data["mira"]["schema"] == "0guard.mira_preview.v1"
+
 
 def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
     address = "0x885b0892D241Cb5033C9995e09cA521d54f936b5"
@@ -587,6 +609,20 @@ def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
     assert telegram_body["telegram_send"] is False
     assert telegram_body["network_calls"] is False
     assert telegram_body["walletAlert"]["safety"]["workbenchCanSend"] is False
+
+    no_address = client.get("/api/wallet/alert-preview?type=transfer&amount=0")
+    assert no_address.status_code == 200
+    data = no_address.get_json()
+    assert data["schema"] == "0guard.wallet_alert_preview.v1"
+    assert data["decision"]["decision"] == "deny"
+
+    telegram_no_address = client.get("/api/telegram/wallet-alert-preview?type=transfer&amount=0")
+    assert telegram_no_address.status_code == 200
+    data = telegram_no_address.get_json()
+    assert data["schema"] == "0guard.telegram_wallet_alert_preview.v1"
+    assert data["delivery"] == "preview_no_send"
+    assert data["telegram_send"] is False
+    assert data["walletAlert"]["decision"]["decision"] == "deny"
 
     bad = client.post("/api/wallet/alert-preview", json={"address": "not-an-address"})
     assert bad.status_code == 400

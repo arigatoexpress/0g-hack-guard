@@ -57,6 +57,8 @@ from guard0.wallet_alerts import build_wallet_alert_preview, wallet_alert_qualit
 
 app = Flask(__name__)
 
+DEMO_EVM_ADDRESS = "0x000000000000000000000000000000000000dEaD"
+
 _EPHEMERAL_TELEGRAM_REGISTRATION_SECRET = secrets.token_urlsafe(32)
 _PENDING_TELEGRAM_CHALLENGES: dict[str, dict] = {}
 _CONSUMED_TELEGRAM_TOKEN_IDS: set[str] = set()
@@ -250,6 +252,36 @@ def _telegram_mira_status_payload() -> dict:
             "secretDisplayEnabled": False,
             "workbenchCanTriggerLiveActions": False,
         },
+    }
+
+
+def _telegram_webhook_info() -> dict | None:
+    """Read-only Telegram webhook metadata without exposing bot tokens."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    if not token:
+        return None
+
+    import json
+    import urllib.request
+
+    url = f"https://api.telegram.org/bot{token}/getWebhookInfo"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return None
+
+    if not isinstance(payload, dict) or not payload.get("ok"):
+        return None
+    result = payload.get("result") or {}
+    if not isinstance(result, dict):
+        return None
+
+    webhook_url = str(result.get("url") or "").strip()
+    return {
+        "url_set": bool(webhook_url),
+        "pending_update_count": int(result.get("pending_update_count") or 0),
+        "last_error_message": result.get("last_error_message"),
     }
 
 
@@ -688,6 +720,8 @@ def api_evolving_threat_intelligence():
 def api_wallet_alert_preview():
     body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
     address = body.get("address") or request.args.get("address") or ""
+    if not address:
+        address = DEMO_EVM_ADDRESS
     intent = body.get("intent")
     if intent is None and request.method == "GET":
         intent_type = request.args.get("intent") or request.args.get("type")
@@ -773,7 +807,29 @@ def api_hackathon_threat_passport():
 
 @app.route("/api/telegram/status", methods=["GET"])
 def api_telegram_status():
-    return jsonify(_telegram_mira_status_payload())
+    payload = _telegram_mira_status_payload()
+    webhook = _telegram_webhook_info()
+    compat = {
+        "botTokenConfigured": (payload.get("miniAppAuth") or {}).get("botTokenConfigured"),
+        "telegramBotUsernameConfigured": (payload.get("registration") or {}).get(
+            "telegramBotUsernameConfigured"
+        ),
+        "secretSource": (payload.get("registration") or {}).get("secretSource"),
+        "secretConfiguredForProduction": (payload.get("registration") or {}).get(
+            "secretConfiguredForProduction"
+        ),
+        "telegramSendsEnabled": (payload.get("safety") or {}).get("telegramSendsEnabled"),
+        "telegramBotUsername": os.getenv("TELEGRAM_BOT_USERNAME") or None,
+    }
+    if webhook:
+        compat.update(
+            {
+                "webhookUrlSet": webhook.get("url_set"),
+                "webhookPendingUpdateCount": webhook.get("pending_update_count"),
+                "webhookLastErrorMessage": webhook.get("last_error_message"),
+            }
+        )
+    return jsonify({**payload, **compat})
 
 
 @app.route("/api/telegram/registrations", methods=["POST"])
@@ -869,15 +925,20 @@ def api_telegram_miniapp_contract():
     return jsonify(_telegram_miniapp_contract_payload())
 
 
-@app.route("/api/telegram/miniapp/session", methods=["POST"])
+@app.route("/api/telegram/miniapp/session", methods=["GET", "POST"])
 def api_telegram_miniapp_session():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True) or {} if request.method == "POST" else {}
+    if request.method == "GET":
+        init_data = str(request.args.get("initData") or request.args.get("init_data") or "").strip()
+        if init_data:
+            body = {"initData": init_data}
     auth, _record, error = _telegram_miniapp_auth(_request_init_data(body))
     if error:
         return error
     return jsonify(
         {
             "schema": "0guard.telegram_miniapp_session.v1",
+            "local_browser_preview": auth["mode"] == "local_browser_preview",
             "mode": auth["mode"],
             "auth": auth,
             "launch": {
@@ -896,9 +957,13 @@ def api_telegram_miniapp_session():
     )
 
 
-@app.route("/api/telegram/miniapp/preview", methods=["POST"])
+@app.route("/api/telegram/miniapp/preview", methods=["GET", "POST"])
 def api_telegram_miniapp_preview():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True) or {} if request.method == "POST" else {}
+    if request.method == "GET":
+        init_data = str(request.args.get("initData") or request.args.get("init_data") or "").strip()
+        if init_data:
+            body = {"initData": init_data}
     auth, auth_record, error = _telegram_miniapp_auth(_request_init_data(body))
     if error:
         return error
@@ -910,14 +975,32 @@ def api_telegram_miniapp_preview():
         if not record:
             return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
 
-    intent = body.get("intent") or _default_miniapp_intent()
-    address = body.get("address") or ""
+    intent = body.get("intent")
+    if intent is None and request.method == "GET":
+        approval_intent = str(request.args.get("approval_intent") or "").strip().lower()
+        if approval_intent == "deny":
+            intent = {
+                "type": "transfer",
+                "amount": "0",
+                "to": DEMO_EVM_ADDRESS,
+                "chain": "0g",
+                "asset": "demo",
+            }
+    intent = intent or _default_miniapp_intent()
+
+    address = body.get("address") or request.args.get("address") or ""
+    if not address:
+        address = DEMO_EVM_ADDRESS
     try:
         wallet_preview = build_wallet_alert_preview(
             address,
             intent=intent,
             live=_truthy_value(body.get("live", False)),
-            max_alerts=int(body.get("max_alerts", 3)),
+            max_alerts=int(
+                body.get("max_alerts", 3)
+                if request.method == "POST"
+                else (request.args.get("max_alerts") or 3)
+            ),
         )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
@@ -1045,6 +1128,8 @@ def api_telegram_wallet_alert_preview():
         return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
 
     address = body.get("address") or request.args.get("address") or ""
+    if not address:
+        address = DEMO_EVM_ADDRESS
     intent = body.get("intent")
     if intent is None and request.method == "GET":
         intent_type = request.args.get("intent") or request.args.get("type")
