@@ -57,7 +57,7 @@ from guard0.wallet_alerts import build_wallet_alert_preview, wallet_alert_qualit
 
 app = Flask(__name__)
 
-DEMO_EVM_ADDRESS = "0x000000000000000000000000000000000000dEaD"
+DEMO_EVM_ADDRESS = "0x000000000000000000000000000000000000dead"
 
 _EPHEMERAL_TELEGRAM_REGISTRATION_SECRET = secrets.token_urlsafe(32)
 _PENDING_TELEGRAM_CHALLENGES: dict[str, dict] = {}
