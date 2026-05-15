@@ -16,3 +16,4 @@ content/x_public_profile_observation*.json
 content/x_media_cleanup_manifest.review*.json
 content/x_media_cleanup_manifest.resume*.json
 content/*.local.json
+output/playwright/

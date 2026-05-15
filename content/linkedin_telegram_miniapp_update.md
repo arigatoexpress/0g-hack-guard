@@ -1,37 +1,24 @@
-# LinkedIn Telegram Mini App Update Draft
-
 0guard now has a live Telegram Mini App.
 
-The new bot is here:
-https://t.me/Raris0guardBot
+Bot: https://t.me/Raris0guardBot
+Mini App: https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
+Proof packet: https://arigatoexpress.github.io/0guard/hackathon-0g/
+GitHub: https://github.com/arigatoexpress/0guard
 
-The Mini App is here:
-https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
+This extends the 0G hackathon build from a browser workbench into a mobile pre-wallet firewall.
 
-What changed:
+The Mini App validates Telegram launch data server-side, previews the risk of an agent wallet intent, attaches a Mira-style explanation, and keeps the hard safety boundary intact: no wallet signing, no transaction broadcasting, and no Telegram sends from the Mini App.
 
-- 0guard now runs as a mobile Telegram Mini App surface.
-- Telegram launch data is validated server-side before user identity is trusted.
-- The Mini App returns a wallet-alert preview plus a Mira explanation.
-- The safety boundary stays intact: no wallet signing, no transaction
-  broadcasting, and no Telegram sends from the Mini App.
-- The bot menu button opens the live 0guard Mini App directly.
-
-This is a meaningful step for the project because it moves 0guard closer to the
-place where people actually need help: the moment an autonomous agent is about
-to ask a wallet for a signature.
-
-The broader hackathon proof stack is still the same:
+Current proof stack:
 
 - 28/28 April 2026 incidents source-linked.
-- 28/28 incident-derived patterns covered by deterministic detectors.
+- 28/28 incident-derived patterns covered by detectors/signatures.
 - A public 0G mainnet receipt anchor.
 - Read-only wallet alert previews.
-- Source-aware provenance instead of mock claims.
+- Source-aware provenance instead of mock claims or vague demo data.
 - Cross-chain guardrails for EVM, x402, Virtuals/Base, Lighter, CCIP,
   LayerZero, Wormhole, and Celestia proof lanes.
 
-0guard is not trying to be another wallet scanner. The goal is earlier:
-agent intent first, signer later.
+The thesis is simple: agent intent first, signer later.
 
 #0GHackathon #BuildOn0G #AIagents #Web3Security #CryptoSecurity #TelegramMiniApp
