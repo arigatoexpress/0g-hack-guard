@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>0guard Telegram Mini App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="miniapp-body">
+  <main class="miniapp-shell" id="miniapp-root">
+    <header class="miniapp-top">
+      <div class="miniapp-brand">
+        <img src="{{ url_for('static', filename='0guard-logo.png') }}" alt="" aria-hidden="true">
+        <div>
+          <h1>0guard Mini App</h1>
+          <p>Wallet alert previews for Telegram.</p>
+        </div>
+      </div>
+      <div class="miniapp-chips">
+        <span class="pill review" id="miniapp-mode">detecting launch</span>
+        <span class="pill deny" id="miniapp-auth-status">auth pending</span>
+      </div>
+    </header>
+
+    <section class="miniapp-stage" aria-label="Telegram wallet alert flow">
+      <div class="miniapp-flow" id="miniapp-flow" data-verdict="idle">
+        <div class="miniapp-flow-node">
+          <span>1</span>
+          <strong>Wallet intent</strong>
+          <small>Telegram user asks what the wallet is about to do.</small>
+        </div>
+        <div class="miniapp-flow-node guard">
+          <span>2</span>
+          <strong>0guard</strong>
+          <small>Checks policy, hack signatures, OSINT evidence, and cooldown gates.</small>
+        </div>
+        <div class="miniapp-flow-node">
+          <span>3</span>
+          <strong>Alert preview</strong>
+          <small>No bot send. No wallet signature. No transaction.</small>
+        </div>
+      </div>
+      <div class="miniapp-verdict">
+        <div>
+          <span>Verdict</span>
+          <strong id="miniapp-verdict">ready</strong>
+        </div>
+        <div>
+          <span>Reason</span>
+          <strong id="miniapp-reason">Run a preview.</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="miniapp-panel" aria-label="Wallet alert controls">
+      <div class="miniapp-form-grid">
+        <label>
+          Wallet
+          <input id="miniapp-wallet-address" value="0x885b0892D241Cb5033C9995e09cA521d54f936b5" inputmode="text" autocomplete="off">
+        </label>
+        <label>
+          Intent
+          <select id="miniapp-intent-kind">
+            <option value="approve_unlimited">Unlimited approval</option>
+            <option value="transfer">Transfer preview</option>
+            <option value="simulation">Read-only simulation</option>
+          </select>
+        </label>
+        <label>
+          Chain
+          <input id="miniapp-chain" value="0g_mainnet" autocomplete="off">
+        </label>
+        <label>
+          Asset
+          <input id="miniapp-asset" value="0G" autocomplete="off">
+        </label>
+        <label>
+          Amount
+          <input id="miniapp-amount" value="1" inputmode="decimal" autocomplete="off">
+        </label>
+        <label>
+          To or spender
+          <input id="miniapp-to" value="0x000000000000000000000000000000000000dEaD" autocomplete="off">
+        </label>
+      </div>
+      <div class="actions miniapp-actions">
+        <button id="miniapp-preview-alert" type="button">Preview alert</button>
+        <button id="miniapp-run-mira" class="secondary" type="button">Ask Mira</button>
+      </div>
+    </section>
+
+    <section class="miniapp-panel" aria-label="Telegram message preview">
+      <h2>Wallet alert</h2>
+      <p id="miniapp-alert-message" class="miniapp-message">Preview only. No Telegram sends.</p>
+      <pre id="miniapp-output">Awaiting wallet alert preview.</pre>
+    </section>
+
+    <section class="miniapp-panel" aria-label="Mira add-on preview">
+      <h2>Mira add-on</h2>
+      <pre id="miniapp-mira-output">Awaiting Mira preview.</pre>
+    </section>
+
+    <section class="miniapp-panel" aria-label="Mini App session and quality policy">
+      <h2>Session and quality gate</h2>
+      <div class="miniapp-split">
+        <pre id="miniapp-session-output">Loading Mini App session.</pre>
+        <pre id="miniapp-quality-output">Loading alert quality policy.</pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='telegram-miniapp.js') }}" defer></script>
+</body>
+</html>

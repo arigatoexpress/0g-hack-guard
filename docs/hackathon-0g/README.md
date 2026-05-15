@@ -36,6 +36,9 @@ Submission proof artifact: `hackquest-submission-proof.json`
    submitted-state monitoring notes.
 12. Use `x-cleanup-runbook.md` for the dry-run-first X media deletion manifest
     workflow; live deletion is never automatic.
+13. Use `/telegram` as the mobile Telegram Mini App demo surface. It opens in
+    browser-preview mode locally and becomes a Telegram Web App when launched
+    through a BotFather-configured bot URL.
 
 ## Winning Thesis
 
@@ -76,6 +79,12 @@ Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/TIA data availability.
 `/api/integrations/virtuals-facilitator` prepares a Base/Virtuals agent manifest
 for a future `0guard Facilitator`, while all launch, payment, bridge, swap, and
 wallet actions remain operator-only.
+
+The Telegram layer is now demoable as a Mini App. `/telegram` provides the
+mobile wallet-alert surface; `/api/telegram/miniapp/session` validates Telegram
+`initData` when present; `/api/telegram/miniapp/preview` returns one combined
+wallet-alert + Mira response with quality-gate metadata and
+`telegram_send=false`.
 
 ## Safety Posture
 

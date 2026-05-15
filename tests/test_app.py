@@ -98,6 +98,11 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/hackathon/readiness" in data["apiRoutes"]
     assert "/api/hackathon/threat-passport" in data["apiRoutes"]
     assert "/api/telegram/status" in data["apiRoutes"]
+    assert "/api/telegram/webapp/verify" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/contract" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/session" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/preview" in data["apiRoutes"]
+    assert "/api/telegram/mira-preview" in data["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
     assert "#play-story" in data["requiredSelectors"]
@@ -130,6 +135,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#run-wallet-alert-preview" in data["requiredSelectors"]
     assert "#run-telegram-wallet-alert-preview" in data["requiredSelectors"]
     assert "#wallet-alert-output" in data["requiredSelectors"]
+    assert "#open-telegram-miniapp" in data["requiredSelectors"]
 
 
 def test_frontend_contract_selectors_match_static_shell(client):
@@ -149,8 +155,34 @@ def test_frontend_uses_packaged_template_and_static_assets():
     assert "render_template_string" not in source
     assert "HTML_DASHBOARD" not in source
     assert (package_root / "templates" / "index.html").read_text().startswith("<!doctype html>")
+    assert (package_root / "templates" / "telegram_mini_app.html").read_text().startswith(
+        "<!doctype html>"
+    )
     assert "run-evaluate" in (package_root / "static" / "app.js").read_text()
+    assert "miniappRunPreview" in (package_root / "static" / "telegram-miniapp.js").read_text()
     assert ".shell" in (package_root / "static" / "styles.css").read_text()
+
+
+def test_telegram_miniapp_shell_contract_and_static_assets(client):
+    contract_response = client.get("/api/telegram/miniapp/contract")
+    assert contract_response.status_code == 200
+    contract = contract_response.get_json()
+    assert contract["schema"] == "0guard.telegram_miniapp_contract.v1"
+    assert contract["route"] == "/telegram"
+    assert contract["telegramApi"]["usesTelegramWebAppJs"] is True
+    assert contract["telegramApi"]["serverSideValidationRequired"] is True
+    assert contract["telegramApi"]["sendDataUsed"] is False
+    assert contract["safety"]["telegramSendsEnabled"] is False
+    assert "/api/telegram/miniapp/session" in contract["apiRoutes"]
+    assert "/api/telegram/miniapp/preview" in contract["apiRoutes"]
+
+    html = client.get("/telegram").get_data(as_text=True)
+    for selector in contract["requiredSelectors"]:
+        assert f'id="{selector.removeprefix("#")}"' in html
+    for expected_text in contract["requiredText"]:
+        assert expected_text in html
+    assert "https://telegram.org/js/telegram-web-app.js" in html
+    assert 'src="/static/telegram-miniapp.js"' in html
 
 
 def test_external_action_contracts_keep_live_paths_out_of_workbench(client):
@@ -420,8 +452,97 @@ def test_telegram_mira_status_is_preview_only(client):
     assert data["safety"]["telegramSendsEnabled"] is False
     assert data["safety"]["networkCalls"] is False
     assert "/api/telegram/opt-ins" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/session" in data["apiRoutes"]
+    assert "/api/telegram/miniapp/preview" in data["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
     assert data["registration"]["walletAlertPolicy"]["telegramSendEnabled"] is False
+
+
+def test_telegram_miniapp_session_allows_browser_preview_without_sends(client):
+    r = client.post("/api/telegram/miniapp/session", json={})
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.telegram_miniapp_session.v1"
+    assert data["mode"] == "local_browser_preview"
+    assert data["auth"]["initDataPresent"] is False
+    assert data["auth"]["validated"] is False
+    assert data["launch"]["serverSideInitDataValidation"] is True
+    assert data["launch"]["sendDataUsed"] is False
+    assert data["qualityPolicy"]["telegramSendEnabled"] is False
+    assert data["safety"]["telegramSendsEnabled"] is False
+
+
+def test_telegram_miniapp_session_validates_signed_init_data(monkeypatch, client):
+    bot_token = "123456:ABCDEF"
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", bot_token)
+    init_data = signed_telegram_init_data(
+        {
+            "auth_date": "1710000000",
+            "user": json.dumps({"id": 123456, "username": "ari"}, separators=(",", ":")),
+        },
+        bot_token,
+    )
+    monkeypatch.setattr(
+        app_module,
+        "validate_webapp_init_data",
+        lambda data, token: real_validate_webapp_init_data(data, token, now=1710000100),
+    )
+
+    r = client.post("/api/telegram/miniapp/session", json={"initData": init_data})
+
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.telegram_miniapp_session.v1"
+    assert data["mode"] == "telegram_webapp"
+    assert data["auth"]["validated"] is True
+    assert data["auth"]["initDataPresent"] is True
+    assert data["auth"]["optInStatus"] == "not_attached"
+    assert data["safety"]["telegramSendsEnabled"] is False
+    public_json = json.dumps(data)
+    assert "123456" not in public_json
+    assert "ari" not in public_json
+
+
+def test_telegram_miniapp_requires_configured_bot_token_for_init_data(monkeypatch, client):
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    r = client.post("/api/telegram/miniapp/session", json={"initData": "auth_date=1"})
+    assert r.status_code == 503
+    data = r.get_json()
+    assert data["schema"] == "0guard.telegram_miniapp_error.v1"
+    assert "TELEGRAM_BOT_TOKEN" in data["error"]
+    assert data["safety"]["telegramSendsEnabled"] is False
+
+
+def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
+    address = "0x885b0892D241Cb5033C9995e09cA521d54f936b5"
+    r = client.post(
+        "/api/telegram/miniapp/preview",
+        json={
+            "address": address,
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "calldata": (
+                    "0x095ea7b3ffffffffffffffffffffffffffffffff"
+                    "ffffffffffffffffffffffffffffffff"
+                ),
+            },
+        },
+    )
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["schema"] == "0guard.telegram_miniapp_preview.v1"
+    assert data["delivery"] == "preview_no_send"
+    assert data["telegram_send"] is False
+    assert data["network_calls"] is False
+    assert data["walletAlert"]["schema"] == "0guard.wallet_alert_preview.v1"
+    assert data["walletAlert"]["decision"]["decision"] == "deny"
+    assert data["mira"]["schema"] == "0guard.mira_preview.v1"
+    assert data["mira"]["telegram_send"] is False
+    assert data["qualityPolicy"]["telegramSendEnabled"] is False
+    assert data["safety"]["telegramSendsEnabled"] is False
+    assert data["uiSummary"]["verdict"] == "deny"
 
 
 def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):

@@ -83,6 +83,7 @@ def run_browser_smoke() -> None:
         page.on("pageerror", lambda exc: console_errors.append(str(exc)))
         try:
             exercise_workbench(page)
+            exercise_telegram_miniapp(page)
         finally:
             browser.close()
     if console_errors:
@@ -467,6 +468,63 @@ def exercise_workbench(page: Page) -> None:
     evaluate_body = evaluate.json()
     assert evaluate_body["decision"] == "deny"
     assert any("wallet signature" in blocker.lower() for blocker in evaluate_body["blockers"])
+
+
+def exercise_telegram_miniapp(page: Page) -> None:
+    page.route(
+        "https://telegram.org/js/telegram-web-app.js",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/javascript",
+            body=(
+                "window.Telegram={WebApp:{initData:'',themeParams:{},"
+                "ready(){},expand(){},MainButton:{setText(){},onClick(){},show(){}}}};"
+            ),
+        ),
+    )
+    page.set_viewport_size({"width": 390, "height": 844})
+    page.goto(f"{BASE_URL}/telegram")
+
+    expect(page).to_have_title("0guard Telegram Mini App")
+    expect(page.locator("body")).to_contain_text("0guard Mini App")
+    expect(page.locator("body")).to_contain_text("Wallet alert")
+    expect(page.locator("body")).to_contain_text("Mira add-on")
+    expect(page.locator("#miniapp-mode")).to_contain_text("browser preview")
+    expect(page.locator("#miniapp-auth-status")).to_contain_text("local preview")
+    expect(page.locator("#miniapp-session-output")).to_contain_text(
+        "0guard.telegram_miniapp_session.v1"
+    )
+    expect(page.locator("#miniapp-session-output")).to_contain_text('"sendDataUsed": false')
+    expect(page.locator("#miniapp-quality-output")).to_contain_text(
+        '"telegramSendEnabled": false'
+    )
+
+    page.locator("#miniapp-preview-alert").click()
+    expect(page.locator("#miniapp-output")).to_contain_text(
+        "0guard.telegram_miniapp_preview.v1"
+    )
+    expect(page.locator("#miniapp-output")).to_contain_text('"telegram_send": false')
+    expect(page.locator("#miniapp-output")).to_contain_text('"decision": "deny"')
+    expect(page.locator("#miniapp-alert-message")).to_contain_text(
+        "no Telegram message sent"
+    )
+    expect(page.locator("#miniapp-mira-output")).to_contain_text("0guard.mira_preview.v1")
+    expect(page.locator("#miniapp-flow")).to_have_attribute("data-verdict", "deny")
+
+    page.locator("#miniapp-run-mira").click()
+    expect(page.locator("#miniapp-mira-output")).to_contain_text('"telegram_send": false')
+
+    contract = page.request.get(f"{BASE_URL}/api/telegram/miniapp/contract")
+    assert contract.ok
+    contract_body = contract.json()
+    assert contract_body["schema"] == "0guard.telegram_miniapp_contract.v1"
+    assert contract_body["route"] == "/telegram"
+    assert contract_body["telegramApi"]["usesTelegramWebAppJs"] is True
+    assert contract_body["telegramApi"]["serverSideValidationRequired"] is True
+    assert contract_body["telegramApi"]["sendDataUsed"] is False
+    assert contract_body["safety"]["telegramSendsEnabled"] is False
+    assert "/api/telegram/miniapp/session" in contract_body["apiRoutes"]
+    assert "/api/telegram/miniapp/preview" in contract_body["apiRoutes"]
 
 
 def assert_flow_packet_clear_of_node_labels(page: Page) -> None:

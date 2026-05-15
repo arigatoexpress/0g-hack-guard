@@ -128,6 +128,26 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#wallet-status",
     "#telegram-status",
     "#deploy-status",
+    "#open-telegram-miniapp",
+)
+
+MINIAPP_REQUIRED_SELECTORS = (
+    "#miniapp-root",
+    "#miniapp-mode",
+    "#miniapp-auth-status",
+    "#miniapp-session-output",
+    "#miniapp-wallet-address",
+    "#miniapp-intent-kind",
+    "#miniapp-chain",
+    "#miniapp-asset",
+    "#miniapp-amount",
+    "#miniapp-to",
+    "#miniapp-preview-alert",
+    "#miniapp-run-mira",
+    "#miniapp-alert-message",
+    "#miniapp-output",
+    "#miniapp-mira-output",
+    "#miniapp-quality-output",
 )
 
 
@@ -216,6 +236,9 @@ def _telegram_mira_status_payload() -> dict:
             "/api/telegram/registrations",
             "/api/telegram/opt-ins",
             "/api/telegram/webapp/verify",
+            "/api/telegram/miniapp/contract",
+            "/api/telegram/miniapp/session",
+            "/api/telegram/miniapp/preview",
             "/api/telegram/webhook",
             "/api/telegram/mira-preview",
             "/api/telegram/wallet-alert-preview",
@@ -337,9 +360,132 @@ def _create_telegram_opt_in(
     return record
 
 
+def _request_init_data(body: dict) -> str:
+    return str(body.get("initData") or body.get("init_data") or "").strip()
+
+
+def _public_telegram_user(telegram_user: dict) -> dict:
+    return public_opt_in_status(
+        {
+            "telegram_user": telegram_user,
+            "scopes": [],
+            "challenge": {},
+        }
+    )["telegram_user"]
+
+
+def _telegram_init_data_error(message: str, status_code: int) -> tuple[Response, int]:
+    return (
+        jsonify(
+            {
+                "schema": "0guard.telegram_miniapp_error.v1",
+                "error": message,
+                "safety": _telegram_mira_status_payload()["safety"],
+            }
+        ),
+        status_code,
+    )
+
+
+def _telegram_miniapp_auth(
+    init_data: str,
+) -> tuple[dict, dict | None, tuple[Response, int] | None]:
+    auth = {
+        "initDataPresent": bool(init_data),
+        "validated": False,
+        "mode": "local_browser_preview",
+        "serverSideValidationRequired": True,
+        "user": None,
+        "optInStatus": "not_attached",
+        "record": None,
+    }
+    if not init_data:
+        return auth, None, None
+
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    if not bot_token:
+        return auth, None, _telegram_init_data_error(
+            "TELEGRAM_BOT_TOKEN is not configured",
+            503,
+        )
+    try:
+        data = validate_webapp_init_data(init_data, bot_token)
+    except TelegramWebAppAuthError as exc:
+        return auth, None, _telegram_init_data_error(str(exc), 401)
+
+    telegram_user = _telegram_user_from_init_data(data)
+    record = _active_telegram_record_for_user(telegram_user)
+    public_record = public_opt_in_status(record) if record else None
+    auth.update(
+        {
+            "validated": True,
+            "mode": "telegram_webapp",
+            "user": _public_telegram_user(telegram_user),
+            "optInStatus": record.get("status") if record else "not_attached",
+            "record": public_record,
+        }
+    )
+    return auth, record, None
+
+
+def _telegram_miniapp_contract_payload() -> dict:
+    status = _telegram_mira_status_payload()
+    return {
+        "schema": "0guard.telegram_miniapp_contract.v1",
+        "route": "/telegram",
+        "title": "0guard Telegram Mini App",
+        "launchSurface": "telegram_web_app_or_browser_preview",
+        "requiredText": [
+            "0guard Mini App",
+            "Wallet alert",
+            "Mira add-on",
+            "Preview only",
+            "No Telegram sends",
+        ],
+        "requiredSelectors": list(MINIAPP_REQUIRED_SELECTORS),
+        "telegramApi": {
+            "usesTelegramWebAppJs": True,
+            "initDataSource": "window.Telegram.WebApp.initData",
+            "serverSideValidationRequired": True,
+            "sendDataUsed": False,
+        },
+        "apiRoutes": [
+            "/api/telegram/status",
+            "/api/telegram/webapp/verify",
+            "/api/telegram/miniapp/contract",
+            "/api/telegram/miniapp/session",
+            "/api/telegram/miniapp/preview",
+            "/api/telegram/mira-preview",
+            "/api/telegram/wallet-alert-preview",
+        ],
+        "mira": status["mira"],
+        "qualityPolicy": wallet_alert_quality_policy(),
+        "safety": status["safety"],
+    }
+
+
+def _default_miniapp_intent() -> dict:
+    return {
+        "action": "approve",
+        "mode": "live_transaction",
+        "requires_signature": True,
+        "calldata": (
+            "0x095ea7b3"
+            "ffffffffffffffffffffffffffffffff"
+            "ffffffffffffffffffffffffffffffff"
+        ),
+        "prompt_text": "Telegram Mini App preview for an unlimited token approval request.",
+    }
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/telegram")
+def telegram_miniapp():
+    return render_template("telegram_mini_app.html")
 
 
 @app.route("/favicon.ico")
@@ -364,10 +510,11 @@ def api_frontend_contract():
                 "Hack Signature Check",
                 "Domain Guard",
                 "Data Flow",
-            "Telegram Mira Opt-In",
-            "Mira Telegram Preview",
-            "Wallet Alert Preview",
-            "External Action Contract",
+                "Telegram Mira Opt-In",
+                "Mira Telegram Preview",
+                "Wallet Alert Preview",
+                "Telegram Mini App",
+                "External Action Contract",
                 "Safety Inspector",
                 "no signing",
                 "external sends blocked",
@@ -397,6 +544,11 @@ def api_frontend_contract():
                 "/api/hackathon/readiness",
                 "/api/hackathon/threat-passport",
                 "/api/telegram/status",
+                "/api/telegram/webapp/verify",
+                "/api/telegram/miniapp/contract",
+                "/api/telegram/miniapp/session",
+                "/api/telegram/miniapp/preview",
+                "/api/telegram/mira-preview",
                 "/api/telegram/wallet-alert-preview",
                 "/api/external-action-contracts",
                 "/api/evaluate",
@@ -707,6 +859,96 @@ def api_telegram_webapp_verify():
                     "challenge": {},
                 }
             )["telegram_user"],
+            "safety": _telegram_mira_status_payload()["safety"],
+        }
+    )
+
+
+@app.route("/api/telegram/miniapp/contract", methods=["GET"])
+def api_telegram_miniapp_contract():
+    return jsonify(_telegram_miniapp_contract_payload())
+
+
+@app.route("/api/telegram/miniapp/session", methods=["POST"])
+def api_telegram_miniapp_session():
+    body = request.get_json(silent=True) or {}
+    auth, _record, error = _telegram_miniapp_auth(_request_init_data(body))
+    if error:
+        return error
+    return jsonify(
+        {
+            "schema": "0guard.telegram_miniapp_session.v1",
+            "mode": auth["mode"],
+            "auth": auth,
+            "launch": {
+                "route": "/telegram",
+                "mobileFirst": True,
+                "openedInsideTelegram": auth["initDataPresent"],
+                "validatedTelegramUser": auth["validated"],
+                "serverSideInitDataValidation": True,
+                "sendDataUsed": False,
+            },
+            "status": _telegram_mira_status_payload(),
+            "qualityPolicy": wallet_alert_quality_policy(),
+            "defaultIntent": _default_miniapp_intent(),
+            "safety": _telegram_mira_status_payload()["safety"],
+        }
+    )
+
+
+@app.route("/api/telegram/miniapp/preview", methods=["POST"])
+def api_telegram_miniapp_preview():
+    body = request.get_json(silent=True) or {}
+    auth, auth_record, error = _telegram_miniapp_auth(_request_init_data(body))
+    if error:
+        return error
+
+    record_id = body.get("record_id")
+    record = auth_record
+    if record_id:
+        record = _TELEGRAM_OPT_IN_RECORDS.get(record_id)
+        if not record:
+            return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
+
+    intent = body.get("intent") or _default_miniapp_intent()
+    address = body.get("address") or ""
+    try:
+        wallet_preview = build_wallet_alert_preview(
+            address,
+            intent=intent,
+            live=_truthy_value(body.get("live", False)),
+            max_alerts=int(body.get("max_alerts", 3)),
+        )
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    mira_preview = build_mira_security_preview(intent, opt_in_record=record)
+    top_alert = wallet_preview["alerts"][0] if wallet_preview["alerts"] else None
+    top_reason = (
+        wallet_preview["decision"]["blockers"]
+        or wallet_preview["decision"]["warnings"]
+        or ["No direct wallet alert."]
+    )[0]
+    return jsonify(
+        {
+            "schema": "0guard.telegram_miniapp_preview.v1",
+            "delivery": "preview_no_send",
+            "telegram_send": False,
+            "network_calls": wallet_preview["safety"]["networkCalls"]
+            or mira_preview["network_calls"],
+            "mode": auth["mode"],
+            "auth": auth,
+            "walletAlert": wallet_preview,
+            "mira": mira_preview,
+            "message": wallet_preview["telegramPreview"],
+            "uiSummary": {
+                "verdict": wallet_preview["decision"]["decision"],
+                "severity": wallet_preview["decision"]["severity"],
+                "alertScore": top_alert["score"] if top_alert else None,
+                "topReason": top_reason,
+                "recommendedAction": top_alert["recommendedAction"] if top_alert else "keep watching",
+            },
+            "qualityPolicy": wallet_preview["qualityPolicy"],
             "safety": _telegram_mira_status_payload()["safety"],
         }
     )
