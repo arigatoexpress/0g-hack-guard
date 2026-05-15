@@ -72,6 +72,9 @@ the desktop workbench. It loads Telegram's `telegram-web-app.js`, calls
 Main Button only as a local "Preview alert" trigger. It does not call Telegram
 message-delivery APIs from the browser.
 
+Current Cloud Run preview URL:
+`https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram`
+
 The intended flow is:
 
 1. BotFather points the Mini App URL to the deployed `/telegram` route.
@@ -81,6 +84,14 @@ The intended flow is:
 5. The user previews a wallet intent through `/api/telegram/miniapp/preview`.
 6. The response includes `walletAlert`, `mira`, a Telegram-safe message string,
    quality-gate metadata, and explicit `telegram_send=false`.
+
+BotFather setup values:
+
+- Web App URL: `https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram`
+- Short description: `Pre-wallet firewall for AI-agent wallet intents.`
+- Description: `0guard previews wallet risk, hack signatures, and Mira explanations before an agent reaches a signer. Preview only; no Telegram sends from the Mini App.`
+- Production env still needed for real Telegram launch validation:
+  `TELEGRAM_BOT_TOKEN` and optional `TELEGRAM_BOT_USERNAME`.
 
 Opening `/telegram` in a normal browser is still useful for judging and local
 QA: it becomes `local_browser_preview`, keeps the same no-send contract, and

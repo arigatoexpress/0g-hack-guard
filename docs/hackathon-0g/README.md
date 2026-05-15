@@ -11,6 +11,9 @@ Submitted public project: https://www.hackquest.io/projects/0guard
 
 Submission proof artifact: `hackquest-submission-proof.json`
 
+Live Telegram Mini App preview:
+https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram
+
 1. Start with `final-submission-checklist.md` for the submitted HackQuest
    readback, public project URL, 0G proof, demo video, and X post.
 2. Use `submission-copy.md` for the project summary, track fit, and
@@ -80,10 +83,11 @@ Chainlink CCIP, LayerZero V2, Wormhole NTT, and Celestia/TIA data availability.
 for a future `0guard Facilitator`, while all launch, payment, bridge, swap, and
 wallet actions remain operator-only.
 
-The Telegram layer is now demoable as a Mini App. `/telegram` provides the
-mobile wallet-alert surface; `/api/telegram/miniapp/session` validates Telegram
-`initData` when present; `/api/telegram/miniapp/preview` returns one combined
-wallet-alert + Mira response with quality-gate metadata and
+The Telegram layer is now demoable as a Mini App at
+`https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram`. `/telegram` provides
+the mobile wallet-alert surface; `/api/telegram/miniapp/session` validates
+Telegram `initData` when present; `/api/telegram/miniapp/preview` returns one
+combined wallet-alert + Mira response with quality-gate metadata and
 `telegram_send=false`.
 
 ## Safety Posture
