@@ -1,0 +1,8 @@
+{
+  "title": "0guard Telegram Mini App launch thread",
+  "tweets": [
+    "0guard update: the Telegram Mini App is live. Open @Raris0guardBot and tap \"Open 0guard\" to preview wallet intent risk before a signer is touched.",
+    "The Mini App validates Telegram initData server-side, returns wallet-alert + Mira previews, and keeps the hard boundary: telegram_send=false, no wallet signing, no transaction broadcasts.",
+    "This extends the 0G hackathon proof stack: 28/28 source-linked April 2026 incidents, 28/28 detector coverage, a 0G mainnet receipt anchor, and a Cloud Run Mini App. https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram #0GHackathon #BuildOn0G"
+  ]
+}

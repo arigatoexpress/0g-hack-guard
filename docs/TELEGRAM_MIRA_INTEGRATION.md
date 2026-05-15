@@ -100,6 +100,25 @@ BotFather setup values:
 - The webhook is configured for message updates only and uses Telegram's
   `X-Telegram-Bot-Api-Secret-Token` header. The Flask route remains no-send.
 
+## Production Smoke
+
+Run the live bot/Mini App smoke from the repo root:
+
+```bash
+.venv/bin/python scripts/telegram_production_smoke.py --format markdown
+```
+
+The script reads the bot token and webhook secret from Secret Manager through
+`gcloud` when local env vars are not set. It redacts token/user details and
+checks:
+
+- Cloud Run Telegram status and no-send flags.
+- Browser-preview Mini App launch posture.
+- Synthetic signed Telegram `initData` validation.
+- Combined wallet-alert + Mira Mini App preview.
+- Bot API readbacks for `getMe`, menu button, commands, and webhook health.
+- Webhook route secret-header enforcement without sending Telegram messages.
+
 Opening `/telegram` in a normal browser is still useful for judging and local
 QA: it becomes `local_browser_preview`, keeps the same no-send contract, and
 does not pretend that a Telegram user has been verified.

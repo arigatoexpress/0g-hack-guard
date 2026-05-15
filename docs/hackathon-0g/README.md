@@ -93,7 +93,9 @@ Telegram `initData` when present; `/api/telegram/miniapp/preview` returns one
 combined wallet-alert + Mira response with quality-gate metadata and
 `telegram_send=false`. The bot at `https://t.me/Raris0guardBot` has its Mini
 App menu button, descriptions, commands, webhook, and profile image configured;
-the webhook still routes to preview/no-send handling only.
+the webhook still routes to preview/no-send handling only. Run
+`scripts/telegram_production_smoke.py --format markdown` for the live redacted
+bot/Mini App readiness check.
 
 ## Safety Posture
 
