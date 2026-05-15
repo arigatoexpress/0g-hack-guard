@@ -357,6 +357,28 @@ async function loadIkaIntegration(){
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
+async function runNativePreflight(){
+  const payload = {
+    surface: 'ika_dwallets',
+    sourceProject: 'ikavery',
+    operation: 'sweep',
+    chain: 'solana:devnet',
+    liveSigning: true,
+    intentText: 'Autonomous agent proposes a recovery sweep through a dWallet signer.'
+  };
+  const r = await fetch('/api/native-preflight', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadHackathonStrategy(){
+  const r = await fetch('/api/hackathon/strategy');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function loadExternalGuardrails(){
   const r = await fetch('/api/integrations/external-guardrails');
   const j = await r.json();
@@ -487,6 +509,8 @@ document.getElementById('load-cross-chain-catalog').addEventListener('click', lo
 document.getElementById('load-cross-chain-readiness').addEventListener('click', loadCrossChainReadiness);
 document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
+document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
+document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
 document.getElementById('load-external-guardrails').addEventListener('click', loadExternalGuardrails);
 document.getElementById('run-external-guardrail-check').addEventListener('click', runExternalGuardrailCheck);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);

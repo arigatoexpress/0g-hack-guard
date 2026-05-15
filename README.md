@@ -158,6 +158,8 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
 | `GET`  | `/api/integrations/ika` | Source-cited Ika, Encrypt, Ikavery, MPCKit, and OdWS integration manifest |
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
+| `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
+| `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
 | `GET/POST` | `/api/integrations/external-guardrails` + `/evaluate` | Active read-only guardrail catalog and evaluator for x402, Virtuals/Base, Lighter, CCIP, LayerZero, Wormhole, and Celestia intents/configs |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |

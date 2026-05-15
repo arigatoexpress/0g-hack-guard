@@ -51,5 +51,11 @@ The live repo already has:
 - `/api/integrations/ika` and `/api/integrations/ika/evaluate` expose the
   Ika/Ikavery pre-signing lane without key import, dWallet creation, signing,
   sweeps, or broadcasts.
+- `/api/native-preflight` composes the core policy engine, Ika/dWallet
+  preflight, TON passport posture, and external guardrails into one 0G-ready
+  receipt for future hackathon demos.
+- `/api/hackathon/strategy` keeps the next builds ordered by timing and fit:
+  0G first, then Arbitrum/ETHGlobal-style EVM middleware, then reusable SDK
+  examples.
 - `/tonconnect-manifest.json` is present for wallet presentation context, but
   the frontend does not request `sendTransaction`, `signData`, or `tonProof`.

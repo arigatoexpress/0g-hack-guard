@@ -99,6 +99,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
     assert "/api/integrations/ika" in data["apiRoutes"]
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
+    assert "/api/native-preflight" in data["apiRoutes"]
+    assert "/api/hackathon/strategy" in data["apiRoutes"]
     assert "/api/integrations/external-guardrails" in data["apiRoutes"]
     assert "/api/integrations/external-guardrails/evaluate" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
@@ -139,6 +141,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-cross-chain-readiness" in data["requiredSelectors"]
     assert "#load-virtuals-facilitator" in data["requiredSelectors"]
     assert "#load-ika-integration" in data["requiredSelectors"]
+    assert "#run-native-preflight" in data["requiredSelectors"]
+    assert "#load-hackathon-strategy" in data["requiredSelectors"]
     assert "#load-external-guardrails" in data["requiredSelectors"]
     assert "#run-external-guardrail-check" in data["requiredSelectors"]
     assert "#cross-chain-output" in data["requiredSelectors"]
@@ -393,6 +397,28 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert ika_preflight_body["schema"] == "0guard.ika_signing_preflight.v1"
     assert ika_preflight_body["decision"] == "deny"
     assert ika_preflight_body["safety"]["transactionSigningEnabled"] is False
+
+    native_preflight = client.post(
+        "/api/native-preflight",
+        json={
+            "surface": "ika_dwallets",
+            "sourceProject": "ikavery",
+            "operation": "sweep",
+            "chain": "solana:devnet",
+            "liveSigning": True,
+        },
+    )
+    assert native_preflight.status_code == 200
+    native_body = native_preflight.get_json()
+    assert native_body["schema"] == "0guard.native_preflight.v1"
+    assert native_body["decision"] == "deny"
+    assert native_body["safety"]["transactionSigningEnabled"] is False
+
+    strategy = client.get("/api/hackathon/strategy")
+    assert strategy.status_code == 200
+    strategy_body = strategy.get_json()
+    assert strategy_body["schema"] == "0guard.hackathon_strategy.v1"
+    assert strategy_body["opportunities"][0]["id"] == "0g_apac_final_review"
 
     guardrails = client.get("/api/integrations/external-guardrails")
     assert guardrails.status_code == 200

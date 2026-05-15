@@ -30,6 +30,7 @@ from guard0.external_guardrails import (
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.ika import evaluate_ika_signing_request, ika_integration_manifest
 from guard0.mira import build_mira_claim_preview, build_mira_security_preview
+from guard0.native_preflight import build_native_preflight, hackathon_strategy
 from guard0.osint import (
     evolving_threat_intelligence,
     hackathon_submission_brief,
@@ -121,6 +122,8 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-cross-chain-readiness",
     "#load-virtuals-facilitator",
     "#load-ika-integration",
+    "#run-native-preflight",
+    "#load-hackathon-strategy",
     "#load-external-guardrails",
     "#run-external-guardrail-check",
     "#cross-chain-output",
@@ -613,6 +616,8 @@ def api_frontend_contract():
                 "/api/integrations/virtuals-facilitator",
                 "/api/integrations/ika",
                 "/api/integrations/ika/evaluate",
+                "/api/native-preflight",
+                "/api/hackathon/strategy",
                 "/api/integrations/external-guardrails",
                 "/api/integrations/external-guardrails/evaluate",
                 "/api/hackathon/submission-brief",
@@ -663,6 +668,8 @@ def api_frontend_contract():
                 "load-cross-chain-readiness",
                 "load-virtuals-facilitator",
                 "load-ika-integration",
+                "run-native-preflight",
+                "load-hackathon-strategy",
                 "load-external-guardrails",
                 "run-external-guardrail-check",
                 "run-wallet-alert-preview",
@@ -844,6 +851,20 @@ def api_ika_integration_evaluate():
         return jsonify(evaluate_ika_signing_request(body))
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/native-preflight", methods=["POST"])
+def api_native_preflight():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(build_native_preflight(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/hackathon/strategy", methods=["GET"])
+def api_hackathon_strategy():
+    return jsonify(hackathon_strategy())
 
 
 @app.route("/api/integrations/external-guardrails", methods=["GET"])
