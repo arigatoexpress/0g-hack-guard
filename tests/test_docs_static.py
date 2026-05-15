@@ -11,13 +11,14 @@ def test_public_pages_demo_examples_match_real_routes_and_assets():
 
     assert "https://0guard.example" not in html
     assert "docs/og-image.png" not in html
-    assert "0guard-workbench-provenance.png" in html
+    assert "0guard-x-banner.png" in html
     assert "/api/hackathon/threat-passport" in html
     assert "/api/integrations/cross-chain" in html
     assert "/api/integrations/virtuals-facilitator" in html
     assert (
         REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-workbench-provenance.png"
     ).exists()
+    assert (REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-x-banner.png").exists()
     assert "http://127.0.0.1:8109/api/evaluate" in html
     assert "http://127.0.0.1:8109/api/hack-check" in html
     assert "0guard</span> evaluate --intent-json" in html

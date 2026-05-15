@@ -1,6 +1,6 @@
 # 0guard Final Demo Video Script
 
-Final generated length: 2:20.1.
+Final generated length: 2:24.1.
 
 Submission rule: HackQuest requires a public demo video of no more than three
 minutes that shows product functionality, user flow, and actual 0G component
@@ -33,19 +33,19 @@ mainnet receipt anchor, source-aware provenance, and the current signature map.
 
 | Time | Narration | Visual |
 | --- | --- | --- |
-| 0:00-0:13 | "Picture this: an AI agent is about to use your wallet. Before the wallet ever opens, 0guard reads the intent and asks whether this is safe to put in front of a signer." | Open on the 0guard workbench story board with the agent, 0guard gate, wallet, and receipt nodes visible. |
-| 0:13-0:21 | "The flow is simple: request, policy check, then wallet. Simulations can keep moving. Anything that moves funds, changes ownership, or asks for a live signature has to pass the guard first." | Keep the visual flow in frame. The packet moves through the simple model. |
-| 0:21-0:34 | "Here, the agent is tricked into pre-signing an admin transfer. 0guard catches the social-engineering pattern before the wallet is even asked." | Run the social-engineering scenario. Show the packet stopping at 0guard and the wallet reading `not asked to sign`. |
-| 0:34-0:46 | "Now the request changes: release bridge funds through a weak verifier setup. That is exactly the kind of cross-chain shortcut 0guard is built to stop." | Run the bridge release scenario. Show the red blocker chips and deny verdict. |
-| 0:46-0:58 | "Then a compromised admin path tries to upgrade a contract. The system does not need to guess; it sees the risky sequence and blocks the wallet step." | Run the upgrade scenario. Keep the visual deny path centered. |
-| 0:58-1:08 | "Good requests still work. A read-only simulation does not move funds, does not need a signature, and should be allowed to continue." | Run the safe simulation scenario. Show the allow state and `simulation only` wallet label. |
-| 1:08-1:20 | "Now we move from plain English to proof. This is the April 2026 source-linked incident set: 28 cases, with about 635 million dollars in reported losses." | Click `Load data summary`. Show the incident summary and source list. |
-| 1:20-1:30 | "Every verdict becomes a receipt hash. The browser workbench stays safe: no private key, no signing, no broadcast, and no money movement." | Show the 0G read-only status and safety flags. |
-| 1:30-1:39 | "For this submission, one deny receipt is already anchored on 0G mainnet, so judges can verify that the proof is not just a local demo." | Show the PolicyReceiptAnchor proof data from `docs/hackathon-0g/mainnet-proof.json`. |
-| 1:39-1:49 | "0guard also prepares Storage-ready roots and a provenance matrix. Every incident has source evidence and hashes, while raw upstream payloads stay out of resale." | Show provenance coverage, source matches, and raw-payload safety. |
-| 1:49-1:59 | "The detector map is honest and measurable. It now matches all 28 incident patterns. The last gap was Quant, promoted from SlowMist-syndicated EIP-7702 batch-call evidence." | Click `Load signature map`. Show `matchedCount=28`, `gapCount=0`, and the Quant EIP-7702 detector row. |
-| 1:59-2:08 | "For external systems, 0guard is a checkpoint, not a launch button. Base and Virtuals, paid API rails, Ethereum-compatible networks, Celestia, Lighter exchange intents, and bridge protocols all stay read-only here." | Show the read-only cross-chain catalog. |
-| 2:08-2:20 | "Autonomous finance needs more than smart agents. It needs a clear checkpoint before the wallet, real technical proof, and provenance. That is 0guard, built on 0G." | End on the cross-chain/read-only guardrail surface and final 0guard caption. |
+| 0:00-0:15 | "I built 0guard for one very specific moment: an AI agent is about to ask your wallet for a signature. Before the signer opens, 0guard reads the intent, the calldata, and the policy context." | Open with the new launch-banner intro over the real workbench, then reveal the product UI. |
+| 0:15-0:25 | "For a normal user, the model is simple. The agent asks, 0guard checks, and the wallet stays out of it until the request earns a clean verdict." | Show the agent, 0guard, wallet, and receipt flow with the new non-overlapping story canvas. |
+| 0:25-0:36 | "Here the agent is being nudged to pre-sign an admin transfer. That is the kind of social engineering that looks harmless in a chat window, but becomes dangerous at the wallet." | Run the social-engineering scenario. Show the packet stopping at 0guard and the wallet reading `not asked to sign`. |
+| 0:36-0:47 | "Now the request changes to a bridge release through a weak verifier setup. 0guard catches the shortcut before a cross-chain mistake can become a real transaction." | Run the bridge release scenario. Show the red blocker chips and deny verdict. |
+| 0:47-0:58 | "Then we test a compromised admin path trying to upgrade a contract. The system does not have to guess. It sees the risky sequence and blocks the signer step." | Run the upgrade scenario. Keep the visual deny path centered. |
+| 0:58-1:08 | "Good requests still work. A read-only simulation does not move funds, does not need a signature, and should keep moving without creating noise for the operator." | Run the safe simulation scenario. Show the allow state and `simulation only` wallet label. |
+| 1:08-1:21 | "That is the simple story. The proof layer is where 0guard gets serious: 28 public April 2026 incidents, source-linked, hashed, and turned into detector coverage." | Click `Load data summary`. Show the incident summary and source list. |
+| 1:21-1:31 | "Every verdict can become a receipt hash. In this browser workbench, there is still no private key, no signing, no broadcast, and no money movement." | Show the 0G read-only status and safety flags. |
+| 1:31-1:42 | "For this submission, one deny receipt is already anchored on 0G mainnet. That gives judges a public receipt path instead of just a local screen recording." | Show the PolicyReceiptAnchor proof data from `docs/hackathon-0g/mainnet-proof.json`. |
+| 1:42-1:53 | "0guard also prepares Storage-ready roots and a provenance matrix. The important part is that every incident stays traceable, while raw upstream payloads stay out of resale." | Show provenance coverage, source matches, and raw-payload safety. |
+| 1:53-2:05 | "The detector map is measurable. It now covers all 28 incident-derived patterns, including the Quant EIP-7702 batch-call evidence that closed the last gap." | Click `Load signature map`. Show `matchedCount=28`, `gapCount=0`, and the Quant EIP-7702 detector row. |
+| 2:05-2:16 | "For external systems, 0guard is a checkpoint, not a launch button. Base and Virtuals, x402, EVM networks, Celestia, Lighter order intents, and bridge protocols stay read-only here." | Show the read-only cross-chain catalog. |
+| 2:16-2:24 | "That is the thesis: autonomous finance needs a clear checkpoint before the wallet, and proof people can inspect. That is 0guard, built on 0G." | End on the cross-chain/read-only guardrail surface and final 0guard caption. |
 
 ## Exact Demo Scenarios
 
@@ -90,9 +90,9 @@ Current default local voice settings:
 
 ```text
 DEMO_TTS_ENGINE=auto
-DEMO_EDGE_TTS_VOICE=en-US-BrianNeural
-DEMO_EDGE_TTS_RATE=+2%
-DEMO_EDGE_TTS_PITCH=+0Hz
+DEMO_EDGE_TTS_VOICE=en-US-BrianMultilingualNeural
+DEMO_EDGE_TTS_RATE=-2%
+DEMO_EDGE_TTS_PITCH=-1Hz
 ```
 
 The final audio path still uses segmented narration, short controlled pauses,
@@ -103,16 +103,15 @@ reduces the strange pauses from one large text-to-speech paragraph.
 Objective checks from the final MP4 after rebuild:
 
 ```text
-video: 1920x1080, 25 fps, 137.92 seconds
-audio: AAC mono, 137.99 seconds, mean volume -16.2 dB, max volume -1.5 dB
+video: 1920x1080, 25 fps, 144.08 seconds
+audio: AAC mono, 144.09 seconds, 176 kb/s
 silence check: no internal >1.0 second silence detected at -35 dB threshold
 ```
 
 ## Safety Notes
 
 - The demo performs no signing, transaction broadcast, bridge, swap, Lighter
-  order, LIT token/staking/fee-credit action, Telegram send, or X post from the
-  browser.
+  order, exchange account action, Telegram send, or X post from the browser.
 - 0G status is read-only.
 - The anchored receipt is shown as public proof; the workbench remains
   simulation-first and explicit-confirmation-only for any live external action.
