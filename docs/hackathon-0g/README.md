@@ -85,9 +85,9 @@ wallet actions remain operator-only.
 - Public 0G mainnet proof is limited to the deployed receipt anchor and one
   anchored deny receipt.
 - No trading or money movement claims.
-- No live Virtuals launch, x402 settlement, bridge, swap, Lighter order, LIT
-  token/staking/fee-credit action, withdrawal, or cross-chain transaction from
-  the workbench.
+- No live Virtuals launch, x402 settlement, bridge, swap, Lighter order,
+  exchange account action, withdrawal, or cross-chain transaction from the
+  workbench.
 - No Telegram sends unless a separate operator uses an explicit live-send
   confirmation outside the judge workbench.
 - No X media/post deletion unless a reviewed manifest exists and Ari gives

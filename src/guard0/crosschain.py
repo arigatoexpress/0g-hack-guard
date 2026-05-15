@@ -286,13 +286,13 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
             "verifiable_order_matching",
             "ethereum_anchored_zk_rollup",
             "pre_trade_guardrail",
-            "lit_token_and_fee_credit_policy_context",
+            "exchange_account_policy_context",
         ),
         x402_posture="not_an_evm_settlement_target_for_x402_by_default; protect as trading venue/API risk lane",
         proof_strategy=(
             "Use 0guard as a pre-trade policy guard for Lighter API/order intents; "
             "anchor blocked receipts to 0G and never generate API keys, place orders, "
-            "stake/buy LIT, buy fee credits, or request withdrawals from the workbench."
+            "use fee credits, trade, or request withdrawals from the workbench."
         ),
         official_sources=(
             "https://docs.lighter.xyz/",
@@ -303,7 +303,7 @@ CHAIN_TARGETS: tuple[ChainTarget, ...] = (
         ),
         caveats=(
             "Lighter is integrated as a verifiable exchange/API guardrail, not as an EVM deployment network.",
-            "LIT token, staking, fee credits, deposits, orders, transfers, and withdrawals are external side effects.",
+            "Token, fee-credit, deposit, order, transfer, and withdrawal operations are external side effects.",
         ),
     ),
     ChainTarget(

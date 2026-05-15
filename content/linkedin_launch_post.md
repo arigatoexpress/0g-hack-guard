@@ -17,9 +17,9 @@ The demo walks through:
 - deterministic receipt hashes, Storage-ready roots, and a public 0G mainnet
   receipt anchor;
 - source-aware April 2026 incident data and provenance instead of mock claims;
-- 28/28 incidents source-linked and 27/28 incident-derived patterns matched by
-  deterministic detectors, with the remaining Quant row held in research mode
-  until stronger public root-cause evidence exists.
+- 28/28 incidents source-linked and 28/28 incident-derived patterns matched by
+  deterministic detectors after the Quant EIP-7702 batch-call pattern was
+  promoted from public evidence.
 
 Demo video:
 https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4

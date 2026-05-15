@@ -48,7 +48,7 @@ Do not say:
 
 ```text
 0guard trades, signs, bridges, posts, launches agents, settles x402 payments,
-places Lighter orders, takes LIT token/staking/fee-credit actions, or uploads live 0G Storage objects from the
+places Lighter orders, takes exchange account actions, or uploads live 0G Storage objects from the
 browser workbench.
 ```
 
@@ -164,7 +164,7 @@ video script for a 3-minute AI x Web3 submission. The video must show live
 product functionality, user flow, and actual 0G component usage. It must not be
 slide-only. Keep all claims honest: the browser workbench is read-only; it does
 not sign, broadcast, bridge, trade, post, launch agents, settle x402 payments,
-place Lighter orders, take LIT token/staking/fee-credit actions, or upload live
+place Lighter orders, take exchange account actions, or upload live
 0G Storage objects. The verified
 proof is a deployed 0G mainnet PolicyReceiptAnchor contract and one anchored
 deny receipt. Improve clarity, pacing, and judge impact without adding claims

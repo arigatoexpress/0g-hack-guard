@@ -658,7 +658,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
                 "Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, "
                 "Lighter exchange/API, Chainlink CCIP, LayerZero V2, Wormhole NTT, and "
                 "Celestia/TIA are exposed through a read-only integration fabric; live "
-                "agent launch, settlement, exchange orders, LIT token/staking/fee-credit "
+                "agent launch, settlement, exchange orders, exchange account "
                 "actions, bridges, swaps, and signatures remain operator-only."
             ),
         },

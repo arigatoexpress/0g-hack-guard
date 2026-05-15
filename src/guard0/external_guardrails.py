@@ -64,7 +64,7 @@ def external_guardrail_catalog() -> dict[str, Any]:
                 "role": "exchange/API intent posture",
                 "checks": [
                     "read-only status or documentation checks can pass",
-                    "orders, deposits, withdrawals, API-key creation, and LIT token/staking/fee-credit actions are denied",
+                    "orders, deposits, withdrawals, API-key creation, and exchange account actions are denied",
                 ],
             },
             {
@@ -239,7 +239,7 @@ def _evaluate_lighter(*, action: str, config: dict[str, Any], intent_text: str) 
                 "lighter_external_side_effect_denied",
                 "critical",
                 "deny",
-                "Lighter orders, deposits, withdrawals, API-key creation, and LIT token/staking/fee-credit actions are disabled.",
+                "Lighter orders, deposits, withdrawals, API-key creation, and exchange account actions are disabled.",
                 {"matchedSurface": "exchange_or_lit_action", "readOnly": True},
             )
         ]

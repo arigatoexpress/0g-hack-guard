@@ -56,11 +56,10 @@ Virtuals launch, token action, x402 settlement, bridge, swap, or wallet
 signature is an external side effect and requires an explicit operator run.
 
 Lighter integration is an exchange/API guardrail, not an EVM deployment lane.
-The only live check in 0guard is the public Lighter status endpoint. LIT is
-treated as venue token and fee-credit context only; buying/staking LIT, buying
-fee credits, deposits, API-key creation, orders, transfers, and withdrawals
-remain disabled because they require signatures, funds, API credentials, or
-trading authority.
+The only live check in 0guard is the public Lighter status endpoint. Token,
+fee-credit, deposit, API-key, order, transfer, and withdrawal operations remain
+disabled because they require signatures, funds, API credentials, or trading
+authority.
 
 Chainlink CCIP, LayerZero V2, and Wormhole NTT are cataloged as protocol-risk
 lanes. That means 0guard can explain and score bridge/message/token-transfer
@@ -69,8 +68,8 @@ thresholds, transceiver registries, replay windows, and supply invariants. It
 does not initiate cross-chain messages or mutate protocol configuration.
 
 The active evaluator intentionally uses conservative policy rules. For example,
-it denies LayerZero one-of-one DVN configurations, Lighter orders/API-key/LIT
-token actions, x402 raw-payload resale, CCIP transfers to non-allowlisted
+it denies LayerZero one-of-one DVN configurations, Lighter order/API-key/account
+actions, x402 raw-payload resale, CCIP transfers to non-allowlisted
 destinations, and Wormhole NTT transfers that are missing configured quorum or
 supply-invariant controls. These are preflight findings only; they never sign,
 post, settle, bridge, trade, or call external provider APIs.

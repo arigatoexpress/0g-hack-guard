@@ -25,6 +25,10 @@ def test_public_pages_demo_examples_match_real_routes_and_assets():
     assert '"decision"</span>: <span class="string">"deny"' in html
     assert "matched_signatures" not in html
     assert "risk_score" not in html
+    assert "Detector-Matched Incidents of 28" in html
+    assert "Open Detector Gaps" in html
+    assert "Research-Only Detector Gap" not in html
+    assert "27/28" not in html
 
 
 def test_hackquest_proof_page_exposes_current_evidence_baseline():
