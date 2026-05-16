@@ -1480,6 +1480,9 @@ def api_mira_claim_preview():
 @app.route("/api/health", methods=["GET"])
 def api_health():
     cfg = get_0g_config()
+    # Compatibility note: callers historically expected some safety flags at the
+    # top level. Keep both top-level booleans and the structured `safety_flags`
+    # payload so monitors can be simple while UIs can stay structured.
     return jsonify(
         {
             "schema": "0guard.health.v1",
@@ -1491,6 +1494,9 @@ def api_health():
             "0g_receipt_contract": cfg["receipt_contract"],
             "0g_storage_node": os.getenv("ZGS_NODE_URL", "not_configured"),
             "telegram_mira": _telegram_mira_status_payload(),
+            "read_only": True,
+            "telegram_sends_enabled": False,
+            "money_movement_enabled": False,
             "safety_flags": {
                 "read_only": True,
                 "wallet_signatures_blocked": True,

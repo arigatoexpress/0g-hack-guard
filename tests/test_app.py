@@ -40,6 +40,9 @@ def test_health(client):
     assert r.status_code == 200
     data = r.get_json()
     assert data["service"] == "zg-hack-guard"
+    assert data["read_only"] is True
+    assert data["telegram_sends_enabled"] is False
+    assert data["money_movement_enabled"] is False
     assert data["safety_flags"]["external_sends_blocked_from_workbench"] is True
     assert data["safety_flags"]["money_movement_enabled"] is False
     assert data["telegram_mira"]["safety"]["telegramSendsEnabled"] is False
@@ -56,6 +59,9 @@ def test_healthz_aliases(client):
         assert data["schema"] == "0guard.healthz.v1"
         assert data["ok"] is True
         assert data["service"] == "zg-hack-guard"
+        assert data["read_only"] is True
+        assert data["telegram_sends_enabled"] is False
+        assert data["money_movement_enabled"] is False
         assert data["safety_flags"]["telegram_sends_enabled"] is False
         assert data["safety_flags"]["money_movement_enabled"] is False
 
