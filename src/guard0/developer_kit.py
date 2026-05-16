@@ -70,6 +70,11 @@ def developer_kit_manifest() -> dict[str, Any]:
             },
             {
                 "method": "POST",
+                "path": "/api/reputation/probe",
+                "purpose": "Rights-aware domain, address, label, and source-evidence reputation probe.",
+            },
+            {
+                "method": "POST",
                 "path": "/api/integrations/ika/evaluate",
                 "purpose": "dWallet/MPC signing preflight before Ika-adjacent projects sign.",
             },
@@ -119,6 +124,7 @@ def _adapter_recipes() -> list[dict[str, Any]]:
             "ecosystem": "EVM wallets and agent frameworks",
             "stage": "pre_signer",
             "call": "/api/native-preflight",
+            "optionalContext": "/api/reputation/probe for counterparty/domain/source-evidence context",
             "inputMapping": {
                 "surface": "evm",
                 "operation": "proposed wallet operation or method",

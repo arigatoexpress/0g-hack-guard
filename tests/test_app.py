@@ -99,6 +99,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/virtuals-facilitator" in data["apiRoutes"]
     assert "/api/integrations/ika" in data["apiRoutes"]
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
+    assert "/api/reputation/probe" in data["apiRoutes"]
     assert "/api/native-preflight" in data["apiRoutes"]
     assert "/api/hackathon/strategy" in data["apiRoutes"]
     assert "/api/developer-kit" in data["apiRoutes"]
@@ -142,6 +143,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-cross-chain-readiness" in data["requiredSelectors"]
     assert "#load-virtuals-facilitator" in data["requiredSelectors"]
     assert "#load-ika-integration" in data["requiredSelectors"]
+    assert "#run-reputation-probe" in data["requiredSelectors"]
     assert "#run-native-preflight" in data["requiredSelectors"]
     assert "#load-hackathon-strategy" in data["requiredSelectors"]
     assert "#load-developer-kit" in data["requiredSelectors"]
@@ -400,6 +402,22 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert ika_preflight_body["decision"] == "deny"
     assert ika_preflight_body["safety"]["transactionSigningEnabled"] is False
 
+    reputation = client.post(
+        "/api/reputation/probe",
+        json={
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            "sourceEvidence": [
+                {"sourceId": "operator_report", "verdict": "phishing", "confidence": 0.91}
+            ],
+        },
+    )
+    assert reputation.status_code == 200
+    reputation_body = reputation.get_json()
+    assert reputation_body["schema"] == "0guard.reputation_probe.v1"
+    assert reputation_body["decision"]["decision"] == "deny"
+    assert reputation_body["rightsPolicy"]["rawPayloadsReturned"] is False
+
     native_preflight = client.post(
         "/api/native-preflight",
         json={
@@ -415,6 +433,21 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert native_body["schema"] == "0guard.native_preflight.v1"
     assert native_body["decision"] == "deny"
     assert native_body["safety"]["transactionSigningEnabled"] is False
+
+    native_with_reputation = client.post(
+        "/api/native-preflight",
+        json={
+            "surface": "evm",
+            "operation": "approve",
+            "chain": "eip155:1",
+            "target": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+        },
+    )
+    assert native_with_reputation.status_code == 200
+    reputation_component_ids = {
+        item["id"] for item in native_with_reputation.get_json()["components"]
+    }
+    assert "reputation_probe" in reputation_component_ids
 
     strategy = client.get("/api/hackathon/strategy")
     assert strategy.status_code == 200

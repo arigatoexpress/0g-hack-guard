@@ -17,6 +17,7 @@ from typing import Any
 from guard0.external_guardrails import evaluate_external_guardrail
 from guard0.ika import evaluate_ika_signing_request
 from guard0.policy import evaluate_intent
+from guard0.reputation import build_reputation_probe
 from guard0.ton import build_ton_wallet_risk_preview
 
 NATIVE_PREFLIGHT_SCHEMA = "0guard.native_preflight.v1"
@@ -134,6 +135,20 @@ def build_native_preflight(payload: dict[str, Any] | None = None) -> dict[str, A
             }
         )
         components.append(_component("external_guardrail", guardrail["decision"], guardrail))
+
+    if _should_run_reputation(body):
+        reputation = build_reputation_probe(
+            {
+                "url": body.get("url") or body.get("domain") or body.get("website") or "",
+                "address": body.get("address") or target,
+                "chain": chain,
+                "surface": surface,
+                "labels": body.get("labels") or body.get("tags") or [],
+                "sourceEvidence": body.get("sourceEvidence") or body.get("evidence") or [],
+                "intent": policy_intent,
+            }
+        )
+        components.append(_component("reputation_probe", reputation["decision"]["decision"], reputation))
 
     ton_address = str(body.get("tonAddress") or body.get("ton_address") or "").strip()
     if surface == "ton" or chain.startswith("ton") or ton_address:
@@ -321,6 +336,24 @@ def _external_target(*, body: dict[str, Any], surface: str) -> str:
 
 def _should_run_ika(*, surface: str, source_project: str, operation: str) -> bool:
     return surface in _IKA_SURFACES or source_project in _IKA_SURFACES or "dwallet" in operation
+
+
+def _should_run_reputation(body: dict[str, Any]) -> bool:
+    return any(
+        key in body and body.get(key)
+        for key in (
+            "url",
+            "domain",
+            "website",
+            "address",
+            "target",
+            "to",
+            "labels",
+            "tags",
+            "sourceEvidence",
+            "evidence",
+        )
+    )
 
 
 def _component(component_id: str, decision: str, data: dict[str, Any]) -> dict[str, Any]:

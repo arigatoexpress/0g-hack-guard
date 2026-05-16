@@ -28,6 +28,12 @@ a signer.
   - Points developers to Python and TypeScript examples that call native
     preflight before signer access.
 
+- `GET/POST /api/reputation/probe`
+  - Adds the rights-aware reputation adapter for domains, counterparties,
+    labels, caller evidence, and policy context.
+  - Native preflight includes it when a caller supplies a domain, target,
+    address, label, or source-evidence packet.
+
 ## Product Thesis
 
 0G remains the proof and provenance layer. Other chains and ecosystems should
@@ -42,7 +48,8 @@ wrong first integration path.
    health green through final review.
 2. Keep the developer-kit examples and `/api/developer-kit` manifest aligned
    with every new adapter.
-3. Add the rights-aware reputation adapter before stronger alerting claims.
+3. Feed the reputation probe into wallet alerts and Telegram previews after
+   the public adapter contract has enough real upstream sources.
 4. Revisit live 0G Storage and Compute only after credentials, rollback notes,
    and operator approval are ready.
 

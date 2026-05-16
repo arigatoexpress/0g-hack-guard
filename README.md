@@ -28,9 +28,10 @@
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **source-linked April 2026 incidents** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
 3. **0G-Native Proofs** — Reads live 0G status, prepares policy receipt hashes, and includes a public 0G mainnet receipt anchor proof while keeping workbench writes operator-controlled.
 4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
-5. **External Guardrail Catalog** — Catalogs read-only EVM networks, x402 posture, Lighter exchange/API intents, DA proof lanes, and bridge-protocol risk lanes; no settlement, orders, bridges, or launches.
-6. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
-7. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
+5. **Reputation Probe** — Checks domains, counterparties, labels, caller evidence, and intent context without reselling raw OSINT payloads.
+6. **External Guardrail Catalog** — Catalogs read-only EVM networks, x402 posture, Lighter exchange/API intents, DA proof lanes, and bridge-protocol risk lanes; no settlement, orders, bridges, or launches.
+7. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
+8. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
 ---
 
@@ -162,6 +163,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
 | `GET`  | `/api/integrations/ika` | Source-cited Ika, Encrypt, Ikavery, MPCKit, and OdWS integration manifest |
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
+| `GET/POST` | `/api/reputation/probe` | Rights-aware domain, counterparty, label, source-evidence, and intent reputation probe; raw payloads are not returned |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
 | `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |

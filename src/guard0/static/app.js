@@ -357,6 +357,35 @@ async function loadIkaIntegration(){
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
+async function runReputationProbe(){
+  const payload = {
+    url: 'https://docs.0g.ai.evil.example/claim',
+    address: '0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab',
+    chain: 'eip155:1',
+    labels: ['spoofed support domain'],
+    sourceEvidence: [
+      {
+        sourceId: 'operator_report',
+        verdict: 'phishing',
+        confidence: 0.91,
+        label: 'wallet drainer landing page'
+      }
+    ],
+    intent: {
+      action: 'upgrade',
+      mode: 'live_transaction',
+      requires_signature: true,
+      prompt_text: 'Urgent support flow asks the agent to sign an admin upgrade.'
+    }
+  };
+  const r = await fetch('/api/reputation/probe', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function runNativePreflight(){
   const payload = {
     surface: 'ika_dwallets',
@@ -514,6 +543,7 @@ document.getElementById('load-cross-chain-catalog').addEventListener('click', lo
 document.getElementById('load-cross-chain-readiness').addEventListener('click', loadCrossChainReadiness);
 document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
+document.getElementById('run-reputation-probe').addEventListener('click', runReputationProbe);
 document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
 document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
 document.getElementById('load-developer-kit').addEventListener('click', loadDeveloperKit);

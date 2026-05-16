@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import secrets
-from urllib.parse import urlparse
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -46,6 +45,11 @@ from guard0.osint import (
 )
 from guard0.policy import evaluate_intent
 from guard0.roadmap import ecosystem_roadmap, intelligence_stream_plan
+from guard0.reputation import (
+    CURATED_DOMAIN_ALLOWLIST,
+    build_reputation_probe,
+    domain_decision,
+)
 from guard0.ton import (
     build_ton_wallet_risk_preview,
     ton_risk_rules,
@@ -125,6 +129,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-cross-chain-readiness",
     "#load-virtuals-facilitator",
     "#load-ika-integration",
+    "#run-reputation-probe",
     "#run-native-preflight",
     "#load-hackathon-strategy",
     "#load-developer-kit",
@@ -174,12 +179,7 @@ MINIAPP_REQUIRED_SELECTORS = (
     "#miniapp-quality-output",
 )
 
-DOMAIN_ALLOWLIST = (
-    "0g.ai",
-    "docs.0g.ai",
-    "hackquest.io",
-    "github.com",
-)
+DOMAIN_ALLOWLIST = CURATED_DOMAIN_ALLOWLIST
 
 
 def external_action_contracts_payload() -> dict:
@@ -620,6 +620,7 @@ def api_frontend_contract():
                 "/api/integrations/virtuals-facilitator",
                 "/api/integrations/ika",
                 "/api/integrations/ika/evaluate",
+                "/api/reputation/probe",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
                 "/api/developer-kit",
@@ -673,6 +674,7 @@ def api_frontend_contract():
                 "load-cross-chain-readiness",
                 "load-virtuals-facilitator",
                 "load-ika-integration",
+                "run-reputation-probe",
                 "run-native-preflight",
                 "load-hackathon-strategy",
                 "load-developer-kit",
@@ -868,6 +870,23 @@ def api_ika_integration_evaluate():
     body = request.get_json(silent=True) or {}
     try:
         return jsonify(evaluate_ika_signing_request(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/reputation/probe", methods=["GET", "POST"])
+def api_reputation_probe():
+    if request.method == "POST":
+        body = request.get_json(silent=True) or {}
+    else:
+        body = {
+            "url": request.args.get("url") or request.args.get("domain") or "",
+            "address": request.args.get("address") or request.args.get("target") or "",
+            "chain": request.args.get("chain") or "",
+            "surface": request.args.get("surface") or "",
+        }
+    try:
+        return jsonify(build_reputation_probe(body))
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
 
@@ -1499,13 +1518,7 @@ def _build_mira_claim_response(
 
 
 def _domain_decision(url: str) -> dict:
-    parsed = urlparse(url if "://" in url else f"https://{url}")
-    host = (parsed.hostname or "").lower().rstrip(".")
-    for allowed in DOMAIN_ALLOWLIST:
-        allowed_host = allowed.lower()
-        if host == allowed_host or host.endswith(f".{allowed_host}"):
-            return {"host": host, "allowed": True, "matched": allowed_host}
-    return {"host": host, "allowed": False, "matched": None}
+    return domain_decision(url)
 
 
 def _truthy_query_arg(name: str) -> bool:
