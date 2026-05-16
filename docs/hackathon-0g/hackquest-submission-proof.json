@@ -1,6 +1,6 @@
 {
   "schema": "0guard.hackquest_submission_proof.v1",
-  "verified_at": "2026-05-15T20:28:18Z",
+  "verified_at": "2026-05-16T14:14:05Z",
   "verification_method": "public_hackquest_graphql_readback",
   "project": {
     "id": "f8333543-559e-48f4-b6fa-4ff447777966",
@@ -24,6 +24,7 @@
     "demo_video": "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4",
     "repository": "https://github.com/arigatoexpress/0guard",
     "x_post": "https://x.com/0guard_",
+    "required_x_post": "https://x.com/rariwrldd/status/2054779961425461542",
     "mainnet_anchor_tx": "https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed",
     "telegram_miniapp": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram",
     "telegram_bot": "https://t.me/Raris0guardBot",
@@ -54,6 +55,23 @@
       "value": "https://x.com/rariwrldd/status/2054779961425461542"
     }
   ],
+  "post_submit_public_updates": {
+    "verified_at": "2026-05-16T14:14:05Z",
+    "latest_repo_commit": "9be3ce8",
+    "license": "Apache-2.0",
+    "notice": "https://github.com/arigatoexpress/0guard/blob/main/NOTICE",
+    "source_asset_policy": "https://github.com/arigatoexpress/0guard/blob/main/docs/LEGAL_AND_ASSET_POLICY.md",
+    "asset_registry": "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md",
+    "veo3_flow_production_packet": "https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md",
+    "readyz": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/api/readyz",
+    "reputation_shadow_cache": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/api/reputation/shadow-cache",
+    "public_readback": {
+      "hackquest_public_project_http": 200,
+      "hackquest_is_submit": true,
+      "hackquest_fill_progress": 100,
+      "hackquest_updated_at": "2026-05-16T09:56:57.533Z"
+    }
+  },
   "not_done": [
     "No X post/media deletion was run from this repo update.",
     "No wallet signing, bridge, swap, settlement, order, or external send was performed."

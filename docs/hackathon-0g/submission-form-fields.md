@@ -1,8 +1,10 @@
 # HackQuest Submission Form Fields
 
 Generated for final operator submission on May 14, 2026. The project was
-submitted and publicly verified on May 14, 2026 at 05:32:38 UTC, then updated
-and publicly re-verified on May 15, 2026 at 20:28:18 UTC.
+submitted and publicly verified on May 14, 2026 at 05:32:38 UTC, updated
+and publicly re-verified on May 15, 2026 at 20:28:18 UTC, then rechecked on
+May 16, 2026 at 14:14:05 UTC after the repository/license/video-packet
+professionalization pass.
 
 This file remains the copy/paste packet and historical record. Current
 submitted-state proof lives in
@@ -141,6 +143,13 @@ Demo script:
 docs/hackathon-0g/final-demo-video-script.md
 ```
 
+Professional replacement video packet:
+
+```text
+docs/hackathon-0g/veo3-flow-production-prompt.md
+https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md
+```
+
 Demo video URL:
 
 ```text
@@ -183,6 +192,12 @@ Anchored receipt hash:
 0G Chain anchors policy receipt hashes. Contract: 0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc. Anchor tx: https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed. Public proof packet: https://arigatoexpress.github.io/0guard/hackathon-0g/. The live Telegram Mini App and browser workbench keep signing/broadcasting disabled while returning Storage-ready root hashes and receipt payloads.
 ```
 
+Post-submit professionalization note:
+
+```text
+The public proof packet now also exposes Apache-2.0 licensing, NOTICE/source-rights boundaries, a public asset registry, /api/readyz, /api/reputation/shadow-cache, and the Flow/Veo 3 production packet for a polished post-submit cut.
+```
+
 ## X Post
 
 Required tags and hashtags:
@@ -220,6 +235,8 @@ Completed on May 14, 2026 and refreshed on May 15, 2026:
 4. Updated the public MVP link, one-liner, description, progress note,
    project images, deployment details, and 0G proof field to include the
    Telegram Mini App and current proof packet.
+5. Refreshed the public proof packet, repo license posture, source/asset
+   policy, asset registry, and Flow/Veo production packet on May 16, 2026.
 
 ## Manual Recovery Note
 

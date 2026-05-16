@@ -280,8 +280,13 @@ def test_hackquest_readiness_audit_uses_mainnet_proof_file():
     assert "public_x_post" not in blockers
     requirements = {item["id"]: item for item in audit["requirements"]}
     assert requirements["proof_packet"]["status"] == "ready"
+    assert requirements["repo_professionalization"]["status"] == "ready"
     assert requirements["provenance_data"]["status"] == "ready"
     assert requirements["hackquest_submission"]["status"] == "ready"
     assert audit["hackQuestSubmission"]["submitted"] is True
+    assert audit["repoProfessionalization"]["license"] == "Apache-2.0"
+    assert audit["repoProfessionalization"]["veoPacketUrl"].endswith(
+        "veo3-flow-production-prompt.md"
+    )
     assert audit["operatorOnlyActions"] == []
     assert audit["safety"]["rawPayloadsReturned"] is False

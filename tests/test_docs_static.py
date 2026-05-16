@@ -46,6 +46,9 @@ def test_hackquest_proof_page_exposes_current_evidence_baseline():
     assert "/api/readyz" in html
     assert "/api/reputation/shadow-cache" in html
     assert "Telegram opt-in persistence" in html
+    assert "Professional repo posture" in html
+    assert "veo3-flow-production-prompt.md" in html
+    assert "assets/README.md" in html
     assert "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc" in html
     assert "No signing. No broadcasts." in html
     assert ("Latest media refresh:" in html) or ("Last video/proof-page baseline:" in html)

@@ -385,12 +385,20 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert brief_body["project"]["name"] == "0guard"
     assert brief_body["dataProduct"]["incidentCount"] == 28
     assert brief_body["submissionRequirements"]["publicXPost"]["mandatory"] is True
+    assert brief_body["repoProfessionalization"]["license"] == "Apache-2.0"
+    assert brief_body["repoProfessionalization"]["ready"] is True
 
     packet = client.get("/api/hackathon/submission-packet")
     assert packet.status_code == 200
     packet_body = packet.get_json()
     assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
     assert packet_body["formFields"]["demoVideoUrl"].endswith("0guard-hackquest-demo-final.mp4")
+    assert packet_body["formFields"]["veo3FlowProductionPacket"].endswith(
+        "veo3-flow-production-prompt.md"
+    )
+    assert packet_body["repoProfessionalization"]["assetRegistryUrl"].endswith(
+        "assets/README.md"
+    )
     assert packet_body["xPost"]["mediaPath"].endswith("0guard-workbench-provenance.png")
     assert packet_body["safety"]["rawPayloadsReturned"] is False
 
@@ -400,6 +408,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert readiness_body["schema"] == "0guard.hackquest_readiness_audit.v1"
     assert readiness_body["mainnetRequirement"]["chainId"] == 16661
     assert readiness_body["submittableNow"] is True
+    assert readiness_body["repoProfessionalization"]["ready"] is True
     assert readiness_body["safety"]["rawPayloadsReturned"] is False
 
     passport = client.get("/api/hackathon/threat-passport")

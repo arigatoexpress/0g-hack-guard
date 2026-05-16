@@ -1,14 +1,15 @@
 # 0guard Final HackQuest Submission Checklist
 
-Snapshot date: May 15, 2026.
+Snapshot date: May 16, 2026.
 
 Official source: https://www.hackquest.io/hackathons/0G-APAC-Hackathon
 
 Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 09:59 MDT in Denver.
 
-Status: submitted to HackQuest, updated with Telegram Mini App proof, and
-verified by public readback on May 15, 2026 at 20:28:18 UTC.
+Status: submitted to HackQuest, updated with Telegram Mini App proof, refreshed
+with the professional repo/video packet, and verified by public readback on
+May 16, 2026 at 14:14:05 UTC.
 
 Public project: https://www.hackquest.io/projects/0guard
 
@@ -41,6 +42,11 @@ Submission proof artifact: `docs/hackathon-0g/hackquest-submission-proof.json`
   https://chainscan.0g.ai/tx/64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed
 - Copy/paste form packet: `docs/hackathon-0g/submission-form-fields.md`
 - Judge proof drill: `docs/hackathon-0g/threat-receipt-passport.md`
+- License/source policy: Apache-2.0, `NOTICE`, and
+  `docs/LEGAL_AND_ASSET_POLICY.md`
+- Public asset registry: `docs/hackathon-0g/assets/README.md`
+- Professional Flow/Veo production packet:
+  `docs/hackathon-0g/veo3-flow-production-prompt.md`
 
 ## Mainnet Proof Ready
 
@@ -112,6 +118,15 @@ shows:
 - the signature map showing 28/28 detector coverage, including the promoted
   `Quant` EIP-7702 delegated batch access-control detector
 
+Professional replacement packet:
+
+```text
+https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md
+```
+
+Use it for a later polished cut only after reviewing every generated clip for
+no fake external actions, no private data, and readable proof overlays.
+
 ## Required X Post
 
 Requirement: one public X post with project name, screenshot or short clip,
@@ -181,6 +196,8 @@ Expected high-signal fields:
 5. Refreshed the submitted application copy and custom 0G proof field with the
    production Telegram Mini App, proof packet, 100% fill progress, and current
    project-image assets.
+6. Refreshed the public proof packet with Apache-2.0 licensing, source/asset
+   policy, asset registry, and Flow/Veo production-packet links.
 
 ## Manual Recovery Note
 

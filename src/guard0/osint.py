@@ -37,6 +37,9 @@ DEFAULT_HACKQUEST_SUBMISSION_PROOF_PATH = (
 DEFAULT_DEMO_VIDEO_PATH = (
     REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "0guard-hackquest-demo-final.mp4"
 )
+DEFAULT_VEO_PACKET_PATH = REPO_ROOT / "docs" / "hackathon-0g" / "veo3-flow-production-prompt.md"
+DEFAULT_ASSET_REGISTRY_PATH = REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "README.md"
+DEFAULT_LEGAL_POLICY_PATH = REPO_ROOT / "docs" / "LEGAL_AND_ASSET_POLICY.md"
 OSINT_REGISTRY_SCHEMA = "0guard.osint_source_registry.v1"
 OSINT_READINESS_SCHEMA = "0guard.osint_readiness.v1"
 OSINT_SIGNALS_SCHEMA = "0guard.osint_signals.v1"
@@ -67,6 +70,17 @@ PUBLIC_DEMO_VIDEO_URL = (
     "0guard-hackquest-demo-final.mp4"
 )
 PUBLIC_X_POST_URL = "https://x.com/rariwrldd/status/2054779961425461542"
+PUBLIC_VEO_PACKET_URL = (
+    "https://arigatoexpress.github.io/0guard/hackathon-0g/"
+    "veo3-flow-production-prompt.md"
+)
+PUBLIC_ASSET_REGISTRY_URL = (
+    "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md"
+)
+PUBLIC_LEGAL_POLICY_URL = (
+    "https://github.com/arigatoexpress/0guard/blob/main/docs/LEGAL_AND_ASSET_POLICY.md"
+)
+PUBLIC_NOTICE_URL = "https://github.com/arigatoexpress/0guard/blob/main/NOTICE"
 DEMO_VIDEO_PLACEHOLDER = "OPERATOR_REQUIRED_DEMO_VIDEO_URL"
 X_POST_PLACEHOLDER = "OPERATOR_REQUIRED_X_POST_URL"
 HACKQUEST_ONE_LINER = (
@@ -552,6 +566,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
     submission_ready = _hackquest_submission_ready(submission_proof)
     demo_video_ready = _demo_video_url() != DEMO_VIDEO_PLACEHOLDER
     x_post_ready = _x_post_url() != X_POST_PLACEHOLDER
+    professionalization = _repo_professionalization_status()
     return {
         "schema": HACKATHON_BRIEF_SCHEMA,
         "generatedAt": _now(),
@@ -628,7 +643,15 @@ def hackathon_submission_brief() -> dict[str, Any]:
                 "status": "ready_with_known_gaps",
                 "judgeFastPath": "README plus docs/hackathon-0g/",
             },
+            "repositoryProfessionalization": {
+                "required": False,
+                "status": "ready" if professionalization["ready"] else "needs_fix",
+                "license": professionalization["license"],
+                "publicVideoProductionPacket": professionalization["veoPacketUrl"],
+                "assetRegistry": professionalization["assetRegistryUrl"],
+            },
         },
+        "repoProfessionalization": professionalization,
         "judgeStory": [
             "AI agents can request wallet actions faster than humans can review them.",
             "0guard intercepts intent before the wallet, signer, bridge, or send path.",
@@ -683,6 +706,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Submission brief API for judge/operator readback.",
             "0G mainnet PolicyReceiptAnchor deployment and one anchored threat receipt.",
             "Read-only cross-chain integration catalog and Virtuals/Base facilitator manifest.",
+            "Apache-2.0 repo posture with NOTICE, source/asset policy, asset registry, and a Flow/Veo production packet for the polished post-submit cut.",
         ],
         "operatorRequired": _operator_required_steps(),
         "claimsToAvoid": [
@@ -708,6 +732,7 @@ def hackquest_submission_packet() -> dict[str, Any]:
     one_liner = HACKQUEST_ONE_LINER
     submission_proof = _load_hackquest_submission_proof()
     submission_ready = _hackquest_submission_ready(submission_proof)
+    professionalization = brief["repoProfessionalization"]
 
     return {
         "schema": HACKQUEST_PACKET_SCHEMA,
@@ -739,6 +764,10 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "readiness_audit",
                 "threat_receipt_passport",
                 "threat_receipt_passport_api",
+                "apache_2_license",
+                "notice_and_asset_policy",
+                "asset_registry",
+                "veo3_flow_production_packet",
                 *(
                     [
                         "hackquest_project_submitted",
@@ -812,8 +841,15 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "hackQuestSubmissionProof": (
                 "docs/hackathon-0g/hackquest-submission-proof.json"
             ),
+            "license": professionalization["license"],
+            "notice": "NOTICE",
+            "sourceAndAssetPolicy": "docs/LEGAL_AND_ASSET_POLICY.md",
+            "assetRegistry": "docs/hackathon-0g/assets/README.md",
+            "veo3FlowProductionPacket": "docs/hackathon-0g/veo3-flow-production-prompt.md",
+            "veo3FlowProductionPacketUrl": professionalization["veoPacketUrl"],
         },
         "hackQuestSubmission": brief["hackQuestSubmission"],
+        "repoProfessionalization": professionalization,
         "proofPoints": [
             {
                 "label": "Live 0G read proof",
@@ -842,6 +878,14 @@ def hackquest_submission_packet() -> dict[str, Any]:
                     f"{provenance['coverage']['withMatchedEvidence']}/"
                     f"{provenance['coverage']['incidentCount']} incidents have reviewed "
                     "derived source evidence without mirroring raw upstream payloads."
+                ),
+            },
+            {
+                "label": "Professional repo and media posture",
+                "route": "docs/LEGAL_AND_ASSET_POLICY.md",
+                "claim": (
+                    "Repo license, source-rights policy, asset registry, and Flow/Veo "
+                    "production packet are explicit and public."
                 ),
             },
         ],
@@ -1069,6 +1113,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
     x_post_ready = x_post_url != X_POST_PLACEHOLDER
     x_post = _load_x_post_text(REPO_ROOT / "content" / "hackquest_x_post.json")
     x_thread = _load_x_post_text(REPO_ROOT / "content" / "hack_guard_thread.json")
+    professionalization = _repo_professionalization_status()
 
     requirements = [
         _requirement(
@@ -1181,6 +1226,19 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "Use the packet as the final form source of truth.",
         ),
         _requirement(
+            "repo_professionalization",
+            "License, asset policy, and professional video packet",
+            "ready" if professionalization["ready"] else "needs_fix",
+            [
+                f"License: {professionalization['license']}",
+                "NOTICE",
+                "docs/LEGAL_AND_ASSET_POLICY.md",
+                "docs/hackathon-0g/assets/README.md",
+                "docs/hackathon-0g/veo3-flow-production-prompt.md",
+            ],
+            "Keep Apache-2.0, NOTICE, source/asset policy, asset registry, and Flow/Veo packet public.",
+        ),
+        _requirement(
             "provenance_data",
             "Source-aware OSINT/provenance evidence",
             "ready",
@@ -1268,6 +1326,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "verifiedAt": submission_proof.get("verified_at") if submission_proof else None,
             "projectUrl": HACKQUEST_PUBLIC_PROJECT_URL,
         },
+        "repoProfessionalization": professionalization,
         "submittableNow": len(blockers) == 0,
         "statusCounts": counts,
         "requirements": requirements,
@@ -1283,6 +1342,7 @@ def hackquest_readiness_audit() -> dict[str, Any]:
             "Keep source/provenance docs current if official requirements change.",
             "Run the readiness audit, tests, browser smoke, and public readbacks during review.",
             "Replace the generated video or X link only if Ari wants a later edited version.",
+            "Use the Flow/Veo production packet for a polished post-submit video replacement only after human review.",
         ],
         "operatorOnlyActions": []
         if submission_ready
@@ -1838,6 +1898,54 @@ def _demo_video_url() -> str:
     if DEFAULT_DEMO_VIDEO_PATH.exists():
         return PUBLIC_DEMO_VIDEO_URL
     return DEMO_VIDEO_PLACEHOLDER
+
+
+def _repo_professionalization_status() -> dict[str, Any]:
+    license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
+    pyproject_text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    solidity_sources = [
+        REPO_ROOT / "contracts" / "PolicyReceiptAnchor.sol",
+        REPO_ROOT / "contracts" / "PolicyReceiptAnchorV2.sol",
+        REPO_ROOT / "foundry" / "src" / "PolicyReceiptAnchor.sol",
+    ]
+    expected_paths = [
+        REPO_ROOT / "NOTICE",
+        DEFAULT_LEGAL_POLICY_PATH,
+        DEFAULT_ASSET_REGISTRY_PATH,
+        DEFAULT_VEO_PACKET_PATH,
+    ]
+    apache_license = (
+        "Apache License" in license_text
+        and 'license = {text = "Apache-2.0"}' in pyproject_text
+    )
+    solidity_spdx = all(
+        path.exists()
+        and path.read_text(encoding="utf-8").startswith(
+            "// SPDX-License-Identifier: Apache-2.0"
+        )
+        for path in solidity_sources
+    )
+    required_docs_ready = all(path.exists() for path in expected_paths)
+    return {
+        "schema": "0guard.repo_professionalization.v1",
+        "ready": bool(apache_license and solidity_spdx and required_docs_ready),
+        "license": "Apache-2.0" if apache_license else "needs_review",
+        "noticePath": "NOTICE",
+        "noticeUrl": PUBLIC_NOTICE_URL,
+        "sourceAndAssetPolicyPath": "docs/LEGAL_AND_ASSET_POLICY.md",
+        "sourceAndAssetPolicyUrl": PUBLIC_LEGAL_POLICY_URL,
+        "assetRegistryPath": "docs/hackathon-0g/assets/README.md",
+        "assetRegistryUrl": PUBLIC_ASSET_REGISTRY_URL,
+        "veoPacketPath": "docs/hackathon-0g/veo3-flow-production-prompt.md",
+        "veoPacketUrl": PUBLIC_VEO_PACKET_URL,
+        "soliditySpdxAligned": solidity_spdx,
+        "generatedResidueTracked": False,
+        "videoReplacementPolicy": (
+            "Use generated clips only as supporting visuals around real product footage; "
+            "replace the public MP4 only after manual review confirms no fake external "
+            "actions, no private data, and readable proof overlays."
+        ),
+    }
 
 
 def _x_post_url() -> str:
