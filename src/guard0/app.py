@@ -3,6 +3,8 @@ Flask API & Dashboard for 0G Hack Guard
 ========================================
 Endpoints:
   GET  /api/health
+  GET  /api/healthz
+  GET  /healthz
   GET  /api/frontend-contract
   GET  /api/external-action-contracts
   POST /api/evaluate
@@ -1449,6 +1451,8 @@ def api_health():
     )
 
 
+@app.route("/api/healthz", methods=["GET"])
+@app.route("/healthz/", methods=["GET"])
 @app.route("/healthz", methods=["GET"])
 def healthz():
     payload = api_health().get_json()

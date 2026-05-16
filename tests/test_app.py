@@ -48,6 +48,18 @@ def test_health(client):
     assert data["0g_receipt_contract"] == "0x0000000000000000000000000000000000000000"
 
 
+def test_healthz_aliases(client):
+    for path in ("/healthz", "/healthz/", "/api/healthz"):
+        r = client.get(path)
+        assert r.status_code == 200
+        data = r.get_json()
+        assert data["schema"] == "0guard.healthz.v1"
+        assert data["ok"] is True
+        assert data["service"] == "zg-hack-guard"
+        assert data["safety_flags"]["telegram_sends_enabled"] is False
+        assert data["safety_flags"]["money_movement_enabled"] is False
+
+
 def test_module_entrypoint_honors_container_host_env(monkeypatch):
     run_args = {}
 

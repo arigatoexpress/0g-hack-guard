@@ -59,6 +59,26 @@ def main(argv: list[str] | None = None) -> int:
     checks: list[Check] = []
     payload: dict[str, Any] = {"baseUrl": base_url, "tokenPrinted": False}
 
+    health_path, health = _load_health(base_url)
+    safety_flags = health.get("safety_flags") or {}
+    payload["health"] = {
+        "path": health_path,
+        "schema": health.get("schema", "legacy"),
+        "ok": health.get("ok"),
+        "service": health.get("service"),
+        "readOnly": safety_flags.get("read_only"),
+        "telegramSendsEnabled": safety_flags.get("telegram_sends_enabled"),
+        "moneyMovementEnabled": safety_flags.get("money_movement_enabled"),
+    }
+    checks.extend(
+        [
+            Check("health_endpoint", health.get("service") == "zg-hack-guard", health_path),
+            Check("health_read_only", safety_flags.get("read_only") is True, str(safety_flags.get("read_only"))),
+            Check("health_telegram_sends_disabled", safety_flags.get("telegram_sends_enabled") is False, _disabled_label(safety_flags.get("telegram_sends_enabled"))),
+            Check("health_money_movement_disabled", safety_flags.get("money_movement_enabled") is False, _disabled_label(safety_flags.get("money_movement_enabled"))),
+        ]
+    )
+
     status = _get_json(f"{base_url}/api/telegram/status")
     payload["telegramStatus"] = _status_summary(status)
     checks.extend(
@@ -203,6 +223,15 @@ def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str] | None
     response = requests.post(url, json=payload, headers=headers or {}, timeout=30)
     response.raise_for_status()
     return response.json()
+
+
+def _load_health(base_url: str) -> tuple[str, dict[str, Any]]:
+    try:
+        return "/api/healthz", _get_json(f"{base_url}/api/healthz")
+    except requests.HTTPError as exc:
+        if exc.response is None or exc.response.status_code != 404:
+            raise
+    return "/api/health", _get_json(f"{base_url}/api/health")
 
 
 def _signed_demo_init_data(bot_token: str) -> str:
