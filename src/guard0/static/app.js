@@ -321,6 +321,11 @@ async function loadOsintSignals(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadPhishDestroyWorker(){
+  const r = await fetch('/api/reputation/connectors/live?live=1&limit=5');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadEvolvingIntel(){
   const r = await fetch('/api/intelligence/evolving?limit=10');
   const j = await r.json();
@@ -333,6 +338,11 @@ async function loadIntelligenceStreamPlan(){
 }
 async function loadIntelligenceEvents(){
   const r = await fetch('/api/intelligence/events?live=1&limit=10');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadDetectorCandidates(){
+  const r = await fetch('/api/intelligence/detector-candidates?live=1&limit=10');
   const j = await r.json();
   writeJson('osint-output', j);
 }
@@ -597,9 +607,11 @@ document.getElementById('run-threat-case-file').addEventListener('click', runThr
 document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);
 document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
+document.getElementById('load-phishdestroy-worker').addEventListener('click', loadPhishDestroyWorker);
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
 document.getElementById('load-intelligence-events').addEventListener('click', loadIntelligenceEvents);
+document.getElementById('load-detector-candidates').addEventListener('click', loadDetectorCandidates);
 document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);
 document.getElementById('load-production-readiness').addEventListener('click', loadProductionReadiness);
 document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
