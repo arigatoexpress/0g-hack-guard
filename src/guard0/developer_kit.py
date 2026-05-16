@@ -47,6 +47,10 @@ def developer_kit_manifest() -> dict[str, Any]:
                     "intent": {"mode": "preview"},
                 },
             },
+            "cliAdapterNormalizeProbe": (
+                "python3 -m guard0.cli normalize-reputation-adapter "
+                "--payload-json '{\"sourceId\":\"chainabuse\",\"payload\":{\"reported_count\":1}}'"
+            ),
         },
         "routes": [
             {
@@ -93,6 +97,16 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "method": "GET/POST",
                 "path": "/api/reputation/connectors",
                 "purpose": "No-network manifest for GoPlus, Chainabuse, Forta, TON, simulation, and cross-chain connector activation.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/reputation/adapters",
+                "purpose": "No-network normalization contract for GoPlus, Chainabuse, and Forta payload shapes.",
+            },
+            {
+                "method": "POST",
+                "path": "/api/reputation/adapters/normalize",
+                "purpose": "Convert caller-provided external reputation payloads into derived evidence without echoing raw source payloads.",
             },
             {
                 "method": "POST",

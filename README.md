@@ -129,6 +129,10 @@ python3 -m guard0.cli hack-check \
 python3 -m guard0.cli native-preflight \
   --payload-json '{"surface":"evm","operation":"read_status","chain":"eip155:8453"}'
 
+# Normalize reviewed upstream reputation evidence without fetching
+python3 -m guard0.cli normalize-reputation-adapter \
+  --payload-json '{"sourceId":"chainabuse","payload":{"reported_count":1}}'
+
 # Start API server
 python3 -m guard0.cli serve --port 8109
 ```
@@ -169,6 +173,8 @@ python3 -m guard0.cli serve --port 8109
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
 | `GET/POST` | `/api/reputation/probe` | Rights-aware domain, counterparty, label, source-evidence, and intent reputation probe; raw payloads are not returned |
 | `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for GoPlus, Chainabuse, Forta, TON, simulation, and cross-chain intelligence feeds |
+| `GET`  | `/api/reputation/adapters` | No-network normalization contract for GoPlus, Chainabuse, and Forta payload shapes |
+| `POST` | `/api/reputation/adapters/normalize` | Converts caller-provided external reputation payloads into derived source evidence without echoing raw source payloads |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
 | `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |

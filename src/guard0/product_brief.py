@@ -36,6 +36,7 @@ def product_brief() -> dict[str, Any]:
             "Clear wedge: protect the moment before wallet custody, not after a signature prompt appears.",
             "A composed threat case file turns one risky agent action into judge/operator-readable evidence.",
             "A frontier experiment lab ranks the next integrations while proving no live side effects occurred.",
+            "A no-network adapter normalizer turns GoPlus, Chainabuse, and Forta-shaped payloads into derived evidence.",
             "Real source-linked incident data and detector coverage instead of mock security claims.",
             "A live Telegram Mini App surface that remains preview-only and no-send.",
             "Portable developer-kit routes that other wallets, agents, Mini Apps, CI jobs, and dWallet flows can call.",
@@ -43,7 +44,8 @@ def product_brief() -> dict[str, Any]:
         ],
         "honestLimits": [
             "0G Storage upload/readback and 0G Compute inference are prepared as product lanes, not silently enabled from the workbench.",
-            "GoPlus, Chainabuse, Forta, TONAPI, and simulation feeds are activation-ready connectors, but external calls remain disabled until keys and terms are reviewed.",
+            "GoPlus, Chainabuse, Forta, TONAPI, and simulation feed live fetches are activation-ready but disabled until keys and terms are reviewed.",
+            "The GoPlus/Chainabuse/Forta normalizer is live for caller-provided payloads and returns only derived evidence.",
             "The Telegram bot and Mini App are live, but outbound Telegram sends are intentionally disabled.",
             "X, LinkedIn, Substack, wallet signing, x402 settlement, bridge/swap actions, and exchange actions require separate operator-controlled paths.",
         ],
@@ -52,7 +54,7 @@ def product_brief() -> dict[str, Any]:
                 "rank": 1,
                 "id": "reputation_connector_activation",
                 "why": "Highest practical value for wallet/domain safety and Telegram alerts.",
-                "ship": "Enable one external connector first, probably GoPlus or Chainabuse, behind credentials and derived-output tests.",
+                "ship": "Enable one external connector worker first, probably GoPlus or Chainabuse, and route it through the existing derived-output normalizer.",
             },
             {
                 "rank": 2,
@@ -124,7 +126,12 @@ def _built_systems(summary: dict[str, Any], coverage: dict[str, Any]) -> list[di
             "label": "Reputation probe",
             "status": "live_local_derived",
             "whatItDoes": "Scores domains, counterparties, labels, source evidence, and intent context without returning raw source payloads.",
-            "proofRoutes": ["/api/reputation/probe", "/api/reputation/connectors"],
+            "proofRoutes": [
+                "/api/reputation/probe",
+                "/api/reputation/connectors",
+                "/api/reputation/adapters",
+                "/api/reputation/adapters/normalize",
+            ],
         },
         {
             "id": "threat_case_file",

@@ -271,6 +271,7 @@ def _build_reputation_context(
         "signalCount": probe["signalCount"],
         "signals": probe["signals"],
         "receipt": probe["receipt"],
+        "adapterEvidence": context.get("adapterEvidence"),
         "rightsPolicy": probe["rightsPolicy"],
         "safety": probe["safety"],
     }

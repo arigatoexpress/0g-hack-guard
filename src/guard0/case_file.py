@@ -12,6 +12,7 @@ from guard0.crypto_hack_guard import check_crypto_hack_signatures
 from guard0.osint import incident_provenance_matrix, signature_map, threat_receipt_passport
 from guard0.policy import evaluate_intent, normalize_intent
 from guard0.reputation import build_reputation_probe
+from guard0.reputation_adapters import normalize_reputation_adapters_from_payload
 from guard0.wallet_alerts import build_wallet_alert_preview
 
 THREAT_CASE_FILE_SCHEMA = "0guard.threat_case_file.v1"
@@ -42,6 +43,8 @@ def build_threat_case_file(payload: dict[str, Any] | None = None) -> dict[str, A
         enable_0g_storage=True,
     ).to_dict()
     hack = check_crypto_hack_signatures(normalized_intent).to_dict()
+    adapter_previews = normalize_reputation_adapters_from_payload(body)
+    source_evidence = _combined_source_evidence(body, adapter_previews)
     reputation = build_reputation_probe(
         {
             "url": subject["url"],
@@ -49,7 +52,7 @@ def build_threat_case_file(payload: dict[str, Any] | None = None) -> dict[str, A
             "chain": subject["chain"],
             "surface": "threat_case_file",
             "labels": body.get("labels") or ["agent preflight case file"],
-            "sourceEvidence": body.get("sourceEvidence") or body.get("evidence") or [],
+            "sourceEvidence": source_evidence,
             "intent": intent,
         }
     )
@@ -60,7 +63,7 @@ def build_threat_case_file(payload: dict[str, Any] | None = None) -> dict[str, A
             "url": subject["url"],
             "address": subject["counterparty"],
             "chain": subject["chain"],
-            "sourceEvidence": body.get("sourceEvidence") or body.get("evidence") or [],
+            "sourceEvidence": source_evidence,
         },
         live=False,
         max_alerts=3,
@@ -98,6 +101,10 @@ def build_threat_case_file(payload: dict[str, Any] | None = None) -> dict[str, A
             "hackSignatureCount": len(hack.get("signatures_matched") or []),
             "iocHitCount": len(hack.get("iocs_hit") or []),
             "reputationDecision": reputation["decision"]["decision"],
+            "adapterEvidenceCount": sum(
+                preview["derivedEvidenceCount"] for preview in adapter_previews
+            ),
+            "adapterSourceIds": [preview["sourceId"] for preview in adapter_previews],
             "walletAlertCount": wallet_alert["alertCount"],
             "datasetCoverage": {
                 "incidentCount": sig_map.get("incidentCount"),
@@ -107,6 +114,7 @@ def build_threat_case_file(payload: dict[str, Any] | None = None) -> dict[str, A
             },
         },
         "subject": _public_subject(subject, normalized_intent),
+        "adapterEvidence": _public_adapter_evidence(adapter_previews),
         "evidence": evidence,
         "operatorNextSteps": _operator_next_steps(decision),
         "receipt": {
@@ -166,6 +174,42 @@ def _subject(body: dict[str, Any], intent: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _combined_source_evidence(
+    body: dict[str, Any],
+    adapter_previews: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    evidence = body.get("sourceEvidence") or body.get("source_evidence") or body.get("evidence") or []
+    if isinstance(evidence, dict):
+        evidence = [evidence]
+    if not isinstance(evidence, list):
+        evidence = []
+    combined = [item for item in evidence if isinstance(item, dict)]
+    for preview in adapter_previews:
+        combined.extend(preview.get("derivedEvidence") or [])
+    return combined
+
+
+def _public_adapter_evidence(adapter_previews: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "enabled": bool(adapter_previews),
+        "sourceIds": [preview["sourceId"] for preview in adapter_previews],
+        "derivedEvidenceCount": sum(preview["derivedEvidenceCount"] for preview in adapter_previews),
+        "rawPayloadsReturned": False,
+        "previews": [
+            {
+                "schema": preview["schema"],
+                "sourceId": preview["sourceId"],
+                "rawPayloadReturned": preview["rawPayloadReturned"],
+                "rawPayloadHash": preview["rawPayloadHash"],
+                "derivedEvidenceCount": preview["derivedEvidenceCount"],
+                "reputationDecision": preview["reputationPreview"]["decision"]["decision"],
+                "nextStep": preview["nextStep"],
+            }
+            for preview in adapter_previews
+        ],
+    }
+
+
 def _rollup(decisions: list[Any]) -> dict[str, str]:
     normalized = [str(item or "").lower() for item in decisions]
     if "deny" in normalized:
@@ -217,6 +261,11 @@ def _evidence(
     provenance: dict[str, Any],
     passport: dict[str, Any],
 ) -> list[dict[str, Any]]:
+    adapter_evidence = [
+        signal.get("evidence", {}).get("sourceId")
+        for signal in reputation.get("signals", [])
+        if signal.get("id") == "source_negative_vote" and signal.get("evidence", {}).get("sourceId")
+    ]
     rows = [
         {
             "id": "policy_engine",
@@ -249,6 +298,17 @@ def _evidence(
                 for signal in reputation.get("signals", [])[:5]
             ],
             "hash": reputation["receipt"]["hash"],
+        },
+        {
+            "id": "reputation_adapter_evidence",
+            "kind": "normalized_external_adapter",
+            "summary": (
+                f"{len(adapter_evidence)} normalized external source signals"
+                if adapter_evidence
+                else "no external adapter payload supplied"
+            ),
+            "sourceIds": sorted(set(adapter_evidence)) or ["none_supplied"],
+            "hash": _hash_json(sorted(set(adapter_evidence))),
         },
         {
             "id": "wallet_alert_quality",

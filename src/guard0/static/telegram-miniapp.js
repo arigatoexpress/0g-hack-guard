@@ -11,6 +11,16 @@ function miniappSetPill(id, text, state){
   node.className = `pill ${state}`;
 }
 
+function miniappShortHash(value){
+  if(!value || typeof value !== 'string'){
+    return 'pending';
+  }
+  if(value.length <= 18){
+    return value;
+  }
+  return value.slice(0, 10) + '...' + value.slice(-6);
+}
+
 async function miniappPostJson(url, payload){
   const response = await fetch(url, {
     method: 'POST',
@@ -110,10 +120,28 @@ function miniappRenderPreview(data){
   const verdict = data.uiSummary && data.uiSummary.verdict ? data.uiSummary.verdict : 'review';
   const reason = data.uiSummary && data.uiSummary.topReason ? data.uiSummary.topReason : 'No reason returned.';
   const message = data.message || 'No message preview returned.';
+  const walletAlert = data.walletAlert || {};
+  const reputation = walletAlert.reputation || {};
+  const adapterEvidence = reputation.adapterEvidence || {};
+  const topAlert = walletAlert.alerts && walletAlert.alerts.length ? walletAlert.alerts[0] : null;
+  const sourceIds = adapterEvidence.sourceIds && adapterEvidence.sourceIds.length
+    ? adapterEvidence.sourceIds
+    : topAlert && topAlert.sourceIds ? topAlert.sourceIds : [];
+  const receiptHash = topAlert && topAlert.receiptHash
+    ? topAlert.receiptHash
+    : walletAlert.decision && walletAlert.decision.receiptHash;
   document.getElementById('miniapp-flow').dataset.verdict = verdict;
   document.getElementById('miniapp-verdict').textContent = verdict;
   document.getElementById('miniapp-reason').textContent = reason;
   document.getElementById('miniapp-alert-message').textContent = message;
+  document.getElementById('miniapp-evidence-verdict').textContent = `${verdict} / ${data.uiSummary.severity || 'unknown'}`;
+  document.getElementById('miniapp-evidence-source').textContent = sourceIds.length
+    ? sourceIds.slice(0, 3).join(', ')
+    : 'local policy';
+  document.getElementById('miniapp-evidence-boundary').textContent = adapterEvidence.derivedEvidenceCount
+    ? `${adapterEvidence.derivedEvidenceCount} derived signals, raw payload hidden`
+    : 'preview only, raw payload hidden';
+  document.getElementById('miniapp-evidence-receipt').textContent = miniappShortHash(receiptHash);
   miniappWriteJson('miniapp-output', data);
   miniappWriteJson('miniapp-mira-output', data.mira);
   miniappWriteJson('miniapp-quality-output', data.qualityPolicy);

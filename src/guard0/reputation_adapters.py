@@ -1,0 +1,464 @@
+"""No-network reputation adapter normalization for external feeds.
+
+The adapter layer is intentionally not a fetcher. It accepts caller-provided
+evidence that came from a reviewed connector worker and converts it into the
+derived source-evidence shape consumed by /api/reputation/probe and
+/api/threat-case-file. Raw upstream payloads are hashed, summarized, and
+discarded from the public response.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from datetime import datetime, timezone
+from typing import Any
+
+from guard0.reputation import build_reputation_probe
+
+REPUTATION_ADAPTER_CATALOG_SCHEMA = "0guard.reputation_adapter_catalog.v1"
+REPUTATION_ADAPTER_PREVIEW_SCHEMA = "0guard.reputation_adapter_preview.v1"
+
+_ADAPTERS: tuple[dict[str, Any], ...] = (
+    {
+        "id": "goplus_security",
+        "name": "GoPlus Security",
+        "stage": "first_connector_candidate",
+        "officialDocs": [
+            "https://docs.gopluslabs.io/",
+            "https://docs.gopluslabs.io/docs/goplus-sdk",
+        ],
+        "supportedPayloads": [
+            "malicious_address",
+            "token_security",
+            "approval_security",
+            "dapp_security",
+            "signature_decode",
+            "evm_transaction_simulation",
+        ],
+        "derivedOutput": "risk_flags_confidence_source_ids_hashes_and_links",
+        "credentialRequiredForLiveFetch": True,
+    },
+    {
+        "id": "chainabuse",
+        "name": "Chainabuse reports",
+        "stage": "first_connector_candidate",
+        "officialDocs": [
+            "https://docs.chainabuse.com/docs/welcome-to-chainabuse-api",
+            "https://docs.chainabuse.com/reference/reports-1",
+            "https://docs.chainabuse.com/docs/get-reports-parameters",
+        ],
+        "supportedPayloads": ["reports", "screening_result"],
+        "derivedOutput": "reported_count_checked_confidence_categories_links_and_hashes",
+        "credentialRequiredForLiveFetch": True,
+    },
+    {
+        "id": "forta_graphql_api",
+        "name": "Forta alerts and labels",
+        "stage": "detector_stream_candidate",
+        "officialDocs": [
+            "https://docs.forta.network/en/latest/api-reference/",
+            "https://docs.forta.network/en/latest/forta-api-reference/",
+            "https://docs.forta.network/en/latest/labels/",
+        ],
+        "supportedPayloads": ["alerts", "labels"],
+        "derivedOutput": "alert_or_label_counts_severity_confidence_bot_ids_and_hashes",
+        "credentialRequiredForLiveFetch": True,
+    },
+)
+
+
+def reputation_adapter_catalog() -> dict[str, Any]:
+    """Return the supported adapter contracts without making external calls."""
+    return {
+        "schema": REPUTATION_ADAPTER_CATALOG_SCHEMA,
+        "generatedAt": _now(),
+        "mode": "adapter_contracts_no_network_calls",
+        "adapterCount": len(_ADAPTERS),
+        "adapters": [dict(adapter) for adapter in _ADAPTERS],
+        "activationOrder": ["goplus_security", "chainabuse", "forta_graphql_api"],
+        "integrationPattern": [
+            "fetch externally only from an operator-reviewed worker with credentials and retention terms",
+            "pass the upstream response to /api/reputation/adapters/normalize",
+            "persist only derived evidence, source ids, confidence, hashes, links, and receipts",
+            "route the normalized evidence through /api/reputation/probe or /api/threat-case-file",
+        ],
+        "safety": _safety(),
+        "rightsPolicy": _rights_policy(),
+    }
+
+
+def normalize_reputation_adapter_payload(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Normalize caller-provided adapter evidence without echoing raw payloads."""
+    body = payload or {}
+    if not isinstance(body, dict):
+        raise ValueError("payload must be an object")
+
+    source_id = str(body.get("sourceId") or body.get("source_id") or "").strip()
+    if not source_id:
+        raise ValueError("sourceId is required")
+    if source_id not in {adapter["id"] for adapter in _ADAPTERS}:
+        raise ValueError(f"unsupported sourceId: {source_id}")
+
+    subject = _subject(body)
+    upstream_payload = _upstream_payload(body)
+    derived = _derive(source_id, upstream_payload)
+    probe_payload = {
+        "url": subject["url"],
+        "address": subject["address"],
+        "chain": subject["chain"],
+        "surface": "reputation_adapter_normalizer",
+        "sourceEvidence": derived,
+    }
+    reputation = build_reputation_probe(probe_payload)
+    return {
+        "schema": REPUTATION_ADAPTER_PREVIEW_SCHEMA,
+        "generatedAt": _now(),
+        "mode": "normalize_caller_supplied_payload_no_network_calls",
+        "sourceId": source_id,
+        "subject": _public_subject(subject),
+        "rawPayloadReturned": False,
+        "rawPayloadHash": _hash_json(upstream_payload),
+        "derivedEvidenceCount": len(derived),
+        "derivedEvidence": derived,
+        "recommendedProbePayload": {
+            "urlHash": _hash_text(subject["url"]) if subject["url"] else "",
+            "addressRedacted": _redact(subject["address"]),
+            "chain": subject["chain"],
+            "sourceEvidence": derived,
+        },
+        "reputationPreview": {
+            "schema": reputation["schema"],
+            "decision": reputation["decision"],
+            "signalCount": reputation["signalCount"],
+            "receipt": reputation["receipt"],
+            "rawPayloadsReturned": reputation["rawPayloadsReturned"],
+        },
+        "nextStep": _next_step(source_id, derived),
+        "safety": _safety(),
+        "rightsPolicy": _rights_policy(),
+    }
+
+
+def normalize_reputation_adapters_from_payload(payload: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Normalize zero or more adapter payloads embedded in a request body."""
+    body = payload or {}
+    if not isinstance(body, dict):
+        raise ValueError("payload must be an object")
+
+    candidates: list[dict[str, Any]] = []
+    for key in ("reputationAdapter", "reputation_adapter", "adapterPayload", "adapter_payload"):
+        value = body.get(key)
+        if isinstance(value, dict):
+            candidates.append(value)
+    for key in ("reputationAdapters", "reputation_adapters", "adapterPayloads", "adapter_payloads"):
+        value = body.get(key)
+        if isinstance(value, list):
+            candidates.extend(item for item in value if isinstance(item, dict))
+
+    return [normalize_reputation_adapter_payload(candidate) for candidate in candidates]
+
+
+def _derive(source_id: str, upstream_payload: dict[str, Any]) -> list[dict[str, Any]]:
+    if source_id == "goplus_security":
+        return _derive_goplus(upstream_payload)
+    if source_id == "chainabuse":
+        return _derive_chainabuse(upstream_payload)
+    if source_id == "forta_graphql_api":
+        return _derive_forta(upstream_payload)
+    return []
+
+
+def _derive_goplus(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = _flatten_records(payload)
+    risk_terms = {
+        "blacklist",
+        "phishing",
+        "honeypot",
+        "malicious",
+        "scam",
+        "risky",
+        "fake",
+        "proxy",
+        "mintable",
+        "cannot_sell",
+    }
+    signals: list[dict[str, Any]] = []
+    for row in rows or [payload]:
+        flags = []
+        for key, value in row.items():
+            key_l = str(key).lower()
+            value_l = str(value).lower()
+            if any(term in key_l for term in risk_terms) and value_l in {"1", "true", "yes"}:
+                flags.append(str(key))
+            elif key_l in {"risk_level", "security_level"} and value_l in {"high", "critical"}:
+                flags.append(f"{key}:{value}")
+        if flags:
+            signals.append(
+                _evidence(
+                    source_id="goplus_security",
+                    verdict="malicious",
+                    confidence=0.86,
+                    label="GoPlus risk flags: " + ", ".join(flags[:6]),
+                    categories=flags[:8],
+                    reference=row.get("url") or row.get("link") or row.get("reference"),
+                    raw_fragment=row,
+                )
+            )
+    if signals:
+        return signals[:5]
+    return [
+        _evidence(
+            source_id="goplus_security",
+            verdict="unknown",
+            confidence=0.35,
+            label="No high-risk GoPlus-style flags were present in the caller payload.",
+            categories=[],
+            reference=None,
+            raw_fragment=payload,
+        )
+    ]
+
+
+def _derive_chainabuse(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    reports = payload.get("reports") or payload.get("data") or payload.get("results") or []
+    if isinstance(reports, dict):
+        reports = reports.get("reports") or reports.get("items") or [reports]
+    if not isinstance(reports, list):
+        reports = []
+
+    signals = []
+    for report in reports[:10]:
+        if not isinstance(report, dict):
+            continue
+        confidence = _confidence(
+            report.get("confidence")
+            or report.get("confidenceScore")
+            or report.get("confidence_score")
+            or (0.82 if report.get("checked") else 0.62)
+        )
+        category = str(
+            report.get("category")
+            or report.get("scamCategory")
+            or report.get("scam_category")
+            or "reported_abuse"
+        )
+        checked = bool(report.get("checked") or report.get("verified"))
+        verdict = "malicious" if checked or confidence >= 0.7 else "suspicious"
+        signals.append(
+            _evidence(
+                source_id="chainabuse",
+                verdict=verdict,
+                confidence=confidence,
+                label=f"Chainabuse report: {category}",
+                categories=[category, "checked" if checked else "unchecked"],
+                reference=report.get("url") or report.get("link") or report.get("reportUrl"),
+                raw_fragment=report,
+            )
+        )
+    report_count = payload.get("reported_count") or payload.get("reportCount") or len(signals)
+    if signals:
+        return signals[:5]
+    if _int(report_count) > 0:
+        return [
+            _evidence(
+                source_id="chainabuse",
+                verdict="suspicious",
+                confidence=0.66,
+                label=f"Chainabuse reported count: {_int(report_count)}",
+                categories=["reported_abuse"],
+                reference=payload.get("url") or payload.get("link"),
+                raw_fragment=payload,
+            )
+        ]
+    return [
+        _evidence(
+            source_id="chainabuse",
+            verdict="unknown",
+            confidence=0.35,
+            label="No Chainabuse reports were present in the caller payload.",
+            categories=[],
+            reference=None,
+            raw_fragment=payload,
+        )
+    ]
+
+
+def _derive_forta(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    alerts = payload.get("alerts") or []
+    labels = payload.get("labels") or []
+    signals = []
+    for alert in alerts[:10] if isinstance(alerts, list) else []:
+        if not isinstance(alert, dict):
+            continue
+        severity = str(alert.get("severity") or alert.get("metadata", {}).get("severity") or "").lower()
+        verdict = "malicious" if severity in {"critical", "high"} else "suspicious"
+        signals.append(
+            _evidence(
+                source_id="forta_graphql_api",
+                verdict=verdict,
+                confidence=0.82 if verdict == "malicious" else 0.62,
+                label=str(alert.get("name") or alert.get("alertId") or "Forta alert"),
+                categories=[severity or "unknown_severity", str(alert.get("botId") or "")],
+                reference=alert.get("sourceUrl") or alert.get("url"),
+                raw_fragment=alert,
+            )
+        )
+    for label in labels[:10] if isinstance(labels, list) else []:
+        if not isinstance(label, dict):
+            continue
+        label_value = str(label.get("label") or label.get("entityType") or "Forta label")
+        signals.append(
+            _evidence(
+                source_id="forta_graphql_api",
+                verdict="suspicious",
+                confidence=_confidence(label.get("confidence") or 0.58),
+                label=f"Forta label: {label_value}",
+                categories=[label_value],
+                reference=label.get("sourceUrl") or label.get("url"),
+                raw_fragment=label,
+            )
+        )
+    if signals:
+        return signals[:5]
+    return [
+        _evidence(
+            source_id="forta_graphql_api",
+            verdict="unknown",
+            confidence=0.35,
+            label="No Forta alerts or labels were present in the caller payload.",
+            categories=[],
+            reference=None,
+            raw_fragment=payload,
+        )
+    ]
+
+
+def _evidence(
+    *,
+    source_id: str,
+    verdict: str,
+    confidence: float,
+    label: str,
+    categories: list[str],
+    reference: Any,
+    raw_fragment: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "sourceId": source_id,
+        "verdict": verdict,
+        "confidence": round(confidence, 4),
+        "label": label[:180],
+        "categories": [str(item) for item in categories if str(item).strip()][:8],
+        "referenceUrlHash": _hash_text(str(reference)) if reference else "",
+        "evidenceHash": _hash_json(raw_fragment),
+    }
+
+
+def _subject(body: dict[str, Any]) -> dict[str, str]:
+    subject = body.get("subject") if isinstance(body.get("subject"), dict) else {}
+    return {
+        "url": str(subject.get("url") or body.get("url") or body.get("domain") or ""),
+        "address": str(subject.get("address") or body.get("address") or body.get("target") or ""),
+        "chain": str(subject.get("chain") or body.get("chain") or ""),
+    }
+
+
+def _public_subject(subject: dict[str, str]) -> dict[str, str]:
+    return {
+        "urlHash": _hash_text(subject["url"]) if subject["url"] else "",
+        "addressRedacted": _redact(subject["address"]),
+        "chain": subject["chain"],
+    }
+
+
+def _upstream_payload(body: dict[str, Any]) -> dict[str, Any]:
+    payload = body.get("payload")
+    if isinstance(payload, dict):
+        return payload
+    return {
+        key: value
+        for key, value in body.items()
+        if key not in {"sourceId", "source_id", "subject", "url", "domain", "address", "target", "chain"}
+    }
+
+
+def _flatten_records(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    result = payload.get("result") or payload.get("data") or payload.get("results") or payload
+    if isinstance(result, list):
+        return [row for row in result if isinstance(row, dict)]
+    if isinstance(result, dict):
+        if any(isinstance(value, dict) for value in result.values()):
+            return [value for value in result.values() if isinstance(value, dict)]
+        return [result]
+    return []
+
+
+def _next_step(source_id: str, derived: list[dict[str, Any]]) -> str:
+    if any(item["verdict"] in {"malicious", "suspicious"} for item in derived):
+        return "Pass derivedEvidence into /api/reputation/probe or /api/threat-case-file before any signer surface."
+    return f"Keep {source_id} in shadow mode until live payloads prove material alert-quality lift."
+
+
+def _confidence(value: Any) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return 0.5
+    if number > 1:
+        number = number / 100
+    return max(0.0, min(1.0, number))
+
+
+def _int(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _safety() -> dict[str, bool]:
+    return {
+        "readOnly": True,
+        "networkCalls": False,
+        "liveConnectorFetch": False,
+        "telegramSendsEnabled": False,
+        "socialPostingEnabled": False,
+        "transactionSigningEnabled": False,
+        "transactionBroadcastingEnabled": False,
+        "paymentSettlementEnabled": False,
+        "exchangeOrdersEnabled": False,
+        "bridgingEnabled": False,
+        "moneyMovementEnabled": False,
+        "rawPayloadsReturned": False,
+    }
+
+
+def _rights_policy() -> dict[str, bool]:
+    return {
+        "rawPayloadsReturned": False,
+        "rawPayloadResaleAllowed": False,
+        "sourceLinksOrHashesOnly": True,
+        "paymentIsNotPermission": True,
+        "callerPayloadTreatedAsUntrusted": True,
+    }
+
+
+def _redact(value: str) -> str:
+    value = str(value or "")
+    if len(value) <= 16:
+        return "***" if value else ""
+    return f"{value[:6]}...{value[-6:]}"
+
+
+def _hash_text(value: str) -> str:
+    return hashlib.sha256(str(value or "").encode("utf-8")).hexdigest()
+
+
+def _hash_json(value: Any) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()

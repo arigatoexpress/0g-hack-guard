@@ -64,6 +64,42 @@ Expected result: schema `0guard.reputation_connectors.v1`, with `networkCalls`
 set to `false`, raw payload return disabled, and GoPlus/Chainabuse/Forta marked
 as relevant activation candidates for an EVM address/domain subject.
 
+## Adapter Normalization Contract
+
+`GET /api/reputation/adapters` exposes the exact no-network payload families
+0guard is ready to normalize first: GoPlus Security, Chainabuse, and Forta
+alerts/labels. This is a contract, not a fetcher.
+
+`POST /api/reputation/adapters/normalize` accepts a caller-provided upstream
+payload from an operator-reviewed worker and returns only derived evidence:
+source id, verdict, confidence, labels/categories, evidence hash, reference URL
+hash, a recommended probe payload, and a preview reputation decision.
+
+Example:
+
+```bash
+curl -X POST http://127.0.0.1:8109/api/reputation/adapters/normalize \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceId": "chainabuse",
+    "subject": {
+      "url": "https://docs.0g.ai.evil.example/claim",
+      "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+      "chain": "eip155:1"
+    },
+    "payload": {
+      "reports": [
+        {"checked": true, "confidence_score": 91, "category": "phishing"}
+      ]
+    }
+  }'
+```
+
+Expected result: schema `0guard.reputation_adapter_preview.v1`,
+`rawPayloadReturned=false`, `networkCalls=false`, and a derived evidence row that
+can be passed into `/api/reputation/probe`, `/api/threat-case-file`, wallet
+alert previews, or the Telegram Mini App.
+
 ## Rights Boundary
 
 The adapter returns derived decisions, source IDs, labels, confidence, hashes,
@@ -76,6 +112,10 @@ feeds, custody credentials, or make network calls.
   caller supplies a domain, counterparty, label, or source evidence.
 - `/api/reputation/connectors` shows which external streams should be enabled
   next and under which rights/safety rules.
+- `/api/reputation/adapters/normalize` is the bridge between reviewed upstream
+  connector workers and public-safe derived evidence.
+- `/api/threat-case-file` now surfaces normalized adapter evidence as a
+  first-class evidence row without exposing raw payloads.
 - `/api/wallet/alert-preview`, `/api/telegram/wallet-alert-preview`, and
   `/api/telegram/miniapp/preview` can promote reputation `deny` or `review`
   into a concise no-send alert even when the base wallet intent is read-only.

@@ -5,6 +5,7 @@ Usage:
   0guard evaluate --intent-json '{...}'
   0guard hack-check --intent-json '{...}'
   0guard native-preflight --payload-json '{...}'
+  0guard normalize-reputation-adapter --payload-json '{...}'
   0guard health
   0guard serve
 """
@@ -18,6 +19,7 @@ from guard0.app import app
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
 from guard0.native_preflight import build_native_preflight
 from guard0.policy import evaluate_intent
+from guard0.reputation_adapters import normalize_reputation_adapter_payload
 
 
 def _print_json(obj: dict) -> None:
@@ -51,6 +53,14 @@ def cmd_native_preflight(args: argparse.Namespace) -> int:
     result = build_native_preflight(payload)
     _print_json(result)
     return 0 if result.get("decision") == "allow" else 1
+
+
+def cmd_normalize_reputation_adapter(args: argparse.Namespace) -> int:
+    payload = json.loads(args.payload_json)
+    result = normalize_reputation_adapter_payload(payload)
+    _print_json(result)
+    decision = result.get("reputationPreview", {}).get("decision", {}).get("decision")
+    return 0 if decision != "deny" else 1
 
 
 def cmd_health(_args: argparse.Namespace) -> int:
@@ -87,6 +97,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_native.add_argument("--payload-json", required=True)
     p_native.set_defaults(func=cmd_native_preflight)
+
+    p_adapter = sub.add_parser(
+        "normalize-reputation-adapter",
+        help="Normalize caller-provided GoPlus, Chainabuse, or Forta evidence without fetching",
+    )
+    p_adapter.add_argument("--payload-json", required=True)
+    p_adapter.set_defaults(func=cmd_normalize_reputation_adapter)
 
     p_health = sub.add_parser("health", help="Health check")
     p_health.set_defaults(func=cmd_health)

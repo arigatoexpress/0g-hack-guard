@@ -1,0 +1,151 @@
+"""Tests for no-network external reputation adapter normalization."""
+
+from guard0.reputation_adapters import (
+    normalize_reputation_adapters_from_payload,
+    normalize_reputation_adapter_payload,
+    reputation_adapter_catalog,
+)
+
+
+def test_reputation_adapter_catalog_is_no_network_and_rights_safe():
+    catalog = reputation_adapter_catalog()
+
+    assert catalog["schema"] == "0guard.reputation_adapter_catalog.v1"
+    assert catalog["mode"] == "adapter_contracts_no_network_calls"
+    assert catalog["adapterCount"] == 3
+    assert catalog["activationOrder"] == [
+        "goplus_security",
+        "chainabuse",
+        "forta_graphql_api",
+    ]
+    assert catalog["safety"]["networkCalls"] is False
+    assert catalog["safety"]["rawPayloadsReturned"] is False
+    assert catalog["rightsPolicy"]["rawPayloadResaleAllowed"] is False
+
+
+def test_goplus_payload_normalizes_to_deny_without_raw_payload_echo():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "goplus_security",
+            "subject": {
+                "url": "https://docs.0g.ai.evil.example/claim",
+                "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+                "chain": "eip155:1",
+            },
+            "payload": {
+                "result": {
+                    "0x02228b0afcdbeDf8180d96fc181da3af5dd1d1ab": {
+                        "blacklist_doubt": "1",
+                        "phishing_activities": "1",
+                        "url": "https://scanner.example/private-report",
+                    }
+                }
+            },
+        }
+    )
+
+    assert result["schema"] == "0guard.reputation_adapter_preview.v1"
+    assert result["sourceId"] == "goplus_security"
+    assert result["rawPayloadReturned"] is False
+    assert result["rawPayloadHash"]
+    assert result["subject"]["addressRedacted"] == "0x0222...D1d1ab"
+    assert result["derivedEvidenceCount"] == 1
+    assert result["derivedEvidence"][0]["sourceId"] == "goplus_security"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["derivedEvidence"][0]["referenceUrlHash"]
+    assert "scanner.example" not in str(result)
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
+    assert result["reputationPreview"]["rawPayloadsReturned"] is False
+    assert result["safety"]["networkCalls"] is False
+
+
+def test_chainabuse_payload_normalizes_checked_reports_to_deny():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "chainabuse",
+            "subject": {
+                "url": "https://wallet-help.example/0g",
+                "address": "0x885b0892D241Cb5033C9995e09cA521d54f936b5",
+                "chain": "eip155:1",
+            },
+            "payload": {
+                "reports": [
+                    {
+                        "checked": True,
+                        "confidence_score": 92,
+                        "category": "phishing",
+                        "reportUrl": "https://chainabuse.example/report/123",
+                    }
+                ]
+            },
+        }
+    )
+
+    assert result["sourceId"] == "chainabuse"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["derivedEvidence"][0]["confidence"] == 0.92
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
+    assert "chainabuse.example" not in str(result)
+
+
+def test_forta_payload_normalizes_alerts_and_labels_without_fetching():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "forta_graphql_api",
+            "subject": {
+                "address": "0x885b0892D241Cb5033C9995e09cA521d54f936b5",
+                "chain": "eip155:1",
+            },
+            "payload": {
+                "alerts": [
+                    {
+                        "severity": "High",
+                        "name": "Exploit-stage approval drain",
+                        "botId": "0xforta-bot",
+                        "sourceUrl": "https://forta.example/alert/abc",
+                    }
+                ],
+                "labels": [{"label": "attacker", "confidence": 0.77}],
+            },
+        }
+    )
+
+    assert result["sourceId"] == "forta_graphql_api"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["derivedEvidenceCount"] == 2
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
+    assert result["safety"]["liveConnectorFetch"] is False
+    assert result["rightsPolicy"]["sourceLinksOrHashesOnly"] is True
+
+
+def test_reputation_adapter_normalizer_rejects_unknown_source():
+    try:
+        normalize_reputation_adapter_payload({"sourceId": "unknown", "payload": {}})
+    except ValueError as exc:
+        assert "unsupported sourceId" in str(exc)
+    else:
+        raise AssertionError("unknown sourceId should be rejected")
+
+
+def test_embedded_adapter_payloads_normalize_as_a_batch():
+    previews = normalize_reputation_adapters_from_payload(
+        {
+            "reputationAdapters": [
+                {
+                    "sourceId": "chainabuse",
+                    "subject": {"url": "https://wallet-help.example"},
+                    "payload": {"reported_count": 2},
+                },
+                {
+                    "sourceId": "goplus_security",
+                    "subject": {"address": "0x885b0892D241Cb5033C9995e09cA521d54f936b5"},
+                    "payload": {"result": {"is_blacklisted": "0"}},
+                },
+            ]
+        }
+    )
+
+    assert [preview["sourceId"] for preview in previews] == ["chainabuse", "goplus_security"]
+    assert all(preview["rawPayloadReturned"] is False for preview in previews)
+    assert previews[0]["derivedEvidence"][0]["verdict"] == "suspicious"
+    assert previews[1]["derivedEvidence"][0]["verdict"] == "unknown"

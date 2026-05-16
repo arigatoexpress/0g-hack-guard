@@ -38,7 +38,8 @@ loose demo copy.
    rule additions.
 8. Maintain a rights-aware OSINT source registry with explicit source owner,
    retrieval mode, TTL, output policy, and caveats.
-9. Optionally fetch live public metadata signals from enabled adapters without
+9. Normalize reviewed external reputation payloads from GoPlus, Chainabuse, or
+   Forta into derived evidence without making public-route network calls or
    returning raw payload dumps.
 10. Promote reviewed derived source evidence into per-incident provenance fields
    while keeping unresolved root-cause claims in research/watch mode.
@@ -46,8 +47,9 @@ loose demo copy.
     current 0G Chain, Storage, DA, and Compute proof plan.
 12. Convert intent verdicts into wallet-specific alert previews with score,
     dedupe, cooldown, and Telegram no-send message text.
-13. Compose a threat case file that stitches policy, signatures, reputation,
-    alert quality, provenance, and 0G-ready receipts into one review packet.
+13. Compose a threat case file that stitches policy, signatures, normalized
+    adapter evidence, reputation, alert quality, provenance, and 0G-ready
+    receipts into one review packet.
 14. Rank and preview frontier experiments for 0G Storage/Compute, reputation,
     EVM simulation, TON, and Mira without enabling live side effects.
 
@@ -64,6 +66,8 @@ loose demo copy.
 | `/api/osint/readiness` | Catalog posture; `?live=1` performs public availability checks. |
 | `/api/osint/signals` | Normalized incident/research leads; `?live=1` fetches live public metadata. |
 | `/api/intelligence/evolving` | Detector loop, emerging gaps, live-source status, and 0G suite map. |
+| `/api/reputation/adapters` | No-network normalization contract for GoPlus, Chainabuse, and Forta payload shapes. |
+| `/api/reputation/adapters/normalize` | Converts caller-provided upstream payloads into derived evidence and hashes. |
 | `/api/wallet/alert-preview` | Wallet-specific alert scoring and digest-only emerging risk notes. |
 | `/api/threat-case-file` | Composed proof dossier for one agent intent; no signing, sends, uploads, posts, bridges, swaps, or payments. |
 | `/api/experiments/frontier` | Ranked read-only frontier experiment lab. |

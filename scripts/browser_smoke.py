@@ -226,6 +226,11 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard.reputation_probe.v1")
     expect(page.locator("#cross-chain-output")).to_contain_text('"decision": "deny"')
     expect(page.locator("#cross-chain-output")).to_contain_text('"rawPayloadsReturned": false')
+    page.locator("#load-reputation-adapters").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "0guard.reputation_adapter_catalog.v1"
+    )
+    expect(page.locator("#cross-chain-output")).to_contain_text('"networkCalls": false')
     page.locator("#run-native-preflight").click()
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard.native_preflight.v1")
     expect(page.locator("#cross-chain-output")).to_contain_text('"decision": "deny"')
@@ -314,6 +319,8 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/integrations/virtuals-facilitator" in frontend_body["apiRoutes"]
     assert "/api/integrations/external-guardrails" in frontend_body["apiRoutes"]
     assert "/api/integrations/external-guardrails/evaluate" in frontend_body["apiRoutes"]
+    assert "/api/reputation/adapters" in frontend_body["apiRoutes"]
+    assert "/api/reputation/adapters/normalize" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
@@ -331,6 +338,7 @@ def exercise_workbench(page: Page) -> None:
     assert "#run-telegram-wallet-alert-preview" in frontend_body["requiredSelectors"]
     assert "#run-threat-case-file" in frontend_body["requiredSelectors"]
     assert "#load-frontier-experiments" in frontend_body["requiredSelectors"]
+    assert "#load-reputation-adapters" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -455,6 +463,42 @@ def exercise_workbench(page: Page) -> None:
     assert guardrail_eval_body["schema"] == "0guard.external_guardrail_evaluation.v1"
     assert guardrail_eval_body["decision"] == "deny"
 
+    adapter_catalog = page.request.get(f"{BASE_URL}/api/reputation/adapters")
+    assert adapter_catalog.ok
+    adapter_catalog_body = adapter_catalog.json()
+    assert adapter_catalog_body["schema"] == "0guard.reputation_adapter_catalog.v1"
+    assert adapter_catalog_body["safety"]["networkCalls"] is False
+
+    adapter_preview = page.request.post(
+        f"{BASE_URL}/api/reputation/adapters/normalize",
+        data=json.dumps(
+            {
+                "sourceId": "chainabuse",
+                "subject": {
+                    "url": "https://docs.0g.ai.evil.example/claim",
+                    "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+                    "chain": "eip155:1",
+                },
+                "payload": {
+                    "reports": [
+                        {
+                            "checked": True,
+                            "confidence_score": 91,
+                            "category": "phishing",
+                            "reportUrl": "https://chainabuse.example/report/1",
+                        }
+                    ]
+                },
+            }
+        ),
+        headers={"content-type": "application/json"},
+    )
+    assert adapter_preview.ok
+    adapter_preview_body = adapter_preview.json()
+    assert adapter_preview_body["schema"] == "0guard.reputation_adapter_preview.v1"
+    assert adapter_preview_body["rawPayloadReturned"] is False
+    assert adapter_preview_body["reputationPreview"]["decision"]["decision"] == "deny"
+
     submission = page.request.get(f"{BASE_URL}/api/hackathon/submission-brief")
     assert submission.ok
     submission_body = submission.json()
@@ -561,6 +605,9 @@ def exercise_telegram_miniapp(page: Page) -> None:
     expect(page.locator("#miniapp-alert-message")).to_contain_text(
         "no Telegram message sent"
     )
+    expect(page.locator("#miniapp-evidence-verdict")).to_contain_text("deny")
+    expect(page.locator("#miniapp-evidence-boundary")).to_contain_text("raw payload hidden")
+    expect(page.locator("#miniapp-evidence-receipt")).not_to_contain_text("pending")
     expect(page.locator("#miniapp-mira-output")).to_contain_text("0guard.mira_preview.v1")
     expect(page.locator("#miniapp-flow")).to_have_attribute("data-verdict", "deny")
 

@@ -516,6 +516,7 @@ def _connector_row(
     subject: dict[str, Any],
 ) -> dict[str, Any]:
     retrieval_mode = str(source.get("retrieval_mode") or "")
+    adapter = str(source.get("adapter") or "")
     enabled_by_default = bool(source.get("enabled_by_default"))
     return {
         "id": source["id"],
@@ -527,7 +528,8 @@ def _connector_row(
         "adapter": source.get("adapter"),
         "retrievalMode": retrieval_mode,
         "credentialRequired": retrieval_mode in ("api_key_required", "auth_required")
-        or "paid" in retrieval_mode,
+        or "paid" in retrieval_mode
+        or adapter == "auth_required",
         "enabledByDefault": enabled_by_default,
         "appliesToSubject": _connector_applies(spec["surfaces"], subject),
         "surfaces": list(spec["surfaces"]),

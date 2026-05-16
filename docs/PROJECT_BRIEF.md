@@ -40,6 +40,7 @@ deployment gates, and x402-style paid APIs.
 | Native preflight | `/api/native-preflight` | Live |
 | Reputation probe | `/api/reputation/probe` | Live, local/derived |
 | Reputation connector manifest | `/api/reputation/connectors` | Live, no external calls |
+| Reputation adapter normalizer | `/api/reputation/adapters`, `/api/reputation/adapters/normalize` | Live, caller-provided payloads only |
 | Developer kit | `/api/developer-kit` | Live |
 | Telegram Mini App | `/telegram` | Live preview, no sends |
 | TON risk passport | `/api/ton/wallet-risk-preview` | Live preview, no wallet prompts |
@@ -49,9 +50,10 @@ deployment gates, and x402-style paid APIs.
 
 ## Honest Limits
 
-- External GoPlus, Chainabuse, Forta, TONAPI, Tenderly, and BlockSec feeds are
-  activation-ready but disabled until credentials, terms, and retention rules
-  are reviewed.
+- External GoPlus, Chainabuse, Forta, TONAPI, Tenderly, and BlockSec live fetches
+  are activation-ready but disabled until credentials, terms, and retention rules
+  are reviewed. The GoPlus/Chainabuse/Forta normalizer is live for
+  caller-provided payloads and returns only derived evidence.
 - The Mini App and bot are live, but outbound Telegram sends are disabled.
 - 0guard does not sign transactions, broadcast transactions, bridge, swap,
   settle x402 payments, create wallets, import keys, or place exchange orders.
@@ -62,8 +64,8 @@ deployment gates, and x402-style paid APIs.
 
 1. Use the threat case file as the default judge/operator walkthrough: one
    risky intent, one verdict, one evidence packet, one 0G-ready receipt.
-2. Enable one external reputation connector first, likely GoPlus or Chainabuse,
-   behind credentials and derived-output tests.
+2. Put one external reputation connector worker behind credentials, likely
+   GoPlus or Chainabuse, and route its output through the existing normalizer.
 3. Add operator-approved 0G Storage upload/readback for receipt payloads.
 4. Add EVM simulation summaries from Tenderly or BlockSec.
 5. Deepen Telegram/TON with read-only TON Center or TONAPI account context.

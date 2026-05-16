@@ -576,6 +576,34 @@ pre{
   line-height:1.45;
   white-space:pre-wrap;
 }
+.miniapp-evidence-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:12px;
+}
+.miniapp-evidence-grid div{
+  min-height:76px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#080d14;
+}
+.miniapp-evidence-grid span{
+  display:block;
+  margin-bottom:7px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.miniapp-evidence-grid strong{
+  display:block;
+  color:var(--text);
+  font-size:13px;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
 .miniapp-split{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -599,7 +627,7 @@ pre{
 }
 @media(max-width:560px){
   .miniapp-shell{padding-left:12px;padding-right:12px}
-  .miniapp-flow,.miniapp-verdict,.miniapp-form-grid,.miniapp-actions,.miniapp-split{
+  .miniapp-flow,.miniapp-verdict,.miniapp-form-grid,.miniapp-actions,.miniapp-split,.miniapp-evidence-grid{
     grid-template-columns:1fr;
   }
   .miniapp-flow-node{min-height:112px}

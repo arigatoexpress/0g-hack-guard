@@ -86,7 +86,7 @@ def test_reputation_connector_manifest_is_no_network_and_activation_ready():
     assert manifest["rightsPolicy"]["rawPayloadsReturned"] is False
     by_id = {connector["id"]: connector for connector in manifest["connectors"]}
     assert {"goplus_security", "chainabuse", "forta_graphql_api"} <= set(by_id)
-    assert by_id["goplus_security"]["credentialRequired"] is False
+    assert by_id["goplus_security"]["credentialRequired"] is True
     assert by_id["chainabuse"]["credentialRequired"] is True
     assert by_id["goplus_security"]["appliesToSubject"] is True
     assert by_id["tonapi_jettons"]["appliesToSubject"] is False

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from typing import Any
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -55,6 +56,11 @@ from guard0.reputation import (
     build_reputation_probe,
     domain_decision,
     reputation_connector_manifest,
+)
+from guard0.reputation_adapters import (
+    normalize_reputation_adapters_from_payload,
+    normalize_reputation_adapter_payload,
+    reputation_adapter_catalog,
 )
 from guard0.ton import (
     build_ton_wallet_risk_preview,
@@ -139,6 +145,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-virtuals-facilitator",
     "#load-ika-integration",
     "#run-reputation-probe",
+    "#load-reputation-adapters",
     "#run-native-preflight",
     "#load-hackathon-strategy",
     "#load-developer-kit",
@@ -185,6 +192,11 @@ MINIAPP_REQUIRED_SELECTORS = (
     "#miniapp-ton-address",
     "#miniapp-preview-ton",
     "#miniapp-alert-message",
+    "#miniapp-evidence-panel",
+    "#miniapp-evidence-verdict",
+    "#miniapp-evidence-source",
+    "#miniapp-evidence-boundary",
+    "#miniapp-evidence-receipt",
     "#miniapp-ton-output",
     "#miniapp-output",
     "#miniapp-mira-output",
@@ -639,6 +651,8 @@ def api_frontend_contract():
                 "/api/integrations/ika/evaluate",
                 "/api/reputation/probe",
                 "/api/reputation/connectors",
+                "/api/reputation/adapters",
+                "/api/reputation/adapters/normalize",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
                 "/api/developer-kit",
@@ -695,6 +709,7 @@ def api_frontend_contract():
                 "load-virtuals-facilitator",
                 "load-ika-integration",
                 "run-reputation-probe",
+                "load-reputation-adapters",
                 "run-native-preflight",
                 "load-hackathon-strategy",
                 "load-developer-kit",
@@ -946,6 +961,20 @@ def api_reputation_connectors():
         }
     try:
         return jsonify(reputation_connector_manifest(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/reputation/adapters", methods=["GET"])
+def api_reputation_adapters():
+    return jsonify(reputation_adapter_catalog())
+
+
+@app.route("/api/reputation/adapters/normalize", methods=["POST"])
+def api_reputation_adapter_normalize():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(normalize_reputation_adapter_payload(body))
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
 
@@ -1591,7 +1620,8 @@ def _request_value(body: dict, name: str, default: object) -> object:
 def _reputation_context_from_request(body: dict) -> dict | None:
     explicit = body.get("reputation") or body.get("reputation_context")
     if isinstance(explicit, dict):
-        return explicit
+        context = dict(explicit)
+        return _merge_reputation_adapter_context(context, body, explicit)
 
     source = body if request.method == "POST" else request.args
     evidence = source.get("sourceEvidence") or source.get("source_evidence") or []
@@ -1610,9 +1640,42 @@ def _reputation_context_from_request(body: dict) -> dict | None:
         "labels": labels,
         "sourceEvidence": evidence,
     }
+    context = _merge_reputation_adapter_context(
+        context,
+        body,
+        *([] if source is body else [source]),
+    )
     if any(value for value in context.values()):
         return context
     return None
+
+
+def _merge_reputation_adapter_context(
+    context: dict,
+    *payloads: Any,
+) -> dict:
+    adapter_previews: list[dict] = []
+    for payload in payloads:
+        if isinstance(payload, dict):
+            adapter_previews.extend(normalize_reputation_adapters_from_payload(payload))
+    if not adapter_previews:
+        return context
+
+    source_evidence = context.get("sourceEvidence") or context.get("source_evidence") or []
+    if isinstance(source_evidence, dict):
+        source_evidence = [source_evidence]
+    if not isinstance(source_evidence, list):
+        source_evidence = []
+    merged = [item for item in source_evidence if isinstance(item, dict)]
+    for preview in adapter_previews:
+        merged.extend(preview.get("derivedEvidence") or [])
+    context["sourceEvidence"] = merged
+    context["adapterEvidence"] = {
+        "sourceIds": [preview["sourceId"] for preview in adapter_previews],
+        "derivedEvidenceCount": sum(preview["derivedEvidenceCount"] for preview in adapter_previews),
+        "rawPayloadsReturned": False,
+    }
+    return context
 
 
 def _build_mira_claim_response(

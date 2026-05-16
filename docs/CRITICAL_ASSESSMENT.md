@@ -21,6 +21,9 @@ allow/review/deny verdict and a receipt.
    without pretending those feeds are live.
 4. **Experiment surface.** The repo needed a safe way to keep researching
    future integrations without creating false live claims.
+5. **Adapter proof surface.** The system needed a visible path from reviewed
+   upstream reputation payloads to public-safe evidence in the case file and
+   Telegram preview.
 
 ## Improvements Shipped
 
@@ -41,14 +44,18 @@ allow/review/deny verdict and a receipt.
 - Added `/api/experiments/frontier` and `/api/experiments/run`, a read-only
   frontier lab for 0G Storage/Compute, GoPlus/Chainabuse/Forta, Tenderly or
   BlockSec simulation, Telegram/TON, and Mira.
+- Added `/api/reputation/adapters` and `/api/reputation/adapters/normalize`
+  for no-network GoPlus, Chainabuse, and Forta payload normalization.
+- Promoted normalized adapter evidence into `/api/threat-case-file` and the
+  Telegram Mini App preview surface without exposing raw source payloads.
 
 ## Next Technical Priorities
 
 1. **Make the threat case file the default demo.** It is the clearest single
    surface for judges, wallet teams, agent frameworks, and operators.
-2. **Activate one reputation connector.** Start with GoPlus or Chainabuse. Keep
-   the adapter disabled by default, test with fixtures, and return only derived
-   signals.
+2. **Activate one fetch worker behind the normalizer.** Start with GoPlus or
+   Chainabuse, keep public routes no-network, test with fixtures, and return
+   only derived signals.
 3. **Add 0G Storage readback.** Store a receipt payload only through an
    operator-approved path, then prove retrieval.
 4. **Add transaction simulation summaries.** Use Tenderly or BlockSec to turn

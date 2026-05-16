@@ -124,6 +124,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
     assert "/api/reputation/probe" in data["apiRoutes"]
     assert "/api/reputation/connectors" in data["apiRoutes"]
+    assert "/api/reputation/adapters" in data["apiRoutes"]
+    assert "/api/reputation/adapters/normalize" in data["apiRoutes"]
     assert "/api/native-preflight" in data["apiRoutes"]
     assert "/api/hackathon/strategy" in data["apiRoutes"]
     assert "/api/developer-kit" in data["apiRoutes"]
@@ -172,6 +174,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-virtuals-facilitator" in data["requiredSelectors"]
     assert "#load-ika-integration" in data["requiredSelectors"]
     assert "#run-reputation-probe" in data["requiredSelectors"]
+    assert "#load-reputation-adapters" in data["requiredSelectors"]
     assert "#run-native-preflight" in data["requiredSelectors"]
     assert "#load-hackathon-strategy" in data["requiredSelectors"]
     assert "#load-developer-kit" in data["requiredSelectors"]
@@ -211,7 +214,11 @@ def test_frontend_uses_packaged_template_and_static_assets():
     assert "loadProductBrief" in (package_root / "static" / "app.js").read_text()
     assert "runThreatCaseFile" in (package_root / "static" / "app.js").read_text()
     assert "loadFrontierExperiments" in (package_root / "static" / "app.js").read_text()
+    assert "loadReputationAdapters" in (package_root / "static" / "app.js").read_text()
     assert "miniappRunPreview" in (package_root / "static" / "telegram-miniapp.js").read_text()
+    assert "miniapp-evidence-panel" in (
+        package_root / "templates" / "telegram_mini_app.html"
+    ).read_text()
     assert ".shell" in (package_root / "static" / "styles.css").read_text()
 
 
@@ -229,6 +236,8 @@ def test_telegram_miniapp_shell_contract_and_static_assets(client):
     assert "/api/telegram/miniapp/preview" in contract["apiRoutes"]
     assert "/api/telegram/miniapp/ton-preview" in contract["apiRoutes"]
     assert "/api/ton/wallet-risk-preview" in contract["apiRoutes"]
+    assert "#miniapp-evidence-panel" in contract["requiredSelectors"]
+    assert "#miniapp-evidence-receipt" in contract["requiredSelectors"]
 
     html = client.get("/telegram").get_data(as_text=True)
     for selector in contract["requiredSelectors"]:
@@ -484,6 +493,44 @@ def test_cross_chain_integration_routes_are_read_only(client):
         connector["id"] for connector in connectors_body["connectors"]
     }
 
+    adapters = client.get("/api/reputation/adapters")
+    assert adapters.status_code == 200
+    adapters_body = adapters.get_json()
+    assert adapters_body["schema"] == "0guard.reputation_adapter_catalog.v1"
+    assert adapters_body["safety"]["networkCalls"] is False
+    assert adapters_body["rightsPolicy"]["rawPayloadsReturned"] is False
+    assert {adapter["id"] for adapter in adapters_body["adapters"]} == {
+        "goplus_security",
+        "chainabuse",
+        "forta_graphql_api",
+    }
+
+    adapter_preview = client.post(
+        "/api/reputation/adapters/normalize",
+        json={
+            "sourceId": "goplus_security",
+            "subject": {
+                "url": "https://docs.0g.ai.evil.example/claim",
+                "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+                "chain": "eip155:1",
+            },
+            "payload": {
+                "result": {
+                    "0x02228b0afcdbeDf8180d96fc181da3af5dd1d1ab": {
+                        "blacklist_doubt": "1",
+                        "phishing_activities": "1",
+                    }
+                }
+            },
+        },
+    )
+    assert adapter_preview.status_code == 200
+    adapter_preview_body = adapter_preview.get_json()
+    assert adapter_preview_body["schema"] == "0guard.reputation_adapter_preview.v1"
+    assert adapter_preview_body["rawPayloadReturned"] is False
+    assert adapter_preview_body["reputationPreview"]["decision"]["decision"] == "deny"
+    assert adapter_preview_body["safety"]["networkCalls"] is False
+
     native_preflight = client.post(
         "/api/native-preflight",
         json={
@@ -552,6 +599,12 @@ def test_cross_chain_integration_routes_are_read_only(client):
         "ika_mpckit_odws",
     }
     assert "/api/reputation/connectors" in {
+        route["path"] for route in developer_kit_body["routes"]
+    }
+    assert "/api/reputation/adapters" in {
+        route["path"] for route in developer_kit_body["routes"]
+    }
+    assert "/api/reputation/adapters/normalize" in {
         route["path"] for route in developer_kit_body["routes"]
     }
 
@@ -750,6 +803,15 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
             "sourceEvidence": [
                 {"sourceId": "operator_report", "verdict": "phishing", "confidence": 0.91}
             ],
+            "reputationAdapter": {
+                "sourceId": "goplus_security",
+                "subject": {
+                    "url": "https://docs.0g.ai.evil.example/claim",
+                    "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+                    "chain": "eip155:1",
+                },
+                "payload": {"result": {"is_blacklisted": "1", "phishing_activities": "1"}},
+            },
             "intent": {
                 "action": "approve",
                 "mode": "live_transaction",
@@ -770,6 +832,11 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
     assert data["walletAlert"]["schema"] == "0guard.wallet_alert_preview.v1"
     assert data["walletAlert"]["decision"]["decision"] == "deny"
     assert data["walletAlert"]["reputation"]["schema"] == "0guard.reputation_probe.v1"
+    assert data["walletAlert"]["reputation"]["adapterEvidence"] == {
+        "sourceIds": ["goplus_security"],
+        "derivedEvidenceCount": 1,
+        "rawPayloadsReturned": False,
+    }
     assert data["walletAlert"]["reputation"]["safety"]["networkCalls"] is False
     assert data["mira"]["schema"] == "0guard.mira_preview.v1"
     assert data["mira"]["telegram_send"] is False
@@ -1365,6 +1432,48 @@ def test_cli_native_preflight_allows_read_only_payload():
     assert '"schema": "0guard.native_preflight.v1"' in result.stdout
     assert '"decision": "allow"' in result.stdout
     assert '"transactionSigningEnabled": false' in result.stdout
+
+
+def test_cli_reputation_adapter_normalizer_returns_derived_evidence_without_fetching():
+    payload = {
+        "sourceId": "chainabuse",
+        "subject": {
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            "chain": "eip155:1",
+        },
+        "payload": {
+            "reports": [
+                {
+                    "checked": True,
+                    "confidence_score": 91,
+                    "category": "phishing",
+                    "reportUrl": "https://chainabuse.example/private/report",
+                }
+            ]
+        },
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "guard0.cli",
+            "normalize-reputation-adapter",
+            "--payload-json",
+            json.dumps(payload),
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert '"schema": "0guard.reputation_adapter_preview.v1"' in result.stdout
+    assert '"rawPayloadReturned": false' in result.stdout
+    assert '"networkCalls": false' in result.stdout
+    assert "chainabuse.example" not in result.stdout
 
 
 def test_telegram_post_cli_requires_live_confirmation_before_credentials():

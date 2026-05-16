@@ -18,6 +18,14 @@ python3 -m guard0.cli native-preflight \
 Expected result: an `allow` verdict for read-only status checks, with a
 0G-ready canonical receipt hash and no live anchor/upload side effects.
 
+```bash
+python3 -m guard0.cli normalize-reputation-adapter \
+  --payload-json '{"sourceId":"chainabuse","payload":{"reported_count":1}}'
+```
+
+Expected result: a `0guard.reputation_adapter_preview.v1` payload with raw
+payload return disabled and `networkCalls=false`.
+
 ## API
 
 ```bash
@@ -46,6 +54,8 @@ Use `GET /api/developer-kit` for the machine-readable manifest. It includes:
 - x402 prepared-payment recipe before settlement.
 - Telegram/TON Mini App recipe before tonProof or transaction prompts.
 - Arbitrum/EVM CI recipe for upgrades, grants, approvals, and deployments.
+- No-network reputation adapter contracts for GoPlus, Chainabuse, and Forta:
+  `/api/reputation/adapters` and `/api/reputation/adapters/normalize`.
 
 ## Examples
 

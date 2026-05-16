@@ -415,6 +415,11 @@ async function runReputationProbe(){
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
+async function loadReputationAdapters(){
+  const r = await fetch('/api/reputation/adapters');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function runNativePreflight(){
   const payload = {
     surface: 'ika_dwallets',
@@ -576,6 +581,7 @@ document.getElementById('load-cross-chain-readiness').addEventListener('click', 
 document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
 document.getElementById('run-reputation-probe').addEventListener('click', runReputationProbe);
+document.getElementById('load-reputation-adapters').addEventListener('click', loadReputationAdapters);
 document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
 document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
 document.getElementById('load-developer-kit').addEventListener('click', loadDeveloperKit);

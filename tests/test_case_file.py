@@ -33,6 +33,7 @@ def test_threat_case_file_composes_policy_reputation_provenance_and_receipts():
         "policy_engine",
         "hack_signatures",
         "reputation_probe",
+        "reputation_adapter_evidence",
         "wallet_alert_quality",
         "incident_provenance",
         "signature_coverage",
@@ -45,6 +46,53 @@ def test_threat_case_file_composes_policy_reputation_provenance_and_receipts():
     assert case_file["safety"]["transactionSigningEnabled"] is False
     assert case_file["safety"]["moneyMovementEnabled"] is False
     assert case_file["safety"]["rawPayloadsReturned"] is False
+
+
+def test_threat_case_file_promotes_normalized_adapter_evidence_without_raw_payloads():
+    case_file = build_threat_case_file(
+        {
+            "intent": {
+                "action": "upgrade",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "target_contract": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            },
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "reputationAdapter": {
+                "sourceId": "chainabuse",
+                "subject": {
+                    "url": "https://docs.0g.ai.evil.example/claim",
+                    "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+                    "chain": "eip155:1",
+                },
+                "payload": {
+                    "reports": [
+                        {
+                            "checked": True,
+                            "confidence_score": 91,
+                            "category": "phishing",
+                            "reportUrl": "https://chainabuse.example/private/report",
+                        }
+                    ]
+                },
+            },
+        }
+    )
+
+    assert case_file["adapterEvidence"]["enabled"] is True
+    assert case_file["adapterEvidence"]["sourceIds"] == ["chainabuse"]
+    assert case_file["adapterEvidence"]["derivedEvidenceCount"] == 1
+    assert case_file["adapterEvidence"]["rawPayloadsReturned"] is False
+    assert case_file["technicalSummary"]["adapterEvidenceCount"] == 1
+    assert case_file["technicalSummary"]["adapterSourceIds"] == ["chainabuse"]
+    adapter_row = {
+        row["id"]: row for row in case_file["evidence"]
+    }["reputation_adapter_evidence"]
+    assert adapter_row["sourceIds"] == ["chainabuse"]
+    encoded = json.dumps(case_file)
+    assert "chainabuse.example" not in encoded
+    assert "private/report" not in encoded
+    assert case_file["sourceRights"]["rawPayloadsReturned"] is False
 
 
 def test_threat_case_file_redacts_secret_like_content():
