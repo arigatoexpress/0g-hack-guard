@@ -7,7 +7,7 @@ incident dataset without pretending raw feeds are ours to resell.
 
 | Phase | Stream | Why | Integration | Rights posture |
 |---|---|---|---|---|
-| 1 | GoPlus + Chainabuse + CryptoScamDB / Scam Sniffer / MetaMask phishing feeds | Highest near-term value for address, token, approval, dApp, and domain risk. | The live `/api/reputation/probe` contract now feeds `/api/native-preflight`, wallet alerts, and Telegram previews; `/api/reputation/adapters/normalize` converts reviewed upstream payloads into derived evidence. External live fetches stay disabled until keys/terms are reviewed. | Derived verdicts, links, hashes, source ids, and confidence only. |
+| 1 | PhishDestroy + CryptoScamDB + Forta labels, then GoPlus / Chainabuse | Highest near-term value for domain, recipient, approval, dApp, and Telegram risk with open-source feeds first. | The live `/api/reputation/probe` contract now feeds `/api/native-preflight`, wallet alerts, and Telegram previews; `/api/reputation/adapters/normalize` converts reviewed upstream payloads into derived evidence. External live fetches stay disabled until keys/terms are reviewed. | Derived verdicts, links, hashes, source ids, and confidence only. |
 | 1 | Forta labels and attack alerts | Emerging exploit-stage intelligence before it becomes a hard blocker. | Digest-only queue using Forta alert/label metadata; promote to wallet alert only with direct detector/source evidence. | Respect public label attribution and any premium feed terms. |
 | 2 | Tenderly or BlockSec simulation | Adds state-change previews for approvals, swaps, and contract calls. | Optional `simulate_intent` adapter returning asset deltas and dangerous calls. | Do not persist/resell full traces unless vendor terms allow it. |
 | 2 | TON Center / TONAPI | Makes Telegram wallet alerts native to TON instead of EVM-shaped. | TON account, transaction, Jetton, NFT, and message activity enrichment for risk passports. | Derived activity features only; no raw indexer dumps. |
@@ -18,11 +18,14 @@ incident dataset without pretending raw feeds are ours to resell.
 
 ## What To Buy First
 
-1. GoPlus or Chainabuse only after free/keyed access materially improves alert
+1. Use PhishDestroy / CryptoScamDB / Forta labelled datasets first because they
+   can improve phishing and attacker-label coverage without immediate paid
+   credentials.
+2. GoPlus or Chainabuse only after free/keyed access materially improves alert
    quality or the demo hits rate limits.
-2. Tenderly or BlockSec simulation once the reputation adapter is already used
+3. Tenderly or BlockSec simulation once the reputation adapter is already used
    by real product flows.
-3. Dune, Allium, or Bitquery only when native adapters cannot cover a chain or
+4. Dune, Allium, or Bitquery only when native adapters cannot cover a chain or
    historical feature quickly enough.
 
 ## Current API Proof
@@ -44,6 +47,7 @@ incident dataset without pretending raw feeds are ours to resell.
   it tells an integrator which GoPlus, Chainabuse, Forta, TON, simulation, or
   cross-chain connector applies and what rights boundary must be preserved.
 - `/api/reputation/adapters` and `/api/reputation/adapters/normalize` are the
-  first no-network adapter contracts for GoPlus, Chainabuse, and Forta. They
-  accept caller-provided payloads from a reviewed worker, return only derived
-  evidence, and feed the threat case file plus wallet/Telegram previews.
+  first no-network adapter contracts for PhishDestroy, CryptoScamDB, Forta
+  labelled datasets, GoPlus, Chainabuse, and Forta GraphQL. They accept
+  caller-provided payloads from a reviewed worker, return only derived evidence,
+  and feed the threat case file plus wallet/Telegram previews.

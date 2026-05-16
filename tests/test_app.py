@@ -96,6 +96,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/external-action-contracts" in data["apiRoutes"]
     assert "/api/0g/status" in data["apiRoutes"]
     assert "/api/0g/receipt" in data["apiRoutes"]
+    assert "/api/0g/proof-ladder" in data["apiRoutes"]
     assert "/api/data/summary" in data["apiRoutes"]
     assert "/api/data/incidents" in data["apiRoutes"]
     assert "/api/data/provenance" in data["apiRoutes"]
@@ -500,6 +501,9 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert adapters_body["safety"]["networkCalls"] is False
     assert adapters_body["rightsPolicy"]["rawPayloadsReturned"] is False
     assert {adapter["id"] for adapter in adapters_body["adapters"]} == {
+        "phishdestroy_destroylist",
+        "cryptoscamdb",
+        "forta_labelled_datasets",
         "goplus_security",
         "chainabuse",
         "forta_graphql_api",
@@ -530,6 +534,41 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert adapter_preview_body["rawPayloadReturned"] is False
     assert adapter_preview_body["reputationPreview"]["decision"]["decision"] == "deny"
     assert adapter_preview_body["safety"]["networkCalls"] is False
+
+    proof_ladder = client.post(
+        "/api/0g/proof-ladder",
+        json={
+            "surface": "evm",
+            "operation": "approve",
+            "chain": "eip155:16661",
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "prompt_text": (
+                    "Approve this agent to spend funds; also here is "
+                    "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                ),
+            },
+        },
+    )
+    assert proof_ladder.status_code == 200
+    proof_ladder_body = proof_ladder.get_json()
+    assert proof_ladder_body["schema"] == "0guard.0g_proof_ladder.v1"
+    assert proof_ladder_body["decision"]["decision"] == "deny"
+    assert [stage["id"] for stage in proof_ladder_body["stages"]] == [
+        "chainReceipt",
+        "storagePacket",
+        "daAvailability",
+        "computePreview",
+        "alignmentVerifier",
+    ]
+    assert proof_ladder_body["safety"]["liveStorageUpload"] is False
+    assert proof_ladder_body["safety"]["liveComputeInference"] is False
+    assert proof_ladder_body["safety"]["moneyMovementEnabled"] is False
+    assert "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" not in str(
+        proof_ladder_body
+    )
 
     native_preflight = client.post(
         "/api/native-preflight",
@@ -1432,6 +1471,42 @@ def test_cli_native_preflight_allows_read_only_payload():
     assert '"schema": "0guard.native_preflight.v1"' in result.stdout
     assert '"decision": "allow"' in result.stdout
     assert '"transactionSigningEnabled": false' in result.stdout
+
+
+def test_cli_proof_ladder_returns_no_side_effect_packet():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "guard0.cli",
+            "proof-ladder",
+            "--payload-json",
+            json.dumps(
+                {
+                    "intent": {
+                        "action": "approve",
+                        "mode": "live_transaction",
+                        "requires_signature": True,
+                        "prompt_text": (
+                            "keep secret "
+                            "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                        ),
+                    }
+                }
+            ),
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert '"schema": "0guard.0g_proof_ladder.v1"' in result.stdout
+    assert '"id": "alignmentVerifier"' in result.stdout
+    assert '"moneyMovementEnabled": false' in result.stdout
+    assert "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" not in result.stdout
 
 
 def test_cli_reputation_adapter_normalizer_returns_derived_evidence_without_fetching():

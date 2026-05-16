@@ -22,6 +22,7 @@ def test_product_brief_explains_live_system_without_live_actions():
     } <= set(systems)
     assert systems["incident_intelligence"]["proof"]["coverageRatio"] == 1.0
     assert "/api/reputation/adapters/normalize" in systems["reputation_probe"]["proofRoutes"]
+    assert "/api/0g/proof-ladder" in systems["0g_receipts"]["proofRoutes"]
     assert any("normalizer is live" in item for item in brief["honestLimits"])
     assert brief["liveProof"]["miniApp"].endswith("/telegram")
     assert brief["socialPositioning"]["xThreadFile"].endswith("_x_thread.json")

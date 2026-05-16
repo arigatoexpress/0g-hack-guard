@@ -21,9 +21,51 @@ REPUTATION_ADAPTER_PREVIEW_SCHEMA = "0guard.reputation_adapter_preview.v1"
 
 _ADAPTERS: tuple[dict[str, Any], ...] = (
     {
+        "id": "phishdestroy_destroylist",
+        "name": "PhishDestroy DestroyList and Threat API",
+        "stage": "open_source_first_connector",
+        "officialDocs": [
+            "https://phishdestroy.io/dataset",
+            "https://phishdestroy.io/",
+            "https://huggingface.co/datasets/phishdestroy/destroylist",
+        ],
+        "supportedPayloads": [
+            "domain_rows",
+            "active_domains",
+            "blocklist",
+            "threat_api_result",
+        ],
+        "derivedOutput": "active_domain_status_target_brand_drainer_type_confidence_hashes",
+        "credentialRequiredForLiveFetch": False,
+    },
+    {
+        "id": "cryptoscamdb",
+        "name": "CryptoScamDB open dataset",
+        "stage": "open_dataset_seed",
+        "officialDocs": [
+            "https://cryptoscamdb.org/",
+            "https://github.com/CryptoScamDB/api.cryptoscamdb.org",
+        ],
+        "supportedPayloads": ["urls", "addresses", "entries", "reports"],
+        "derivedOutput": "reported_url_or_address_categories_confidence_hashes",
+        "credentialRequiredForLiveFetch": False,
+    },
+    {
+        "id": "forta_labelled_datasets",
+        "name": "Forta labelled datasets",
+        "stage": "offline_label_seed",
+        "officialDocs": [
+            "https://github.com/forta-network/labelled-datasets",
+            "https://docs.forta.network/en/latest/labels/",
+        ],
+        "supportedPayloads": ["labels", "entities", "rows"],
+        "derivedOutput": "label_confidence_entity_type_source_hashes",
+        "credentialRequiredForLiveFetch": False,
+    },
+    {
         "id": "goplus_security",
         "name": "GoPlus Security",
-        "stage": "first_connector_candidate",
+        "stage": "keyed_connector_candidate",
         "officialDocs": [
             "https://docs.gopluslabs.io/",
             "https://docs.gopluslabs.io/docs/goplus-sdk",
@@ -42,7 +84,7 @@ _ADAPTERS: tuple[dict[str, Any], ...] = (
     {
         "id": "chainabuse",
         "name": "Chainabuse reports",
-        "stage": "first_connector_candidate",
+        "stage": "keyed_connector_candidate",
         "officialDocs": [
             "https://docs.chainabuse.com/docs/welcome-to-chainabuse-api",
             "https://docs.chainabuse.com/reference/reports-1",
@@ -76,7 +118,14 @@ def reputation_adapter_catalog() -> dict[str, Any]:
         "mode": "adapter_contracts_no_network_calls",
         "adapterCount": len(_ADAPTERS),
         "adapters": [dict(adapter) for adapter in _ADAPTERS],
-        "activationOrder": ["goplus_security", "chainabuse", "forta_graphql_api"],
+        "activationOrder": [
+            "phishdestroy_destroylist",
+            "cryptoscamdb",
+            "forta_labelled_datasets",
+            "goplus_security",
+            "chainabuse",
+            "forta_graphql_api",
+        ],
         "integrationPattern": [
             "fetch externally only from an operator-reviewed worker with credentials and retention terms",
             "pass the upstream response to /api/reputation/adapters/normalize",
@@ -160,13 +209,126 @@ def normalize_reputation_adapters_from_payload(payload: dict[str, Any] | None = 
 
 
 def _derive(source_id: str, upstream_payload: dict[str, Any]) -> list[dict[str, Any]]:
+    if source_id == "phishdestroy_destroylist":
+        return _derive_phishdestroy(upstream_payload)
+    if source_id == "cryptoscamdb":
+        return _derive_cryptoscamdb(upstream_payload)
+    if source_id == "forta_labelled_datasets":
+        return _derive_forta("forta_labelled_datasets", upstream_payload)
     if source_id == "goplus_security":
         return _derive_goplus(upstream_payload)
     if source_id == "chainabuse":
         return _derive_chainabuse(upstream_payload)
     if source_id == "forta_graphql_api":
-        return _derive_forta(upstream_payload)
+        return _derive_forta("forta_graphql_api", upstream_payload)
     return []
+
+
+def _derive_phishdestroy(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = _domain_rows(payload)
+    signals: list[dict[str, Any]] = []
+    for row in rows[:10]:
+        status = str(
+            row.get("site_status")
+            or row.get("status")
+            or row.get("state")
+            or row.get("dns_status")
+            or ""
+        ).lower()
+        active = bool(row.get("active") is True or status in {"alive", "active", "online", "resolving"})
+        brand = str(row.get("target_brand") or row.get("brand") or row.get("target") or "").strip()
+        drainer = str(row.get("drainer_type") or row.get("kit") or row.get("category") or "").strip()
+        detections = _int(row.get("vt_detections") or row.get("detections") or row.get("score"))
+        verdict = "malicious" if active or detections >= 3 else "suspicious"
+        confidence = 0.88 if active else 0.68 if detections else 0.58
+        categories = ["phishing_domain"]
+        if active:
+            categories.append("active")
+        if brand:
+            categories.append(f"brand:{brand}")
+        if drainer:
+            categories.append(f"drainer:{drainer}")
+        signals.append(
+            _evidence(
+                source_id="phishdestroy_destroylist",
+                verdict=verdict,
+                confidence=confidence,
+                label="PhishDestroy phishing-domain signal",
+                categories=categories,
+                reference=row.get("url") or row.get("domain") or row.get("source"),
+                raw_fragment=row,
+            )
+        )
+    if signals:
+        return signals[:5]
+    return [
+        _evidence(
+            source_id="phishdestroy_destroylist",
+            verdict="unknown",
+            confidence=0.35,
+            label="No PhishDestroy domain rows were present in the caller payload.",
+            categories=[],
+            reference=None,
+            raw_fragment=payload,
+        )
+    ]
+
+
+def _derive_cryptoscamdb(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for key in ("urls", "addresses", "entries", "reports", "data", "results"):
+        value = payload.get(key)
+        if isinstance(value, dict):
+            rows.append(value)
+        elif isinstance(value, list):
+            rows.extend(item for item in value if isinstance(item, dict))
+    if not rows and payload:
+        rows = [payload]
+
+    signals: list[dict[str, Any]] = []
+    for row in rows[:10]:
+        category = str(
+            row.get("category")
+            or row.get("type")
+            or row.get("subcategory")
+            or row.get("name")
+            or "reported_crypto_scam"
+        ).strip()
+        timestamped = bool(
+            row.get("updated")
+            or row.get("created")
+            or row.get("date")
+            or row.get("timestamp")
+            or row.get("reported_at")
+        )
+        verified = bool(row.get("verified") or row.get("checked"))
+        verdict = "malicious" if timestamped or verified else "suspicious"
+        confidence = 0.72 if verdict == "malicious" else 0.58
+        categories = [category, "staleness_review" if not timestamped else "timestamped"]
+        signals.append(
+            _evidence(
+                source_id="cryptoscamdb",
+                verdict=verdict,
+                confidence=confidence,
+                label="CryptoScamDB reported scam seed",
+                categories=categories,
+                reference=row.get("url") or row.get("address") or row.get("source"),
+                raw_fragment=row,
+            )
+        )
+    if signals:
+        return signals[:5]
+    return [
+        _evidence(
+            source_id="cryptoscamdb",
+            verdict="unknown",
+            confidence=0.35,
+            label="No CryptoScamDB rows were present in the caller payload.",
+            categories=[],
+            reference=None,
+            raw_fragment=payload,
+        )
+    ]
 
 
 def _derive_goplus(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -284,9 +446,9 @@ def _derive_chainabuse(payload: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _derive_forta(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _derive_forta(source_id: str, payload: dict[str, Any]) -> list[dict[str, Any]]:
     alerts = payload.get("alerts") or []
-    labels = payload.get("labels") or []
+    labels = payload.get("labels") or payload.get("entities") or payload.get("rows") or []
     signals = []
     for alert in alerts[:10] if isinstance(alerts, list) else []:
         if not isinstance(alert, dict):
@@ -295,7 +457,7 @@ def _derive_forta(payload: dict[str, Any]) -> list[dict[str, Any]]:
         verdict = "malicious" if severity in {"critical", "high"} else "suspicious"
         signals.append(
             _evidence(
-                source_id="forta_graphql_api",
+                source_id=source_id,
                 verdict=verdict,
                 confidence=0.82 if verdict == "malicious" else 0.62,
                 label=str(alert.get("name") or alert.get("alertId") or "Forta alert"),
@@ -307,12 +469,16 @@ def _derive_forta(payload: dict[str, Any]) -> list[dict[str, Any]]:
     for label in labels[:10] if isinstance(labels, list) else []:
         if not isinstance(label, dict):
             continue
-        label_value = str(label.get("label") or label.get("entityType") or "Forta label")
+        label_value = str(label.get("label") or label.get("entityType") or label.get("tag") or "Forta label")
+        confidence = _confidence(label.get("confidence") or 0.58)
+        verdict = "malicious" if any(
+            term in label_value.lower() for term in ("attacker", "phish", "scam", "exploit")
+        ) and confidence >= 0.55 else "suspicious"
         signals.append(
             _evidence(
-                source_id="forta_graphql_api",
-                verdict="suspicious",
-                confidence=_confidence(label.get("confidence") or 0.58),
+                source_id=source_id,
+                verdict=verdict,
+                confidence=confidence,
                 label=f"Forta label: {label_value}",
                 categories=[label_value],
                 reference=label.get("sourceUrl") or label.get("url"),
@@ -323,7 +489,7 @@ def _derive_forta(payload: dict[str, Any]) -> list[dict[str, Any]]:
         return signals[:5]
     return [
         _evidence(
-            source_id="forta_graphql_api",
+            source_id=source_id,
             verdict="unknown",
             confidence=0.35,
             label="No Forta alerts or labels were present in the caller payload.",
@@ -392,6 +558,32 @@ def _flatten_records(payload: dict[str, Any]) -> list[dict[str, Any]]:
             return [value for value in result.values() if isinstance(value, dict)]
         return [result]
     return []
+
+
+def _domain_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key in (
+        "active_domains",
+        "domains",
+        "blocklist",
+        "list",
+        "results",
+        "data",
+        "threats",
+    ):
+        value = payload.get(key)
+        if isinstance(value, dict):
+            nested = _domain_rows(value)
+            rows.extend(nested or [value])
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    rows.append(item)
+                elif isinstance(item, str):
+                    rows.append({"domain": item})
+    if not rows and any(key in payload for key in ("domain", "url", "target_brand", "site_status")):
+        rows.append(payload)
+    return rows
 
 
 def _next_step(source_id: str, derived: list[dict[str, Any]]) -> str:

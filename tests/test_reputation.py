@@ -85,9 +85,23 @@ def test_reputation_connector_manifest_is_no_network_and_activation_ready():
     assert manifest["safety"]["networkCalls"] is False
     assert manifest["rightsPolicy"]["rawPayloadsReturned"] is False
     by_id = {connector["id"]: connector for connector in manifest["connectors"]}
-    assert {"goplus_security", "chainabuse", "forta_graphql_api"} <= set(by_id)
+    assert {
+        "phishdestroy_destroylist",
+        "cryptoscamdb",
+        "forta_labelled_datasets",
+        "goplus_security",
+        "chainabuse",
+        "forta_graphql_api",
+    } <= set(by_id)
+    assert by_id["phishdestroy_destroylist"]["credentialRequired"] is False
+    assert by_id["cryptoscamdb"]["credentialRequired"] is False
+    assert by_id["forta_labelled_datasets"]["credentialRequired"] is False
     assert by_id["goplus_security"]["credentialRequired"] is True
     assert by_id["chainabuse"]["credentialRequired"] is True
     assert by_id["goplus_security"]["appliesToSubject"] is True
     assert by_id["tonapi_jettons"]["appliesToSubject"] is False
-    assert manifest["recommendedActivationOrder"][0] == "goplus_security"
+    assert manifest["recommendedActivationOrder"][:3] == [
+        "phishdestroy_destroylist",
+        "cryptoscamdb",
+        "forta_labelled_datasets",
+    ]

@@ -31,6 +31,20 @@
       "caveats": "Article body rights remain with Chainalysis; summaries should cite links rather than copy content."
     },
     {
+      "id": "phishdestroy_destroylist",
+      "name": "PhishDestroy DestroyList and Threat API",
+      "owner": "PhishDestroy",
+      "url": "https://phishdestroy.io/dataset",
+      "homepage": "https://phishdestroy.io/",
+      "retrieval_mode": "public_api_and_dataset",
+      "adapter": "phishdestroy_destroylist",
+      "enabled_by_default": true,
+      "freshness_ttl_seconds": 21600,
+      "license_or_rights": "Public open-source phishing-domain threat intelligence. Current public pages reference CC0, MIT, and CC-BY style language, so 0guard keeps attribution and returns derived signals only.",
+      "output_policy": "Use active-domain status, target brand, drainer type, confidence, source ids, and hashes for defensive domain checks.",
+      "caveats": "Do not mirror or resell raw feeds from public routes; preserve source ids and recheck license text before paid distribution."
+    },
+    {
       "id": "forta_graphql_api",
       "name": "Forta GraphQL Alerts and Labels API",
       "owner": "Forta Network",

@@ -15,23 +15,25 @@ def intelligence_stream_plan() -> dict[str, Any]:
         {
             "rank": 1,
             "id": "unified_reputation_adapter",
-            "name": "GoPlus + Chainabuse + phishing databases",
+            "name": "PhishDestroy + CryptoScamDB + Forta labels, then GoPlus and Chainabuse",
             "cost": "free_or_keyed_first_paid_later",
             "sources": [
+                "https://phishdestroy.io/dataset",
+                "https://github.com/CryptoScamDB/api.cryptoscamdb.org",
+                "https://github.com/forta-network/labelled-datasets",
                 "https://docs.gopluslabs.io/",
                 "https://docs.chainabuse.com/docs/welcome-to-chainabuse-api",
-                "https://cryptoscamdb.org/",
                 "https://www.scamsniffer.io/",
                 "https://github.com/MetaMask/eth-phishing-detect",
             ],
-            "whyItMatters": "Best near-term lift for domain checks, recipient checks, approvals, and Telegram alerts.",
+            "whyItMatters": "Best near-term lift for domain checks, recipient checks, approvals, and Telegram alerts while keeping open-source feeds first.",
             "integrationShape": (
                 "Normalize domain/address/token votes into one risk_probe result consumed by "
                 "/api/reputation/probe, /api/domain, /api/native-preflight, "
                 "/api/wallet/alert-preview, and Telegram previews."
             ),
             "rightsEnvelope": "Return derived verdicts, source ids, confidence, links, and hashes; do not resell raw feeds.",
-            "status": "adapter_contract_live_external_feeds_disabled",
+            "status": "six_source_adapter_contract_live_external_fetches_disabled",
             "buildPhase": "phase_1",
         },
         {
@@ -152,8 +154,9 @@ def intelligence_stream_plan() -> dict[str, Any]:
         "streamCount": len(streams),
         "streams": streams,
         "buyFirst": [
-            "GoPlus key or plan only after free API limits block the demo.",
-            "Chainabuse API if IOC confidence/report counts materially improve alert quality.",
+            "Stay on PhishDestroy, CryptoScamDB, and Forta labelled datasets until live freshness or coverage proves insufficient.",
+            "GoPlus key or plan only after open-source feeds cannot cover token, approval, or dApp safety needs.",
+            "Chainabuse API if human report counts materially improve alert quality.",
             "Tenderly or BlockSec simulation once reputation adapters are feeding live product flows.",
         ],
         "rightsPolicy": {

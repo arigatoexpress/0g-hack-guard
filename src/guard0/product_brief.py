@@ -55,7 +55,7 @@ def product_brief() -> dict[str, Any]:
             "Clear wedge: protect the moment before wallet custody, not after a signature prompt appears.",
             "A composed threat case file turns one risky agent action into judge/operator-readable evidence.",
             "A frontier experiment lab ranks the next integrations while proving no live side effects occurred.",
-            "A no-network adapter normalizer turns GoPlus, Chainabuse, and Forta-shaped payloads into derived evidence.",
+            "A no-network adapter normalizer turns PhishDestroy, CryptoScamDB, Forta, GoPlus, and Chainabuse-shaped payloads into derived evidence.",
             "Real source-linked incident data and detector coverage instead of mock security claims.",
             "A live Telegram Mini App surface that remains preview-only and no-send.",
             "Portable developer-kit routes that other wallets, agents, Mini Apps, CI jobs, and dWallet flows can call.",
@@ -63,8 +63,8 @@ def product_brief() -> dict[str, Any]:
         ],
         "honestLimits": [
             "0G Storage upload/readback and 0G Compute inference are prepared as product lanes, not silently enabled from the workbench.",
-            "GoPlus, Chainabuse, Forta, TONAPI, and simulation feed live fetches are activation-ready but disabled until keys and terms are reviewed.",
-            "The GoPlus/Chainabuse/Forta normalizer is live for caller-provided payloads and returns only derived evidence.",
+            "PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TONAPI, and simulation feed live fetches are activation-ready but disabled until keys and terms are reviewed.",
+            "The PhishDestroy/CryptoScamDB/Forta/GoPlus/Chainabuse normalizer is live for caller-provided payloads and returns only derived evidence.",
             "The Telegram bot and Mini App are live, but outbound Telegram sends are intentionally disabled.",
             "X, LinkedIn, Substack, wallet signing, x402 settlement, bridge/swap actions, and exchange actions require separate operator-controlled paths.",
         ],
@@ -73,7 +73,7 @@ def product_brief() -> dict[str, Any]:
                 "rank": 1,
                 "id": "reputation_connector_activation",
                 "why": "Highest practical value for wallet/domain safety and Telegram alerts.",
-                "ship": "Enable one external connector worker first, probably GoPlus or Chainabuse, and route it through the existing derived-output normalizer.",
+                "ship": "Enable one external connector worker first, probably PhishDestroy or CryptoScamDB, and route it through the existing derived-output normalizer.",
             },
             {
                 "rank": 2,
@@ -178,7 +178,12 @@ def _built_systems(summary: dict[str, Any], coverage: dict[str, Any]) -> list[di
             "label": "0G-ready receipts",
             "status": "mainnet_anchor_plus_storage_ready_payloads",
             "whatItDoes": "Produces deterministic receipts for policy and threat decisions, with public mainnet proof already recorded.",
-            "proofRoutes": ["/api/0g/status", "/api/0g/receipt", "/api/hackathon/threat-passport"],
+            "proofRoutes": [
+                "/api/0g/status",
+                "/api/0g/receipt",
+                "/api/0g/proof-ladder",
+                "/api/hackathon/threat-passport",
+            ],
         },
         {
             "id": "developer_kit",

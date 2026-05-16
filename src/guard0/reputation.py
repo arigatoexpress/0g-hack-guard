@@ -18,9 +18,40 @@ REPUTATION_CONNECTORS_SCHEMA = "0guard.reputation_connectors.v1"
 
 REPUTATION_CONNECTOR_CANDIDATES = (
     {
-        "sourceId": "goplus_security",
+        "sourceId": "phishdestroy_destroylist",
         "priority": 1,
-        "stage": "first_external_connector",
+        "stage": "open_source_first_connector",
+        "surfaces": ("domain", "url"),
+        "useCases": (
+            "active phishing-domain detection",
+            "crypto-drainer and impersonated-brand context",
+            "Telegram link and dApp domain preflight checks",
+        ),
+    },
+    {
+        "sourceId": "cryptoscamdb",
+        "priority": 1,
+        "stage": "open_dataset_seed",
+        "surfaces": ("evm_address", "domain"),
+        "useCases": (
+            "open phishing-domain and address seeds",
+            "regression fixtures for reputation detector tests",
+        ),
+    },
+    {
+        "sourceId": "forta_labelled_datasets",
+        "priority": 1,
+        "stage": "offline_label_seed",
+        "surfaces": ("evm_address", "contract", "domain"),
+        "useCases": (
+            "labelled malicious-address and contract seeds",
+            "offline regression data for behavior and signature detectors",
+        ),
+    },
+    {
+        "sourceId": "goplus_security",
+        "priority": 2,
+        "stage": "keyed_connector_candidate",
         "surfaces": ("evm_address", "evm_token", "domain"),
         "useCases": (
             "address and token risk enrichment",
@@ -30,22 +61,12 @@ REPUTATION_CONNECTOR_CANDIDATES = (
     },
     {
         "sourceId": "chainabuse",
-        "priority": 1,
-        "stage": "first_external_connector",
+        "priority": 2,
+        "stage": "keyed_connector_candidate",
         "surfaces": ("evm_address", "domain"),
         "useCases": (
             "reported scam and abuse corroboration",
             "human-readable source links for wallet review",
-        ),
-    },
-    {
-        "sourceId": "cryptoscamdb",
-        "priority": 1,
-        "stage": "open_dataset_seed",
-        "surfaces": ("domain", "evm_address"),
-        "useCases": (
-            "open phishing-domain and address seeds",
-            "regression fixtures for reputation detector tests",
         ),
     },
     {

@@ -50,6 +50,7 @@ from guard0.osint import (
 )
 from guard0.policy import evaluate_intent
 from guard0.product_brief import product_brief
+from guard0.proof_ladder import build_proof_ladder
 from guard0.roadmap import ecosystem_roadmap, intelligence_stream_plan
 from guard0.reputation import (
     CURATED_DOMAIN_ALLOWLIST,
@@ -623,6 +624,7 @@ def api_frontend_contract():
                 "/api/health",
                 "/api/0g/status",
                 "/api/0g/receipt",
+                "/api/0g/proof-ladder",
                 "/api/data/summary",
                 "/api/data/incidents",
                 "/api/data/provenance",
@@ -1558,6 +1560,30 @@ def api_0g_receipt():
     receipt_hash = request.args.get("receipt_hash", "")
     tx_hash = request.args.get("tx_hash")
     return jsonify(verify_anchor(receipt_hash=receipt_hash, tx_hash=tx_hash))
+
+
+@app.route("/api/0g/proof-ladder", methods=["GET", "POST"])
+def api_0g_proof_ladder():
+    if request.method == "POST":
+        body = request.get_json(silent=True) or {}
+    else:
+        body = {
+            "surface": request.args.get("surface") or "evm",
+            "operation": request.args.get("operation") or "approve",
+            "chain": request.args.get("chain") or "eip155:16661",
+            "intent": {
+                "action": request.args.get("action") or "approve",
+                "mode": request.args.get("mode") or "live_transaction",
+                "requires_signature": request.args.get("requires_signature", "true").lower()
+                not in {"0", "false", "no", "off"},
+                "prompt_text": request.args.get("prompt_text")
+                or "Build a 0G proof packet before asking a wallet to sign.",
+            },
+        }
+    try:
+        return jsonify(build_proof_ladder(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
 
 
 @app.route("/api/evaluate", methods=["POST"])

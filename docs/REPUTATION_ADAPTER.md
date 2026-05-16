@@ -43,10 +43,11 @@ match, source negative vote, and intent policy context.
 no-network, rights-aware manifest. This keeps the roadmap concrete without
 pretending that paid or keyed feeds are live.
 
-The manifest currently prioritizes GoPlus, Chainabuse, CryptoScamDB, Forta,
-TON Center, TONAPI, Tenderly, BlockSec Phalcon, LayerZero Scan, and
-Wormholescan. Each row includes the use case, docs URL, credential posture,
-whether it applies to the submitted subject, and the output/rights boundary.
+The manifest now prioritizes PhishDestroy, CryptoScamDB, and Forta labelled
+datasets first, then GoPlus, Chainabuse, Forta GraphQL, TON Center, TONAPI,
+Tenderly, BlockSec Phalcon, LayerZero Scan, and Wormholescan. Each row includes
+the use case, docs URL, credential posture, whether it applies to the submitted
+subject, and the output/rights boundary.
 
 Example:
 
@@ -61,14 +62,16 @@ curl -X POST http://127.0.0.1:8109/api/reputation/connectors \
 ```
 
 Expected result: schema `0guard.reputation_connectors.v1`, with `networkCalls`
-set to `false`, raw payload return disabled, and GoPlus/Chainabuse/Forta marked
-as relevant activation candidates for an EVM address/domain subject.
+set to `false`, raw payload return disabled, and open-source phishing/domain
+feeds plus EVM reputation connectors marked as relevant activation candidates
+for an EVM address/domain subject.
 
 ## Adapter Normalization Contract
 
 `GET /api/reputation/adapters` exposes the exact no-network payload families
-0guard is ready to normalize first: GoPlus Security, Chainabuse, and Forta
-alerts/labels. This is a contract, not a fetcher.
+0guard is ready to normalize first: PhishDestroy, CryptoScamDB, Forta labelled
+datasets, GoPlus Security, Chainabuse, and Forta GraphQL alerts/labels. This is
+a contract, not a fetcher.
 
 `POST /api/reputation/adapters/normalize` accepts a caller-provided upstream
 payload from an operator-reviewed worker and returns only derived evidence:

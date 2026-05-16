@@ -12,15 +12,94 @@ def test_reputation_adapter_catalog_is_no_network_and_rights_safe():
 
     assert catalog["schema"] == "0guard.reputation_adapter_catalog.v1"
     assert catalog["mode"] == "adapter_contracts_no_network_calls"
-    assert catalog["adapterCount"] == 3
-    assert catalog["activationOrder"] == [
-        "goplus_security",
-        "chainabuse",
-        "forta_graphql_api",
+    assert catalog["adapterCount"] == 6
+    assert catalog["activationOrder"][:3] == [
+        "phishdestroy_destroylist",
+        "cryptoscamdb",
+        "forta_labelled_datasets",
     ]
     assert catalog["safety"]["networkCalls"] is False
     assert catalog["safety"]["rawPayloadsReturned"] is False
     assert catalog["rightsPolicy"]["rawPayloadResaleAllowed"] is False
+
+
+def test_phishdestroy_payload_normalizes_active_domain_without_raw_url_echo():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "phishdestroy_destroylist",
+            "subject": {"url": "https://docs.0g.ai.evil.example/claim"},
+            "payload": {
+                "active_domains": [
+                    {
+                        "domain": "docs.0g.ai.evil.example",
+                        "site_status": "alive",
+                        "target_brand": "0G",
+                        "drainer_type": "approval_drainer",
+                        "url": "https://docs.0g.ai.evil.example/claim",
+                    }
+                ]
+            },
+        }
+    )
+
+    assert result["sourceId"] == "phishdestroy_destroylist"
+    assert result["derivedEvidence"][0]["sourceId"] == "phishdestroy_destroylist"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
+    assert "docs.0g.ai.evil.example/claim" not in str(result)
+
+
+def test_cryptoscamdb_payload_normalizes_reported_rows_without_raw_url_echo():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "cryptoscamdb",
+            "subject": {
+                "url": "https://wallet-help.example/0g",
+                "address": "0x885b0892D241Cb5033C9995e09cA521d54f936b5",
+            },
+            "payload": {
+                "urls": [
+                    {
+                        "url": "https://wallet-help.example/0g",
+                        "category": "phishing",
+                        "updated": "2026-05-15T00:00:00Z",
+                    }
+                ]
+            },
+        }
+    )
+
+    assert result["sourceId"] == "cryptoscamdb"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["derivedEvidence"][0]["confidence"] == 0.72
+    assert result["reputationPreview"]["decision"]["decision"] == "review"
+    assert "wallet-help.example/0g" not in str(result)
+
+
+def test_forta_labelled_dataset_payload_normalizes_offline_labels():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "forta_labelled_datasets",
+            "subject": {
+                "address": "0x885b0892D241Cb5033C9995e09cA521d54f936b5",
+                "chain": "eip155:1",
+            },
+            "payload": {
+                "labels": [
+                    {
+                        "label": "attacker",
+                        "confidence": 0.83,
+                        "sourceUrl": "https://github.com/forta-network/labelled-datasets",
+                    }
+                ]
+            },
+        }
+    )
+
+    assert result["sourceId"] == "forta_labelled_datasets"
+    assert result["derivedEvidence"][0]["sourceId"] == "forta_labelled_datasets"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
 
 
 def test_goplus_payload_normalizes_to_deny_without_raw_payload_echo():

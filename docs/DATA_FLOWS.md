@@ -38,9 +38,10 @@ loose demo copy.
    rule additions.
 8. Maintain a rights-aware OSINT source registry with explicit source owner,
    retrieval mode, TTL, output policy, and caveats.
-9. Normalize reviewed external reputation payloads from GoPlus, Chainabuse, or
-   Forta into derived evidence without making public-route network calls or
-   returning raw payload dumps.
+9. Normalize reviewed external reputation payloads from PhishDestroy,
+   CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, or Forta GraphQL
+   into derived evidence without making public-route network calls or returning
+   raw payload dumps.
 10. Promote reviewed derived source evidence into per-incident provenance fields
    while keeping unresolved root-cause claims in research/watch mode.
 11. Build an evolving detector queue from uncovered incident gaps and expose the
@@ -66,8 +67,9 @@ loose demo copy.
 | `/api/osint/readiness` | Catalog posture; `?live=1` performs public availability checks. |
 | `/api/osint/signals` | Normalized incident/research leads; `?live=1` fetches live public metadata. |
 | `/api/intelligence/evolving` | Detector loop, emerging gaps, live-source status, and 0G suite map. |
-| `/api/reputation/adapters` | No-network normalization contract for GoPlus, Chainabuse, and Forta payload shapes. |
+| `/api/reputation/adapters` | No-network normalization contract for PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL payload shapes. |
 | `/api/reputation/adapters/normalize` | Converts caller-provided upstream payloads into derived evidence and hashes. |
+| `/api/0g/proof-ladder` | Builds a Chain, Storage, DA, Compute, and Alignment verifier packet without live uploads, inference, signing, or broadcasts. |
 | `/api/wallet/alert-preview` | Wallet-specific alert scoring and digest-only emerging risk notes. |
 | `/api/threat-case-file` | Composed proof dossier for one agent intent; no signing, sends, uploads, posts, bridges, swaps, or payments. |
 | `/api/experiments/frontier` | Ranked read-only frontier experiment lab. |
