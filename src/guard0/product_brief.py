@@ -16,6 +16,7 @@ def product_brief() -> dict[str, Any]:
     coverage = detection_coverage()
     proof_routes = [
         "/api/healthz",
+        "/api/readyz",
         "/api/product/brief",
         "/api/native-preflight",
         "/api/threat-case-file",
@@ -23,6 +24,7 @@ def product_brief() -> dict[str, Any]:
         "/api/reputation/connectors",
         "/api/reputation/adapters",
         "/api/reputation/adapters/normalize",
+        "/api/reputation/shadow-cache",
         "/api/wallet/alert-preview",
         "/api/telegram/wallet-alert-preview",
         "/api/telegram/miniapp/preview",
@@ -56,6 +58,7 @@ def product_brief() -> dict[str, Any]:
             "A composed threat case file turns one risky agent action into judge/operator-readable evidence.",
             "A frontier experiment lab ranks the next integrations while proving no live side effects occurred.",
             "A no-network adapter normalizer turns PhishDestroy, CryptoScamDB, Forta, GoPlus, and Chainabuse-shaped payloads into derived evidence.",
+            "A derived reputation shadow cache composes multiple reviewed feeds into one reusable alert snapshot without live fetches or raw resale.",
             "Real source-linked incident data and detector coverage instead of mock security claims.",
             "A live Telegram Mini App surface that remains preview-only and no-send.",
             "Portable developer-kit routes that other wallets, agents, Mini Apps, CI jobs, and dWallet flows can call.",
@@ -65,6 +68,7 @@ def product_brief() -> dict[str, Any]:
             "0G Storage upload/readback and 0G Compute inference are prepared as product lanes, not silently enabled from the workbench.",
             "PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TONAPI, and simulation feed live fetches are activation-ready but disabled until keys and terms are reviewed.",
             "The PhishDestroy/CryptoScamDB/Forta/GoPlus/Chainabuse normalizer is live for caller-provided payloads and returns only derived evidence.",
+            "The reputation shadow cache is derived from caller-supplied reviewed payloads; it is not a live autonomous feed fetcher yet.",
             "The Telegram bot and Mini App are live, but outbound Telegram sends are intentionally disabled.",
             "X, LinkedIn, Substack, wallet signing, x402 settlement, bridge/swap actions, and exchange actions require separate operator-controlled paths.",
         ],
@@ -150,6 +154,7 @@ def _built_systems(summary: dict[str, Any], coverage: dict[str, Any]) -> list[di
                 "/api/reputation/connectors",
                 "/api/reputation/adapters",
                 "/api/reputation/adapters/normalize",
+                "/api/reputation/shadow-cache",
             ],
         },
         {

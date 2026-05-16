@@ -336,6 +336,11 @@ async function loadProductBrief(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadProductionReadiness(){
+  const r = await fetch('/api/readyz');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadEcosystemRoadmap(){
   const r = await fetch('/api/roadmap');
   const j = await r.json();
@@ -417,6 +422,11 @@ async function runReputationProbe(){
 }
 async function loadReputationAdapters(){
   const r = await fetch('/api/reputation/adapters');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadReputationShadowCache(){
+  const r = await fetch('/api/reputation/shadow-cache');
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
@@ -570,6 +580,7 @@ document.getElementById('load-osint-signals').addEventListener('click', loadOsin
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
 document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);
+document.getElementById('load-production-readiness').addEventListener('click', loadProductionReadiness);
 document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
 document.getElementById('load-frontier-experiments').addEventListener('click', loadFrontierExperiments);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
@@ -582,6 +593,7 @@ document.getElementById('load-virtuals-facilitator').addEventListener('click', l
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
 document.getElementById('run-reputation-probe').addEventListener('click', runReputationProbe);
 document.getElementById('load-reputation-adapters').addEventListener('click', loadReputationAdapters);
+document.getElementById('load-reputation-shadow-cache').addEventListener('click', loadReputationShadowCache);
 document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
 document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
 document.getElementById('load-developer-kit').addEventListener('click', loadDeveloperKit);

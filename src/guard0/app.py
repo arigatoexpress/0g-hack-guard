@@ -51,6 +51,7 @@ from guard0.osint import (
 from guard0.policy import evaluate_intent
 from guard0.product_brief import product_brief
 from guard0.proof_ladder import build_proof_ladder
+from guard0.readiness import production_readiness
 from guard0.roadmap import ecosystem_roadmap, intelligence_stream_plan
 from guard0.reputation import (
     CURATED_DOMAIN_ALLOWLIST,
@@ -63,6 +64,7 @@ from guard0.reputation_adapters import (
     normalize_reputation_adapter_payload,
     reputation_adapter_catalog,
 )
+from guard0.reputation_shadow import build_reputation_shadow_cache
 from guard0.ton import (
     build_ton_wallet_risk_preview,
     ton_risk_rules,
@@ -137,6 +139,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-signals",
     "#load-evolving-intel",
     "#load-product-brief",
+    "#load-production-readiness",
     "#load-submission-brief",
     "#load-submission-packet",
     "#load-submission-readiness",
@@ -147,6 +150,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-ika-integration",
     "#run-reputation-probe",
     "#load-reputation-adapters",
+    "#load-reputation-shadow-cache",
     "#run-native-preflight",
     "#load-hackathon-strategy",
     "#load-developer-kit",
@@ -636,6 +640,7 @@ def api_frontend_contract():
                 "/api/intelligence/evolving",
                 "/api/intelligence/data-streams",
                 "/api/product/brief",
+                "/api/readyz",
                 "/api/roadmap",
                 "/api/experiments/frontier",
                 "/api/experiments/run",
@@ -655,6 +660,7 @@ def api_frontend_contract():
                 "/api/reputation/connectors",
                 "/api/reputation/adapters",
                 "/api/reputation/adapters/normalize",
+                "/api/reputation/shadow-cache",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
                 "/api/developer-kit",
@@ -700,6 +706,8 @@ def api_frontend_contract():
                 "load-osint-signals",
                 "load-evolving-intel",
                 "load-intelligence-stream-plan",
+                "load-product-brief",
+                "load-production-readiness",
                 "load-ecosystem-roadmap",
                 "load-frontier-experiments",
                 "load-submission-brief",
@@ -712,6 +720,7 @@ def api_frontend_contract():
                 "load-ika-integration",
                 "run-reputation-probe",
                 "load-reputation-adapters",
+                "load-reputation-shadow-cache",
                 "run-native-preflight",
                 "load-hackathon-strategy",
                 "load-developer-kit",
@@ -827,6 +836,12 @@ def api_intelligence_data_streams():
 @app.route("/api/product/brief", methods=["GET"])
 def api_product_brief():
     return jsonify(product_brief())
+
+
+@app.route("/api/readyz", methods=["GET"])
+@app.route("/readyz", methods=["GET"])
+def readyz():
+    return jsonify(production_readiness())
 
 
 @app.route("/api/roadmap", methods=["GET"])
@@ -977,6 +992,15 @@ def api_reputation_adapter_normalize():
     body = request.get_json(silent=True) or {}
     try:
         return jsonify(normalize_reputation_adapter_payload(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/reputation/shadow-cache", methods=["GET", "POST"])
+def api_reputation_shadow_cache():
+    body = request.get_json(silent=True) or {} if request.method == "POST" else None
+    try:
+        return jsonify(build_reputation_shadow_cache(body))
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
 

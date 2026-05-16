@@ -103,6 +103,24 @@ Expected result: schema `0guard.reputation_adapter_preview.v1`,
 can be passed into `/api/reputation/probe`, `/api/threat-case-file`, wallet
 alert previews, or the Telegram Mini App.
 
+## Derived Shadow Cache
+
+`GET/POST /api/reputation/shadow-cache` composes several reviewed adapter
+payloads into one reusable local intelligence snapshot. The default `GET`
+response uses sanitized PhishDestroy, CryptoScamDB, and Forta-shaped evidence
+so the workbench can show the full path without a live fetcher.
+
+Example:
+
+```bash
+curl http://127.0.0.1:8109/api/reputation/shadow-cache
+```
+
+Expected result: schema `0guard.reputation_shadow_cache.v1`, source-level
+verdict counts, a probe preview, activation queue, and a 0G-ready cache receipt.
+The route returns source IDs, confidence, categories, evidence hashes, and
+reference URL hashes only. It does not return raw upstream feed rows.
+
 ## Rights Boundary
 
 The adapter returns derived decisions, source IDs, labels, confidence, hashes,
@@ -117,6 +135,8 @@ feeds, custody credentials, or make network calls.
   next and under which rights/safety rules.
 - `/api/reputation/adapters/normalize` is the bridge between reviewed upstream
   connector workers and public-safe derived evidence.
+- `/api/reputation/shadow-cache` gives Telegram, wallet alerts, and 0G receipt
+  workflows a stable derived cache between reviewed connector-worker runs.
 - `/api/threat-case-file` now surfaces normalized adapter evidence as a
   first-class evidence row without exposing raw payloads.
 - `/api/wallet/alert-preview`, `/api/telegram/wallet-alert-preview`, and

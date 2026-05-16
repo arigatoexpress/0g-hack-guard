@@ -134,6 +134,9 @@ python3 -m guard0.cli native-preflight \
 python3 -m guard0.cli normalize-reputation-adapter \
   --payload-json '{"sourceId":"phishdestroy_destroylist","payload":{"active_domains":[{"domain":"docs.0g.ai.evil.example","site_status":"alive"}]}}'
 
+# Build a reusable derived reputation shadow cache without fetching
+python3 -m guard0.cli reputation-shadow-cache
+
 # Build a no-side-effect 0G proof ladder packet
 python3 -m guard0.cli proof-ladder \
   --payload-json '{"chain":"eip155:16661","intent":{"action":"approve","mode":"live_transaction","requires_signature":true}}'
@@ -149,6 +152,7 @@ python3 -m guard0.cli serve --port 8109
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET`  | `/api/health` | Service health + 0G config |
+| `GET`  | `/api/readyz` | No-side-effect operational readiness profile for mainnet verifier config, data coverage, shadow cache, Telegram store posture, and safety |
 | `GET`  | `/api/0g/status` | Live read-only 0G RPC proof, chain ID, latest block, and receipt-anchor config |
 | `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
 | `GET/POST` | `/api/0g/proof-ladder` | Chain, Storage, DA, Compute, and Alignment proof packet; no live uploads, inference, signing, broadcasts, or node operation |
@@ -181,6 +185,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TON, simulation, and cross-chain intelligence feeds |
 | `GET`  | `/api/reputation/adapters` | No-network normalization contract for PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL payload shapes |
 | `POST` | `/api/reputation/adapters/normalize` | Converts caller-provided external reputation payloads into derived source evidence without echoing raw source payloads |
+| `GET/POST` | `/api/reputation/shadow-cache` | Composes multiple reviewed adapter payloads into a reusable derived intelligence snapshot; no live fetches or raw source resale |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
 | `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |

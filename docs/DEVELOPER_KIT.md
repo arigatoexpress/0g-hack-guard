@@ -27,6 +27,14 @@ Expected result: a `0guard.reputation_adapter_preview.v1` payload with raw
 payload return disabled and `networkCalls=false`.
 
 ```bash
+python3 -m guard0.cli reputation-shadow-cache
+```
+
+Expected result: a `0guard.reputation_shadow_cache.v1` snapshot that composes
+reviewed adapter payloads into derived evidence, a probe preview, and a
+0G-ready cache receipt without live fetches or raw source resale.
+
+```bash
 python3 -m guard0.cli proof-ladder \
   --payload-json '{"chain":"eip155:16661","intent":{"action":"approve","mode":"live_transaction","requires_signature":true}}'
 ```
@@ -66,6 +74,10 @@ Use `GET /api/developer-kit` for the machine-readable manifest. It includes:
 - No-network reputation adapter contracts for PhishDestroy, CryptoScamDB, Forta
   labelled datasets, GoPlus, Chainabuse, and Forta GraphQL:
   `/api/reputation/adapters` and `/api/reputation/adapters/normalize`.
+- Derived reputation shadow-cache contract for Telegram, wallet alert, and
+  0G-receipt workflows: `/api/reputation/shadow-cache`.
+- Operational readiness profile for mainnet verifier config, source/data
+  posture, and safety gates: `/api/readyz`.
 - 0G proof-ladder packet contract: `/api/0g/proof-ladder`.
 
 ## Examples

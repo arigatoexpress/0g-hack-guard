@@ -51,6 +51,7 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "python3 -m guard0.cli normalize-reputation-adapter "
                 "--payload-json '{\"sourceId\":\"chainabuse\",\"payload\":{\"reported_count\":1}}'"
             ),
+            "cliReputationShadowCacheProbe": "python3 -m guard0.cli reputation-shadow-cache",
             "cliProofLadderProbe": (
                 "python3 -m guard0.cli proof-ladder "
                 "--payload-json '{\"intent\":{\"action\":\"approve\","
@@ -62,6 +63,11 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "method": "GET",
                 "path": "/api/developer-kit",
                 "purpose": "Machine-readable manifest for SDK, CI, wallet, and Mini App adapters.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/readyz",
+                "purpose": "Operational readiness profile for mainnet verifier config, data freshness, shadow cache, and safety posture.",
             },
             {
                 "method": "POST",
@@ -112,6 +118,11 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "method": "POST",
                 "path": "/api/reputation/adapters/normalize",
                 "purpose": "Convert caller-provided external reputation payloads into derived evidence without echoing raw source payloads.",
+            },
+            {
+                "method": "GET/POST",
+                "path": "/api/reputation/shadow-cache",
+                "purpose": "Compose multiple reviewed adapter payloads into a reusable derived intelligence snapshot with no live fetch or raw resale.",
             },
             {
                 "method": "GET/POST",

@@ -198,6 +198,11 @@ def exercise_workbench(page: Page) -> None:
         "0guard.evolving_threat_intelligence.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text("preview_no_send_read_only")
+    page.locator("#load-product-brief").click()
+    expect(page.locator("#osint-output")).to_contain_text("0guard.product_brief.v1")
+    page.locator("#load-production-readiness").click()
+    expect(page.locator("#osint-output")).to_contain_text("0guard.readyz.v1")
+    expect(page.locator("#osint-output")).to_contain_text('"transactionSigningEnabled": false')
     page.locator("#load-frontier-experiments").click()
     expect(page.locator("#osint-output")).to_contain_text("0guard.frontier_experiments.v1")
     expect(page.locator("#osint-output")).to_contain_text("zero_g_storage_receipt_readback")
@@ -239,6 +244,11 @@ def exercise_workbench(page: Page) -> None:
         "0guard.reputation_adapter_catalog.v1"
     )
     expect(page.locator("#cross-chain-output")).to_contain_text('"networkCalls": false')
+    page.locator("#load-reputation-shadow-cache").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text(
+        "0guard.reputation_shadow_cache.v1"
+    )
+    expect(page.locator("#cross-chain-output")).to_contain_text('"rawPayloadsReturned": false')
     page.locator("#run-native-preflight").click()
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard.native_preflight.v1")
     expect(page.locator("#cross-chain-output")).to_contain_text('"decision": "deny"')
@@ -314,6 +324,8 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/data/provenance" in frontend_body["apiRoutes"]
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/intelligence/evolving" in frontend_body["apiRoutes"]
+    assert "/api/product/brief" in frontend_body["apiRoutes"]
+    assert "/api/readyz" in frontend_body["apiRoutes"]
     assert "/api/wallet/alert-preview" in frontend_body["apiRoutes"]
     assert "/api/threat-case-file" in frontend_body["apiRoutes"]
     assert "/api/experiments/frontier" in frontend_body["apiRoutes"]
@@ -329,11 +341,14 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/integrations/external-guardrails/evaluate" in frontend_body["apiRoutes"]
     assert "/api/reputation/adapters" in frontend_body["apiRoutes"]
     assert "/api/reputation/adapters/normalize" in frontend_body["apiRoutes"]
+    assert "/api/reputation/shadow-cache" in frontend_body["apiRoutes"]
     assert "/api/telegram/status" in frontend_body["apiRoutes"]
     assert "/api/telegram/wallet-alert-preview" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-evolving-intel" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
+    assert "#load-product-brief" in frontend_body["requiredSelectors"]
+    assert "#load-production-readiness" in frontend_body["requiredSelectors"]
     assert "#load-submission-packet" in frontend_body["requiredSelectors"]
     assert "#load-submission-readiness" in frontend_body["requiredSelectors"]
     assert "#load-threat-passport" in frontend_body["requiredSelectors"]
@@ -347,6 +362,7 @@ def exercise_workbench(page: Page) -> None:
     assert "#run-threat-case-file" in frontend_body["requiredSelectors"]
     assert "#load-frontier-experiments" in frontend_body["requiredSelectors"]
     assert "#load-reputation-adapters" in frontend_body["requiredSelectors"]
+    assert "#load-reputation-shadow-cache" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -506,6 +522,21 @@ def exercise_workbench(page: Page) -> None:
     assert adapter_preview_body["schema"] == "0guard.reputation_adapter_preview.v1"
     assert adapter_preview_body["rawPayloadReturned"] is False
     assert adapter_preview_body["reputationPreview"]["decision"]["decision"] == "deny"
+
+    shadow_cache = page.request.get(f"{BASE_URL}/api/reputation/shadow-cache")
+    assert shadow_cache.ok
+    shadow_cache_body = shadow_cache.json()
+    assert shadow_cache_body["schema"] == "0guard.reputation_shadow_cache.v1"
+    assert shadow_cache_body["probePreview"]["decision"]["decision"] == "deny"
+    assert shadow_cache_body["safety"]["networkCalls"] is False
+    assert "docs.0g.ai.evil.example/claim" not in json.dumps(shadow_cache_body)
+
+    readiness = page.request.get(f"{BASE_URL}/api/readyz")
+    assert readiness.ok
+    readiness_body = readiness.json()
+    assert readiness_body["schema"] == "0guard.readyz.v1"
+    assert readiness_body["safety"]["networkCalls"] is False
+    assert readiness_body["safety"]["transactionSigningEnabled"] is False
 
     submission = page.request.get(f"{BASE_URL}/api/hackathon/submission-brief")
     assert submission.ok

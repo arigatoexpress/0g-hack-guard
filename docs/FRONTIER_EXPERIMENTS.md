@@ -15,8 +15,9 @@ social posts, bridge transfers, swaps, payment settlement, or exchange orders.
 
 1. `zero_g_storage_receipt_readback` prepares the exact 0G Storage receipt
    payload and readback plan while keeping `stored: false`.
-2. `reputation_connector_shadow` ranks GoPlus, Chainabuse, Forta, TON,
-   simulation, and cross-chain connectors for the subject without network
+2. `reputation_connector_shadow` starts with open PhishDestroy,
+   CryptoScamDB, and Forta labelled evidence, then ranks GoPlus, Chainabuse,
+   TON, simulation, and cross-chain connectors for the subject without network
    calls.
 3. `evm_simulation_delta_digest` turns a local native preflight into a
    synthetic state-delta digest that shows the future Tenderly/BlockSec shape

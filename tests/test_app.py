@@ -108,6 +108,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/intelligence/evolving" in data["apiRoutes"]
     assert "/api/intelligence/data-streams" in data["apiRoutes"]
     assert "/api/product/brief" in data["apiRoutes"]
+    assert "/api/readyz" in data["apiRoutes"]
     assert "/api/healthz" in data["apiRoutes"]
     assert "/api/roadmap" in data["apiRoutes"]
     assert "/api/experiments/frontier" in data["apiRoutes"]
@@ -127,6 +128,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/reputation/connectors" in data["apiRoutes"]
     assert "/api/reputation/adapters" in data["apiRoutes"]
     assert "/api/reputation/adapters/normalize" in data["apiRoutes"]
+    assert "/api/reputation/shadow-cache" in data["apiRoutes"]
     assert "/api/native-preflight" in data["apiRoutes"]
     assert "/api/hackathon/strategy" in data["apiRoutes"]
     assert "/api/developer-kit" in data["apiRoutes"]
@@ -165,6 +167,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-evolving-intel" in data["requiredSelectors"]
     assert "#load-intelligence-stream-plan" in data["requiredSelectors"]
     assert "#load-product-brief" in data["requiredSelectors"]
+    assert "#load-production-readiness" in data["requiredSelectors"]
     assert "#load-ecosystem-roadmap" in data["requiredSelectors"]
     assert "#load-frontier-experiments" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
@@ -176,6 +179,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-ika-integration" in data["requiredSelectors"]
     assert "#run-reputation-probe" in data["requiredSelectors"]
     assert "#load-reputation-adapters" in data["requiredSelectors"]
+    assert "#load-reputation-shadow-cache" in data["requiredSelectors"]
     assert "#run-native-preflight" in data["requiredSelectors"]
     assert "#load-hackathon-strategy" in data["requiredSelectors"]
     assert "#load-developer-kit" in data["requiredSelectors"]
@@ -535,6 +539,24 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert adapter_preview_body["reputationPreview"]["decision"]["decision"] == "deny"
     assert adapter_preview_body["safety"]["networkCalls"] is False
 
+    shadow_cache = client.get("/api/reputation/shadow-cache")
+    assert shadow_cache.status_code == 200
+    shadow_cache_body = shadow_cache.get_json()
+    assert shadow_cache_body["schema"] == "0guard.reputation_shadow_cache.v1"
+    assert shadow_cache_body["sourceCount"] == 3
+    assert shadow_cache_body["probePreview"]["decision"]["decision"] == "deny"
+    assert shadow_cache_body["sourceRights"]["rawPayloadsReturned"] is False
+    assert shadow_cache_body["safety"]["networkCalls"] is False
+    assert "docs.0g.ai.evil.example/claim" not in str(shadow_cache_body)
+
+    ready = client.get("/api/readyz")
+    assert ready.status_code == 200
+    ready_body = ready.get_json()
+    assert ready_body["schema"] == "0guard.readyz.v1"
+    assert ready_body["mode"] == "operational_readiness_no_side_effects"
+    assert ready_body["safety"]["transactionSigningEnabled"] is False
+    assert ready_body["safety"]["networkCalls"] is False
+
     proof_ladder = client.post(
         "/api/0g/proof-ladder",
         json={
@@ -635,6 +657,7 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert developer_kit_body["schema"] == "0guard.developer_kit.v1"
     assert developer_kit_body["transactionSigningEnabled"] is False
     assert developer_kit_body["safety"]["transactionSigningEnabled"] is False
+    assert "/api/readyz" in {route["path"] for route in developer_kit_body["routes"]}
     assert {recipe["id"] for recipe in developer_kit_body["adapterRecipes"]} >= {
         "agentkit_turnkey_safe_evm",
         "ika_mpckit_odws",
@@ -646,6 +669,9 @@ def test_cross_chain_integration_routes_are_read_only(client):
         route["path"] for route in developer_kit_body["routes"]
     }
     assert "/api/reputation/adapters/normalize" in {
+        route["path"] for route in developer_kit_body["routes"]
+    }
+    assert "/api/reputation/shadow-cache" in {
         route["path"] for route in developer_kit_body["routes"]
     }
 
@@ -1551,6 +1577,28 @@ def test_cli_reputation_adapter_normalizer_returns_derived_evidence_without_fetc
     assert '"rawPayloadReturned": false' in result.stdout
     assert '"networkCalls": false' in result.stdout
     assert "chainabuse.example" not in result.stdout
+
+
+def test_cli_reputation_shadow_cache_returns_no_fetch_cache_without_raw_urls():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "guard0.cli",
+            "reputation-shadow-cache",
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert '"schema": "0guard.reputation_shadow_cache.v1"' in result.stdout
+    assert '"networkCalls": false' in result.stdout
+    assert '"rawPayloadsReturned": false' in result.stdout
+    assert "docs.0g.ai.evil.example/claim" not in result.stdout
 
 
 def test_telegram_post_cli_requires_live_confirmation_before_credentials():

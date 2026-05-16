@@ -7,6 +7,7 @@ Usage:
   0guard native-preflight --payload-json '{...}'
   0guard proof-ladder --payload-json '{...}'
   0guard normalize-reputation-adapter --payload-json '{...}'
+  0guard reputation-shadow-cache --payload-json '{...}'
   0guard health
   0guard serve
 """
@@ -22,6 +23,7 @@ from guard0.native_preflight import build_native_preflight
 from guard0.policy import evaluate_intent
 from guard0.proof_ladder import build_proof_ladder
 from guard0.reputation_adapters import normalize_reputation_adapter_payload
+from guard0.reputation_shadow import build_reputation_shadow_cache
 
 
 def _print_json(obj: dict) -> None:
@@ -69,6 +71,14 @@ def cmd_normalize_reputation_adapter(args: argparse.Namespace) -> int:
     result = normalize_reputation_adapter_payload(payload)
     _print_json(result)
     decision = result.get("reputationPreview", {}).get("decision", {}).get("decision")
+    return 0 if decision != "deny" else 1
+
+
+def cmd_reputation_shadow_cache(args: argparse.Namespace) -> int:
+    payload = json.loads(args.payload_json) if args.payload_json else None
+    result = build_reputation_shadow_cache(payload)
+    _print_json(result)
+    decision = result.get("probePreview", {}).get("decision", {}).get("decision")
     return 0 if decision != "deny" else 1
 
 
@@ -120,6 +130,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_adapter.add_argument("--payload-json", required=True)
     p_adapter.set_defaults(func=cmd_normalize_reputation_adapter)
+
+    p_shadow = sub.add_parser(
+        "reputation-shadow-cache",
+        help="Build a derived no-fetch reputation shadow cache from reviewed adapter payloads",
+    )
+    p_shadow.add_argument("--payload-json", default="", help="Optional payload JSON; defaults to a sanitized demo")
+    p_shadow.set_defaults(func=cmd_reputation_shadow_cache)
 
     p_health = sub.add_parser("health", help="Health check")
     p_health.set_defaults(func=cmd_health)
