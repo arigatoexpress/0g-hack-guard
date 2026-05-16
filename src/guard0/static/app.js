@@ -312,6 +312,11 @@ async function loadIntelligenceStreamPlan(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadProductBrief(){
+  const r = await fetch('/api/product/brief');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadEcosystemRoadmap(){
   const r = await fetch('/api/roadmap');
   const j = await r.json();
@@ -534,6 +539,7 @@ document.getElementById('load-osint-readiness').addEventListener('click', loadOs
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
+document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);
 document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);

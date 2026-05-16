@@ -100,6 +100,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/intelligence/evolving" in data["apiRoutes"]
     assert "/api/intelligence/data-streams" in data["apiRoutes"]
+    assert "/api/product/brief" in data["apiRoutes"]
     assert "/api/healthz" in data["apiRoutes"]
     assert "/api/roadmap" in data["apiRoutes"]
     assert "/api/wallet/alert-preview" in data["apiRoutes"]
@@ -149,6 +150,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#osint-output" in data["requiredSelectors"]
     assert "#load-evolving-intel" in data["requiredSelectors"]
     assert "#load-intelligence-stream-plan" in data["requiredSelectors"]
+    assert "#load-product-brief" in data["requiredSelectors"]
     assert "#load-ecosystem-roadmap" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
@@ -194,6 +196,7 @@ def test_frontend_uses_packaged_template_and_static_assets():
         "<!doctype html>"
     )
     assert "run-evaluate" in (package_root / "static" / "app.js").read_text()
+    assert "loadProductBrief" in (package_root / "static" / "app.js").read_text()
     assert "miniappRunPreview" in (package_root / "static" / "telegram-miniapp.js").read_text()
     assert ".shell" in (package_root / "static" / "styles.css").read_text()
 

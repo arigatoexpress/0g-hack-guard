@@ -1,0 +1,58 @@
+# 0guard Critical Assessment
+
+## Strongest Current Wedge
+
+0guard is strongest when it owns one moment: before an AI agent reaches a
+signer. The project is not trying to be a wallet, bridge, exchange, or generic
+chain scanner. It is a pre-wallet checkpoint that produces an explainable
+allow/review/deny verdict and a receipt.
+
+## What Was Missing
+
+1. **Comprehension surface.** The project had many strong parts, but no single
+   route or document that explained what exists, what is live, what is only
+   planned, and where the safety boundaries are.
+2. **Social narrative update.** The public copy still mostly described the
+   hackathon submission. It did not reflect the Telegram Mini App, native
+   preflight developer kit, reputation connector manifest, and production
+   Cloud Run deployment.
+3. **Connector story.** The external intelligence plan existed, but needed a
+   clear subject-aware activation view that says which sources matter next
+   without pretending those feeds are live.
+
+## Improvements Shipped
+
+- Added `/api/product/brief`, a plain-English system map with live proof links,
+  built systems, honest limits, and next best builds.
+- Added a dashboard `Product brief` button so the brief is visible in the
+  workbench.
+- Added `docs/PROJECT_BRIEF.md` for a stable human-readable explanation.
+- Added `content/0guard_current_update_x_thread.json`, a dry-run-valid X thread
+  for the project account or Ari's main account.
+- Added `content/substack_0guard_launch_draft.md`, a review-ready long-form
+  launch/update post.
+- Updated the public proof hub to reference `/api/product/brief` and
+  `/api/reputation/connectors`.
+
+## Next Technical Priorities
+
+1. **Activate one reputation connector.** Start with GoPlus or Chainabuse. Keep
+   the adapter disabled by default, test with fixtures, and return only derived
+   signals.
+2. **Add 0G Storage readback.** Store a receipt payload only through an
+   operator-approved path, then prove retrieval.
+3. **Add transaction simulation summaries.** Use Tenderly or BlockSec to turn
+   risky calls into simple asset-delta explanations.
+4. **Deepen Telegram/TON.** Add read-only TON account/Jetton context through
+   TON Center or TONAPI, without tonProof or transaction prompts.
+
+## Non-Negotiable Boundaries
+
+- No secret exposure.
+- No key import.
+- No wallet creation from the workbench.
+- No signing or broadcasting.
+- No bridge, swap, x402 settlement, exchange order, or money movement.
+- No live Telegram/X/LinkedIn/Substack posting without an operator-reviewed
+  posting path.
+

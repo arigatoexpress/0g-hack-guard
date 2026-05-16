@@ -46,6 +46,7 @@ from guard0.osint import (
     threat_receipt_passport,
 )
 from guard0.policy import evaluate_intent
+from guard0.product_brief import product_brief
 from guard0.roadmap import ecosystem_roadmap, intelligence_stream_plan
 from guard0.reputation import (
     CURATED_DOMAIN_ALLOWLIST,
@@ -124,6 +125,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-readiness",
     "#load-osint-signals",
     "#load-evolving-intel",
+    "#load-product-brief",
     "#load-submission-brief",
     "#load-submission-packet",
     "#load-submission-readiness",
@@ -614,6 +616,7 @@ def api_frontend_contract():
                 "/api/osint/signals",
                 "/api/intelligence/evolving",
                 "/api/intelligence/data-streams",
+                "/api/product/brief",
                 "/api/roadmap",
                 "/api/wallet/alert-preview",
                 "/api/healthz",
@@ -792,6 +795,11 @@ def api_evolving_threat_intelligence():
 @app.route("/api/intelligence/data-streams", methods=["GET"])
 def api_intelligence_data_streams():
     return jsonify(intelligence_stream_plan())
+
+
+@app.route("/api/product/brief", methods=["GET"])
+def api_product_brief():
+    return jsonify(product_brief())
 
 
 @app.route("/api/roadmap", methods=["GET"])

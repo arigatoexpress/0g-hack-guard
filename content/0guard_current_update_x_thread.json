@@ -1,0 +1,9 @@
+{
+  "tweets": [
+    "0guard update: the project is now more than a hackathon demo.\n\nIt is a live pre-wallet firewall for AI agents: intent, calldata, policy, domain/reputation context, and exploit intelligence checked before any signer is asked to act.\n\nBuilt on 0G. Proof-first. No custody theater.",
+    "What is live:\n\n- Telegram Mini App\n- public proof hub\n- native preflight API\n- reputation probe\n- developer kit\n- 0G mainnet receipt proof\n\nMini App: https://guard0-miniapp-s77j6bxyra-uc.a.run.app/telegram\n\nNo signing. No broadcasts. No fund movement.",
+    "The newest piece is /api/reputation/connectors.\n\nIt maps the next intelligence feeds into a no-network activation plan: GoPlus, Chainabuse, CryptoScamDB, Forta, TON Center, TONAPI, Tenderly, BlockSec, LayerZero Scan, and Wormholescan.\n\nDerived signals only. No raw feed resale.",
+    "The product thesis is simple:\n\nAI agents should not get to the wallet first.\n\n0guard creates a checkpoint before the wallet: allow safe read-only actions, review ambiguous ones, deny dangerous signing/payment/bridge/exchange-shaped intents.",
+    "Next builds:\n\n1. Enable one external reputation connector with reviewed terms + credentials.\n2. Add operator-approved 0G Storage receipt readback.\n3. Add EVM simulation summaries.\n4. Deepen Telegram/TON risk passports.\n\nSafety middleware for agentic crypto."
+  ]
+}

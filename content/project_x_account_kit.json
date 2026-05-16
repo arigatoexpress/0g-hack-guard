@@ -1,6 +1,6 @@
 {
   "schema": "0guard.project_x_account_kit.v1",
-  "generatedAt": "2026-05-14",
+  "generatedAt": "2026-05-16",
   "purpose": "Project-owned X account setup kit for 0guard launch and HackQuest updates.",
   "account": {
     "displayName": "0guard",
@@ -17,6 +17,16 @@
     "profileImage": "docs/hackathon-0g/assets/0guard-logo.png",
     "headerImage": "docs/hackathon-0g/assets/0guard-x-banner.png",
     "headerImageRecommendation": "Use docs/hackathon-0g/assets/0guard-x-banner.png. It is a 1500x500 launch banner designed to complement the 0guard profile icon and show the agent -> 0guard -> wallet -> 0G proof flow."
+  },
+  "currentUpdateThread": {
+    "path": "content/0guard_current_update_x_thread.json",
+    "status": "dry_run_validated",
+    "theme": "0guard is now a live pre-wallet firewall with Telegram Mini App, native preflight, reputation connectors, and proof-first safety boundaries."
+  },
+  "substackDraft": {
+    "path": "content/substack_0guard_launch_draft.md",
+    "status": "review_ready",
+    "theme": "AI agents should not get to the wallet first."
   },
   "pinnedPost": {
     "text": "Introducing 0guard: a pre-wallet firewall for AI agents.\n\nIt checks intent, calldata, policy, and source-linked exploit intelligence before a wallet is ever asked to sign.\n\nBuilt on 0G with a public mainnet receipt anchor.\n\nDemo: https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4\nProof: https://arigatoexpress.github.io/0guard/hackathon-0g/\n\n#0GHackathon #BuildOn0G",

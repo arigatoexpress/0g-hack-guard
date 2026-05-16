@@ -152,6 +152,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
 | `GET`  | `/api/intelligence/data-streams` | Ranked data-stream plan with free/paid source options, rights posture, and integration phases |
+| `GET`  | `/api/product/brief` | Plain-English map of what 0guard is, what is live, honest limits, proof links, and next builds |
 | `GET`  | `/api/roadmap` | No-bridge ecosystem roadmap for 0G, Telegram/TON, EVM L2s, Solana, Hyperliquid, and agent distribution |
 | `GET/POST` | `/api/wallet/alert-preview` | Read-only wallet alert preview with quality gates, dedupe keys, cooldowns, and no sends |
 | `GET`  | `/tonconnect-manifest.json` | TON Connect manifest for presentation-only wallet context |
@@ -164,6 +165,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/integrations/ika` | Source-cited Ika, Encrypt, Ikavery, MPCKit, and OdWS integration manifest |
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
 | `GET/POST` | `/api/reputation/probe` | Rights-aware domain, counterparty, label, source-evidence, and intent reputation probe; raw payloads are not returned |
+| `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for GoPlus, Chainabuse, Forta, TON, simulation, and cross-chain intelligence feeds |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
 | `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |
