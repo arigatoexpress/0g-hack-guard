@@ -20,6 +20,23 @@ def test_current_x_update_thread_is_review_ready_and_within_limits():
     assert "0guard" in combined
 
 
+def test_postsubmit_x_update_thread_is_review_ready_and_within_limits():
+    path = REPO_ROOT / "content" / "0guard_postsubmit_update_x_thread.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    tweets = data["tweets"]
+    assert len(tweets) == 4
+    assert all(1 <= len(tweet) <= 280 for tweet in tweets)
+    combined = "\n".join(tweets).lower()
+    assert "30 rights-aware source lanes" in combined
+    assert "17 no-network reputation connector" in combined
+    assert "threatfox" in combined
+    assert "chainalysis" in combined
+    assert "web risk" in combined
+    assert "#0ghackathon" in combined
+    assert "#buildon0g" in combined
+
+
 def test_substack_draft_is_plain_english_and_safety_bounded():
     text = (REPO_ROOT / "content" / "substack_0guard_launch_draft.md").read_text(
         encoding="utf-8"

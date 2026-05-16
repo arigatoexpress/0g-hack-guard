@@ -195,7 +195,7 @@ Anchored receipt hash:
 Post-submit professionalization note:
 
 ```text
-The public proof packet now also exposes Apache-2.0 licensing, NOTICE/source-rights boundaries, a public asset registry, /api/readyz, /api/reputation/shadow-cache, and the Flow/Veo 3 production packet for a polished post-submit cut.
+The public proof packet now also exposes Apache-2.0 licensing, NOTICE/source-rights boundaries, a public asset registry, /api/readyz, /api/reputation/shadow-cache, /api/osint/sources with 30 tracked source lanes, /api/reputation/connectors with 17 no-network connector candidates, and the Flow/Veo 3 production packet for a polished post-submit cut.
 ```
 
 ## X Post
@@ -237,6 +237,10 @@ Completed on May 14, 2026 and refreshed on May 15, 2026:
    Telegram Mini App and current proof packet.
 5. Refreshed the public proof packet, repo license posture, source/asset
    policy, asset registry, and Flow/Veo production packet on May 16, 2026.
+6. Refreshed the production source/intelligence proof on May 16, 2026:
+   production revision `guard0-miniapp-6ede2cd`, 30 source lanes, 17
+   no-network connector candidates, and new disabled-by-default ThreatFox,
+   Chainalysis sanctions oracle, and Google Cloud Web Risk lanes.
 
 ## Manual Recovery Note
 

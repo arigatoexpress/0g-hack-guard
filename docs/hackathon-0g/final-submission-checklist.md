@@ -8,8 +8,8 @@ Hard deadline: May 16, 2026 at 23:59 UTC+8, which is May 16, 2026 at
 09:59 MDT in Denver.
 
 Status: submitted to HackQuest, updated with Telegram Mini App proof, refreshed
-with the professional repo/video packet, and verified by public readback on
-May 16, 2026 at 14:14:05 UTC.
+with the professional repo/video packet and expanded source-catalog proof, and
+verified by public HTML plus GraphQL readback on May 16, 2026 at 15:30:01 UTC.
 
 Public project: https://www.hackquest.io/projects/0guard
 
@@ -47,6 +47,10 @@ Submission proof artifact: `docs/hackathon-0g/hackquest-submission-proof.json`
 - Public asset registry: `docs/hackathon-0g/assets/README.md`
 - Professional Flow/Veo production packet:
   `docs/hackathon-0g/veo3-flow-production-prompt.md`
+- Production revision: `guard0-miniapp-6ede2cd`
+- Source catalog: 30 tracked sources at `/api/osint/sources`
+- Reputation connector manifest: 17 no-network connector candidates at
+  `/api/reputation/connectors`
 
 ## Mainnet Proof Ready
 
@@ -198,6 +202,10 @@ Expected high-signal fields:
    project-image assets.
 6. Refreshed the public proof packet with Apache-2.0 licensing, source/asset
    policy, asset registry, and Flow/Veo production-packet links.
+7. Promoted production revision `guard0-miniapp-6ede2cd` with 30
+   rights-aware OSINT source lanes and 17 no-network reputation connector
+   candidates, including disabled-by-default ThreatFox, Chainalysis sanctions
+   oracle, and Google Cloud Web Risk lanes.
 
 ## Manual Recovery Note
 

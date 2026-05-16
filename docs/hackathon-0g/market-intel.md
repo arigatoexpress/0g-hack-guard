@@ -147,9 +147,14 @@ hashes that can be verified without exposing raw upstream data.
   `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
 - The submitted X proof URL is
   `https://x.com/rariwrldd/status/2054779961425461542`.
+- The public HackQuest project also now surfaces the project X account link:
+  `https://x.com/0guard_`.
 - A prepared screenshot still exists at
   `docs/hackathon-0g/assets/0guard-workbench-provenance.png`.
 - Per-incident source evidence is now promoted for 28 of 28 records.
+- Production now exposes 30 source lanes and 17 no-network connector
+  candidates. The newest disabled-by-default lanes are ThreatFox, Chainalysis
+  sanctions oracle, and Google Cloud Web Risk.
 - The detector map covers 28 of 28 incident-derived patterns after promoting
   SlowMist-syndicated public evidence for the `Quant` EIP-7702 delegated
   account / permissionless batch-call access-control failure.
