@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from urllib.parse import urlparse
 from datetime import datetime, timezone
 from typing import Any
 
@@ -387,8 +388,13 @@ def _redact_text(value: Any) -> str:
     text = str(value or "")
     for pattern in _SECRET_PATTERNS:
         text = pattern.sub("***REDACTED***", text)
+    parsed = urlparse(text)
+    if parsed.scheme in {"http", "https"} and parsed.netloc:
+        return f"url:{_hash_text(text)[:12]}"
     if text.startswith("0x") and len(text) >= 18:
         return f"{text[:6]}...{text[-6:]}"
+    if "." in text and " " not in text and "/" not in text and len(text) <= 253:
+        return f"domain:{_hash_text(text)[:12]}"
     return text
 
 

@@ -46,6 +46,8 @@ def test_threat_case_file_composes_policy_reputation_provenance_and_receipts():
     assert case_file["safety"]["transactionSigningEnabled"] is False
     assert case_file["safety"]["moneyMovementEnabled"] is False
     assert case_file["safety"]["rawPayloadsReturned"] is False
+    encoded = json.dumps(case_file)
+    assert "docs.0g.ai.evil.example" not in encoded
 
 
 def test_threat_case_file_promotes_normalized_adapter_evidence_without_raw_payloads():
