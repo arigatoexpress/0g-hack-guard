@@ -14,6 +14,7 @@ from guard0.crosschain import CHAIN_TARGETS, configured_rpc
 from guard0.incident_data import detection_coverage
 from guard0.osint import incident_provenance_matrix, signature_map
 from guard0.policy import evaluate_intent
+from guard0.reputation import build_reputation_probe
 
 WALLET_ALERT_PREVIEW_SCHEMA = "0guard.wallet_alert_preview.v1"
 WALLET_ALERT_QUALITY_POLICY_SCHEMA = "0guard.wallet_alert_quality_policy.v1"
@@ -58,6 +59,7 @@ def build_wallet_alert_preview(
     address: str,
     *,
     intent: dict[str, Any] | None = None,
+    reputation_context: dict[str, Any] | None = None,
     live: bool = False,
     max_alerts: int = DEFAULT_MAX_ALERTS,
     now: str | None = None,
@@ -80,6 +82,14 @@ def build_wallet_alert_preview(
     ).to_dict()
     if amount_issue:
         decision = _force_deny_for_amount_issue(decision, amount_issue)
+    reputation = _build_reputation_context(
+        reputation_context=reputation_context,
+        raw_intent=intent,
+        evaluation_intent=evaluation_intent,
+        wallet_address=normalized_address,
+    )
+    if reputation:
+        decision = _merge_reputation_decision(decision, reputation)
     sig_map = signature_map()
     coverage = detection_coverage()
     provenance = incident_provenance_matrix(live=False)
@@ -91,6 +101,14 @@ def build_wallet_alert_preview(
         provenance,
         quality_policy,
     )
+    if reputation:
+        alerts.extend(
+            _alerts_from_reputation(
+                normalized_address,
+                reputation,
+                quality_policy,
+            )
+        )
     digest_items = _digest_items(sig_map, coverage, provenance)
     probes = _wallet_read_only_probes(normalized_address, live=live)
 
@@ -114,6 +132,7 @@ def build_wallet_alert_preview(
         },
         "alertCount": len(alerts),
         "alerts": alerts,
+        "reputation": reputation,
         "digestOnly": digest_items,
         "qualityPolicy": quality_policy,
         "telegramPreview": build_wallet_alert_message(alerts, digest_items, normalized_address),
@@ -205,6 +224,83 @@ def _force_deny_for_amount_issue(decision: dict[str, Any], reason: str) -> dict[
     return updated
 
 
+def _build_reputation_context(
+    *,
+    reputation_context: dict[str, Any] | None,
+    raw_intent: dict[str, Any] | None,
+    evaluation_intent: dict[str, Any],
+    wallet_address: str,
+) -> dict[str, Any] | None:
+    context = dict(reputation_context or {})
+    raw = raw_intent if isinstance(raw_intent, dict) else {}
+    target = (
+        context.get("address")
+        or context.get("target")
+        or raw.get("to")
+        or raw.get("target")
+        or raw.get("target_contract")
+        or evaluation_intent.get("target_contract")
+    )
+    url = context.get("url") or context.get("domain") or raw.get("url") or raw.get("domain")
+    labels = context.get("labels") or raw.get("labels") or []
+    evidence = (
+        context.get("sourceEvidence")
+        or context.get("source_evidence")
+        or raw.get("sourceEvidence")
+        or raw.get("evidence")
+        or []
+    )
+    if not any([target, url, labels, evidence]):
+        return None
+
+    probe = build_reputation_probe(
+        {
+            "url": url or "",
+            "address": target or wallet_address,
+            "chain": context.get("chain") or raw.get("chain") or evaluation_intent.get("chain_id") or "",
+            "surface": context.get("surface") or raw.get("surface") or "wallet_alert",
+            "labels": labels,
+            "sourceEvidence": evidence,
+            "intent": evaluation_intent,
+        }
+    )
+    return {
+        "schema": probe["schema"],
+        "mode": probe["mode"],
+        "decision": probe["decision"],
+        "signalCount": probe["signalCount"],
+        "signals": probe["signals"],
+        "receipt": probe["receipt"],
+        "rightsPolicy": probe["rightsPolicy"],
+        "safety": probe["safety"],
+    }
+
+
+def _merge_reputation_decision(
+    decision: dict[str, Any],
+    reputation: dict[str, Any],
+) -> dict[str, Any]:
+    reputation_decision = reputation["decision"]["decision"]
+    if reputation_decision == "allow":
+        return decision
+
+    updated = dict(decision)
+    blockers = list(updated.get("blockers") or [])
+    warnings = list(updated.get("warnings") or [])
+    reasons = reputation["decision"].get("reasons") or ["Reputation probe requires review."]
+    if reputation_decision == "deny":
+        blockers.append(f"Reputation probe denied counterparty context: {reasons[0]}")
+        updated["decision"] = "deny"
+        updated["severity"] = "critical"
+    elif updated.get("decision") != "deny":
+        warnings.append(f"Reputation probe requests review: {reasons[0]}")
+        updated["decision"] = "review"
+        updated["severity"] = "medium"
+    updated["blockers"] = blockers
+    updated["warnings"] = warnings
+    return updated
+
+
 def build_wallet_alert_message(
     alerts: list[dict[str, Any]],
     digest_items: list[dict[str, Any]],
@@ -252,13 +348,16 @@ def _alerts_from_decision(
     if verdict not in {"deny", "review"}:
         return []
 
+    top_reason = (blockers or warnings or ["Policy review required."])[0]
+    if str(top_reason).lower().startswith("reputation probe"):
+        return []
+
     severity = str(decision.get("severity") or "medium")
     score = 0.97 if verdict == "deny" else 0.78
     if blockers and any("signature" in blocker.lower() for blocker in blockers):
         score = max(score, 0.99)
     if warnings and any("bridge" in warning.lower() for warning in warnings):
         score = max(score, 0.86)
-    top_reason = (blockers or warnings or ["Policy review required."])[0]
     source_ids = _source_ids_for_alert(sig_map, provenance, top_reason)
     alert_id = _stable_id(
         {
@@ -283,6 +382,49 @@ def _alerts_from_decision(
             "cooldownSeconds": quality_policy["cooldownsSeconds"].get(severity, 21600),
             "sourceIds": source_ids,
             "sendPolicy": _send_policy(score, "direct_intent_for_wallet", quality_policy),
+        }
+    ]
+
+
+def _alerts_from_reputation(
+    address: str,
+    reputation: dict[str, Any],
+    quality_policy: dict[str, Any],
+) -> list[dict[str, Any]]:
+    verdict = reputation["decision"]["decision"]
+    if verdict not in {"deny", "review"}:
+        return []
+    severity = reputation["decision"].get("severity") or ("critical" if verdict == "deny" else "medium")
+    score = 0.94 if verdict == "deny" else 0.8
+    top_reason = (reputation["decision"].get("reasons") or ["Reputation review required."])[0]
+    source_ids = sorted(
+        {
+            signal["evidence"].get("sourceId", signal["id"])
+            for signal in reputation.get("signals") or []
+            if isinstance(signal.get("evidence"), dict)
+        }
+        or {"reputation_probe"}
+    )
+    return [
+        {
+            "id": f"rep_{reputation['receipt']['hash'][:24]}",
+            "severity": severity,
+            "score": round(score, 4),
+            "title": _reputation_alert_title(top_reason),
+            "whyItMatters": top_reason,
+            "walletRelevance": "counterparty_or_domain_context",
+            "recommendedAction": _recommended_action(verdict),
+            "receiptHash": reputation["receipt"]["hash"],
+            "dedupeKey": _stable_id(
+                {
+                    "address": address.lower(),
+                    "reputationReceipt": reputation["receipt"]["hash"],
+                    "reason": top_reason,
+                }
+            )[:32],
+            "cooldownSeconds": quality_policy["cooldownsSeconds"].get(severity, 21600),
+            "sourceIds": source_ids,
+            "sendPolicy": _send_policy(score, "counterparty_or_domain_context", quality_policy),
         }
     ]
 
@@ -409,7 +551,7 @@ def _send_policy(
 ) -> dict[str, Any]:
     telegram_eligible = (
         score >= quality_policy["minAlertScore"]
-        and wallet_relevance == "direct_intent_for_wallet"
+        and wallet_relevance in {"direct_intent_for_wallet", "counterparty_or_domain_context"}
     )
     return {
         "telegramEligibleAfterOptIn": telegram_eligible,
@@ -443,6 +585,17 @@ def _alert_title(verdict: str, reason: str) -> str:
     if verdict == "deny":
         return "Blocked wallet-signing request"
     return "Human review recommended"
+
+
+def _reputation_alert_title(reason: str) -> str:
+    reason_lower = reason.lower()
+    if "suffix" in reason_lower or "domain" in reason_lower:
+        return "Suspicious domain or counterparty context"
+    if "malicious" in reason_lower or "compromised" in reason_lower:
+        return "Known malicious counterparty"
+    if "source evidence" in reason_lower or "reputation" in reason_lower:
+        return "Negative reputation evidence"
+    return "Counterparty reputation review"
 
 
 def _validate_max_alerts(max_alerts: int) -> int:

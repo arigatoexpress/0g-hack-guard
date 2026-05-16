@@ -524,6 +524,8 @@ def exercise_telegram_miniapp(page: Page) -> None:
         "0guard.telegram_miniapp_preview.v1"
     )
     expect(page.locator("#miniapp-output")).to_contain_text('"telegram_send": false')
+    expect(page.locator("#miniapp-output")).to_contain_text("0guard.reputation_probe.v1")
+    expect(page.locator("#miniapp-output")).to_contain_text('"rawPayloadsReturned": false')
     expect(page.locator("#miniapp-output")).to_contain_text('"decision": "deny"')
     expect(page.locator("#miniapp-alert-message")).to_contain_text(
         "no Telegram message sent"

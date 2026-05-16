@@ -63,11 +63,25 @@ function miniappBuildIntent(){
 }
 
 function miniappPreviewPayload(){
+  const reputationUrl = document.getElementById('miniapp-reputation-url').value.trim();
+  const reputationLabel = document.getElementById('miniapp-reputation-label').value.trim();
   const payload = {
     address: document.getElementById('miniapp-wallet-address').value,
     intent: miniappBuildIntent(),
     max_alerts: 3
   };
+  if(reputationUrl || reputationLabel){
+    payload.reputation = {
+      url: reputationUrl,
+      labels: reputationLabel ? [reputationLabel] : [],
+      sourceEvidence: reputationLabel ? [{
+        sourceId: 'miniapp_user_context',
+        verdict: reputationLabel,
+        confidence: 0.72,
+        label: reputationLabel
+      }] : []
+    };
+  }
   if(telegramInitData){
     payload.initData = telegramInitData;
   }

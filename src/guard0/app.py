@@ -168,6 +168,8 @@ MINIAPP_REQUIRED_SELECTORS = (
     "#miniapp-asset",
     "#miniapp-amount",
     "#miniapp-to",
+    "#miniapp-reputation-url",
+    "#miniapp-reputation-label",
     "#miniapp-preview-alert",
     "#miniapp-run-mira",
     "#miniapp-ton-address",
@@ -818,10 +820,12 @@ def api_wallet_alert_preview():
     max_alerts_raw = _request_value(body, "max_alerts", 5)
     try:
         max_alerts = int(max_alerts_raw)
+        reputation_context = _reputation_context_from_request(body)
         try:
             preview = build_wallet_alert_preview(
                 address,
                 intent=intent,
+                reputation_context=reputation_context,
                 live=live,
                 max_alerts=max_alerts,
             )
@@ -833,6 +837,7 @@ def api_wallet_alert_preview():
             preview = build_wallet_alert_preview(
                 DEMO_EVM_ADDRESS,
                 intent=intent,
+                reputation_context=reputation_context,
                 live=live,
                 max_alerts=max_alerts,
             )
@@ -1137,6 +1142,7 @@ def api_telegram_miniapp_preview():
         wallet_preview = build_wallet_alert_preview(
             address,
             intent=intent,
+            reputation_context=_reputation_context_from_request(body),
             live=_truthy_value(body.get("live", False)),
             max_alerts=int(_request_value(body, "max_alerts", 3)),
         )
@@ -1337,10 +1343,12 @@ def api_telegram_wallet_alert_preview():
             else _truthy_query_arg("live")
         )
         max_alerts = int(_request_value(body, "max_alerts", 5))
+        reputation_context = _reputation_context_from_request(body)
         try:
             preview = build_wallet_alert_preview(
                 address,
                 intent=intent,
+                reputation_context=reputation_context,
                 live=live,
                 max_alerts=max_alerts,
             )
@@ -1350,6 +1358,7 @@ def api_telegram_wallet_alert_preview():
             preview = build_wallet_alert_preview(
                 DEMO_EVM_ADDRESS,
                 intent=intent,
+                reputation_context=reputation_context,
                 live=live,
                 max_alerts=max_alerts,
             )
@@ -1506,6 +1515,33 @@ def _request_value(body: dict, name: str, default: object) -> object:
     if request.method == "POST" and name in body:
         return body[name]
     return request.args.get(name, default)
+
+
+def _reputation_context_from_request(body: dict) -> dict | None:
+    explicit = body.get("reputation") or body.get("reputation_context")
+    if isinstance(explicit, dict):
+        return explicit
+
+    source = body if request.method == "POST" else request.args
+    evidence = source.get("sourceEvidence") or source.get("source_evidence") or []
+    labels = source.get("labels") or source.get("label") or []
+    context = {
+        "url": source.get("url") or source.get("domain") or source.get("website") or "",
+        "address": (
+            source.get("counterparty")
+            or source.get("target")
+            or source.get("target_contract")
+            or source.get("to")
+            or ""
+        ),
+        "chain": source.get("chain") or source.get("caip2") or "",
+        "surface": source.get("surface") or "",
+        "labels": labels,
+        "sourceEvidence": evidence,
+    }
+    if any(value for value in context.values()):
+        return context
+    return None
 
 
 def _build_mira_claim_response(

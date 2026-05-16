@@ -27,10 +27,11 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "whyItMatters": "Best near-term lift for domain checks, recipient checks, approvals, and Telegram alerts.",
             "integrationShape": (
                 "Normalize domain/address/token votes into one risk_probe result consumed by "
-                "/api/domain, /api/evaluate, /api/wallet/alert-preview, and Telegram previews."
+                "/api/reputation/probe, /api/domain, /api/native-preflight, "
+                "/api/wallet/alert-preview, and Telegram previews."
             ),
             "rightsEnvelope": "Return derived verdicts, source ids, confidence, links, and hashes; do not resell raw feeds.",
-            "status": "planned_adapter",
+            "status": "adapter_contract_live_external_feeds_disabled",
             "buildPhase": "phase_1",
         },
         {
@@ -40,6 +41,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "cost": "public_labels_plus_possible_subscription",
             "sources": [
                 "https://docs.forta.network/en/latest/attack-detector-bot/",
+                "https://docs.forta.network/en/latest/forta-api-reference/",
                 "https://docs.forta.network/en/latest/api-reference/",
                 "https://github.com/forta-network/labelled-datasets",
             ],
@@ -71,6 +73,8 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "cost": "free_or_affordable_keyed_infra",
             "sources": [
                 "https://docs.ton.org/ecosystem/api/toncenter/v3/overview",
+                "https://docs.ton.org/v3/guidelines/dapps/transactions/api-based-retrieval",
+                "https://docs.tonapi.io/tonapi/rest-api/jettons",
                 "https://docs.ton.org/v3/guidelines/ton-connect/overview",
                 "https://core.telegram.org/bots/blockchain-guidelines",
             ],

@@ -64,6 +64,36 @@ def test_wallet_alert_preview_keeps_safe_readonly_check_as_digest_only():
     assert all(row["status"] == "not_checked" for row in preview["wallet"]["liveProbes"]["probes"])
 
 
+def test_wallet_alert_preview_promotes_reputation_deny_without_network_or_send():
+    preview = build_wallet_alert_preview(
+        ADDRESS,
+        intent={
+            "action": "read_balance",
+            "mode": "simulation",
+            "method": "eth_getBalance",
+            "requires_signature": False,
+        },
+        reputation_context={
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            "sourceEvidence": [
+                {"sourceId": "operator_report", "verdict": "phishing", "confidence": 0.91}
+            ],
+        },
+    )
+
+    assert preview["schema"] == "0guard.wallet_alert_preview.v1"
+    assert preview["decision"]["decision"] == "deny"
+    assert preview["reputation"]["schema"] == "0guard.reputation_probe.v1"
+    assert preview["reputation"]["decision"]["decision"] == "deny"
+    assert preview["alertCount"] == 1
+    assert preview["alerts"][0]["id"].startswith("rep_")
+    assert preview["alerts"][0]["sendPolicy"]["wouldSendFromWorkbench"] is False
+    assert preview["safety"]["networkCalls"] is False
+    assert preview["safety"]["telegramSendEnabled"] is False
+    assert preview["reputation"]["safety"]["networkCalls"] is False
+
+
 def test_wallet_alert_preview_titles_accounting_invariant_alerts():
     preview = build_wallet_alert_preview(
         ADDRESS,

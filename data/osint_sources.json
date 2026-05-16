@@ -31,6 +31,20 @@
       "caveats": "Article body rights remain with Chainalysis; summaries should cite links rather than copy content."
     },
     {
+      "id": "forta_graphql_api",
+      "name": "Forta GraphQL Alerts and Labels API",
+      "owner": "Forta Network",
+      "url": "https://docs.forta.network/en/latest/forta-api-reference/",
+      "homepage": "https://forta.org/",
+      "retrieval_mode": "public_or_keyed_api",
+      "adapter": "planned_alert_label_digest",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 300,
+      "license_or_rights": "Forta API and premium-feed terms apply. Use alert hashes, labels, source ids, severity, chain ids, and redacted addresses only.",
+      "output_policy": "Use as digest-only exploit-stage intelligence; promote to wallet alerts only with direct wallet/source evidence.",
+      "caveats": "Disabled until API access, premium terms, and retention rules are reviewed."
+    },
+    {
       "id": "forta_labelled_datasets",
       "name": "Forta Labelled Datasets",
       "owner": "Forta Network",
@@ -239,6 +253,20 @@
       "license_or_rights": "Infrastructure API terms apply. Use derived activity features, source ids, and hashes only.",
       "output_policy": "Use for read-only TON account, transaction, Jetton, and NFT activity enrichment.",
       "caveats": "TON risk passport remains syntax/policy-only until a live indexer adapter is explicitly enabled."
+    },
+    {
+      "id": "tonapi_jettons",
+      "name": "TONAPI Jetton and Account Activity APIs",
+      "owner": "TONAPI",
+      "url": "https://docs.tonapi.io/tonapi/rest-api/jettons",
+      "homepage": "https://tonapi.io/",
+      "retrieval_mode": "public_or_keyed_api",
+      "adapter": "planned_ton_activity",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 300,
+      "license_or_rights": "TONAPI terms apply. Use derived account, Jetton, NFT, and transaction activity features only.",
+      "output_policy": "Use for read-only Telegram/TON risk passport enrichment without returning raw indexer dumps.",
+      "caveats": "No tonProof, wallet prompt, transaction send, or Telegram send is triggered by this adapter."
     },
     {
       "id": "helius_solana",

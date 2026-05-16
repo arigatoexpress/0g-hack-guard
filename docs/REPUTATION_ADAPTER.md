@@ -47,6 +47,9 @@ feeds, custody credentials, or make network calls.
 
 - `/api/native-preflight` includes a `reputation_probe` component when the
   caller supplies a domain, counterparty, label, or source evidence.
+- `/api/wallet/alert-preview`, `/api/telegram/wallet-alert-preview`, and
+  `/api/telegram/miniapp/preview` can promote reputation `deny` or `review`
+  into a concise no-send alert even when the base wallet intent is read-only.
 - `/api/developer-kit` points adapter builders at the route.
 - Telegram and wallet alerts can use this as the next enrichment layer before
   stronger claims about live address reputation.

@@ -656,6 +656,10 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
         "/api/telegram/miniapp/preview",
         json={
             "address": address,
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "sourceEvidence": [
+                {"sourceId": "operator_report", "verdict": "phishing", "confidence": 0.91}
+            ],
             "intent": {
                 "action": "approve",
                 "mode": "live_transaction",
@@ -675,6 +679,8 @@ def test_telegram_miniapp_preview_combines_wallet_alert_and_mira(client):
     assert data["network_calls"] is False
     assert data["walletAlert"]["schema"] == "0guard.wallet_alert_preview.v1"
     assert data["walletAlert"]["decision"]["decision"] == "deny"
+    assert data["walletAlert"]["reputation"]["schema"] == "0guard.reputation_probe.v1"
+    assert data["walletAlert"]["reputation"]["safety"]["networkCalls"] is False
     assert data["mira"]["schema"] == "0guard.mira_preview.v1"
     assert data["mira"]["telegram_send"] is False
     assert data["qualityPolicy"]["telegramSendEnabled"] is False
@@ -788,6 +794,10 @@ def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
         json={
             "address": address,
             "live": "false",
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "sourceEvidence": [
+                {"sourceId": "operator_report", "verdict": "phishing", "confidence": 0.91}
+            ],
             "intent": {"action": "read_balance", "mode": "simulation"},
         },
     )
@@ -797,6 +807,9 @@ def test_wallet_alert_preview_routes_are_quality_gated_and_no_send(client):
     assert telegram_body["delivery"] == "preview_no_send"
     assert telegram_body["telegram_send"] is False
     assert telegram_body["network_calls"] is False
+    assert telegram_body["walletAlert"]["decision"]["decision"] == "deny"
+    assert telegram_body["walletAlert"]["reputation"]["schema"] == "0guard.reputation_probe.v1"
+    assert telegram_body["walletAlert"]["reputation"]["safety"]["networkCalls"] is False
     assert telegram_body["walletAlert"]["safety"]["workbenchCanSend"] is False
 
     no_address = client.get("/api/wallet/alert-preview?type=transfer&amount=0")

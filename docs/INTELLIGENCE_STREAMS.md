@@ -7,10 +7,10 @@ incident dataset without pretending raw feeds are ours to resell.
 
 | Phase | Stream | Why | Integration | Rights posture |
 |---|---|---|---|---|
-| 1 | GoPlus + Chainabuse + CryptoScamDB / Scam Sniffer / MetaMask phishing feeds | Highest near-term value for address, token, approval, dApp, and domain risk. | One `risk_probe` adapter feeding `/api/domain`, `/api/evaluate`, wallet alerts, and Telegram previews. | Derived verdicts, links, hashes, source ids, and confidence only. |
-| 1 | Forta labels and attack alerts | Emerging exploit-stage intelligence before it becomes a hard blocker. | Digest-only queue; promote to wallet alert only with direct detector/source evidence. | Respect public label attribution and any premium feed terms. |
+| 1 | GoPlus + Chainabuse + CryptoScamDB / Scam Sniffer / MetaMask phishing feeds | Highest near-term value for address, token, approval, dApp, and domain risk. | The live `/api/reputation/probe` contract now feeds `/api/native-preflight`, wallet alerts, and Telegram previews; external feeds stay disabled until keys/terms are reviewed. | Derived verdicts, links, hashes, source ids, and confidence only. |
+| 1 | Forta labels and attack alerts | Emerging exploit-stage intelligence before it becomes a hard blocker. | Digest-only queue using Forta alert/label metadata; promote to wallet alert only with direct detector/source evidence. | Respect public label attribution and any premium feed terms. |
 | 2 | Tenderly or BlockSec simulation | Adds state-change previews for approvals, swaps, and contract calls. | Optional `simulate_intent` adapter returning asset deltas and dangerous calls. | Do not persist/resell full traces unless vendor terms allow it. |
-| 2 | TON Center / TONAPI | Makes Telegram wallet alerts native to TON instead of EVM-shaped. | TON account, Jetton, NFT, and message activity enrichment for risk passports. | Derived activity features only; no raw indexer dumps. |
+| 2 | TON Center / TONAPI | Makes Telegram wallet alerts native to TON instead of EVM-shaped. | TON account, transaction, Jetton, NFT, and message activity enrichment for risk passports. | Derived activity features only; no raw indexer dumps. |
 | 2 | Helius Solana | Adds Solana read-only account/token risk without making a bridge story. | Parsed transaction and SPL-token watchlists feeding alert quality gates. | Vendor terms; derived features and links only. |
 | 2 | LayerZero Scan / Wormholescan | Lets 0guard protect cross-chain message risk without initiating transfers. | Read message state, DVN config, VAA status, and stuck-message context. | Derived message metadata only. |
 | 3 | Hyperliquid Info/WebSocket APIs | Useful for exposure and fill context while avoiding exchange actions. | Read-only exposure monitor; no order, cancel, transfer, or withdrawal endpoints. | Market context only, not advice or execution. |
@@ -31,4 +31,6 @@ incident dataset without pretending raw feeds are ours to resell.
   roadmap.
 - `/api/osint/sources` now includes the planned stream metadata and keeps those
   adapters disabled by default until terms, keys, and retention rules are clear.
-
+- `/api/reputation/probe` is the first live adapter contract. It accepts local
+  or caller-supplied evidence and returns only derived signals, hashes,
+  redactions, confidence, and receipt metadata.
