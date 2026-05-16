@@ -92,13 +92,24 @@ def test_reputation_connector_manifest_is_no_network_and_activation_ready():
         "goplus_security",
         "chainabuse",
         "forta_graphql_api",
+        "scam_sniffer_database",
+        "chainalysis_sanctions_oracle",
+        "urlhaus",
+        "threatfox_iocs",
+        "google_web_risk",
     } <= set(by_id)
     assert by_id["phishdestroy_destroylist"]["credentialRequired"] is False
     assert by_id["cryptoscamdb"]["credentialRequired"] is False
     assert by_id["forta_labelled_datasets"]["credentialRequired"] is False
     assert by_id["goplus_security"]["credentialRequired"] is True
     assert by_id["chainabuse"]["credentialRequired"] is True
+    assert by_id["chainalysis_sanctions_oracle"]["credentialRequired"] is False
+    assert by_id["threatfox_iocs"]["credentialRequired"] is True
+    assert by_id["google_web_risk"]["credentialRequired"] is True
     assert by_id["goplus_security"]["appliesToSubject"] is True
+    assert by_id["chainalysis_sanctions_oracle"]["appliesToSubject"] is True
+    assert by_id["threatfox_iocs"]["appliesToSubject"] is True
+    assert by_id["google_web_risk"]["appliesToSubject"] is True
     assert by_id["tonapi_jettons"]["appliesToSubject"] is False
     assert manifest["recommendedActivationOrder"][:3] == [
         "phishdestroy_destroylist",

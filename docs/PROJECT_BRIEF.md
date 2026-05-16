@@ -54,9 +54,10 @@ deployment gates, and x402-style paid APIs.
 
 ## Honest Limits
 
-- External PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TONAPI,
-  Tenderly, and BlockSec live fetches are activation-ready but disabled until
-  credentials, terms, and retention rules are reviewed. The
+- External PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, Scam
+  Sniffer, ThreatFox, URLhaus, Chainalysis sanctions oracle, Google Web Risk,
+  TONAPI, Tenderly, and BlockSec live fetches are activation-ready but disabled
+  until credentials, terms, and retention rules are reviewed. The
   PhishDestroy/CryptoScamDB/Forta/GoPlus/Chainabuse normalizer is live for
   caller-provided payloads and returns only derived evidence.
 - The Mini App and bot are live, but outbound Telegram sends are disabled.

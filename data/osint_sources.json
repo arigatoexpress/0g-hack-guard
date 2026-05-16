@@ -1,6 +1,6 @@
 {
   "schema": "0guard.osint_source_registry.v1",
-  "generated_at": "2026-05-13T00:00:00Z",
+  "generated_at": "2026-05-16T14:40:00Z",
   "sources": [
     {
       "id": "defillama_hacks",
@@ -171,6 +171,20 @@
       "caveats": "Do not present sanctions context as legal advice."
     },
     {
+      "id": "chainalysis_sanctions_oracle",
+      "name": "Chainalysis Sanctions Oracle",
+      "owner": "Chainalysis",
+      "url": "https://go.chainalysis.com/chainalysis-oracle-docs.html",
+      "homepage": "https://www.chainalysis.com/",
+      "retrieval_mode": "public_onchain_oracle",
+      "adapter": "planned_sanctions_oracle",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 3600,
+      "license_or_rights": "Free on-chain sanctions oracle with no accuracy guarantee. Treat as one defensive signal, not legal advice.",
+      "output_policy": "Use as a binary sanctions precheck for EVM addresses, returning oracle result, chain, contract link, and receipt hash only.",
+      "caveats": "Disabled by default; do not represent the result as compliance certification or a complete sanctions screen."
+    },
+    {
       "id": "urlhaus",
       "name": "URLhaus",
       "owner": "abuse.ch",
@@ -183,6 +197,20 @@
       "license_or_rights": "Free fair-use API; commercial or high-volume use may require a paid Spamhaus route.",
       "output_policy": "Use as optional malware-infrastructure context, not as a Web3 phishing substitute.",
       "caveats": "Malware URL focus; not enough alone for crypto transaction verdicts."
+    },
+    {
+      "id": "threatfox_iocs",
+      "name": "ThreatFox IOC API",
+      "owner": "abuse.ch",
+      "url": "https://threatfox.abuse.ch/api/",
+      "homepage": "https://threatfox.abuse.ch/",
+      "retrieval_mode": "api_key_required",
+      "adapter": "planned_ioc_digest",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 3600,
+      "license_or_rights": "Free community API under fair-use principles; commercial or for-profit use may require the enhanced Spamhaus route.",
+      "output_policy": "Use recent IOC metadata, confidence, type, first-seen timestamps, tags, references, and hashes for corroboration only.",
+      "caveats": "Requires an Auth-Key; expired IOCs are not exposed by the API, and malware infrastructure is only corroborating evidence for wallet safety."
     },
     {
       "id": "chainabuse",
@@ -211,6 +239,20 @@
       "license_or_rights": "API terms apply. Suitable as an upstream signal, not as raw resale data.",
       "output_policy": "Use for transaction/token/address risk enrichment after explicit integration review.",
       "caveats": "Keep disabled until API key/terms/rate limits are reviewed."
+    },
+    {
+      "id": "google_web_risk",
+      "name": "Google Cloud Web Risk",
+      "owner": "Google Cloud",
+      "url": "https://cloud.google.com/web-risk/docs",
+      "homepage": "https://cloud.google.com/web-risk",
+      "retrieval_mode": "api_key_required",
+      "adapter": "planned_url_safety_lookup",
+      "enabled_by_default": false,
+      "freshness_ttl_seconds": 300,
+      "license_or_rights": "Google Cloud Web Risk API terms and billing apply. Prefer this commercial product over Safe Browsing for productized URL safety checks.",
+      "output_policy": "Use lookup verdict, threat type, cache TTL, and URL hash only; never expose API keys or raw user URLs in public artifacts.",
+      "caveats": "Disabled by default until billing, key custody, privacy posture, and retention policy are approved."
     },
     {
       "id": "blocksec_blog",

@@ -1805,6 +1805,7 @@ def _public_source_fields(source: dict[str, Any]) -> dict[str, Any]:
         "homepage": source.get("homepage"),
         "retrievalMode": source["retrieval_mode"],
         "adapter": source["adapter"],
+        "enabledByDefault": bool(source.get("enabled_by_default")),
         "freshnessTtlSeconds": source["freshness_ttl_seconds"],
         "licenseOrRights": source["license_or_rights"],
         "outputPolicy": source["output_policy"],

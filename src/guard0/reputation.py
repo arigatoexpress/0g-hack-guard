@@ -80,6 +80,56 @@ REPUTATION_CONNECTOR_CANDIDATES = (
         ),
     },
     {
+        "sourceId": "scam_sniffer_database",
+        "priority": 2,
+        "stage": "delayed_phishing_database",
+        "surfaces": ("domain", "url"),
+        "useCases": (
+            "delayed open scam-domain corroboration",
+            "browser and Telegram link preflight context with explicit license gating",
+        ),
+    },
+    {
+        "sourceId": "chainalysis_sanctions_oracle",
+        "priority": 3,
+        "stage": "binary_sanctions_precheck",
+        "surfaces": ("evm_address", "contract"),
+        "useCases": (
+            "binary sanctions-oracle precheck for EVM counterparties",
+            "receipt-level compliance context without treating it as legal advice",
+        ),
+    },
+    {
+        "sourceId": "urlhaus",
+        "priority": 3,
+        "stage": "malware_infrastructure_corroboration",
+        "surfaces": ("domain", "url"),
+        "useCases": (
+            "malware URL and infrastructure corroboration",
+            "second-order host reputation for malicious dApp and phishing links",
+        ),
+    },
+    {
+        "sourceId": "threatfox_iocs",
+        "priority": 3,
+        "stage": "ioc_digest_candidate",
+        "surfaces": ("domain", "url", "ip", "file_hash"),
+        "useCases": (
+            "recent IOC and malware-family corroboration",
+            "fresh infrastructure signals for phishing and wallet-drainer context",
+        ),
+    },
+    {
+        "sourceId": "google_web_risk",
+        "priority": 4,
+        "stage": "commercial_url_safety_lookup",
+        "surfaces": ("domain", "url"),
+        "useCases": (
+            "commercial-safe malicious URL lookup",
+            "browser and Telegram link safety when open phishing feeds are insufficient",
+        ),
+    },
+    {
         "sourceId": "toncenter_v3",
         "priority": 3,
         "stage": "telegram_ton_passport",

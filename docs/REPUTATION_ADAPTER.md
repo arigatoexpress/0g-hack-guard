@@ -44,10 +44,11 @@ no-network, rights-aware manifest. This keeps the roadmap concrete without
 pretending that paid or keyed feeds are live.
 
 The manifest now prioritizes PhishDestroy, CryptoScamDB, and Forta labelled
-datasets first, then GoPlus, Chainabuse, Forta GraphQL, TON Center, TONAPI,
-Tenderly, BlockSec Phalcon, LayerZero Scan, and Wormholescan. Each row includes
-the use case, docs URL, credential posture, whether it applies to the submitted
-subject, and the output/rights boundary.
+datasets first, then GoPlus, Chainabuse, Forta GraphQL, Scam Sniffer,
+ThreatFox, URLhaus, the Chainalysis sanctions oracle, Google Web Risk, TON
+Center, TONAPI, Tenderly, BlockSec Phalcon, LayerZero Scan, and Wormholescan.
+Each row includes the use case, docs URL, credential posture, whether it
+applies to the submitted subject, and the output/rights boundary.
 
 Example:
 
@@ -63,8 +64,9 @@ curl -X POST http://127.0.0.1:8109/api/reputation/connectors \
 
 Expected result: schema `0guard.reputation_connectors.v1`, with `networkCalls`
 set to `false`, raw payload return disabled, and open-source phishing/domain
-feeds plus EVM reputation connectors marked as relevant activation candidates
-for an EVM address/domain subject.
+feeds plus EVM reputation, sanctions-oracle, malware-IOC, and commercial URL
+safety connectors marked as relevant activation candidates for an EVM
+address/domain subject.
 
 ## Adapter Normalization Contract
 

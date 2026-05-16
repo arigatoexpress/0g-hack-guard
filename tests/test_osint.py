@@ -63,6 +63,15 @@ def test_source_registry_exposes_rights_metadata_without_raw_payloads():
     assert "defillama_hacks" in source_ids
     assert "chainalysis_blog_rss" in source_ids
     assert "forta_labelled_datasets" in source_ids
+    assert "threatfox_iocs" in source_ids
+    assert "chainalysis_sanctions_oracle" in source_ids
+    assert "google_web_risk" in source_ids
+
+    by_id = {source["id"]: source for source in public["sources"]}
+    assert by_id["threatfox_iocs"]["enabledByDefault"] is False
+    assert by_id["chainalysis_sanctions_oracle"]["enabledByDefault"] is False
+    assert by_id["google_web_risk"]["enabledByDefault"] is False
+    assert "never expose" in by_id["google_web_risk"]["outputPolicy"].lower()
 
 
 def test_osint_readiness_can_run_without_live_network():
