@@ -7,7 +7,9 @@ GitHub: https://github.com/arigatoexpress/0guard
 
 This extends the 0G hackathon build from a browser workbench into a mobile pre-wallet firewall.
 
-The Mini App validates Telegram launch data server-side, previews the risk of an agent wallet intent, attaches a Mira-style explanation, and keeps the hard safety boundary intact: no wallet signing, no transaction broadcasting, and no Telegram sends from the Mini App.
+The newest refresh also makes the product feel much closer to what it is meant to be: a clean cypherpunk proof console, not a generic AI dashboard. The workbench now foregrounds intent, verdict, proof packet, source posture, and 0G receipt state before raw JSON.
+
+The Mini App validates Telegram launch data server-side, previews the risk of an agent wallet intent, attaches a Mira-style explanation, and keeps the hard safety boundary intact: no wallet signing, no transaction broadcasting, no tonProof prompt, and no Telegram sends from the Mini App.
 
 Current proof stack:
 
