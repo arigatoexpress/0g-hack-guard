@@ -4,6 +4,8 @@
 
 - Public project: https://www.hackquest.io/projects/0guard
 - Public HTML readback at 2026-05-16T15:30:01Z: HTTP 200, `isSubmit=true`
+- Brave browser readback at 2026-05-16T15:49Z: project page loads, shows the
+  current Telegram Mini App progress copy, and includes `isSubmit=true`.
 - Public GraphQL readback at 2026-05-16T15:30Z:
   - `isSubmit=true`
   - `fillProgress=100`
@@ -48,6 +50,13 @@ Dry-run validation passed for:
 
 ## Live Posting State
 
+Completed through the currently open Brave LinkedIn session:
+
+- LinkedIn Telegram Mini App launch post:
+  https://www.linkedin.com/feed/update/urn:li:share:7461141000544243712/
+- LinkedIn post-submit intelligence update:
+  https://www.linkedin.com/feed/update/urn:li:share:7461443615245127682/
+
 The shell environment does not contain the X OAuth variables required by
 `scripts/x_post.py`:
 
@@ -57,6 +66,8 @@ The shell environment does not contain the X OAuth variables required by
 - `X_ACCESS_TOKEN_SECRET`
 
 Because those are absent, API-based live X posting cannot run from this repo.
+The same Brave profile was also checked against https://x.com/0guard_ and is
+not authenticated for X; it shows `Log in` / `Sign up` and no posting controls.
 
 ## X Cleanup State
 
