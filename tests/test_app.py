@@ -563,6 +563,8 @@ def test_cross_chain_integration_routes_are_read_only(client):
         "computePreview",
         "alignmentVerifier",
     ]
+    assert proof_ladder_body["stages"][0]["chainId"] == 16661
+    assert proof_ladder_body["stages"][0]["network"] == "0G Mainnet"
     assert proof_ladder_body["safety"]["liveStorageUpload"] is False
     assert proof_ladder_body["safety"]["liveComputeInference"] is False
     assert proof_ladder_body["safety"]["moneyMovementEnabled"] is False

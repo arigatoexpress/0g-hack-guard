@@ -89,8 +89,12 @@ def build_proof_ladder(payload: dict[str, Any] | None = None) -> dict[str, Any]:
 def _chain_receipt_stage(decision: dict[str, Any], body: dict[str, Any]) -> dict[str, Any]:
     cfg = get_0g_config()
     configured_mainnet = body.get("mainnet") if isinstance(body.get("mainnet"), dict) else {}
-    chain_id = int(configured_mainnet.get("chainId") or configured_mainnet.get("chain_id") or cfg["chain_id"])
-    rpc = str(configured_mainnet.get("rpc") or cfg["rpc"])
+    requested_chain = str(body.get("chain") or body.get("network") or "").strip()
+    chain_id = (
+        _chain_id_from_request(requested_chain)
+        or int(configured_mainnet.get("chainId") or configured_mainnet.get("chain_id") or cfg["chain_id"])
+    )
+    rpc = str(configured_mainnet.get("rpc") or (ZGG_MAINNET_RPC if chain_id == ZGG_MAINNET_CHAIN_ID else cfg["rpc"]))
     network = "0G Mainnet" if chain_id == ZGG_MAINNET_CHAIN_ID else "0G Galileo Testnet"
     return {
         "id": "chainReceipt",
@@ -109,6 +113,20 @@ def _chain_receipt_stage(decision: dict[str, Any], body: dict[str, Any]) -> dict
         "transactionSigningEnabled": False,
         "broadcastingEnabled": False,
     }
+
+
+def _chain_id_from_request(value: str) -> int | None:
+    normalized = value.lower().replace("_", "-")
+    if normalized.startswith("eip155:"):
+        try:
+            return int(normalized.split(":", 1)[1])
+        except ValueError:
+            return None
+    if normalized in {"0g-mainnet", "zero-g-mainnet", "zg-mainnet"}:
+        return ZGG_MAINNET_CHAIN_ID
+    if normalized.isdigit():
+        return int(normalized)
+    return None
 
 
 def _storage_packet_stage(canonical_packet: dict[str, Any]) -> dict[str, Any]:
