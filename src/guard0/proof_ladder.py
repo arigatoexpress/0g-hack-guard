@@ -250,6 +250,7 @@ def _safety() -> dict[str, bool]:
         "broadcastingEnabled": False,
         "telegramSendsEnabled": False,
         "socialPostingEnabled": False,
+        "liveAnchorPerformed": False,
         "liveStorageUpload": False,
         "liveDAWritePerformed": False,
         "liveComputeInference": False,
