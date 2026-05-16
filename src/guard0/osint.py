@@ -26,6 +26,10 @@ from guard0.incident_data import (
 )
 from guard0.crypto_hack_guard import check_crypto_hack_signatures
 from guard0.policy import evaluate_intent
+from guard0.reputation_connector_worker import (
+    phishdestroy_active_domains_snapshot,
+    phishdestroy_digest_signal,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE_REGISTRY_PATH = REPO_ROOT / "data" / "osint_sources.json"
@@ -200,6 +204,39 @@ def osint_signals(
         if not source.get("enabled_by_default"):
             continue
         adapter = source.get("adapter")
+        if adapter == "phishdestroy_destroylist":
+            if not live:
+                source_status.append(
+                    {
+                        "sourceId": source["id"],
+                        "adapter": adapter,
+                        "status": "live_fetch_disabled",
+                    }
+                )
+                continue
+            snapshot = phishdestroy_active_domains_snapshot(
+                live=True,
+                limit=min(limit, 10),
+                timeout_seconds=timeout_seconds,
+            )
+            fetch = snapshot.get("fetch") if isinstance(snapshot.get("fetch"), dict) else {}
+            source_status.append(
+                {
+                    "sourceId": source["id"],
+                    "adapter": adapter,
+                    "status": "ok" if fetch.get("status") == "ok" else "degraded",
+                    "httpStatus": fetch.get("httpStatus"),
+                    "latencyMs": fetch.get("latencyMs"),
+                    "error": fetch.get("error"),
+                    "feedHash": fetch.get("feedHash"),
+                    "parsedDomainCount": fetch.get("parsedDomainCount"),
+                    "rawPayloadReturned": False,
+                }
+            )
+            digest_signal = phishdestroy_digest_signal(snapshot, source)
+            if digest_signal:
+                signals.append(digest_signal)
+            continue
         if adapter not in ("defillama_hacks", "rss"):
             source_status.append(
                 {

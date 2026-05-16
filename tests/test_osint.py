@@ -98,6 +98,71 @@ def test_osint_signals_live_disabled_reports_catalog_status_only():
     assert "private_key" not in encoded.lower()
 
 
+def test_osint_signals_live_includes_phishdestroy_digest(monkeypatch):
+    def fake_phishdestroy_snapshot(*, live: bool, limit: int, timeout_seconds: float):
+        assert live is True
+        assert limit == 4
+        assert timeout_seconds == 6.0
+        return {
+            "schema": "0guard.reputation_connector_snapshot.v1",
+            "generatedAt": "2026-05-16T22:00:00+00:00",
+            "sourceId": "phishdestroy_destroylist",
+            "sourceLink": "https://phishdestroy.io/dataset",
+            "fetch": {
+                "status": "ok",
+                "httpStatus": 200,
+                "latencyMs": 33,
+                "feedHash": "feedhash",
+                "parsedDomainCount": 123,
+                "sampledEvidenceCount": 4,
+                "ttlSeconds": 21600,
+            },
+            "snapshotReceipt": {"hash": "snap"},
+        }
+
+    monkeypatch.setattr(
+        "guard0.osint.phishdestroy_active_domains_snapshot",
+        fake_phishdestroy_snapshot,
+    )
+    monkeypatch.setattr(
+        "guard0.osint._fetch_url",
+        lambda *args, **kwargs: type(
+            "FetchResult",
+            (),
+            {
+                "ok": False,
+                "status_code": 503,
+                "content_type": "",
+                "elapsed_ms": 1,
+                "body": b"",
+                "error": "disabled in test",
+            },
+        )(),
+    )
+
+    signals = osint_signals(live=True, limit=4)
+
+    phish_status = next(
+        status
+        for status in signals["sourceStatus"]
+        if status["sourceId"] == "phishdestroy_destroylist"
+    )
+    assert phish_status["status"] == "ok"
+    assert phish_status["parsedDomainCount"] == 123
+    assert phish_status["rawPayloadReturned"] is False
+
+    digest = next(
+        signal
+        for signal in signals["signals"]
+        if signal["sourceId"] == "phishdestroy_destroylist"
+    )
+    assert digest["signalType"] == "reputation_feed_digest"
+    assert digest["activeDomainCount"] == 123
+    assert digest["sampledEvidenceCount"] == 4
+    assert digest["rawPayloadReturned"] is False
+    assert digest["recordHash"]
+
+
 def test_signature_map_explains_coverage_gaps():
     mapping = signature_map()
 

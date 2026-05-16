@@ -170,6 +170,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
 | `GET`  | `/api/intelligence/data-streams` | Ranked data-stream plan with free/paid source options, rights posture, and integration phases |
 | `GET`  | `/api/intelligence/events` | Polling snapshot of real read-only OSINT signals, source readiness, and chain heads; add `?live=1&limit=10` for live public reads |
+| `GET`  | `/api/intelligence/detector-candidates` | Converts public OSINT signals into source-hashed detector candidates that still require regression tests before promotion |
 | `GET`  | `/api/product/brief` | Plain-English map of what 0guard is, what is live, honest limits, proof links, and next builds |
 | `GET`  | `/api/roadmap` | No-bridge ecosystem roadmap for 0G, Telegram/TON, EVM L2s, Solana, Hyperliquid, and agent distribution |
 | `GET`  | `/api/experiments/frontier` | Ranked frontier experiment lab for 0G Storage/Compute, reputation, simulation, TON, and Mira activation |
@@ -189,6 +190,7 @@ python3 -m guard0.cli serve --port 8109
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
 | `GET/POST` | `/api/reputation/probe` | Rights-aware domain, counterparty, label, source-evidence, and intent reputation probe; raw payloads are not returned |
 | `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TON, simulation, and cross-chain intelligence feeds |
+| `GET/POST` | `/api/reputation/connectors/live` | Reviewed PhishDestroy active-domain worker; add `?live=1` for a derived-only feed snapshot without raw domain dumps |
 | `GET`  | `/api/reputation/adapters` | No-network normalization contract for PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL payload shapes |
 | `POST` | `/api/reputation/adapters/normalize` | Converts caller-provided external reputation payloads into derived source evidence without echoing raw source payloads |
 | `GET/POST` | `/api/reputation/shadow-cache` | Composes multiple reviewed adapter payloads into a reusable derived intelligence snapshot; no live fetches or raw source resale |

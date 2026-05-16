@@ -108,6 +108,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/intelligence/evolving" in data["apiRoutes"]
     assert "/api/intelligence/data-streams" in data["apiRoutes"]
+    assert "/api/intelligence/detector-candidates" in data["apiRoutes"]
     assert "/api/product/brief" in data["apiRoutes"]
     assert "/api/readyz" in data["apiRoutes"]
     assert "/api/healthz" in data["apiRoutes"]
@@ -127,6 +128,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
     assert "/api/reputation/probe" in data["apiRoutes"]
     assert "/api/reputation/connectors" in data["apiRoutes"]
+    assert "/api/reputation/connectors/live" in data["apiRoutes"]
     assert "/api/reputation/adapters" in data["apiRoutes"]
     assert "/api/reputation/adapters/normalize" in data["apiRoutes"]
     assert "/api/reputation/shadow-cache" in data["apiRoutes"]
@@ -155,6 +157,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#plain-explanation" in data["requiredSelectors"]
     assert "#technical-output" in data["requiredSelectors"]
     assert "#risk-list" in data["requiredSelectors"]
+    assert "#load-phishdestroy-worker" in data["requiredSelectors"]
+    assert "#load-detector-candidates" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
     assert "#case-file-output" in data["requiredSelectors"]
     assert "#zg-status-output" in data["requiredSelectors"]
@@ -363,6 +367,14 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert event_body["live"] is False
     assert event_body["safety"]["rawPayloadsReturned"] is False
 
+    candidates = client.get("/api/intelligence/detector-candidates")
+    assert candidates.status_code == 200
+    candidate_body = candidates.get_json()
+    assert candidate_body["schema"] == "0guard.detector_candidates.v1"
+    assert candidate_body["live"] is False
+    assert candidate_body["safety"]["rawPayloadsReturned"] is False
+    assert candidate_body["safety"]["candidatePromotionAutomatic"] is False
+
     roadmap = client.get("/api/roadmap")
     assert roadmap.status_code == 200
     roadmap_body = roadmap.get_json()
@@ -514,6 +526,14 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert {"goplus_security", "chainabuse"} <= {
         connector["id"] for connector in connectors_body["connectors"]
     }
+
+    live_connector = client.get("/api/reputation/connectors/live")
+    assert live_connector.status_code == 200
+    live_connector_body = live_connector.get_json()
+    assert live_connector_body["schema"] == "0guard.reputation_connector_snapshot.v1"
+    assert live_connector_body["mode"] == "live_fetch_disabled"
+    assert live_connector_body["safety"]["networkCalls"] is False
+    assert live_connector_body["rightsPolicy"]["rawPayloadsReturned"] is False
 
     adapters = client.get("/api/reputation/adapters")
     assert adapters.status_code == 200
@@ -754,6 +774,12 @@ def test_osint_signal_route_rejects_bad_limit(client):
     assert client.get("/api/intelligence/events?limit=bad").status_code == 400
     assert client.get("/api/intelligence/events?limit=0").status_code == 400
     assert client.get("/api/intelligence/events?limit=51").status_code == 400
+    assert client.get("/api/intelligence/detector-candidates?limit=bad").status_code == 400
+    assert client.get("/api/intelligence/detector-candidates?limit=0").status_code == 400
+    assert client.get("/api/intelligence/detector-candidates?limit=51").status_code == 400
+    assert client.get("/api/reputation/connectors/live?limit=bad").status_code == 400
+    assert client.get("/api/reputation/connectors/live?limit=0").status_code == 400
+    assert client.get("/api/reputation/connectors/live?limit=51").status_code == 400
 
 
 def test_data_incident_filters_reject_bad_inputs(client):

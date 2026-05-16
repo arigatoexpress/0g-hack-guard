@@ -43,6 +43,7 @@ from guard0.hackathon_integrations import (
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.ika import evaluate_ika_signing_request, ika_integration_manifest
 from guard0.intelligence_events import intelligence_events_snapshot
+from guard0.live_detector_candidates import live_detector_candidates
 from guard0.mira import build_mira_claim_preview, build_mira_security_preview
 from guard0.native_preflight import build_native_preflight, hackathon_strategy
 from guard0.osint import (
@@ -68,6 +69,7 @@ from guard0.reputation import (
     domain_decision,
     reputation_connector_manifest,
 )
+from guard0.reputation_connector_worker import reputation_connector_snapshot
 from guard0.reputation_adapters import (
     normalize_reputation_adapters_from_payload,
     normalize_reputation_adapter_payload,
@@ -147,8 +149,10 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-sources",
     "#load-osint-readiness",
     "#load-osint-signals",
+    "#load-phishdestroy-worker",
     "#load-evolving-intel",
     "#load-intelligence-events",
+    "#load-detector-candidates",
     "#load-product-brief",
     "#load-production-readiness",
     "#load-submission-brief",
@@ -762,6 +766,7 @@ def api_frontend_contract():
                 "/api/intelligence/evolving",
                 "/api/intelligence/data-streams",
                 "/api/intelligence/events",
+                "/api/intelligence/detector-candidates",
                 "/api/product/brief",
                 "/api/readyz",
                 "/api/roadmap",
@@ -783,6 +788,7 @@ def api_frontend_contract():
                 "/api/integrations/ika/evaluate",
                 "/api/reputation/probe",
                 "/api/reputation/connectors",
+                "/api/reputation/connectors/live",
                 "/api/reputation/adapters",
                 "/api/reputation/adapters/normalize",
                 "/api/reputation/shadow-cache",
@@ -977,6 +983,20 @@ def api_intelligence_events():
         return jsonify({"error": str(exc)}), 400
 
 
+@app.route("/api/intelligence/detector-candidates", methods=["GET"])
+def api_intelligence_detector_candidates():
+    live = _truthy_query_arg("live")
+    limit = request.args.get("limit")
+    try:
+        limit_value = int(limit) if limit is not None else 10
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    try:
+        return jsonify(live_detector_candidates(live=live, limit=limit_value))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
 @app.route("/api/product/brief", methods=["GET"])
 def api_product_brief():
     return jsonify(product_brief())
@@ -1132,6 +1152,38 @@ def api_reputation_connectors():
         }
     try:
         return jsonify(reputation_connector_manifest(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/reputation/connectors/live", methods=["GET", "POST"])
+def api_reputation_connectors_live():
+    body = request.get_json(silent=True) or {} if request.method == "POST" else {}
+    source_id = (
+        body.get("sourceId")
+        or body.get("source_id")
+        or request.args.get("sourceId")
+        or request.args.get("source_id")
+        or "phishdestroy_destroylist"
+    )
+    subject_url = (
+        body.get("url")
+        or body.get("domain")
+        or request.args.get("url")
+        or request.args.get("domain")
+        or ""
+    )
+    live = _truthy_value(body.get("live")) if request.method == "POST" else _truthy_query_arg("live")
+    limit = _request_value(body, "limit", request.args.get("limit") or 5)
+    try:
+        return jsonify(
+            reputation_connector_snapshot(
+                source_id=str(source_id),
+                live=live,
+                limit=int(limit),
+                subject_url=str(subject_url),
+            )
+        )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
 
