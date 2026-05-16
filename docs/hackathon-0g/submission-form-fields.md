@@ -238,7 +238,7 @@ Completed on May 14, 2026 and refreshed on May 15, 2026:
 5. Refreshed the public proof packet, repo license posture, source/asset
    policy, asset registry, and Flow/Veo production packet on May 16, 2026.
 6. Refreshed the production source/intelligence proof on May 16, 2026:
-   production revision `guard0-miniapp-6ede2cd`, 30 source lanes, 17
+   production revision `guard0-miniapp-112c7b7`, 30 source lanes, 17
    no-network connector candidates, and new disabled-by-default ThreatFox,
    Chainalysis sanctions oracle, and Google Cloud Web Risk lanes.
 

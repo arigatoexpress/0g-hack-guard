@@ -5,7 +5,7 @@ service is now running a stronger source-intelligence layer.
 
 What changed:
 
-- Production revision: `guard0-miniapp-6ede2cd`
+- Production revision: `guard0-miniapp-112c7b7`
 - Source catalog: 30 rights-aware intelligence lanes
 - Reputation connector manifest: 17 no-network connector candidates
 - New disabled-by-default lanes: ThreatFox IOC API, Chainalysis sanctions
