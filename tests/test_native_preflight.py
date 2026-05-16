@@ -51,6 +51,31 @@ def test_native_preflight_reviews_ton_without_address_and_allows_read_only_evm()
     assert evm["safety"]["bridgingEnabled"] is False
 
 
+def test_native_preflight_routes_arbitrum_and_metamask_to_external_guardrails():
+    arbitrum = build_native_preflight(
+        {
+            "surface": "arbitrum_sepolia",
+            "operation": "upgrade_proxy",
+            "chain": "eip155:421614",
+            "intentText": "Activate a Stylus upgrade through an admin wallet.",
+        }
+    )
+    metamask = build_native_preflight(
+        {
+            "surface": "metamask_delegation",
+            "operation": "requestExecutionPermissions",
+            "chain": "eip155:1",
+            "intentText": "Grant delegated agent spend permission without expiry.",
+            "config": {"maxAmount": "10"},
+        }
+    )
+
+    assert arbitrum["decision"] == "review"
+    assert any(component["id"] == "external_guardrail" for component in arbitrum["components"])
+    assert metamask["decision"] == "deny"
+    assert any(component["id"] == "external_guardrail" for component in metamask["components"])
+
+
 def test_hackathon_strategy_is_0g_first_and_source_cited():
     strategy = hackathon_strategy()
 

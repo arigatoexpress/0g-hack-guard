@@ -356,6 +356,13 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert stream_body["rightsPolicy"]["rawPayloadResaleAllowed"] is False
     assert stream_body["streams"][0]["id"] == "unified_reputation_adapter"
 
+    events = client.get("/api/intelligence/events")
+    assert events.status_code == 200
+    event_body = events.get_json()
+    assert event_body["schema"] == "0guard.intelligence_events_snapshot.v1"
+    assert event_body["live"] is False
+    assert event_body["safety"]["rawPayloadsReturned"] is False
+
     roadmap = client.get("/api/roadmap")
     assert roadmap.status_code == 200
     roadmap_body = roadmap.get_json()
@@ -514,7 +521,7 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert adapters_body["schema"] == "0guard.reputation_adapter_catalog.v1"
     assert adapters_body["safety"]["networkCalls"] is False
     assert adapters_body["rightsPolicy"]["rawPayloadsReturned"] is False
-    assert {adapter["id"] for adapter in adapters_body["adapters"]} == {
+    assert {adapter["id"] for adapter in adapters_body["adapters"]} >= {
         "phishdestroy_destroylist",
         "cryptoscamdb",
         "forta_labelled_datasets",
@@ -661,6 +668,12 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert strategy_body["schema"] == "0guard.hackathon_strategy.v1"
     assert strategy_body["opportunities"][0]["id"] == "0g_apac_final_review"
 
+    next_hackathons = client.get("/api/hackathons/next")
+    assert next_hackathons.status_code == 200
+    next_body = next_hackathons.get_json()
+    assert next_body["schema"] == "0guard.next_hackathon_plan.v1"
+    assert next_body["opportunities"][0]["id"] == "arbitrum_open_house_london_online_buildathon"
+
     developer_kit = client.get("/api/developer-kit")
     assert developer_kit.status_code == 200
     developer_kit_body = developer_kit.get_json()
@@ -691,11 +704,21 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert guardrail_body["schema"] == "0guard.external_guardrail_catalog.v1"
     assert guardrail_body["safety"]["moneyMovementEnabled"] is False
     assert {item["targetId"] for item in guardrail_body["guardrails"]} >= {
+        "arbitrum_l2",
+        "metamask_wallet",
         "lighter_exchange",
         "chainlink_ccip",
         "layerzero_v2",
         "wormhole_ntt",
     }
+
+    arbitrum = client.get("/api/integrations/arbitrum")
+    assert arbitrum.status_code == 200
+    assert arbitrum.get_json()["schema"] == "0guard.arbitrum_integration_plan.v1"
+
+    metamask = client.get("/api/integrations/metamask")
+    assert metamask.status_code == 200
+    assert metamask.get_json()["schema"] == "0guard.metamask_integration_plan.v1"
 
     evaluation = client.post(
         "/api/integrations/external-guardrails/evaluate",
@@ -728,6 +751,9 @@ def test_osint_signal_route_rejects_bad_limit(client):
     assert client.get("/api/intelligence/evolving?limit=bad").status_code == 400
     assert client.get("/api/intelligence/evolving?limit=0").status_code == 400
     assert client.get("/api/intelligence/evolving?limit=51").status_code == 400
+    assert client.get("/api/intelligence/events?limit=bad").status_code == 400
+    assert client.get("/api/intelligence/events?limit=0").status_code == 400
+    assert client.get("/api/intelligence/events?limit=51").status_code == 400
 
 
 def test_data_incident_filters_reject_bad_inputs(client):

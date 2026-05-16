@@ -17,6 +17,8 @@ def test_external_guardrail_catalog_is_non_mutating():
     assert catalog["safety"]["postingEnabled"] is False
     assert {item["targetId"] for item in catalog["guardrails"]} >= {
         "x402",
+        "arbitrum_l2",
+        "metamask_wallet",
         "virtuals_base",
         "lighter_exchange",
         "chainlink_ccip",
@@ -89,6 +91,49 @@ def test_x402_live_settlement_requires_controls_and_no_raw_resale():
         "x402_raw_payload_resale_denied",
         "x402_live_settlement_missing_controls",
     }
+
+
+def test_arbitrum_admin_actions_review_and_live_broadcasts_deny():
+    review = evaluate_external_guardrail(
+        {
+            "target_id": "arbitrum_stylus",
+            "action": "activate_stylus_upgrade_proxy",
+            "config": {"chain": "eip155:421614", "nativePreflightReceipt": "abc123"},
+        }
+    )
+    deny = evaluate_external_guardrail(
+        {
+            "target_id": "arbitrum_one",
+            "action": "broadcast",
+            "intent_text": "submit eth_sendRawTransaction to bridge withdrawal",
+        }
+    )
+
+    assert review["decision"] == "review"
+    assert any(finding["id"] == "arbitrum_l2_admin_review_required" for finding in review["findings"])
+    assert deny["decision"] == "deny"
+    assert any(finding["id"] == "arbitrum_external_side_effect_denied" for finding in deny["findings"])
+
+
+def test_metamask_delegation_requires_bounds_and_preflight_receipt():
+    result = evaluate_external_guardrail(
+        {
+            "target_id": "metamask_delegation",
+            "action": "requestExecutionPermissions",
+            "config": {"maxAmount": "10"},
+        }
+    )
+    preview = evaluate_external_guardrail(
+        {
+            "target_id": "metamask_wallet",
+            "action": "preview_account",
+            "config": {"method": "eth_chainId"},
+        }
+    )
+
+    assert result["decision"] == "deny"
+    assert any(finding["id"] == "metamask_delegation_bounds_missing" for finding in result["findings"])
+    assert preview["decision"] == "allow"
 
 
 def test_wormhole_controls_roll_up_to_review_or_allow():

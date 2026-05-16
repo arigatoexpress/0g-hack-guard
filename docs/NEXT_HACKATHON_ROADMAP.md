@@ -3,18 +3,18 @@
 Updated: May 16, 2026.
 
 This roadmap keeps the 0G submission as the root proof layer while shaping the
-next builds for Arbitrum Open House London, MetaMask Smart Accounts Kit x 1Shot
-API Dev Cook Off, and Injective Solo AI Builder Sprint. The product should stay
-native-preflight first: no bridges, no custody, no live trading, no hidden
-wallet automation.
+next builds for Arbitrum Open House London, MetaMask/wallet-agent safety, and
+AI-agent trust programs. The product should stay native-preflight first: no
+bridges, no custody, no live trading, no hidden wallet automation.
 
 ## Source Snapshot
 
 | Event | Dates | Prize / track signal | Qualification signal | Official source |
 | --- | --- | --- | --- | --- |
 | Arbitrum Open House London: Online Buildathon | Registration: Mar 24-May 25, 2026. Submission: Mar 24-Jun 14, 2026. Reward announcement: Jun 17, 2026. | 115,000 USD total: 70,000 USDC overall, 15,000 USDC Best Agentic Project, 30,000 USDC grants. | Must deploy on an Arbitrum chain such as Arbitrum Sepolia, Arbitrum One, Robinhood Chain, or another Arbitrum chain. Judging emphasizes smart contract quality, product-market fit, innovation, and real problem solving. | https://www.hackquest.io/hackathons/Arbitrum-Open-House-London-Online-Buildathon |
-| MetaMask Smart Accounts Kit x 1Shot API Dev Cook Off | Registration/submission: May 15-Jun 15, 2026. Reward announcement: Jun 22, 2026. | 10,000 USD total: Best x402 + ERC-7710, Best Agent, Best A2A coordination, social and feedback bounties. | Main flow must use MetaMask Smart Accounts Kit or Advanced Permissions. x402 track requires x402 calls using ERC-7710. A2A track requires redelegation. | https://www.hackquest.io/hackathons/MetaMask-Smart-Accounts-Kit-x-1Shot-API-Dev-Cook-Off |
-| Injective Solo AI Builder Sprint | HackQuest schedule: May 7-May 31, 2026 registration/submission. Reward announcement: Jun 8, 2026. | 500 USD total for top 3 projects. | Submit through Typeform, include GitHub, demo/product link, short description, demo video, README explaining AI use and any Injective integration, and an X post. Onchain integration is allowed but not mandatory. | https://www.hackquest.io/hackathons/Injective-Solo-AI-Builder-Sprint |
+| MetaMask wallet-agent safety lane | Current public build lane is docs-driven and watchlist-based unless an active public sponsor page is re-verified. | Strong technical fit for Snaps transaction/signature insights, Connect wrappers, Smart Accounts Kit, Advanced Permissions, and delegation safety. | Do not claim MetaMask partnership or live wallet integration before a tested main-flow demo exists. | https://docs.metamask.io/smart-accounts-kit/ |
+| ETHGlobal New York 2026 | Jun 12-Jun 14, 2026. | Near-term EVM/security-wallet venue for MetaMask-compatible pre-signer middleware. | Use 0guard as a dapp/agent wrapper before wallet prompts; publish only tested demo claims. | https://ethglobal.com/events/newyork2026 |
+| NANDA Hack / AI-agent trust | Challenge through Jun 13, 2026; live event Jul 11, 2026. | Best AI-agent trust/reputation framing target. | Focus on agent preflight receipts and safe delegated authority, not wallet custody. | https://nandahack.media.mit.edu/ |
 
 ## Strategic Thesis
 
@@ -31,18 +31,19 @@ not bridged abstractions.
 
 ## Priority Order
 
-1. MetaMask Smart Accounts Kit x 1Shot API Dev Cook Off.
-   This is the best technical fit because the event explicitly centers
-   Advanced Permissions, ERC-7710, x402, agents, and A2A coordination. 0guard
-   can be the missing preflight layer that explains whether a permission grant
-   or x402 payment intent is scoped enough before the user approves it.
-2. Arbitrum Open House London.
+1. Arbitrum Open House London.
    This is the biggest prize pool and the best continuation of the 0G proof
    story, but it needs an Arbitrum-chain deployment and a clean demo proving
    smart-contract quality. Target Best Agentic Project first, then overall.
-3. Injective Solo AI Builder Sprint.
-   Treat this as a fast repository-quality lane. Submit only if the README,
-   demo video, and hosted product stay crisp without a forced Injective pivot.
+2. MetaMask wallet-agent safety.
+   This is the best technical fit for pre-signer middleware because the docs
+   center wallet prompts, transaction/signature insights, Smart Accounts Kit,
+   Advanced Permissions, and delegation. 0guard can explain whether a
+   permission grant, typed-data signature, or delegated execution is scoped
+   enough before the user approves it.
+3. ETHGlobal New York and NANDA Hack.
+   Treat these as near-term distribution lanes for the same middleware: one
+   EVM/wallet-focused, one AI-agent trust focused.
 
 ## Build Plan
 
@@ -74,20 +75,14 @@ Arbitrum agent actions, x402 calls, and future agent framework middleware.
 
 ### 2. MetaMask Demo Adapter
 
-Target tracks:
-
-- Best Agent;
-- Best x402 + ERC-7710;
-- stretch: Best A2A coordination.
-
 Minimum demo:
 
-- A user-agent flow requests a scoped permission.
+- A MetaMask-connected user-agent flow requests a scoped permission.
 - 0guard preflights the scope before approval.
 - The UI shows why the scope is acceptable, suspicious, or denied.
 - A receipt packet is produced.
-- A no-custody, testnet-only MetaMask Smart Accounts Kit flow appears in the
-  main demo path.
+- A no-custody, testnet-only Connect/Snap/Smart Accounts Kit path appears in
+  the main demo only after it is actually tested.
 
 Stretch demo:
 
@@ -95,8 +90,8 @@ Stretch demo:
 - 1Shot API is used only after terms, auth, and testnet funding are clear.
 - A2A redelegation is treated as a reviewed sub-scope, not a blanket pass.
 
-Do not claim production MetaMask partnership, live mainnet settlement, or wallet
-protection beyond the tested adapter.
+Do not claim production MetaMask partnership, live mainnet settlement, Snap
+publication, or wallet protection beyond the tested adapter.
 
 ### 3. Arbitrum Agent Safety Pack
 
@@ -110,6 +105,8 @@ Minimum demo:
 - Deploy a small policy receipt or attestation contract on Arbitrum Sepolia,
   Arbitrum One, Robinhood Chain testnet, or another qualifying Arbitrum chain.
 - Add an Arbitrum profile to `/api/native-preflight`.
+- Use `/api/integrations/arbitrum` and `/api/integrations/cross-chain/readiness?live=1`
+  for source-cited network/readiness proof.
 - Show preflight for approvals, upgrades, deployments, bridge-message configs,
   Orbit/Stylus app intents, and agent-controlled calls.
 - Read back the Arbitrum receipt in the product UI and proof docs.
@@ -158,7 +155,9 @@ for real users today.
 Free or open-source first:
 
 - PhishDestroy derived domain evidence;
+- Scam Sniffer delayed phishing/drainer evidence if GPL-3.0 raw-feed posture is acceptable;
 - CryptoScamDB derived domain/address evidence;
+- OFAC Sanctions List Service as a binary compliance context signal, not legal advice;
 - Forta labels and alert-shaped payloads;
 - Chainabuse public reports where rights allow derived evidence;
 - ThreatFox IOC API for domain/IP/hash context;
@@ -231,4 +230,3 @@ Solo AI-ready:
 - Demo video.
 - X post.
 - No forced chain claims.
-

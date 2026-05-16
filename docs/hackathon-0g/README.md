@@ -23,9 +23,13 @@ https://t.me/Raris0guardBot
    field-ready HackQuest copy.
 3. Use `final-demo-video-script.md` as the reproducible source script for the
    generated public MP4, `assets/README.md` for public media inventory,
-   `flow-chained-storyboard-2026-05-16.md` for the current multi-scene Flow
-   plan, and `veo3-flow-production-prompt.md` if a later Veo/Gemini-enhanced
-   cut is desired.
+   `flow-chained-storyboard-2026-05-16.md` for the current multi-scene
+   generated-video plan, and
+   `assets/0guard-verdict-chain-explainer-polished-20260516.mp4` as the best
+   current textless B-roll candidate for the allow/deny verdict story. Use
+   `scripts/build_verdict_explainer_video.py` to regenerate or iterate the
+   deterministic no-text chain explainer. Use generative-video tools only as
+   supporting texture if a later cut needs cinematic atmosphere.
 4. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
 5. Use `submission-form-fields.md` as the historical copy/paste packet for the
    submitted HackQuest form.

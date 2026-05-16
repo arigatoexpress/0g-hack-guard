@@ -169,6 +169,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/osint/signals` | Normalized public OSINT leads; add `?live=1&limit=10` for live metadata pulls |
 | `GET`  | `/api/intelligence/evolving` | Current detector loop, emerging signature gaps, source status, and 0G Chain/Storage/DA/Compute map |
 | `GET`  | `/api/intelligence/data-streams` | Ranked data-stream plan with free/paid source options, rights posture, and integration phases |
+| `GET`  | `/api/intelligence/events` | Polling snapshot of real read-only OSINT signals, source readiness, and chain heads; add `?live=1&limit=10` for live public reads |
 | `GET`  | `/api/product/brief` | Plain-English map of what 0guard is, what is live, honest limits, proof links, and next builds |
 | `GET`  | `/api/roadmap` | No-bridge ecosystem roadmap for 0G, Telegram/TON, EVM L2s, Solana, Hyperliquid, and agent distribution |
 | `GET`  | `/api/experiments/frontier` | Ranked frontier experiment lab for 0G Storage/Compute, reputation, simulation, TON, and Mira activation |
@@ -181,6 +182,8 @@ python3 -m guard0.cli serve --port 8109
 | `POST` | `/api/ton/wallet-risk-preview` | Read-only TON wallet risk passport; no tonProof, signature, send, or bridge |
 | `GET`  | `/api/integrations/cross-chain` | Source-cited integration catalog for 0G, Virtuals/Base, x402, EVM expansion networks, Lighter exchange/API, bridge protocol guardrails, and Celestia/TIA |
 | `GET`  | `/api/integrations/cross-chain/readiness` | Read-only cross-chain readiness; add `?live=1` for safe EVM RPC probes plus supported non-EVM status probes |
+| `GET`  | `/api/integrations/arbitrum` | Arbitrum One/Nova/Sepolia safety-pack plan, read-only route map, and pre-signer risk rules |
+| `GET`  | `/api/integrations/metamask` | MetaMask Connect, Snaps insights, and Smart Accounts/Delegation guardrail plan |
 | `GET`  | `/api/integrations/virtuals-facilitator` | Prepared Virtuals/Base `0guard Facilitator` manifest; no live launch |
 | `GET`  | `/api/integrations/ika` | Source-cited Ika, Encrypt, Ikavery, MPCKit, and OdWS integration manifest |
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
@@ -191,8 +194,9 @@ python3 -m guard0.cli serve --port 8109
 | `GET/POST` | `/api/reputation/shadow-cache` | Composes multiple reviewed adapter payloads into a reusable derived intelligence snapshot; no live fetches or raw source resale |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
+| `GET`  | `/api/hackathons/next` | Chronological Arbitrum, MetaMask/wallet, and AI-agent hackathon execution plan |
 | `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |
-| `GET/POST` | `/api/integrations/external-guardrails` + `/evaluate` | Active read-only guardrail catalog and evaluator for x402, Virtuals/Base, Lighter, CCIP, LayerZero, Wormhole, and Celestia intents/configs |
+| `GET/POST` | `/api/integrations/external-guardrails` + `/evaluate` | Active read-only guardrail catalog and evaluator for Arbitrum, MetaMask, x402, Virtuals/Base, Lighter, CCIP, LayerZero, Wormhole, and Celestia intents/configs |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |
 | `GET`  | `/api/hackathon/readiness` | Read-only final submission audit with mainnet proof, demo video, X post, and operator blockers |

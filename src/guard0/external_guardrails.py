@@ -45,6 +45,24 @@ def external_guardrail_catalog() -> dict[str, Any]:
         "mode": "read_only_policy_evaluator",
         "guardrails": [
             {
+                "targetId": "arbitrum_l2",
+                "role": "Arbitrum L2, Orbit, and Stylus pre-signer posture",
+                "checks": [
+                    "read-only RPC, receipt, gas, balance, code, and explorer context can pass",
+                    "retryable tickets, L1 sends, proxy upgrades, role grants, Stylus deploys, and Orbit/DAC changes require review",
+                    "signed blobs, eth_sendRawTransaction, bridge/deposit/withdrawal, and sequencer mutation are denied",
+                ],
+            },
+            {
+                "targetId": "metamask_wallet",
+                "role": "MetaMask Connect, Snap insights, and smart-account delegation posture",
+                "checks": [
+                    "wallet reads and transaction/signature insights can pass as preview-only context",
+                    "transactions, typed-data signatures, and permissions require a 0guard receipt before wallet prompt",
+                    "unbounded delegation, missing expiry, private keys, and raw signed transactions are denied",
+                ],
+            },
+            {
                 "targetId": "x402",
                 "role": "paid API rail posture",
                 "checks": [
@@ -137,6 +155,26 @@ def evaluate_external_guardrail(payload: dict[str, Any] | None = None) -> dict[s
         findings.extend(_evaluate_virtuals(action=action, config=config, intent_text=intent_text))
     elif target_id in {"lighter_exchange", "lighter"}:
         findings.extend(_evaluate_lighter(action=action, config=config, intent_text=intent_text))
+    elif target_id in {
+        "arbitrum",
+        "arbitrum_l2",
+        "arbitrum_one",
+        "arbitrum_nova",
+        "arbitrum_sepolia",
+        "arbitrum_orbit",
+        "arbitrum_stylus",
+        "arbitrum_bold",
+    }:
+        findings.extend(_evaluate_arbitrum(action=action, config=config, intent_text=intent_text))
+    elif target_id in {
+        "metamask",
+        "metamask_wallet",
+        "metamask_connect",
+        "metamask_snap",
+        "metamask_delegation",
+        "metamask_smart_accounts",
+    }:
+        findings.extend(_evaluate_metamask(action=action, config=config, intent_text=intent_text))
     elif target_id in {"chainlink_ccip", "ccip"}:
         findings.extend(_evaluate_ccip(action=action, config=config, intent_text=intent_text))
     elif target_id in {"layerzero_v2", "layerzero"}:
@@ -279,6 +317,185 @@ def _evaluate_lighter(*, action: str, config: dict[str, Any], intent_text: str) 
             "allow",
             "Lighter status/docs/market-context review is allowed as a read-only exchange/API guardrail.",
             {"statusOnly": not _truthy(config.get("apiKeyConfigured"))},
+        )
+    ]
+
+
+def _evaluate_arbitrum(*, action: str, config: dict[str, Any], intent_text: str) -> list[GuardrailFinding]:
+    findings: list[GuardrailFinding] = []
+    text = f"{action} {intent_text}".lower()
+    method = _norm(config.get("method") or config.get("rpcMethod") or config.get("rpc_method"))
+    read_methods = {
+        "eth_chainid",
+        "eth_blocknumber",
+        "eth_call",
+        "eth_estimategas",
+        "eth_getcode",
+        "eth_getbalance",
+        "eth_gettransactionreceipt",
+        "eth_getlogs",
+    }
+    denied_terms = (
+        "private key",
+        "mnemonic",
+        "seed phrase",
+        "eth_sendrawtransaction",
+        "signed transaction",
+        "bridge",
+        "deposit",
+        "withdraw",
+        "sequencer",
+    )
+    review_terms = (
+        "retryable",
+        "sendtxtol1",
+        "proxy",
+        "upgrade",
+        "grantrole",
+        "owner",
+        "admin",
+        "stylus",
+        "activate",
+        "orbit",
+        "dac",
+        "chain owner",
+    )
+    if method == "eth_sendrawtransaction" or any(term in text for term in denied_terms):
+        findings.append(
+            _finding(
+                "arbitrum_external_side_effect_denied",
+                "critical",
+                "deny",
+                "Arbitrum signing, broadcasting, bridge/deposit/withdrawal, or sequencer-side effects are disabled.",
+                {"method": method or None, "readOnly": True},
+            )
+        )
+    if any(term in text for term in review_terms):
+        findings.append(
+            _finding(
+                "arbitrum_l2_admin_review_required",
+                "high",
+                "review",
+                "Arbitrum retryable, admin, proxy, Stylus, or Orbit/DAC changes require source/config readback before any wallet prompt.",
+                {
+                    "chain": config.get("chain"),
+                    "nativePreflightReceiptPresent": _present(config, "nativePreflightReceipt"),
+                },
+            )
+        )
+    if _truthy(config.get("liveTransaction") or config.get("live_transaction")):
+        findings.append(
+            _finding(
+                "arbitrum_live_transaction_operator_required",
+                "critical",
+                "deny",
+                "0guard routes cannot execute live Arbitrum transactions; keep this as a pre-signer receipt.",
+                {"liveTransaction": True},
+            )
+        )
+    if not findings and (method in read_methods or action.startswith(("read", "get", "estimate", "simulate"))):
+        findings.append(
+            _finding(
+                "arbitrum_read_only_context_ok",
+                "low",
+                "allow",
+                "Arbitrum read-only RPC, gas, receipt, code, balance, and explorer summaries are allowed.",
+                {"method": method or action},
+            )
+        )
+    return findings or [
+        _finding(
+            "arbitrum_unknown_action_review",
+            "medium",
+            "review",
+            "Arbitrum action is not recognized as read-only; require a native-preflight receipt before wallet prompt.",
+            {"action": action},
+        )
+    ]
+
+
+def _evaluate_metamask(*, action: str, config: dict[str, Any], intent_text: str) -> list[GuardrailFinding]:
+    findings: list[GuardrailFinding] = []
+    text = f"{action} {intent_text}".lower()
+    method = _norm(config.get("method") or config.get("walletMethod") or config.get("wallet_method"))
+    read_methods = {"eth_accounts", "eth_requestaccounts", "eth_chainid", "wallet_getpermissions"}
+    gated_methods = {
+        "eth_sendtransaction",
+        "personal_sign",
+        "eth_signtypeddata_v4",
+        "wallet_requestpermissions",
+        "requestexecutionpermissions",
+        "sendtransactionwithdelegation",
+        "senduseroperationwithdelegation",
+    }
+    if any(term in text for term in ("private key", "mnemonic", "seed phrase")):
+        findings.append(
+            _finding(
+                "metamask_secret_request_denied",
+                "critical",
+                "deny",
+                "0guard never asks MetaMask users for private keys, mnemonics, or seed phrases.",
+                {"secretRequest": True},
+            )
+        )
+    if method == "eth_sendrawtransaction" or "signed transaction" in text:
+        findings.append(
+            _finding(
+                "metamask_signed_blob_denied",
+                "critical",
+                "deny",
+                "Raw signed transaction blobs are denied; 0guard must run before signing.",
+                {"method": method or None},
+            )
+        )
+    is_delegation = method in {
+        "requestexecutionpermissions",
+        "sendtransactionwithdelegation",
+        "senduseroperationwithdelegation",
+    } or "delegation" in text or "permission" in text
+    if is_delegation:
+        missing = [
+            field
+            for field in ("expiry", "maxAmount", "nativePreflightReceipt")
+            if not _present(config, field)
+        ]
+        if missing:
+            findings.append(
+                _finding(
+                    "metamask_delegation_bounds_missing",
+                    "critical",
+                    "deny",
+                    "MetaMask delegation or advanced-permission requests need expiry, max amount, and a 0guard receipt.",
+                    {"missing": missing},
+                )
+            )
+    if method in gated_methods and not _present(config, "nativePreflightReceipt"):
+        findings.append(
+            _finding(
+                "metamask_preflight_receipt_missing",
+                "high",
+                "review",
+                "MetaMask signing, transaction, typed-data, or permission prompts should be gated by a 0guard receipt.",
+                {"method": method},
+            )
+        )
+    if not findings and (method in read_methods or action.startswith(("read", "preview", "insight"))):
+        findings.append(
+            _finding(
+                "metamask_preview_context_ok",
+                "low",
+                "allow",
+                "MetaMask account, permission-read, and Snap insight preview context can be inspected without side effects.",
+                {"method": method or action},
+            )
+        )
+    return findings or [
+        _finding(
+            "metamask_wallet_action_review",
+            "medium",
+            "review",
+            "MetaMask wallet action is not proven read-only; require a 0guard receipt before prompting the user.",
+            {"action": action, "method": method or None},
         )
     ]
 

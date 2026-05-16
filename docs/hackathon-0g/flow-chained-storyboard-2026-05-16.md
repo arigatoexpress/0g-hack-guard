@@ -23,6 +23,35 @@ transition, but it does not explain the product by itself. It should not be the
 main explanatory scene. It can appear for one to two seconds only if the final
 edit needs an atmospheric checkpoint transition.
 
+## Grok Imagine Drafts
+
+Chrome/Grok Imagine was faster than the Brave/Flow path on May 16, 2026. Two
+low-cost 480p/6s drafts survived the first QA pass:
+
+| Asset | Use | QA Notes |
+| --- | --- | --- |
+| `assets/0guard-grok-prewallet-checkpoint-draft-20260516.mp4` | Scene 1/2 insert | No visible text; clear agent light, center shield, and red risky path. The right-side wallet vault reads as protected but remains abstract. |
+| `assets/0guard-grok-intelligence-to-detectors-draft-20260516.mp4` | Scene 5 insert | No visible text; red attack fragments become a cyan detector lattice around vault-like targets. This is the strongest generated clip so far for explaining evolving incident intelligence. |
+| `assets/0guard-grok-two-scene-security-plate-20260516-1280x720.mp4` | Social/demo B-roll plate | Silent stitched 11.6s edit of the two Grok clips, padded to 1280x720 for easier timeline use. |
+| `assets/0guard-grok-blockchain-verdict-rail-draft-20260516.mp4` | Verdict rail iteration | No visible text; shows green/red verdict behavior, but the final blocked state is still a little ambiguous. |
+| `assets/0guard-grok-two-rail-verdict-draft-20260516.mp4` | Preferred Grok-only verdict scene | No visible text; upper green chain and lower red quarantine lane are readable. Best Grok-only pass/block explanation so far. |
+| `assets/0guard-verdict-chain-explainer-20260516.mp4` | First precise no-text explainer | Procedural animation from `scripts/build_verdict_explainer_video.py`; accurate, but visually flatter than the polished render. |
+| `assets/0guard-verdict-chain-hybrid-plate-20260516.mp4` | Grok/procedural hybrid candidate | Starts with the Grok two-rail cinematic shot, then crossfades into the first deterministic verdict-chain explainer. Superseded by the polished pure-code render for clarity. |
+| `assets/0guard-verdict-chain-explainer-polished-20260516.mp4` | Current recommended B-roll candidate | Pure-code no-text animation. Larger blocks, layered glass shield, scan particles, stronger rails, motion trails, and a cleaner end state make it the best current allow/deny visual. |
+
+Grok caveat: direct `curl` downloads of `assets.grok.com` returned 403 outside
+the logged-in browser context. The saved MP4s were fetched through the already
+loaded Chrome page and then verified with `ffprobe` plus contact sheets.
+
+## Coded Verdict Renderer
+
+`scripts/build_verdict_explainer_video.py` is now the preferred path for the
+allow/deny segment. It stays public-safe and textless by construction: no fake
+wallet UI, no addresses, no hashes, no labels, and no generated pseudo-writing.
+Use the renderer when the visual must be exact: mixed blocks approach a
+checkpoint, approved blocks continue into the green chain, and rejected blocks
+are diverted into red quarantine cells before they can join.
+
 ## Story Rule
 
 Each generated scene must answer one viewer question:

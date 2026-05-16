@@ -331,6 +331,11 @@ async function loadIntelligenceStreamPlan(){
   const j = await r.json();
   writeJson('osint-output', j);
 }
+async function loadIntelligenceEvents(){
+  const r = await fetch('/api/intelligence/events?live=1&limit=10');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
 async function loadProductBrief(){
   const r = await fetch('/api/product/brief');
   const j = await r.json();
@@ -378,6 +383,16 @@ async function loadCrossChainCatalog(){
 }
 async function loadCrossChainReadiness(){
   const r = await fetch('/api/integrations/cross-chain/readiness?live=1');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadArbitrumIntegration(){
+  const r = await fetch('/api/integrations/arbitrum');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadMetamaskIntegration(){
+  const r = await fetch('/api/integrations/metamask');
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
@@ -449,6 +464,11 @@ async function runNativePreflight(){
 }
 async function loadHackathonStrategy(){
   const r = await fetch('/api/hackathon/strategy');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
+async function loadNextHackathonPlan(){
+  const r = await fetch('/api/hackathons/next');
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
@@ -579,6 +599,7 @@ document.getElementById('load-osint-readiness').addEventListener('click', loadOs
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
+document.getElementById('load-intelligence-events').addEventListener('click', loadIntelligenceEvents);
 document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);
 document.getElementById('load-production-readiness').addEventListener('click', loadProductionReadiness);
 document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
@@ -589,6 +610,8 @@ document.getElementById('load-submission-readiness').addEventListener('click', l
 document.getElementById('load-threat-passport').addEventListener('click', loadThreatPassport);
 document.getElementById('load-cross-chain-catalog').addEventListener('click', loadCrossChainCatalog);
 document.getElementById('load-cross-chain-readiness').addEventListener('click', loadCrossChainReadiness);
+document.getElementById('load-arbitrum-integration').addEventListener('click', loadArbitrumIntegration);
+document.getElementById('load-metamask-integration').addEventListener('click', loadMetamaskIntegration);
 document.getElementById('load-virtuals-facilitator').addEventListener('click', loadVirtualsFacilitator);
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
 document.getElementById('run-reputation-probe').addEventListener('click', runReputationProbe);
@@ -596,6 +619,7 @@ document.getElementById('load-reputation-adapters').addEventListener('click', lo
 document.getElementById('load-reputation-shadow-cache').addEventListener('click', loadReputationShadowCache);
 document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
 document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
+document.getElementById('load-next-hackathon-plan').addEventListener('click', loadNextHackathonPlan);
 document.getElementById('load-developer-kit').addEventListener('click', loadDeveloperKit);
 document.getElementById('load-external-guardrails').addEventListener('click', loadExternalGuardrails);
 document.getElementById('run-external-guardrail-check').addEventListener('click', runExternalGuardrailCheck);

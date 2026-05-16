@@ -35,8 +35,14 @@ from guard0.external_guardrails import (
     external_guardrail_catalog,
 )
 from guard0.experiments import frontier_experiments, run_frontier_experiment_preview
+from guard0.hackathon_integrations import (
+    arbitrum_integration_plan,
+    metamask_integration_plan,
+    next_hackathon_plan,
+)
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.ika import evaluate_ika_signing_request, ika_integration_manifest
+from guard0.intelligence_events import intelligence_events_snapshot
 from guard0.mira import build_mira_claim_preview, build_mira_security_preview
 from guard0.native_preflight import build_native_preflight, hackathon_strategy
 from guard0.osint import (
@@ -142,6 +148,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-osint-readiness",
     "#load-osint-signals",
     "#load-evolving-intel",
+    "#load-intelligence-events",
     "#load-product-brief",
     "#load-production-readiness",
     "#load-submission-brief",
@@ -150,6 +157,8 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-threat-passport",
     "#load-cross-chain-catalog",
     "#load-cross-chain-readiness",
+    "#load-arbitrum-integration",
+    "#load-metamask-integration",
     "#load-virtuals-facilitator",
     "#load-ika-integration",
     "#run-reputation-probe",
@@ -157,6 +166,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-reputation-shadow-cache",
     "#run-native-preflight",
     "#load-hackathon-strategy",
+    "#load-next-hackathon-plan",
     "#load-developer-kit",
     "#load-external-guardrails",
     "#run-external-guardrail-check",
@@ -751,6 +761,7 @@ def api_frontend_contract():
                 "/api/osint/signals",
                 "/api/intelligence/evolving",
                 "/api/intelligence/data-streams",
+                "/api/intelligence/events",
                 "/api/product/brief",
                 "/api/readyz",
                 "/api/roadmap",
@@ -765,6 +776,8 @@ def api_frontend_contract():
                 "/tonconnect-manifest.json",
                 "/api/integrations/cross-chain",
                 "/api/integrations/cross-chain/readiness",
+                "/api/integrations/arbitrum",
+                "/api/integrations/metamask",
                 "/api/integrations/virtuals-facilitator",
                 "/api/integrations/ika",
                 "/api/integrations/ika/evaluate",
@@ -775,6 +788,7 @@ def api_frontend_contract():
                 "/api/reputation/shadow-cache",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
+                "/api/hackathons/next",
                 "/api/developer-kit",
                 "/api/integrations/external-guardrails",
                 "/api/integrations/external-guardrails/evaluate",
@@ -818,6 +832,7 @@ def api_frontend_contract():
                 "load-osint-signals",
                 "load-evolving-intel",
                 "load-intelligence-stream-plan",
+                "load-intelligence-events",
                 "load-product-brief",
                 "load-production-readiness",
                 "load-ecosystem-roadmap",
@@ -828,6 +843,8 @@ def api_frontend_contract():
                 "load-threat-passport",
                 "load-cross-chain-catalog",
                 "load-cross-chain-readiness",
+                "load-arbitrum-integration",
+                "load-metamask-integration",
                 "load-virtuals-facilitator",
                 "load-ika-integration",
                 "run-reputation-probe",
@@ -835,6 +852,7 @@ def api_frontend_contract():
                 "load-reputation-shadow-cache",
                 "run-native-preflight",
                 "load-hackathon-strategy",
+                "load-next-hackathon-plan",
                 "load-developer-kit",
                 "load-external-guardrails",
                 "run-external-guardrail-check",
@@ -945,6 +963,20 @@ def api_intelligence_data_streams():
     return jsonify(intelligence_stream_plan())
 
 
+@app.route("/api/intelligence/events", methods=["GET"])
+def api_intelligence_events():
+    live = _truthy_query_arg("live")
+    limit = request.args.get("limit")
+    try:
+        limit_value = int(limit) if limit is not None else 10
+    except ValueError:
+        return jsonify({"error": "limit must be an integer"}), 400
+    try:
+        return jsonify(intelligence_events_snapshot(live=live, limit=limit_value))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
 @app.route("/api/product/brief", methods=["GET"])
 def api_product_brief():
     return jsonify(product_brief())
@@ -1041,6 +1073,16 @@ def api_cross_chain_readiness():
     )
 
 
+@app.route("/api/integrations/arbitrum", methods=["GET"])
+def api_arbitrum_integration():
+    return jsonify(arbitrum_integration_plan())
+
+
+@app.route("/api/integrations/metamask", methods=["GET"])
+def api_metamask_integration():
+    return jsonify(metamask_integration_plan())
+
+
 @app.route("/api/integrations/virtuals-facilitator", methods=["GET"])
 def api_virtuals_facilitator():
     return jsonify(virtuals_facilitator_manifest())
@@ -1129,6 +1171,11 @@ def api_native_preflight():
 @app.route("/api/hackathon/strategy", methods=["GET"])
 def api_hackathon_strategy():
     return jsonify(hackathon_strategy())
+
+
+@app.route("/api/hackathons/next", methods=["GET"])
+def api_next_hackathon_plan():
+    return jsonify(next_hackathon_plan())
 
 
 @app.route("/api/developer-kit", methods=["GET"])

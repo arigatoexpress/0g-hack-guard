@@ -39,6 +39,18 @@ _EXTERNAL_SURFACES = {
     "virtuals",
     "virtuals_base",
     "base_mainnet",
+    "arbitrum",
+    "arbitrum_one",
+    "arbitrum_nova",
+    "arbitrum_sepolia",
+    "arbitrum_orbit",
+    "arbitrum_stylus",
+    "metamask",
+    "metamask_wallet",
+    "metamask_connect",
+    "metamask_snap",
+    "metamask_delegation",
+    "metamask_smart_accounts",
     "lighter",
     "lighter_exchange",
     "chainlink_ccip",
@@ -240,19 +252,39 @@ def hackathon_strategy() -> dict[str, Any]:
             "id": "arbitrum_open_house_london",
             "name": "Arbitrum Open House London Buildathon",
             "timing": {
-                "status": "live_on_source_readback_2026-05-15",
-                "registrationWindow": "source showed registration closing in about 10 days",
+                "status": "active_on_source_readback_2026-05-16",
+                "registrationDeadline": "2026-05-25",
+                "submissionDeadline": "2026-06-14",
+                "rewardAnnouncement": "2026-06-17",
             },
             "importance": "high",
             "whyNow": "Arbitrum rewards production-grade EVM/L2 apps; 0guard can enter as Stylus/Solidity preflight middleware.",
-            "0guardBuild": "Package native preflight around Arbitrum actions, LayerZero/CCIP/Wormhole config checks, and x402 prepared payments.",
+            "0guardBuild": "Package native preflight around Arbitrum One/Nova/Sepolia, Orbit/Stylus actions, and x402 prepared payments.",
             "sources": [
-                "https://arbitrum-london.hackquest.io/",
+                "https://www.hackquest.io/hackathons/Arbitrum-Open-House-London-Online-Buildathon",
                 "https://openhouse.arbitrum.io/",
+                "https://docs.arbitrum.io/build-decentralized-apps/reference/node-providers",
             ],
         },
         {
             "rank": 3,
+            "id": "metamask_agent_wallet_security",
+            "name": "MetaMask agent-wallet security lane",
+            "timing": {
+                "status": "docs_verified_watchlist",
+                "nextPublicSubmissionWindow": "watch_ethglobal_and_metamask_programs",
+            },
+            "importance": "high",
+            "whyNow": "MetaMask Smart Accounts Kit, Snaps, and Connect give 0guard a clean pre-signer integration path for agentic wallets.",
+            "0guardBuild": "Gate eth_sendTransaction, signTypedData, permission requests, and delegated execution with /api/native-preflight.",
+            "sources": [
+                "https://docs.metamask.io/metamask-connect/",
+                "https://docs.metamask.io/snaps/features/transaction-insights/",
+                "https://docs.metamask.io/smart-accounts-kit/",
+            ],
+        },
+        {
+            "rank": 4,
             "id": "ethglobal_new_york_2026",
             "name": "ETHGlobal New York 2026",
             "timing": {
@@ -265,7 +297,7 @@ def hackathon_strategy() -> dict[str, Any]:
             "sources": ["https://ethglobal.com/"],
         },
         {
-            "rank": 4,
+            "rank": 5,
             "id": "ethglobal_lisbon_2026",
             "name": "ETHGlobal Lisbon 2026",
             "timing": {
@@ -278,7 +310,7 @@ def hackathon_strategy() -> dict[str, Any]:
             "sources": ["https://ethglobal.com/"],
         },
         {
-            "rank": 5,
+            "rank": 6,
             "id": "arbitrum_open_house_singapore",
             "name": "Arbitrum Open House Singapore",
             "timing": {
@@ -294,7 +326,7 @@ def hackathon_strategy() -> dict[str, Any]:
     return {
         "schema": HACKATHON_STRATEGY_SCHEMA,
         "generatedAt": _now(),
-        "sourceCheckedAt": "2026-05-15",
+        "sourceCheckedAt": "2026-05-16",
         "thesis": {
             "0gFirst": "0G remains the receipt/provenance layer and the current judging anchor.",
             "portableProduct": "Native preflight is the reusable product: one call before any agent reaches a signer.",

@@ -26,6 +26,10 @@ def test_cross_chain_catalog_is_source_cited_and_non_mutating():
     targets = {target["id"]: target for target in catalog["targets"]}
     assert targets["base_mainnet"]["chainId"] == 8453
     assert "virtuals_protocol" in targets["base_mainnet"]["capabilities"]
+    assert targets["arbitrum_one"]["chainId"] == 42161
+    assert targets["arbitrum_nova"]["chainId"] == 42170
+    assert targets["arbitrum_sepolia"]["chainId"] == 421614
+    assert "stylus_demo_target" in targets["arbitrum_sepolia"]["capabilities"]
     assert targets["0g_mainnet"]["chainId"] == 16661
     assert targets["0g_mainnet"]["x402Posture"].startswith("custom_facilitator_required")
     assert targets["celestia_blobstream"]["evmCompatible"] is False

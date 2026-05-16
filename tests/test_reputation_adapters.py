@@ -12,11 +12,11 @@ def test_reputation_adapter_catalog_is_no_network_and_rights_safe():
 
     assert catalog["schema"] == "0guard.reputation_adapter_catalog.v1"
     assert catalog["mode"] == "adapter_contracts_no_network_calls"
-    assert catalog["adapterCount"] == 6
+    assert catalog["adapterCount"] >= 11
     assert catalog["activationOrder"][:3] == [
         "phishdestroy_destroylist",
+        "scamsniffer_blacklist",
         "cryptoscamdb",
-        "forta_labelled_datasets",
     ]
     assert catalog["safety"]["networkCalls"] is False
     assert catalog["safety"]["rawPayloadsReturned"] is False
@@ -150,6 +150,56 @@ def test_goplus_payload_normalizes_to_deny_without_raw_payload_echo():
     assert result["reputationPreview"]["decision"]["decision"] == "deny"
     assert result["reputationPreview"]["rawPayloadsReturned"] is False
     assert result["safety"]["networkCalls"] is False
+
+
+def test_new_open_source_adapter_payloads_normalize_without_live_fetches():
+    scam = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "scamsniffer_blacklist",
+            "payload": {
+                "domains": [
+                    {
+                        "domain": "wallet-drainer.example",
+                        "list_type": "drainer",
+                        "delay_days": 7,
+                    }
+                ]
+            },
+        }
+    )
+    ofac = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "ofac_sanctions_sls",
+            "payload": {
+                "matches": [
+                    {
+                        "digital_currency_address": "0x1111111111111111111111111111111111111111",
+                        "program": "SDN",
+                        "sdn_id": "123",
+                    }
+                ]
+            },
+        }
+    )
+    evm = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "evm_event_index",
+            "payload": {
+                "approvals": [
+                    {
+                        "method": "approve",
+                        "spender": "0x2222222222222222222222222222222222222222",
+                        "value": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                    }
+                ]
+            },
+        }
+    )
+
+    assert scam["derivedEvidence"][0]["verdict"] == "malicious"
+    assert ofac["derivedEvidence"][0]["verdict"] == "malicious"
+    assert evm["derivedEvidence"][0]["verdict"] == "malicious"
+    assert all(item["safety"]["networkCalls"] is False for item in (scam, ofac, evm))
 
 
 def test_chainabuse_payload_normalizes_checked_reports_to_deny():

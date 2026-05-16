@@ -96,6 +96,26 @@ def developer_kit_manifest() -> dict[str, Any]:
             },
             {
                 "method": "GET",
+                "path": "/api/hackathons/next",
+                "purpose": "Chronological Arbitrum, MetaMask, and AI-agent hackathon execution plan.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/intelligence/events",
+                "purpose": "Polling snapshot of real read-only OSINT signals, source readiness, and chain heads.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/integrations/arbitrum",
+                "purpose": "Arbitrum One/Nova/Sepolia safety-pack plan and pre-signer risk rules.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/integrations/metamask",
+                "purpose": "MetaMask Connect, Snap insights, and delegated-permission guardrail plan.",
+            },
+            {
+                "method": "GET",
                 "path": "/api/integrations/ika",
                 "purpose": "Ika, Ikavery, MPCKit, and OdWS read-only integration manifest.",
             },
