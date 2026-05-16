@@ -83,6 +83,14 @@ def run_browser_smoke() -> None:
         page.on("pageerror", lambda exc: console_errors.append(str(exc)))
         try:
             exercise_workbench(page)
+            mobile_page = browser.new_page(
+                viewport={"width": 390, "height": 844},
+                is_mobile=True,
+            )
+            mobile_page.on("console", record_console_error)
+            mobile_page.on("pageerror", lambda exc: console_errors.append(str(exc)))
+            exercise_workbench_mobile(mobile_page)
+            mobile_page.close()
             exercise_telegram_miniapp(page)
         finally:
             browser.close()
@@ -563,6 +571,26 @@ def exercise_workbench(page: Page) -> None:
     evaluate_body = evaluate.json()
     assert evaluate_body["decision"] == "deny"
     assert any("wallet signature" in blocker.lower() for blocker in evaluate_body["blockers"])
+
+
+def exercise_workbench_mobile(page: Page) -> None:
+    page.goto(BASE_URL)
+
+    expect(page).to_have_title("0guard Workbench")
+    expect(page.locator("body")).to_contain_text("0G Hack Guard")
+    expect(page.locator("#plain-explanation")).to_contain_text("Safe simulations pass")
+    expect(page.locator("#flow-line")).not_to_be_visible()
+    expect(page.locator("#flow-packet")).not_to_be_visible()
+
+    page.locator("#run-safe-scenario").click()
+    expect(page.locator("#decision-pill")).to_contain_text("allow")
+    expect(page.locator("#wallet-state")).to_contain_text("simulation only")
+    expect(page.locator("#result-output")).to_contain_text('"decision": "allow"')
+
+    overflow_px = page.evaluate(
+        "() => document.documentElement.scrollWidth - document.documentElement.clientWidth"
+    )
+    assert overflow_px <= 2
 
 
 def exercise_telegram_miniapp(page: Page) -> None:

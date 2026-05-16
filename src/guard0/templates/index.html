@@ -33,6 +33,24 @@
         <div>
           <h1>0G Hack Guard</h1>
           <p class="muted">Evaluate wallet-adjacent agent intents before they reach a signing key.</p>
+          <div class="proof-strip" aria-label="Current proof posture">
+            <div class="proof-kv">
+              <span>Mode</span>
+              <strong>read-only</strong>
+            </div>
+            <div class="proof-kv">
+              <span>Signer</span>
+              <strong>blocked</strong>
+            </div>
+            <div class="proof-kv">
+              <span>Data</span>
+              <strong>28/28 cited</strong>
+            </div>
+            <div class="proof-kv">
+              <span>0G</span>
+              <strong>receipt anchored</strong>
+            </div>
+          </div>
         </div>
         <span class="pill deny" id="decision-pill">default deny</span>
       </section>
@@ -50,6 +68,24 @@
             <button id="run-bridge-scenario" class="secondary" type="button">Bridge release ask</button>
             <button id="run-upgrade-scenario" class="secondary" type="button">Upgrade ask</button>
             <button id="run-safe-scenario" class="secondary" type="button">Safe simulation</button>
+          </div>
+        </div>
+        <div class="console-meta" aria-label="Proof console metadata">
+          <div>
+            <span>Route</span>
+            <strong>/api/evaluate</strong>
+          </div>
+          <div>
+            <span>Schema</span>
+            <strong>0guard.policy_decision.v1</strong>
+          </div>
+          <div>
+            <span>Boundary</span>
+            <strong>no send / no sign</strong>
+          </div>
+          <div>
+            <span>Evidence</span>
+            <strong>policy + OSINT + adapters</strong>
           </div>
         </div>
 
@@ -121,7 +157,7 @@
 
       <section class="grid">
         <div class="stack">
-          <div class="card">
+          <div class="card control-card">
             <h2>Intent Firewall</h2>
             <textarea id="intent-input" rows="10">{
   "action": "swap",
@@ -138,7 +174,7 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card control-card">
             <h2>Hack Signature Check</h2>
             <textarea id="hack-input" rows="6">{
   "action": "approve",
@@ -149,7 +185,7 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card control-card">
             <h2>Domain Guard</h2>
             <input id="domain-input" value="https://docs.0g.ai">
             <div class="actions">
@@ -157,7 +193,7 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card evidence-card">
             <h2>0G Receipt Verifier</h2>
             <input id="verify-receipt-hash" value="0x0000000000000000000000000000000000000000000000000000000000000000">
             <div class="actions">
@@ -166,7 +202,7 @@
             <p class="mini">Read-only contract lookup when a PolicyReceiptAnchor address is configured.</p>
           </div>
 
-          <div class="card">
+          <div class="card evidence-card">
             <h2>Data Flow</h2>
             <div class="actions">
               <button id="load-data-summary" type="button">Load data summary</button>
@@ -178,7 +214,7 @@
             <p class="mini">Validates the incident dataset, computes provenance fingerprints, and measures signature-engine coverage.</p>
           </div>
 
-          <div class="card">
+          <div class="card evidence-card">
             <h2>OSINT Pipeline</h2>
             <div class="actions">
               <button id="load-osint-sources" type="button">Source registry</button>
@@ -197,7 +233,7 @@
             <p class="mini">Normalizes rights-aware public source metadata, live threat leads, and the HackQuest submission brief.</p>
           </div>
 
-          <div class="card">
+          <div class="card evidence-card">
             <h2>Cross-Chain Fabric</h2>
             <div class="actions">
               <button id="load-cross-chain-catalog" type="button">Integration catalog</button>
@@ -216,7 +252,7 @@
             <p class="mini"><strong>TON Risk Passport</strong> is exposed through the Telegram Mini App and TON preview APIs without requesting tonProof or transactions.</p>
           </div>
 
-          <div class="card">
+          <div class="card control-card">
             <h2>Telegram Mira Opt-In</h2>
             <input id="telegram-user-label" value="demo-operator">
             <div class="actions">
@@ -226,7 +262,7 @@
             <p class="mini">Registration is local and preview-only. No Telegram message is sent from this workbench.</p>
           </div>
 
-          <div class="card">
+          <div class="card control-card">
             <h2>Mira Telegram Preview</h2>
             <div class="actions">
               <button id="run-mira-preview" type="button">Build Mira preview</button>
@@ -234,7 +270,7 @@
             <p class="mini">Uses the current intent payload and produces a Telegram-safe response preview.</p>
           </div>
 
-          <div class="card">
+          <div class="card control-card">
             <h2>Wallet Alert Preview</h2>
             <input id="wallet-address-input" value="0x885b0892D241Cb5033C9995e09cA521d54f936b5">
             <div class="actions">
@@ -246,23 +282,23 @@
         </div>
 
         <div class="stack">
-          <div class="card">
-            <h2>Decision Output</h2>
+          <div class="card evidence-card">
+            <h2>Live Verdict Packet</h2>
             <pre id="result-output">Awaiting evaluation.</pre>
           </div>
-          <div class="card">
+          <div class="card evidence-card">
             <h2>Threat Case File</h2>
             <pre id="case-file-output">Awaiting composed case file.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>External Action Contract</h2>
             <pre id="contract-output">Loading contract.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>0G Network Proof</h2>
             <pre id="zg-status-output">Loading 0G status.</pre>
           </div>
-          <div class="card">
+          <div class="card evidence-card">
             <h2>Incident Data Flow</h2>
             <div class="provenance-summary" id="provenance-summary" aria-live="polite">
               <div class="metric"><span>Source matches</span><strong>awaiting</strong></div>
@@ -271,23 +307,23 @@
             </div>
             <pre id="data-flow-output">Loading incident data summary.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>OSINT & Submission</h2>
             <pre id="osint-output">Loading OSINT source registry.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>Cross-Chain Integration</h2>
             <pre id="cross-chain-output">Loading cross-chain catalog.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>Telegram Registration</h2>
             <pre id="telegram-register-output">Loading Telegram/Mira status.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>Mira Preview</h2>
             <pre id="mira-output">Awaiting Mira preview.</pre>
           </div>
-          <div class="card">
+          <div class="card raw-card">
             <h2>Wallet Alerts</h2>
             <pre id="wallet-alert-output">Awaiting wallet alert preview.</pre>
           </div>

@@ -24,6 +24,22 @@
     </header>
 
     <section class="miniapp-stage" aria-label="Telegram wallet alert flow">
+      <div class="miniapp-verdict">
+        <div>
+          <span>Verdict</span>
+          <strong id="miniapp-verdict">ready</strong>
+        </div>
+        <div>
+          <span>Reason</span>
+          <strong id="miniapp-reason">Run a preview.</strong>
+        </div>
+      </div>
+      <div class="miniapp-trust-strip" aria-label="Trust boundaries">
+        <span>initData checked</span>
+        <span>telegram_send=false</span>
+        <span>wallet_signature=false</span>
+        <span>tonProof=false</span>
+      </div>
       <div class="miniapp-flow" id="miniapp-flow" data-verdict="idle">
         <div class="miniapp-flow-node">
           <span>1</span>
@@ -44,16 +60,6 @@
           <span>4</span>
           <strong>TON Risk Passport</strong>
           <small>Telegram-native wallet context without tonProof or transaction prompts.</small>
-        </div>
-      </div>
-      <div class="miniapp-verdict">
-        <div>
-          <span>Verdict</span>
-          <strong id="miniapp-verdict">ready</strong>
-        </div>
-        <div>
-          <span>Reason</span>
-          <strong id="miniapp-reason">Run a preview.</strong>
         </div>
       </div>
     </section>

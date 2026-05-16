@@ -11,16 +11,17 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #07090d;
-        --panel: #111722;
-        --panel-2: #151e2c;
-        --line: rgba(125, 211, 252, 0.18);
-        --text: #eef7fb;
-        --muted: #98a7b8;
-        --cyan: #7dd3fc;
-        --green: #34d399;
-        --amber: #fbbf24;
-        --red: #fb7185;
+        --bg: #030405;
+        --panel: #0b0f12;
+        --panel-2: #10161a;
+        --line: rgba(155, 213, 196, 0.2);
+        --line-strong: rgba(70, 255, 154, 0.42);
+        --text: #edf7f1;
+        --muted: #899995;
+        --cyan: #9bd5c4;
+        --green: #46ff9a;
+        --amber: #e2b25b;
+        --red: #ff526b;
       }
 
       * { box-sizing: border-box; }
@@ -28,9 +29,10 @@
         margin: 0;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background:
-          radial-gradient(circle at 18% 12%, rgba(125, 211, 252, 0.14), transparent 28rem),
-          radial-gradient(circle at 82% 0%, rgba(52, 211, 153, 0.10), transparent 26rem),
+          linear-gradient(rgba(70, 255, 154, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(70, 255, 154, 0.045) 1px, transparent 1px),
           var(--bg);
+        background-size: 42px 42px, 42px 42px, auto;
         color: var(--text);
         line-height: 1.5;
       }
@@ -53,7 +55,7 @@
         padding: 12px 0;
       }
       .brand { display: flex; align-items: center; gap: 12px; font-weight: 850; }
-      .brand img { width: 42px; height: 42px; border-radius: 8px; }
+      .brand img { width: 42px; height: 42px; border: 1px solid var(--line-strong); border-radius: 8px; }
       .nav-links { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 0.92rem; }
 
       .hero {
@@ -71,7 +73,7 @@
       }
       h1 {
         margin: 12px 0 14px;
-        font-size: clamp(2.7rem, 7vw, 5.4rem);
+        font-size: 5.2rem;
         line-height: 0.96;
         letter-spacing: 0;
       }
@@ -89,11 +91,11 @@
         padding: 0 16px;
         border-radius: 8px;
         border: 1px solid var(--line);
-        background: rgba(125, 211, 252, 0.08);
+        background: rgba(155, 213, 196, 0.08);
         color: var(--text);
         font-weight: 800;
       }
-      .btn.primary { background: var(--cyan); color: #061018; border-color: transparent; }
+      .btn.primary { background: var(--green); color: #031007; border-color: transparent; }
 
       .media-strip {
         display: grid;
@@ -138,17 +140,18 @@
       .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .links { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .proof-ladder { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 14px; }
       .card {
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: linear-gradient(180deg, rgba(21, 30, 44, 0.92), rgba(17, 23, 34, 0.92));
+        background: linear-gradient(180deg, rgba(16, 22, 26, 0.94), rgba(11, 15, 18, 0.94));
         padding: 16px;
       }
       .metric strong {
         display: block;
         margin-bottom: 5px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-size: 2.5rem;
         line-height: 1;
         color: var(--green);
       }
@@ -156,9 +159,24 @@
       .metric.warn strong { color: var(--amber); }
       .metric.deny strong { color: var(--red); }
       .card h3 { margin: 0 0 8px; font-size: 1rem; }
+      .ladder-step {
+        min-height: 152px;
+        display: grid;
+        align-content: start;
+        gap: 8px;
+      }
+      .ladder-step strong {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: var(--green);
+      }
+      .ladder-step small {
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .ladder-step[data-state="gated"] strong { color: var(--amber); }
       ul { margin: 8px 0 0; padding-left: 18px; }
       code {
-        color: #bae6fd;
+        color: #c8fbe0;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         word-break: break-word;
       }
@@ -189,9 +207,11 @@
 
       @media (max-width: 860px) {
         header { min-height: auto; padding-top: 18px; }
-        .hero, .metrics, .links, .proof { grid-template-columns: 1fr; }
+        .hero, .metrics, .links, .proof, .proof-ladder { grid-template-columns: 1fr; }
         .nav { align-items: flex-start; flex-direction: column; }
         .video-meta span { min-width: 0; flex: 1 1 150px; }
+        h1 { font-size: 3rem; }
+        .metric strong { font-size: 2rem; }
       }
     </style>
   </head>
@@ -258,6 +278,28 @@
           <div class="card metric">
             <strong>1.0</strong>
             <span>signature and detection coverage ratio</span>
+          </div>
+        </div>
+        <div class="grid proof-ladder" aria-label="0G proof ladder">
+          <div class="card ladder-step">
+            <strong>Chain</strong>
+            <small>Live mainnet receipt anchor is linked below with a public transaction readback.</small>
+          </div>
+          <div class="card ladder-step">
+            <strong>Storage</strong>
+            <small>Storage-ready packet is deterministic: receipt hash, evidence root, source ids, and dataset fingerprint.</small>
+          </div>
+          <div class="card ladder-step">
+            <strong>DA</strong>
+            <small>Evidence bundle is shaped for verifier availability without claiming a live DA write.</small>
+          </div>
+          <div class="card ladder-step" data-state="gated">
+            <strong>Compute</strong>
+            <small>Inference and scoring adapters stay preview-only until live compute credentials are reviewed.</small>
+          </div>
+          <div class="card ladder-step" data-state="gated">
+            <strong>Alignment</strong>
+            <small>Policy receipts are verifier-ready, but no AI Alignment Node is claimed as operated.</small>
           </div>
         </div>
       </section>
