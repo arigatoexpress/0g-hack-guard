@@ -155,6 +155,12 @@ def exercise_workbench(page: Page) -> None:
     expect(page.locator("#result-output")).to_contain_text('"decision": "allow"')
     expect(page.locator("#result-output")).to_contain_text('"mode": "simulation"')
 
+    page.locator("#load-deny-sample").click()
+    page.locator("#run-threat-case-file").click()
+    expect(page.locator("#case-file-output")).to_contain_text("0guard.threat_case_file.v1")
+    expect(page.locator("#case-file-output")).to_contain_text("policy_engine")
+    expect(page.locator("#case-file-output")).to_contain_text('"rawPayloadsReturned": false')
+
     page.locator("#run-hack-check").click()
     expect(page.locator("#result-output")).to_contain_text("Unlimited ERC-20 approval")
 
@@ -184,6 +190,9 @@ def exercise_workbench(page: Page) -> None:
         "0guard.evolving_threat_intelligence.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text("preview_no_send_read_only")
+    page.locator("#load-frontier-experiments").click()
+    expect(page.locator("#osint-output")).to_contain_text("0guard.frontier_experiments.v1")
+    expect(page.locator("#osint-output")).to_contain_text("zero_g_storage_receipt_readback")
     page.locator("#load-submission-brief").click()
     expect(page.locator("#osint-output")).to_contain_text(
         "0guard.hackathon_submission_brief.v1"
@@ -293,6 +302,9 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/intelligence/evolving" in frontend_body["apiRoutes"]
     assert "/api/wallet/alert-preview" in frontend_body["apiRoutes"]
+    assert "/api/threat-case-file" in frontend_body["apiRoutes"]
+    assert "/api/experiments/frontier" in frontend_body["apiRoutes"]
+    assert "/api/experiments/run" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-brief" in frontend_body["apiRoutes"]
     assert "/api/hackathon/submission-packet" in frontend_body["apiRoutes"]
     assert "/api/hackathon/readiness" in frontend_body["apiRoutes"]
@@ -317,6 +329,8 @@ def exercise_workbench(page: Page) -> None:
     assert "#run-external-guardrail-check" in frontend_body["requiredSelectors"]
     assert "#run-wallet-alert-preview" in frontend_body["requiredSelectors"]
     assert "#run-telegram-wallet-alert-preview" in frontend_body["requiredSelectors"]
+    assert "#run-threat-case-file" in frontend_body["requiredSelectors"]
+    assert "#load-frontier-experiments" in frontend_body["requiredSelectors"]
 
     external_contract = page.request.get(f"{BASE_URL}/api/external-action-contracts")
     assert external_contract.ok
@@ -375,6 +389,23 @@ def exercise_workbench(page: Page) -> None:
     assert readiness_body["schema"] == "0guard.osint_readiness.v1"
     assert readiness_body["live"] is False
     assert readiness_body["safety"]["readOnly"] is True
+
+    frontier = page.request.get(f"{BASE_URL}/api/experiments/frontier")
+    assert frontier.ok
+    frontier_body = frontier.json()
+    assert frontier_body["schema"] == "0guard.frontier_experiments.v1"
+    assert frontier_body["safety"]["networkCalls"] is False
+
+    frontier_preview = page.request.post(
+        f"{BASE_URL}/api/experiments/run",
+        data=json.dumps({"experimentId": "zero_g_storage_receipt_readback"}),
+        headers={"content-type": "application/json"},
+    )
+    assert frontier_preview.ok
+    frontier_preview_body = frontier_preview.json()
+    assert frontier_preview_body["schema"] == "0guard.frontier_experiment_preview.v1"
+    assert frontier_preview_body["preview"]["storageReceipt"]["stored"] is False
+    assert frontier_preview_body["safety"]["liveStorageUpload"] is False
 
     crosschain = page.request.get(f"{BASE_URL}/api/integrations/cross-chain")
     assert crosschain.ok

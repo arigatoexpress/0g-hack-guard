@@ -35,6 +35,8 @@ deployment gates, and x402-style paid APIs.
 | Surface | Route / artifact | Status |
 |---|---|---|
 | Product brief | `/api/product/brief` | Live |
+| Threat case file | `/api/threat-case-file` | Live preview, no side effects |
+| Frontier experiment lab | `/api/experiments/frontier`, `/api/experiments/run` | Live read-only |
 | Native preflight | `/api/native-preflight` | Live |
 | Reputation probe | `/api/reputation/probe` | Live, local/derived |
 | Reputation connector manifest | `/api/reputation/connectors` | Live, no external calls |
@@ -58,9 +60,10 @@ deployment gates, and x402-style paid APIs.
 
 ## Next Best Builds
 
-1. Enable one external reputation connector first, likely GoPlus or Chainabuse,
+1. Use the threat case file as the default judge/operator walkthrough: one
+   risky intent, one verdict, one evidence packet, one 0G-ready receipt.
+2. Enable one external reputation connector first, likely GoPlus or Chainabuse,
    behind credentials and derived-output tests.
-2. Add operator-approved 0G Storage upload/readback for receipt payloads.
-3. Add EVM simulation summaries from Tenderly or BlockSec.
-4. Deepen Telegram/TON with read-only TON Center or TONAPI account context.
-
+3. Add operator-approved 0G Storage upload/readback for receipt payloads.
+4. Add EVM simulation summaries from Tenderly or BlockSec.
+5. Deepen Telegram/TON with read-only TON Center or TONAPI account context.

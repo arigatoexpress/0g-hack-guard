@@ -29,6 +29,11 @@ incident dataset without pretending raw feeds are ours to resell.
 
 - `/api/intelligence/data-streams` exposes this as a source-rights-aware JSON
   roadmap.
+- `/api/experiments/frontier` turns the roadmap into a ranked lab bench for 0G
+  Storage/Compute, reputation, simulation, TON, and Mira.
+- `/api/experiments/run` previews one experiment at a time and always reports
+  `networkCalls: false`, `liveStorageUpload: false`,
+  `liveComputeInference: false`, and `rawPayloadsReturned: false`.
 - `/api/osint/sources` now includes the planned stream metadata and keeps those
   adapters disabled by default until terms, keys, and retention rules are clear.
 - `/api/reputation/probe` is the first live adapter contract. It accepts local

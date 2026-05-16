@@ -60,6 +60,21 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "purpose": "Primary allow/review/deny verdict before a signing surface.",
             },
             {
+                "method": "POST",
+                "path": "/api/threat-case-file",
+                "purpose": "Composed proof dossier for one agent intent across policy, reputation, provenance, and receipts.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/experiments/frontier",
+                "purpose": "Ranked read-only experiment lab for safe next-integration planning.",
+            },
+            {
+                "method": "POST",
+                "path": "/api/experiments/run",
+                "purpose": "No-side-effect preview for one frontier experiment.",
+            },
+            {
                 "method": "GET",
                 "path": "/api/hackathon/strategy",
                 "purpose": "0G-first build order and next-hackathon target rationale.",

@@ -34,6 +34,8 @@ def product_brief() -> dict[str, Any]:
         "liveProof": _live_proof(summary, coverage),
         "currentStrengths": [
             "Clear wedge: protect the moment before wallet custody, not after a signature prompt appears.",
+            "A composed threat case file turns one risky agent action into judge/operator-readable evidence.",
+            "A frontier experiment lab ranks the next integrations while proving no live side effects occurred.",
             "Real source-linked incident data and detector coverage instead of mock security claims.",
             "A live Telegram Mini App surface that remains preview-only and no-send.",
             "Portable developer-kit routes that other wallets, agents, Mini Apps, CI jobs, and dWallet flows can call.",
@@ -54,18 +56,24 @@ def product_brief() -> dict[str, Any]:
             },
             {
                 "rank": 2,
+                "id": "threat_case_file_productization",
+                "why": "Best demo and operator comprehension lift because it stitches every existing proof surface together.",
+                "ship": "Use /api/threat-case-file as the default judge/operator drill for risky agent intents.",
+            },
+            {
+                "rank": 3,
                 "id": "0g_storage_receipt_readback",
                 "why": "Makes the 0G story more than a chain anchor by proving receipt payload availability.",
                 "ship": "Operator-approved upload/readback CLI plus public-safe receipt hash display.",
             },
             {
-                "rank": 3,
+                "rank": 4,
                 "id": "evm_simulation_adapter",
                 "why": "State deltas make approvals, swaps, upgrades, and bridge messages easier for normal users to understand.",
                 "ship": "Tenderly or BlockSec adapter returning derived asset-delta summaries only.",
             },
             {
-                "rank": 4,
+                "rank": 5,
                 "id": "telegram_ton_risk_passport",
                 "why": "Telegram users are the natural first audience; TON should be native rather than bridged.",
                 "ship": "TON Center or TONAPI read-only account/Jetton context feeding the Mini App passport.",
@@ -117,6 +125,20 @@ def _built_systems(summary: dict[str, Any], coverage: dict[str, Any]) -> list[di
             "status": "live_local_derived",
             "whatItDoes": "Scores domains, counterparties, labels, source evidence, and intent context without returning raw source payloads.",
             "proofRoutes": ["/api/reputation/probe", "/api/reputation/connectors"],
+        },
+        {
+            "id": "threat_case_file",
+            "label": "Threat case file",
+            "status": "live_preview_no_side_effects",
+            "whatItDoes": "Composes policy, signatures, reputation, wallet alert gates, provenance, and 0G-ready receipts into one proof dossier.",
+            "proofRoutes": ["/api/threat-case-file"],
+        },
+        {
+            "id": "frontier_experiment_lab",
+            "label": "Frontier experiment lab",
+            "status": "live_read_only_experiment_backlog",
+            "whatItDoes": "Ranks and previews 0G Storage/Compute, reputation, simulation, TON, and Mira activation paths without live side effects.",
+            "proofRoutes": ["/api/experiments/frontier", "/api/experiments/run"],
         },
         {
             "id": "telegram_mini_app",

@@ -103,6 +103,9 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/product/brief" in data["apiRoutes"]
     assert "/api/healthz" in data["apiRoutes"]
     assert "/api/roadmap" in data["apiRoutes"]
+    assert "/api/experiments/frontier" in data["apiRoutes"]
+    assert "/api/experiments/run" in data["apiRoutes"]
+    assert "/api/threat-case-file" in data["apiRoutes"]
     assert "/api/wallet/alert-preview" in data["apiRoutes"]
     assert "/api/ton/status" in data["apiRoutes"]
     assert "/api/ton/risk-rules" in data["apiRoutes"]
@@ -134,12 +137,14 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/telegram/wallet-alert-preview" in data["apiRoutes"]
     assert "/api/mira/claim-preview" in data["apiRoutes"]
     assert "#run-evaluate" in data["requiredSelectors"]
+    assert "#run-threat-case-file" in data["requiredSelectors"]
     assert "#play-story" in data["requiredSelectors"]
     assert "#flow-canvas" in data["requiredSelectors"]
     assert "#plain-explanation" in data["requiredSelectors"]
     assert "#technical-output" in data["requiredSelectors"]
     assert "#risk-list" in data["requiredSelectors"]
     assert "#contract-output" in data["requiredSelectors"]
+    assert "#case-file-output" in data["requiredSelectors"]
     assert "#zg-status-output" in data["requiredSelectors"]
     assert "#verify-receipt-hash" in data["requiredSelectors"]
     assert "#verify-receipt" in data["requiredSelectors"]
@@ -152,6 +157,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-intelligence-stream-plan" in data["requiredSelectors"]
     assert "#load-product-brief" in data["requiredSelectors"]
     assert "#load-ecosystem-roadmap" in data["requiredSelectors"]
+    assert "#load-frontier-experiments" in data["requiredSelectors"]
     assert "#load-submission-packet" in data["requiredSelectors"]
     assert "#load-submission-readiness" in data["requiredSelectors"]
     assert "#load-threat-passport" in data["requiredSelectors"]
@@ -197,6 +203,8 @@ def test_frontend_uses_packaged_template_and_static_assets():
     )
     assert "run-evaluate" in (package_root / "static" / "app.js").read_text()
     assert "loadProductBrief" in (package_root / "static" / "app.js").read_text()
+    assert "runThreatCaseFile" in (package_root / "static" / "app.js").read_text()
+    assert "loadFrontierExperiments" in (package_root / "static" / "app.js").read_text()
     assert "miniappRunPreview" in (package_root / "static" / "telegram-miniapp.js").read_text()
     assert ".shell" in (package_root / "static" / "styles.css").read_text()
 
@@ -333,6 +341,22 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     assert roadmap_body["schema"] == "0guard.ecosystem_roadmap.v1"
     assert roadmap_body["positioning"]["category"] == "pre-wallet safety layer for autonomous agents"
     assert roadmap_body["safety"]["bridgingEnabled"] is False
+
+    frontier = client.get("/api/experiments/frontier")
+    assert frontier.status_code == 200
+    frontier_body = frontier.get_json()
+    assert frontier_body["schema"] == "0guard.frontier_experiments.v1"
+    assert frontier_body["safety"]["networkCalls"] is False
+
+    frontier_run = client.post(
+        "/api/experiments/run",
+        json={"experimentId": "zero_g_storage_receipt_readback"},
+    )
+    assert frontier_run.status_code == 200
+    frontier_run_body = frontier_run.get_json()
+    assert frontier_run_body["schema"] == "0guard.frontier_experiment_preview.v1"
+    assert frontier_run_body["preview"]["storageReceipt"]["stored"] is False
+    assert frontier_run_body["safety"]["liveStorageUpload"] is False
 
     brief = client.get("/api/hackathon/submission-brief")
     assert brief.status_code == 200
@@ -486,6 +510,24 @@ def test_cross_chain_integration_routes_are_read_only(client):
         item["id"] for item in native_with_reputation.get_json()["components"]
     }
     assert "reputation_probe" in reputation_component_ids
+
+    case_file = client.post(
+        "/api/threat-case-file",
+        json={
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+                "target_contract": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            }
+        },
+    )
+    assert case_file.status_code == 200
+    case_body = case_file.get_json()
+    assert case_body["schema"] == "0guard.threat_case_file.v1"
+    assert case_body["safety"]["telegramSendsEnabled"] is False
+    assert case_body["safety"]["transactionSigningEnabled"] is False
+    assert case_body["sourceRights"]["rawPayloadsReturned"] is False
 
     strategy = client.get("/api/hackathon/strategy")
     assert strategy.status_code == 200

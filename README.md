@@ -154,6 +154,9 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/intelligence/data-streams` | Ranked data-stream plan with free/paid source options, rights posture, and integration phases |
 | `GET`  | `/api/product/brief` | Plain-English map of what 0guard is, what is live, honest limits, proof links, and next builds |
 | `GET`  | `/api/roadmap` | No-bridge ecosystem roadmap for 0G, Telegram/TON, EVM L2s, Solana, Hyperliquid, and agent distribution |
+| `GET`  | `/api/experiments/frontier` | Ranked frontier experiment lab for 0G Storage/Compute, reputation, simulation, TON, and Mira activation |
+| `POST` | `/api/experiments/run` | Deterministic no-side-effect preview for one frontier experiment; no live upload, inference, signing, send, post, bridge, or payment |
+| `POST` | `/api/threat-case-file` | Composed proof dossier for one risky agent intent across policy, signatures, reputation, wallet alerts, provenance, and 0G-ready receipts |
 | `GET/POST` | `/api/wallet/alert-preview` | Read-only wallet alert preview with quality gates, dedupe keys, cooldowns, and no sends |
 | `GET`  | `/tonconnect-manifest.json` | TON Connect manifest for presentation-only wallet context |
 | `GET`  | `/api/ton/status` | TON/Telegram wallet integration posture, supported networks, and no-sign safety flags |

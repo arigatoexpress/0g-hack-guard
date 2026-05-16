@@ -33,7 +33,25 @@ explanations, while keeping outbound Telegram sends disabled.
 
 ## What changed recently
 
-The newest layer is a no-network reputation connector manifest:
+The newest layer is a threat case file plus a frontier experiment lab.
+
+`/api/threat-case-file`
+
+This route takes one risky agent request and turns it into a proof dossier:
+policy verdict, exploit signatures, reputation context, wallet-alert quality
+gates, provenance coverage, signature coverage, and 0G-ready receipt hashes.
+It is the cleanest way to explain what happened and why a signer should or
+should not be touched.
+
+`/api/experiments/frontier`
+
+This route ranks the next integrations as safe experiments: 0G Storage
+readback, GoPlus/Chainabuse/Forta reputation, Tenderly or BlockSec simulation,
+Telegram/TON wallet context, 0G Compute shadow scoring, and Mira claim
+verification. Each preview proves that live uploads, inference, sends, signing,
+bridges, swaps, settlement, and raw payload resale are still off.
+
+The existing no-network reputation connector manifest remains important:
 
 `/api/reputation/connectors`
 
@@ -61,11 +79,12 @@ That is intentional. The product is the checkpoint before those systems.
 
 The next practical builds are:
 
-1. Enable one external reputation connector first, probably GoPlus or
+1. Make the threat case file the default demo and operator review packet.
+2. Enable one external reputation connector first, probably GoPlus or
    Chainabuse, behind reviewed credentials and derived-output tests.
-2. Add operator-approved 0G Storage upload and readback for receipt payloads.
-3. Add EVM simulation summaries from Tenderly or BlockSec.
-4. Deepen Telegram and TON with read-only wallet risk passports.
+3. Add operator-approved 0G Storage upload and readback for receipt payloads.
+4. Add EVM simulation summaries from Tenderly or BlockSec.
+5. Deepen Telegram and TON with read-only wallet risk passports.
 
 The long-term goal is safety middleware for agentic crypto: a small,
 deterministic preflight layer that wallets, agents, Mini Apps, x402 services,
@@ -75,4 +94,3 @@ reached.
 That is the wedge.
 
 AI agents should not get to the wallet first.
-

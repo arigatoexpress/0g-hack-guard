@@ -19,6 +19,8 @@ allow/review/deny verdict and a receipt.
 3. **Connector story.** The external intelligence plan existed, but needed a
    clear subject-aware activation view that says which sources matter next
    without pretending those feeds are live.
+4. **Experiment surface.** The repo needed a safe way to keep researching
+   future integrations without creating false live claims.
 
 ## Improvements Shipped
 
@@ -33,17 +35,25 @@ allow/review/deny verdict and a receipt.
   launch/update post.
 - Updated the public proof hub to reference `/api/product/brief` and
   `/api/reputation/connectors`.
+- Added `/api/threat-case-file`, a composed proof dossier for one agent intent
+  across policy, exploit signatures, reputation, wallet alert gates,
+  provenance, and 0G-ready receipts.
+- Added `/api/experiments/frontier` and `/api/experiments/run`, a read-only
+  frontier lab for 0G Storage/Compute, GoPlus/Chainabuse/Forta, Tenderly or
+  BlockSec simulation, Telegram/TON, and Mira.
 
 ## Next Technical Priorities
 
-1. **Activate one reputation connector.** Start with GoPlus or Chainabuse. Keep
+1. **Make the threat case file the default demo.** It is the clearest single
+   surface for judges, wallet teams, agent frameworks, and operators.
+2. **Activate one reputation connector.** Start with GoPlus or Chainabuse. Keep
    the adapter disabled by default, test with fixtures, and return only derived
    signals.
-2. **Add 0G Storage readback.** Store a receipt payload only through an
+3. **Add 0G Storage readback.** Store a receipt payload only through an
    operator-approved path, then prove retrieval.
-3. **Add transaction simulation summaries.** Use Tenderly or BlockSec to turn
+4. **Add transaction simulation summaries.** Use Tenderly or BlockSec to turn
    risky calls into simple asset-delta explanations.
-4. **Deepen Telegram/TON.** Add read-only TON account/Jetton context through
+5. **Deepen Telegram/TON.** Add read-only TON account/Jetton context through
    TON Center or TONAPI, without tonProof or transaction prompts.
 
 ## Non-Negotiable Boundaries
@@ -55,4 +65,3 @@ allow/review/deny verdict and a receipt.
 - No bridge, swap, x402 settlement, exchange order, or money movement.
 - No live Telegram/X/LinkedIn/Substack posting without an operator-reviewed
   posting path.
-

@@ -16,6 +16,10 @@ The live repo already has:
 
 - 0G mainnet deny receipt proof plus read-only 0G status and receipt routes.
 - 28/28 source-linked incident detector coverage.
+- A threat case file route that composes policy, signatures, reputation, wallet
+  alerts, provenance, and 0G-ready receipts into one proof dossier.
+- A frontier experiment lab that ranks 0G Storage/Compute, reputation,
+  simulation, TON, and Mira activation without live side effects.
 - Telegram Mini App preview with server-side `initData` validation support.
 - Mira deterministic previews and claim packets.
 - Cross-chain guardrails for Base, Arbitrum, Polygon, Abstract, Lighter, CCIP,
@@ -45,6 +49,9 @@ The live repo already has:
 ## New API Proof
 
 - `/api/roadmap` exposes the phase plan and competitive wedge.
+- `/api/threat-case-file` exposes the composed operator/judge proof dossier.
+- `/api/experiments/frontier` and `/api/experiments/run` expose the next
+  integrations as safe previews instead of speculative claims.
 - `/api/ton/status`, `/api/ton/risk-rules`, `/api/ton/wallet-risk-preview`, and
   `/api/telegram/miniapp/ton-preview` expose the TON/Telegram lane without
   signatures or sends.

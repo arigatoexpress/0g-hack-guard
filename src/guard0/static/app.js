@@ -228,6 +228,25 @@ async function evaluateIntent(){
   writeJson('result-output', j);
   renderStoryResult(scenario, j);
 }
+async function runThreatCaseFile(){
+  const intent = JSON.parse(document.getElementById('intent-input').value);
+  const wallet = document.getElementById('wallet-address-input').value;
+  const r = await fetch('/api/threat-case-file', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      intent,
+      wallet,
+      counterparty: intent.target_contract || intent.to || '0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab',
+      url: 'https://docs.0g.ai.evil.example/claim'
+    })
+  });
+  const j = await r.json();
+  writeJson('case-file-output', j);
+  if(j.decision && j.decision.decision){
+    updateDecision(j.decision.decision);
+  }
+}
 async function hackCheck(){
   const body = JSON.parse(document.getElementById('hack-input').value);
   const r = await fetch('/api/hack-check', {
@@ -319,6 +338,11 @@ async function loadProductBrief(){
 }
 async function loadEcosystemRoadmap(){
   const r = await fetch('/api/roadmap');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadFrontierExperiments(){
+  const r = await fetch('/api/experiments/frontier');
   const j = await r.json();
   writeJson('osint-output', j);
 }
@@ -534,6 +558,7 @@ document.getElementById('load-provenance-matrix').addEventListener('click', load
 document.getElementById('load-live-provenance').addEventListener('click', loadLiveProvenanceMatrix);
 document.getElementById('load-detection-coverage').addEventListener('click', loadDetectionCoverage);
 document.getElementById('load-signature-map').addEventListener('click', loadSignatureMap);
+document.getElementById('run-threat-case-file').addEventListener('click', runThreatCaseFile);
 document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);
 document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
 document.getElementById('load-osint-signals').addEventListener('click', loadOsintSignals);
@@ -541,6 +566,7 @@ document.getElementById('load-evolving-intel').addEventListener('click', loadEvo
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
 document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);
 document.getElementById('load-ecosystem-roadmap').addEventListener('click', loadEcosystemRoadmap);
+document.getElementById('load-frontier-experiments').addEventListener('click', loadFrontierExperiments);
 document.getElementById('load-submission-brief').addEventListener('click', loadSubmissionBrief);
 document.getElementById('load-submission-packet').addEventListener('click', loadSubmissionPacket);
 document.getElementById('load-submission-readiness').addEventListener('click', loadSubmissionReadiness);

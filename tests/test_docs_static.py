@@ -13,6 +13,8 @@ def test_public_pages_demo_examples_match_real_routes_and_assets():
     assert "docs/og-image.png" not in html
     assert "0guard-x-banner.png" in html
     assert "/api/hackathon/threat-passport" in html
+    assert "/api/threat-case-file" in html
+    assert "/api/experiments/frontier" in html
     assert "/api/integrations/cross-chain" in html
     assert "/api/integrations/virtuals-facilitator" in html
     assert (

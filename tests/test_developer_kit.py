@@ -17,6 +17,8 @@ def test_developer_kit_manifest_is_actionable_and_non_mutating():
     assert manifest["mode"] == "no_secret_native_preflight_sdk"
     assert manifest["quickstart"]["localServer"] == "python3 -m guard0.cli serve --port 8109"
     assert any(route["path"] == "/api/native-preflight" for route in manifest["routes"])
+    assert any(route["path"] == "/api/threat-case-file" for route in manifest["routes"])
+    assert any(route["path"] == "/api/experiments/frontier" for route in manifest["routes"])
     assert any(route["path"] == "/api/developer-kit" for route in manifest["routes"])
     assert any(route["path"] == "/api/reputation/probe" for route in manifest["routes"])
     assert {recipe["id"] for recipe in manifest["adapterRecipes"]} >= {

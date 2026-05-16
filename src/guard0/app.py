@@ -24,11 +24,13 @@ from guard0.crosschain import (
     cross_chain_readiness,
     virtuals_facilitator_manifest,
 )
+from guard0.case_file import build_threat_case_file
 from guard0.developer_kit import developer_kit_manifest
 from guard0.external_guardrails import (
     evaluate_external_guardrail,
     external_guardrail_catalog,
 )
+from guard0.experiments import frontier_experiments, run_frontier_experiment_preview
 from guard0.incident_data import detection_coverage, filter_incidents, incident_summary
 from guard0.ika import evaluate_ika_signing_request, ika_integration_manifest
 from guard0.mira import build_mira_claim_preview, build_mira_security_preview
@@ -105,6 +107,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#risk-list",
     "#intent-input",
     "#run-evaluate",
+    "#run-threat-case-file",
     "#load-deny-sample",
     "#load-allow-sample",
     "#hack-input",
@@ -112,6 +115,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#domain-input",
     "#run-domain-check",
     "#result-output",
+    "#case-file-output",
     "#contract-output",
     "#zg-status-output",
     "#data-flow-output",
@@ -160,6 +164,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#open-telegram-miniapp",
     "#load-intelligence-stream-plan",
     "#load-ecosystem-roadmap",
+    "#load-frontier-experiments",
 )
 
 MINIAPP_REQUIRED_SELECTORS = (
@@ -618,6 +623,9 @@ def api_frontend_contract():
                 "/api/intelligence/data-streams",
                 "/api/product/brief",
                 "/api/roadmap",
+                "/api/experiments/frontier",
+                "/api/experiments/run",
+                "/api/threat-case-file",
                 "/api/wallet/alert-preview",
                 "/api/healthz",
                 "/api/ton/status",
@@ -663,6 +671,7 @@ def api_frontend_contract():
                 "run-safe-scenario",
                 "load-deny-sample",
                 "load-simulation-sample",
+                "run-threat-case-file",
                 "run-hack-check",
                 "run-domain-check",
                 "load-data-summary",
@@ -676,6 +685,7 @@ def api_frontend_contract():
                 "load-evolving-intel",
                 "load-intelligence-stream-plan",
                 "load-ecosystem-roadmap",
+                "load-frontier-experiments",
                 "load-submission-brief",
                 "load-submission-packet",
                 "load-submission-readiness",
@@ -805,6 +815,20 @@ def api_product_brief():
 @app.route("/api/roadmap", methods=["GET"])
 def api_roadmap():
     return jsonify(ecosystem_roadmap())
+
+
+@app.route("/api/experiments/frontier", methods=["GET"])
+def api_frontier_experiments():
+    return jsonify(frontier_experiments())
+
+
+@app.route("/api/experiments/run", methods=["POST"])
+def api_frontier_experiment_run():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(run_frontier_experiment_preview(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
 
 
 @app.route("/api/wallet/alert-preview", methods=["GET", "POST"])
@@ -1515,6 +1539,15 @@ def api_evaluate():
         enable_0g_storage=body.get("enable_0g_storage", False),
     )
     return jsonify(decision.to_dict())
+
+
+@app.route("/api/threat-case-file", methods=["POST"])
+def api_threat_case_file():
+    body = request.get_json(silent=True) or {}
+    try:
+        return jsonify(build_threat_case_file(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
 
 
 @app.route("/api/hack-check", methods=["POST"])
