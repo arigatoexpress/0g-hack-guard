@@ -33,6 +33,10 @@ reads back as submitted and complete.
 - Telegram Mini App thread: `content/telegram_miniapp_x_thread.json`
 - Post-submit intelligence thread:
   `content/0guard_postsubmit_update_x_thread.json`
+- Main-account HackQuest update:
+  `content/x_main_account_hackathon_update_2026-05-16.json`
+- ZeroGuard-account product update:
+  `content/x_zeroguard_account_update_2026-05-16.json`
 - LinkedIn launch post: `content/linkedin_launch_post.md`
 - LinkedIn Telegram Mini App update:
   `content/linkedin_telegram_miniapp_update.md`
@@ -46,6 +50,8 @@ Dry-run validation passed for:
 .venv/bin/python scripts/x_post.py --file content/0guard_current_update_x_thread.json --thread --dry-run --verbose
 .venv/bin/python scripts/x_post.py --file content/telegram_miniapp_x_thread.json --thread --dry-run --verbose
 .venv/bin/python scripts/x_post.py --file content/0guard_postsubmit_update_x_thread.json --thread --dry-run --verbose
+.venv/bin/python scripts/x_post.py --file content/x_main_account_hackathon_update_2026-05-16.json --thread --dry-run --verbose
+.venv/bin/python scripts/x_post.py --file content/x_zeroguard_account_update_2026-05-16.json --thread --dry-run --verbose
 ```
 
 ## Live Posting State
@@ -56,6 +62,11 @@ Completed through the currently open Brave LinkedIn session:
   https://www.linkedin.com/feed/update/urn:li:share:7461141000544243712/
 - LinkedIn post-submit intelligence update:
   https://www.linkedin.com/feed/update/urn:li:share:7461443615245127682/
+
+Completed through the logged-in Chrome X session:
+
+- Main-account HackQuest update from `@rariwrldd`:
+  https://x.com/rariwrldd/status/2055683406302941687
 
 The shell environment does not contain the X OAuth variables required by
 `scripts/x_post.py`:
@@ -68,6 +79,11 @@ The shell environment does not contain the X OAuth variables required by
 Because those are absent, API-based live X posting cannot run from this repo.
 The same Brave profile was also checked against https://x.com/0guard_ and is
 not authenticated for X; it shows `Log in` / `Sign up` and no posting controls.
+The corrected X drafts say the project is submitted, not that it is still
+submitted.
+Chrome is authenticated as `@rariwrldd`; the account switcher does not expose
+`@0guard_` yet, only `Add an existing account`, so the ZeroGuard-account update
+is prepared but not posted.
 
 ## X Cleanup State
 

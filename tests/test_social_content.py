@@ -35,6 +35,28 @@ def test_postsubmit_x_update_thread_is_review_ready_and_within_limits():
     assert "web risk" in combined
     assert "#0ghackathon" in combined
     assert "#buildon0g" in combined
+    assert "still reading back as submitted" not in combined
+    assert "still submitted" not in combined
+
+
+def test_main_and_zeroguard_x_update_threads_are_review_ready():
+    paths = [
+        REPO_ROOT / "content" / "x_main_account_hackathon_update_2026-05-16.json",
+        REPO_ROOT / "content" / "x_zeroguard_account_update_2026-05-16.json",
+    ]
+
+    for path in paths:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        tweets = data["tweets"]
+        assert len(tweets) == 4
+        assert all(1 <= len(tweet) <= 280 for tweet in tweets)
+        combined = "\n".join(tweets).lower()
+        assert "0g apac hackathon" in combined
+        assert "project is submitted" not in combined or "is submitted" in combined
+        assert "still submitted" not in combined
+        assert "still reading back as submitted" not in combined
+        assert "#0ghackathon" in combined
+        assert "#buildon0g" in combined
 
 
 def test_substack_draft_is_plain_english_and_safety_bounded():
