@@ -19,6 +19,10 @@ truth boundary.
   product screen capture. The current public MP4 is already assembled from
   product footage; use `veo3-flow-production-prompt.md` for a later replacement
   cut that improves clarity without adding unsupported claims.
+- Generated video clips must contain no text at all. No captions, subtitles,
+  lower thirds, title cards, brand lettering, API paths, fake UI labels,
+  addresses, hashes, numbers, QR codes, or decorative glyphs that look like
+  writing. Use narration and real product screen capture for exact proof.
 
 Sources:
 
@@ -92,9 +96,9 @@ The current higher-quality prompt and Flow configuration lives in
 `docs/hackathon-0g/veo3-flow-production-prompt.md`. Keep the older prompts
 below only as compact fallback clips.
 
-Use landscape `16:9`. Generate 8 seconds per clip. Avoid text-heavy prompts:
-AI video text can be unreliable, and the real submission text should come from
-captions and screen capture.
+Use landscape `16:9`. Generate 8 seconds per clip. Keep generated clips fully
+textless. AI video text is not accurate enough for this submission; all exact
+proof belongs in narration and real product screen capture.
 
 ### Clip 1: Pre-Wallet Firewall
 
