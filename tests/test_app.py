@@ -101,6 +101,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
     assert "/api/native-preflight" in data["apiRoutes"]
     assert "/api/hackathon/strategy" in data["apiRoutes"]
+    assert "/api/developer-kit" in data["apiRoutes"]
     assert "/api/integrations/external-guardrails" in data["apiRoutes"]
     assert "/api/integrations/external-guardrails/evaluate" in data["apiRoutes"]
     assert "/api/hackathon/submission-brief" in data["apiRoutes"]
@@ -143,6 +144,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-ika-integration" in data["requiredSelectors"]
     assert "#run-native-preflight" in data["requiredSelectors"]
     assert "#load-hackathon-strategy" in data["requiredSelectors"]
+    assert "#load-developer-kit" in data["requiredSelectors"]
     assert "#load-external-guardrails" in data["requiredSelectors"]
     assert "#run-external-guardrail-check" in data["requiredSelectors"]
     assert "#cross-chain-output" in data["requiredSelectors"]
@@ -419,6 +421,16 @@ def test_cross_chain_integration_routes_are_read_only(client):
     strategy_body = strategy.get_json()
     assert strategy_body["schema"] == "0guard.hackathon_strategy.v1"
     assert strategy_body["opportunities"][0]["id"] == "0g_apac_final_review"
+
+    developer_kit = client.get("/api/developer-kit")
+    assert developer_kit.status_code == 200
+    developer_kit_body = developer_kit.get_json()
+    assert developer_kit_body["schema"] == "0guard.developer_kit.v1"
+    assert developer_kit_body["safety"]["transactionSigningEnabled"] is False
+    assert {recipe["id"] for recipe in developer_kit_body["adapterRecipes"]} >= {
+        "agentkit_turnkey_safe_evm",
+        "ika_mpckit_odws",
+    }
 
     guardrails = client.get("/api/integrations/external-guardrails")
     assert guardrails.status_code == 200
@@ -1195,6 +1207,28 @@ def test_cli_evaluate_runs_without_budget_argument_regression():
     assert result.returncode == 0
     assert '"decision": "allow"' in result.stdout
     assert "AttributeError" not in result.stderr
+
+
+def test_cli_native_preflight_allows_read_only_payload():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "guard0.cli",
+            "native-preflight",
+            "--payload-json",
+            '{"surface":"evm","operation":"read_status","chain":"eip155:8453"}',
+        ],
+        cwd=REPO_ROOT,
+        env={"PYTHONPATH": "src"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert '"schema": "0guard.native_preflight.v1"' in result.stdout
+    assert '"decision": "allow"' in result.stdout
+    assert '"transactionSigningEnabled": false' in result.stdout
 
 
 def test_telegram_post_cli_requires_live_confirmation_before_credentials():

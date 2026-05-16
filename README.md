@@ -124,6 +124,10 @@ python3 -m guard0.cli evaluate \
 python3 -m guard0.cli hack-check \
   --intent-json '{"action":"approve","calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}'
 
+# Run the native preflight gate used by SDK/CI integrations
+python3 -m guard0.cli native-preflight \
+  --payload-json '{"surface":"evm","operation":"read_status","chain":"eip155:8453"}'
+
 # Start API server
 python3 -m guard0.cli serve --port 8109
 ```
@@ -160,6 +164,7 @@ python3 -m guard0.cli serve --port 8109
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |
+| `GET`  | `/api/developer-kit` | Machine-readable SDK, CI, wallet, x402, Telegram/TON, and dWallet adapter recipes for calling native preflight |
 | `GET/POST` | `/api/integrations/external-guardrails` + `/evaluate` | Active read-only guardrail catalog and evaluator for x402, Virtuals/Base, Lighter, CCIP, LayerZero, Wormhole, and Celestia intents/configs |
 | `GET`  | `/api/hackathon/submission-brief` | HackQuest-ready project brief, data stats, 0G story, manual TODOs, and claims to avoid |
 | `GET`  | `/api/hackathon/submission-packet` | Copy-ready HackQuest form fields, required links, X commands, and remaining operator placeholders |

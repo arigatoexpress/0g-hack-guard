@@ -22,6 +22,12 @@ a signer.
   - Puts the submitted 0G APAC project first.
   - Frames Arbitrum and ETHGlobal as follow-on middleware targets.
 
+- `GET /api/developer-kit`
+  - Exposes the machine-readable integration manifest for SDK, CI, wallet,
+    x402, Telegram/TON, and dWallet adapters.
+  - Points developers to Python and TypeScript examples that call native
+    preflight before signer access.
+
 ## Product Thesis
 
 0G remains the proof and provenance layer. Other chains and ecosystems should
@@ -34,8 +40,8 @@ wrong first integration path.
 
 1. Keep the 0G APAC submission, mainnet receipt proof, CI, Pages, and Mini App
    health green through final review.
-2. Add SDK examples that call `/api/native-preflight` before AgentKit, Turnkey,
-   Safe, MPCKit, or OdWS signing.
+2. Keep the developer-kit examples and `/api/developer-kit` manifest aligned
+   with every new adapter.
 3. Add the rights-aware reputation adapter before stronger alerting claims.
 4. Revisit live 0G Storage and Compute only after credentials, rollback notes,
    and operator approval are ready.

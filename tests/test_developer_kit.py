@@ -1,0 +1,57 @@
+"""Tests for the 0guard developer-kit manifest and examples."""
+
+from __future__ import annotations
+
+import py_compile
+from pathlib import Path
+
+from guard0.developer_kit import developer_kit_manifest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_developer_kit_manifest_is_actionable_and_non_mutating():
+    manifest = developer_kit_manifest()
+
+    assert manifest["schema"] == "0guard.developer_kit.v1"
+    assert manifest["mode"] == "no_secret_native_preflight_sdk"
+    assert manifest["quickstart"]["localServer"] == "python3 -m guard0.cli serve --port 8109"
+    assert any(route["path"] == "/api/native-preflight" for route in manifest["routes"])
+    assert any(route["path"] == "/api/developer-kit" for route in manifest["routes"])
+    assert {recipe["id"] for recipe in manifest["adapterRecipes"]} >= {
+        "agentkit_turnkey_safe_evm",
+        "ika_mpckit_odws",
+        "x402_prepared_payment",
+        "telegram_ton_miniapp",
+        "arbitrum_l2_ci_gate",
+    }
+    assert manifest["examplePayloads"]["readOnlyEvmStatus"]["expectedDecision"] == "allow"
+    assert manifest["examplePayloads"]["blockIkaSweep"]["expectedDecision"] == "deny"
+    assert manifest["safety"]["transactionSigningEnabled"] is False
+    assert manifest["safety"]["paymentSettlementEnabled"] is False
+    assert manifest["safety"]["telegramSendsEnabled"] is False
+
+
+def test_native_preflight_examples_are_present_and_do_not_execute_live_paths():
+    python_example = REPO_ROOT / "examples" / "native_preflight" / "python_client.py"
+    ts_example = REPO_ROOT / "examples" / "native_preflight" / "nativePreflight.ts"
+    readme = REPO_ROOT / "examples" / "native_preflight" / "README.md"
+
+    assert python_example.exists()
+    assert ts_example.exists()
+    assert readme.exists()
+    py_compile.compile(str(python_example), doraise=True)
+
+    combined = "\n".join(
+        path.read_text(encoding="utf-8") for path in [python_example, ts_example, readme]
+    )
+    banned_live_terms = [
+        "private_key",
+        "sendRawTransaction",
+        "sendTransaction",
+        "createWallet",
+        "broadcastTransaction",
+        "setWebhook",
+    ]
+    for term in banned_live_terms:
+        assert term not in combined

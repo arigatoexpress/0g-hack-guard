@@ -23,6 +23,7 @@ from guard0.crosschain import (
     cross_chain_readiness,
     virtuals_facilitator_manifest,
 )
+from guard0.developer_kit import developer_kit_manifest
 from guard0.external_guardrails import (
     evaluate_external_guardrail,
     external_guardrail_catalog,
@@ -126,6 +127,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-ika-integration",
     "#run-native-preflight",
     "#load-hackathon-strategy",
+    "#load-developer-kit",
     "#load-external-guardrails",
     "#run-external-guardrail-check",
     "#cross-chain-output",
@@ -620,6 +622,7 @@ def api_frontend_contract():
                 "/api/integrations/ika/evaluate",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
+                "/api/developer-kit",
                 "/api/integrations/external-guardrails",
                 "/api/integrations/external-guardrails/evaluate",
                 "/api/hackathon/submission-brief",
@@ -672,6 +675,7 @@ def api_frontend_contract():
                 "load-ika-integration",
                 "run-native-preflight",
                 "load-hackathon-strategy",
+                "load-developer-kit",
                 "load-external-guardrails",
                 "run-external-guardrail-check",
                 "run-wallet-alert-preview",
@@ -880,6 +884,11 @@ def api_native_preflight():
 @app.route("/api/hackathon/strategy", methods=["GET"])
 def api_hackathon_strategy():
     return jsonify(hackathon_strategy())
+
+
+@app.route("/api/developer-kit", methods=["GET"])
+def api_developer_kit():
+    return jsonify(developer_kit_manifest())
 
 
 @app.route("/api/integrations/external-guardrails", methods=["GET"])

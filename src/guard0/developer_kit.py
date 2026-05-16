@@ -1,0 +1,243 @@
+"""Developer-kit manifest for the 0guard native preflight product surface."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any
+
+DEVELOPER_KIT_SCHEMA = "0guard.developer_kit.v1"
+
+
+def developer_kit_manifest() -> dict[str, Any]:
+    """Return the install-light developer kit for pre-signer integrations."""
+    return {
+        "schema": DEVELOPER_KIT_SCHEMA,
+        "generatedAt": _now(),
+        "mode": "no_secret_native_preflight_sdk",
+        "positioning": {
+            "headline": "One deterministic preflight call before any signer.",
+            "whoItServes": [
+                "wallet apps",
+                "AI agent frameworks",
+                "Telegram Mini Apps",
+                "x402 facilitators",
+                "dWallet/MPC operators",
+                "EVM L2 applications",
+            ],
+            "whyNow": (
+                "Agentic crypto products need a small safety gate that catches intent, "
+                "calldata, policy, and known exploit signatures before a wallet prompt."
+            ),
+        },
+        "quickstart": {
+            "localServer": "python3 -m guard0.cli serve --port 8109",
+            "cliAllowProbe": (
+                "python3 -m guard0.cli native-preflight "
+                "--payload-json '{\"surface\":\"evm\",\"operation\":\"read_status\","
+                "\"chain\":\"eip155:8453\"}'"
+            ),
+            "apiAllowProbe": {
+                "method": "POST",
+                "path": "/api/native-preflight",
+                "body": {
+                    "surface": "evm",
+                    "operation": "read_status",
+                    "chain": "eip155:8453",
+                    "intent": {"mode": "preview"},
+                },
+            },
+        },
+        "routes": [
+            {
+                "method": "GET",
+                "path": "/api/developer-kit",
+                "purpose": "Machine-readable manifest for SDK, CI, wallet, and Mini App adapters.",
+            },
+            {
+                "method": "POST",
+                "path": "/api/native-preflight",
+                "purpose": "Primary allow/review/deny verdict before a signing surface.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/hackathon/strategy",
+                "purpose": "0G-first build order and next-hackathon target rationale.",
+            },
+            {
+                "method": "GET",
+                "path": "/api/integrations/ika",
+                "purpose": "Ika, Ikavery, MPCKit, and OdWS read-only integration manifest.",
+            },
+            {
+                "method": "POST",
+                "path": "/api/integrations/ika/evaluate",
+                "purpose": "dWallet/MPC signing preflight before Ika-adjacent projects sign.",
+            },
+            {
+                "method": "POST",
+                "path": "/api/integrations/external-guardrails/evaluate",
+                "purpose": "Targeted guardrail checks for x402, L2, DA, bridge, and exchange intents.",
+            },
+        ],
+        "examples": [
+            {
+                "language": "python",
+                "path": "examples/native_preflight/python_client.py",
+                "runtime": "stdlib urllib only",
+                "purpose": "CI or backend gate that exits non-zero unless the verdict is allow.",
+            },
+            {
+                "language": "typescript",
+                "path": "examples/native_preflight/nativePreflight.ts",
+                "runtime": "fetch-compatible browser, Node, or worker",
+                "purpose": "Drop-in wrapper that calls 0guard before invoking an app-owned signer.",
+            },
+        ],
+        "adapterRecipes": _adapter_recipes(),
+        "examplePayloads": _example_payloads(),
+        "receiptContract": {
+            "hashAlgorithm": "sha256_canonical_json",
+            "0gChainReady": True,
+            "0gStorageReady": True,
+            "liveAnchorPerformedByDeveloperKit": False,
+            "liveUploadPerformedByDeveloperKit": False,
+        },
+        "developerPromise": [
+            "Call 0guard before signer access.",
+            "Treat deny as a hard stop.",
+            "Treat review as a user-visible explanation and simulation-only lane.",
+            "Store or anchor receipts only from an operator-approved deployment path.",
+        ],
+        "safety": _safety(),
+    }
+
+
+def _adapter_recipes() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": "agentkit_turnkey_safe_evm",
+            "ecosystem": "EVM wallets and agent frameworks",
+            "stage": "pre_signer",
+            "call": "/api/native-preflight",
+            "inputMapping": {
+                "surface": "evm",
+                "operation": "proposed wallet operation or method",
+                "chain": "CAIP-2 chain id such as eip155:42161 or eip155:8453",
+                "target": "contract or counterparty address",
+                "messageHex": "calldata or typed-data digest when available",
+                "intentText": "human-readable agent/user instruction",
+            },
+            "allowBehavior": "continue to the app-owned simulation or signing flow",
+            "reviewBehavior": "show receipt explanation, require manual review, avoid signing",
+            "denyBehavior": "do not request a wallet signature",
+        },
+        {
+            "id": "ika_mpckit_odws",
+            "ecosystem": "Ika, Ikavery, MPCKit, and OdWS",
+            "stage": "pre_dwallet_signature",
+            "call": "/api/native-preflight",
+            "inputMapping": {
+                "surface": "ika_dwallets",
+                "sourceProject": "ikavery, mpckit, odws, or encrypt",
+                "operation": "sign, sweep, transfer, rotate, or preview",
+                "liveSigning": "true only when an external signer would be asked next",
+            },
+            "allowBehavior": "continue only for preview/simulation-safe operations",
+            "reviewBehavior": "show why the dWallet action needs human inspection",
+            "denyBehavior": "block sweeps, live transfers, key import, and blind signature flows",
+        },
+        {
+            "id": "x402_prepared_payment",
+            "ecosystem": "x402 and paid API products",
+            "stage": "before payment settlement",
+            "call": "/api/native-preflight",
+            "inputMapping": {
+                "surface": "x402",
+                "operation": "quote, pay, settle, refund, or fulfill",
+                "intentText": "resource being purchased and why",
+                "config": "payment amount, network, facilitator, and refund policy metadata",
+            },
+            "allowBehavior": "continue to quote or fulfillment preview",
+            "reviewBehavior": "show price, policy, and receipt before settlement",
+            "denyBehavior": "do not settle from the 0guard workbench",
+        },
+        {
+            "id": "telegram_ton_miniapp",
+            "ecosystem": "Telegram Mini App and TON wallet context",
+            "stage": "before tonProof or transaction prompt",
+            "call": "/api/native-preflight",
+            "inputMapping": {
+                "surface": "ton",
+                "chain": "ton:mainnet or ton:testnet",
+                "tonAddress": "wallet address when available",
+                "intentText": "what the Mini App wants the user to approve",
+            },
+            "allowBehavior": "show low-noise alert preview",
+            "reviewBehavior": "show TON risk passport and Mira-style explanation",
+            "denyBehavior": "do not request tonProof or a transaction from this surface",
+        },
+        {
+            "id": "arbitrum_l2_ci_gate",
+            "ecosystem": "Arbitrum and EVM L2 deployment pipelines",
+            "stage": "pre_deploy_or_pre_admin_action",
+            "call": "python3 -m guard0.cli native-preflight --payload-json ...",
+            "inputMapping": {
+                "surface": "evm",
+                "operation": "deploy, upgrade, grantRole, approve, or bridge_release",
+                "chain": "target L2 CAIP-2 id",
+                "messageHex": "constructor/admin calldata or selector",
+            },
+            "allowBehavior": "continue to CI simulation or multisig proposal",
+            "reviewBehavior": "attach receipt to PR or multisig proposal",
+            "denyBehavior": "fail CI before any operator wallet prompt",
+        },
+    ]
+
+
+def _example_payloads() -> dict[str, dict[str, Any]]:
+    return {
+        "readOnlyEvmStatus": {
+            "surface": "evm",
+            "operation": "read_status",
+            "chain": "eip155:8453",
+            "intent": {"mode": "preview"},
+            "expectedDecision": "allow",
+        },
+        "blockIkaSweep": {
+            "surface": "ika_dwallets",
+            "sourceProject": "ikavery",
+            "operation": "sweep",
+            "chain": "solana:devnet",
+            "liveSigning": True,
+            "intentText": "Autonomous agent proposes a recovery sweep through a dWallet signer.",
+            "expectedDecision": "deny",
+        },
+        "reviewX402Payment": {
+            "surface": "x402",
+            "operation": "settle",
+            "chain": "eip155:8453",
+            "intentText": "Pay for an intelligence artifact before fulfillment preview.",
+            "config": {"amountUsd": "5.00", "facilitator": "operator-reviewed"},
+            "expectedDecision": "review",
+        },
+    }
+
+
+def _safety() -> dict[str, bool]:
+    return {
+        "readOnly": True,
+        "transactionSigningEnabled": False,
+        "transactionBroadcastingEnabled": False,
+        "privateKeyImportEnabled": False,
+        "walletCreationEnabled": False,
+        "bridgingEnabled": False,
+        "paymentSettlementEnabled": False,
+        "exchangeOrdersEnabled": False,
+        "telegramSendsEnabled": False,
+        "socialPostingEnabled": False,
+        "secretDisplayEnabled": False,
+    }
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()

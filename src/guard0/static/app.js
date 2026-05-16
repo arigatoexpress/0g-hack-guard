@@ -379,6 +379,11 @@ async function loadHackathonStrategy(){
   const j = await r.json();
   writeJson('cross-chain-output', j);
 }
+async function loadDeveloperKit(){
+  const r = await fetch('/api/developer-kit');
+  const j = await r.json();
+  writeJson('cross-chain-output', j);
+}
 async function loadExternalGuardrails(){
   const r = await fetch('/api/integrations/external-guardrails');
   const j = await r.json();
@@ -511,6 +516,7 @@ document.getElementById('load-virtuals-facilitator').addEventListener('click', l
 document.getElementById('load-ika-integration').addEventListener('click', loadIkaIntegration);
 document.getElementById('run-native-preflight').addEventListener('click', runNativePreflight);
 document.getElementById('load-hackathon-strategy').addEventListener('click', loadHackathonStrategy);
+document.getElementById('load-developer-kit').addEventListener('click', loadDeveloperKit);
 document.getElementById('load-external-guardrails').addEventListener('click', loadExternalGuardrails);
 document.getElementById('run-external-guardrail-check').addEventListener('click', runExternalGuardrailCheck);
 document.getElementById('create-telegram-registration').addEventListener('click', createTelegramRegistration);

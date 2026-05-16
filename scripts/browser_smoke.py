@@ -219,6 +219,10 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#load-hackathon-strategy").click()
     expect(page.locator("#cross-chain-output")).to_contain_text("0guard.hackathon_strategy.v1")
     expect(page.locator("#cross-chain-output")).to_contain_text("0g_apac_final_review")
+    page.locator("#load-developer-kit").click()
+    expect(page.locator("#cross-chain-output")).to_contain_text("0guard.developer_kit.v1")
+    expect(page.locator("#cross-chain-output")).to_contain_text("agentkit_turnkey_safe_evm")
+    expect(page.locator("#cross-chain-output")).to_contain_text('"transactionSigningEnabled": false')
     page.locator("#load-external-guardrails").click()
     expect(page.locator("#cross-chain-output")).to_contain_text(
         "0guard.external_guardrail_catalog.v1"
