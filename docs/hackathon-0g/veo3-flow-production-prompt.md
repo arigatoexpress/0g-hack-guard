@@ -470,13 +470,20 @@ That is 0guard: agent intent in, policy proof out, wallet protected.
    and real product screen capture.
 6. Keep real product UI proof shots on screen long enough to inspect when they
    are used.
-7. Mix voice around -16 LUFS integrated, with music/ambience at least 12 dB
+7. When real product screen capture appears, the proof routes to inspect are
+   `/api/reputation/shadow-cache`, `/api/readyz`, `/api/0g/receipt`, and
+   `/api/telegram/miniapp/preview`. These strings should come from the captured
+   app or browser, not from generated video.
+   Capture `telegram_send=false` and `rawPayloadsReturned=false` only from the
+   real app/API output. Capture `0G mainnet PolicyReceiptAnchor` only from
+   verified product proof or repository text.
+8. Mix voice around -16 LUFS integrated, with music/ambience at least 12 dB
    below narration.
-8. Export:
+9. Export:
    - `1920x1080`, H.264, high profile, 20 to 30 Mbps.
    - AAC audio, 48 kHz, 320 kbps.
    - Length under 2:00 for the polished public cut.
-9. Replace the public MP4 only after review confirms:
+10. Replace the public MP4 only after review confirms:
    - no fake live external actions;
    - no generated text appears anywhere in Veo/Flow clips;
    - product UI is real screen capture when readable text appears;
