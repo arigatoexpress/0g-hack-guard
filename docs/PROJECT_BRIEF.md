@@ -11,6 +11,9 @@ and risky signing paths stop before the signer is touched.
 - A live Telegram bot at `https://t.me/Raris0guardBot` with outbound sends disabled.
 - A public proof hub at `https://arigatoexpress.github.io/0guard/hackathon-0g/`.
 - A 0G mainnet receipt anchor recorded in the hackathon proof packet.
+- A live `/api/0g/proof-ladder` route that builds Chain, Storage, DA, Compute,
+  and Alignment proof packets without live uploads, inference, signing, or
+  broadcasts.
 - A source-linked incident dataset with full detector coverage for the current corpus.
 - A native preflight developer kit for wallets, agents, x402 flows, Telegram/TON, and Ika/dWallet-style signing systems.
 
@@ -36,6 +39,7 @@ deployment gates, and x402-style paid APIs.
 |---|---|---|
 | Product brief | `/api/product/brief` | Live |
 | Threat case file | `/api/threat-case-file` | Live preview, no side effects |
+| 0G proof ladder | `/api/0g/proof-ladder` | Live proof packet, no side effects |
 | Frontier experiment lab | `/api/experiments/frontier`, `/api/experiments/run` | Live read-only |
 | Native preflight | `/api/native-preflight` | Live |
 | Reputation probe | `/api/reputation/probe` | Live, local/derived |
@@ -50,9 +54,10 @@ deployment gates, and x402-style paid APIs.
 
 ## Honest Limits
 
-- External GoPlus, Chainabuse, Forta, TONAPI, Tenderly, and BlockSec live fetches
-  are activation-ready but disabled until credentials, terms, and retention rules
-  are reviewed. The GoPlus/Chainabuse/Forta normalizer is live for
+- External PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TONAPI,
+  Tenderly, and BlockSec live fetches are activation-ready but disabled until
+  credentials, terms, and retention rules are reviewed. The
+  PhishDestroy/CryptoScamDB/Forta/GoPlus/Chainabuse normalizer is live for
   caller-provided payloads and returns only derived evidence.
 - The Mini App and bot are live, but outbound Telegram sends are disabled.
 - 0guard does not sign transactions, broadcast transactions, bridge, swap,
@@ -64,8 +69,8 @@ deployment gates, and x402-style paid APIs.
 
 1. Use the threat case file as the default judge/operator walkthrough: one
    risky intent, one verdict, one evidence packet, one 0G-ready receipt.
-2. Put one external reputation connector worker behind credentials, likely
-   GoPlus or Chainabuse, and route its output through the existing normalizer.
+2. Put one external reputation connector worker behind the normalizer, starting
+   with PhishDestroy or CryptoScamDB before keyed GoPlus or Chainabuse.
 3. Add operator-approved 0G Storage upload/readback for receipt payloads.
 4. Add EVM simulation summaries from Tenderly or BlockSec.
 5. Deepen Telegram/TON with read-only TON Center or TONAPI account context.

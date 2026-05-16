@@ -18,6 +18,8 @@ The live repo already has:
 - 28/28 source-linked incident detector coverage.
 - A threat case file route that composes policy, signatures, reputation, wallet
   alerts, provenance, and 0G-ready receipts into one proof dossier.
+- A 0G proof ladder route that builds Chain, Storage, DA, Compute, and
+  Alignment verifier packets while keeping every live side effect gated.
 - A frontier experiment lab that ranks 0G Storage/Compute, reputation,
   simulation, TON, and Mira activation without live side effects.
 - Telegram Mini App preview with server-side `initData` validation support.
@@ -31,7 +33,7 @@ The live repo already has:
 | Phase | Timeframe | Goal | Shipping target |
 |---|---|---|---|
 | 0 | Now | Win the 0G APAC lane with proof-heavy safety. | Keep public proof packet reproducible and honest. |
-| 1 | 1-2 weeks | Add constantly updating reputation probes. | Unified `risk_probe` adapter for GoPlus, Chainabuse, and phishing feeds. |
+| 1 | 1-2 weeks | Add constantly updating reputation probes. | Unified `risk_probe` adapter for PhishDestroy, CryptoScamDB, Forta labels, then keyed GoPlus/Chainabuse feeds. |
 | 2 | 2-5 weeks | Expand natively without bridges. | TON risk passport, EVM simulation, Abstract wallet context, Solana read-only monitor. |
 | 3 | 1-2 months | Become safety middleware for agent frameworks. | AgentKit/Turnkey examples, x402 paid threat packets, Hyperliquid exposure monitor, external Mira adapter. |
 
@@ -49,6 +51,8 @@ The live repo already has:
 ## New API Proof
 
 - `/api/roadmap` exposes the phase plan and competitive wedge.
+- `/api/0g/proof-ladder` exposes the five-stage 0G proof packet without live
+  upload, inference, signing, broadcast, or Alignment Node operation.
 - `/api/threat-case-file` exposes the composed operator/judge proof dossier.
 - `/api/experiments/frontier` and `/api/experiments/run` expose the next
   integrations as safe previews instead of speculative claims.

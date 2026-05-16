@@ -24,6 +24,9 @@ allow/review/deny verdict and a receipt.
 5. **Adapter proof surface.** The system needed a visible path from reviewed
    upstream reputation payloads to public-safe evidence in the case file and
    Telegram preview.
+6. **0G proof ladder contract.** The public proof page described Chain,
+   Storage, DA, Compute, and Alignment readiness, but the live API did not yet
+   expose that ladder as a machine-readable packet.
 
 ## Improvements Shipped
 
@@ -45,17 +48,21 @@ allow/review/deny verdict and a receipt.
   frontier lab for 0G Storage/Compute, GoPlus/Chainabuse/Forta, Tenderly or
   BlockSec simulation, Telegram/TON, and Mira.
 - Added `/api/reputation/adapters` and `/api/reputation/adapters/normalize`
-  for no-network GoPlus, Chainabuse, and Forta payload normalization.
+  for no-network PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus,
+  Chainabuse, and Forta GraphQL payload normalization.
 - Promoted normalized adapter evidence into `/api/threat-case-file` and the
   Telegram Mini App preview surface without exposing raw source payloads.
+- Added `/api/0g/proof-ladder`, a five-stage no-side-effect proof packet for
+  Chain receipt, Storage packet, DA availability, Compute preview, and
+  Alignment verifier readiness.
 
 ## Next Technical Priorities
 
 1. **Make the threat case file the default demo.** It is the clearest single
    surface for judges, wallet teams, agent frameworks, and operators.
-2. **Activate one fetch worker behind the normalizer.** Start with GoPlus or
-   Chainabuse, keep public routes no-network, test with fixtures, and return
-   only derived signals.
+2. **Activate one fetch worker behind the normalizer.** Start with PhishDestroy
+   or CryptoScamDB before keyed GoPlus or Chainabuse, keep public routes
+   no-network, test with fixtures, and return only derived signals.
 3. **Add 0G Storage readback.** Store a receipt payload only through an
    operator-approved path, then prove retrieval.
 4. **Add transaction simulation summaries.** Use Tenderly or BlockSec to turn

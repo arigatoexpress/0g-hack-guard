@@ -20,11 +20,20 @@ Expected result: an `allow` verdict for read-only status checks, with a
 
 ```bash
 python3 -m guard0.cli normalize-reputation-adapter \
-  --payload-json '{"sourceId":"chainabuse","payload":{"reported_count":1}}'
+  --payload-json '{"sourceId":"phishdestroy_destroylist","payload":{"active_domains":[{"domain":"docs.0g.ai.evil.example","site_status":"alive"}]}}'
 ```
 
 Expected result: a `0guard.reputation_adapter_preview.v1` payload with raw
 payload return disabled and `networkCalls=false`.
+
+```bash
+python3 -m guard0.cli proof-ladder \
+  --payload-json '{"chain":"eip155:16661","intent":{"action":"approve","mode":"live_transaction","requires_signature":true}}'
+```
+
+Expected result: a `0guard.0g_proof_ladder.v1` packet with Chain, Storage, DA,
+Compute, and Alignment stages while live uploads, inference, signing,
+broadcasts, and node operation remain disabled.
 
 ## API
 
@@ -54,8 +63,10 @@ Use `GET /api/developer-kit` for the machine-readable manifest. It includes:
 - x402 prepared-payment recipe before settlement.
 - Telegram/TON Mini App recipe before tonProof or transaction prompts.
 - Arbitrum/EVM CI recipe for upgrades, grants, approvals, and deployments.
-- No-network reputation adapter contracts for GoPlus, Chainabuse, and Forta:
+- No-network reputation adapter contracts for PhishDestroy, CryptoScamDB, Forta
+  labelled datasets, GoPlus, Chainabuse, and Forta GraphQL:
   `/api/reputation/adapters` and `/api/reputation/adapters/normalize`.
+- 0G proof-ladder packet contract: `/api/0g/proof-ladder`.
 
 ## Examples
 

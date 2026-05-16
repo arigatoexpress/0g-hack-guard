@@ -27,11 +27,12 @@
 1. **Intent Firewall** — Evaluates every action as `allow`, `review`, or `deny` before it reaches a wallet.
 2. **Hack Signature Detection** — Built-in IOCs, calldata selectors, and behavioral sequences derived from **source-linked April 2026 incidents** (Drift, Kelp DAO, Wasabi, Rhea, Volo, Giddy, HyperBridge, Aftermath, Sweat Foundation).
 3. **0G-Native Proofs** — Reads live 0G status, prepares policy receipt hashes, and includes a public 0G mainnet receipt anchor proof while keeping workbench writes operator-controlled.
-4. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
-5. **Reputation Probe** — Checks domains, counterparties, labels, caller evidence, and intent context without reselling raw OSINT payloads.
-6. **External Guardrail Catalog** — Catalogs read-only EVM networks, x402 posture, Lighter exchange/API intents, DA proof lanes, and bridge-protocol risk lanes; no settlement, orders, bridges, or launches.
-7. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
-8. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
+4. **0G Proof Ladder** — Builds a Chain, Storage, DA, Compute, and Alignment proof packet for one verdict without uploading, inferring, signing, broadcasting, or operating a node.
+5. **OSINT Data Pipeline** — Normalizes rights-aware public source registries, live incident/research leads, source readiness, and signature coverage gaps.
+6. **Reputation Probe** — Checks domains, counterparties, labels, caller evidence, and intent context without reselling raw OSINT payloads.
+7. **External Guardrail Catalog** — Catalogs read-only EVM networks, x402 posture, Lighter exchange/API intents, DA proof lanes, and bridge-protocol risk lanes; no settlement, orders, bridges, or launches.
+8. **Telegram Mira Opt-In** — Provides secure Telegram Mini App registration primitives and Mira response previews without live sends.
+9. **Zero Trust by Default** — Refuses signing, raw transactions, bridges, swaps, and approvals unless explicitly cleared.
 
 ---
 
@@ -131,7 +132,11 @@ python3 -m guard0.cli native-preflight \
 
 # Normalize reviewed upstream reputation evidence without fetching
 python3 -m guard0.cli normalize-reputation-adapter \
-  --payload-json '{"sourceId":"chainabuse","payload":{"reported_count":1}}'
+  --payload-json '{"sourceId":"phishdestroy_destroylist","payload":{"active_domains":[{"domain":"docs.0g.ai.evil.example","site_status":"alive"}]}}'
+
+# Build a no-side-effect 0G proof ladder packet
+python3 -m guard0.cli proof-ladder \
+  --payload-json '{"chain":"eip155:16661","intent":{"action":"approve","mode":"live_transaction","requires_signature":true}}'
 
 # Start API server
 python3 -m guard0.cli serve --port 8109
@@ -146,6 +151,7 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/health` | Service health + 0G config |
 | `GET`  | `/api/0g/status` | Live read-only 0G RPC proof, chain ID, latest block, and receipt-anchor config |
 | `GET`  | `/api/0g/receipt?receipt_hash=...` | Read-only receipt-anchor lookup when `ZGG_RECEIPT_CONTRACT` is configured |
+| `GET/POST` | `/api/0g/proof-ladder` | Chain, Storage, DA, Compute, and Alignment proof packet; no live uploads, inference, signing, broadcasts, or node operation |
 | `GET`  | `/api/data/summary` | Validated incident dataset summary, aggregate stats, and dataset fingerprint |
 | `GET`  | `/api/data/incidents` | Filterable public incident records by chain, vector, loss, and limit |
 | `GET`  | `/api/data/provenance` | Per-incident provenance matrix from canonical dataset evidence; add `?live=1` to correlate against live DeFiLlama hack records |
@@ -172,8 +178,8 @@ python3 -m guard0.cli serve --port 8109
 | `GET`  | `/api/integrations/ika` | Source-cited Ika, Encrypt, Ikavery, MPCKit, and OdWS integration manifest |
 | `POST` | `/api/integrations/ika/evaluate` | Read-only dWallet signing preflight before MPCKit/OdWS/Ikavery; no key import or signing |
 | `GET/POST` | `/api/reputation/probe` | Rights-aware domain, counterparty, label, source-evidence, and intent reputation probe; raw payloads are not returned |
-| `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for GoPlus, Chainabuse, Forta, TON, simulation, and cross-chain intelligence feeds |
-| `GET`  | `/api/reputation/adapters` | No-network normalization contract for GoPlus, Chainabuse, and Forta payload shapes |
+| `GET/POST` | `/api/reputation/connectors` | No-network activation manifest for PhishDestroy, CryptoScamDB, Forta, GoPlus, Chainabuse, TON, simulation, and cross-chain intelligence feeds |
+| `GET`  | `/api/reputation/adapters` | No-network normalization contract for PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL payload shapes |
 | `POST` | `/api/reputation/adapters/normalize` | Converts caller-provided external reputation payloads into derived source evidence without echoing raw source payloads |
 | `POST` | `/api/native-preflight` | Unified 0G-ready preflight across policy, Ika/dWallet, TON, and external guardrails before any signer or payment surface |
 | `GET`  | `/api/hackathon/strategy` | Source-cited 0G-first roadmap for the current submission and next hackathon targets |

@@ -177,7 +177,8 @@ def frontier_experiments() -> dict[str, Any]:
         "recommendedSequence": [item["id"] for item in experiments],
         "experiments": experiments,
         "operatorBuyList": [
-            "GoPlus or Chainabuse only after the free/keyed path improves real alert quality.",
+            "Stay on PhishDestroy, CryptoScamDB, and Forta labelled datasets until freshness or coverage proves insufficient.",
+            "GoPlus or Chainabuse only after open-source sources cannot cover token, approval, or dApp safety needs.",
             "Tenderly or BlockSec only after reputation shadow mode is feeding product flows.",
             "Dune, Allium, Bitquery, or comparable feature stores only when native adapters are too slow.",
         ],

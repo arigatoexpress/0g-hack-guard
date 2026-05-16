@@ -593,6 +593,10 @@
           <p>Reads live <strong>0G</strong> status, prepares policy receipt hashes, and includes public mainnet receipt-anchor proof while keeping workbench writes operator-controlled.</p>
         </div>
         <div class="feature">
+          <h4>0G Proof Ladder</h4>
+          <p>Exposes <code>/api/0g/proof-ladder</code> as a five-stage Chain, Storage, DA, Compute, and Alignment proof packet with uploads, inference, signing, broadcasts, and node operation disabled.</p>
+        </div>
+        <div class="feature">
           <h4>Cross-Chain Fabric</h4>
           <p>Catalogs Virtuals/Base, x402, Arbitrum, Polygon, MegaETH, Monad, HyperEVM, Tempo, Lighter exchange/API guardrails, CCIP, LayerZero, Wormhole, and Celestia/TIA as read-only integration targets with no live launches, trades, or money movement.</p>
         </div>
@@ -922,6 +926,8 @@
           <li><strong>Readiness audit:</strong> `scripts/submission_readiness.py` and `/api/hackathon/readiness` currently report `Submittable now: true` with no operator blockers.</li>
           <li><strong>Threat receipt passport:</strong> `docs/hackathon-0g/threat-receipt-passport.md` and `/api/hackathon/threat-passport` give judges a proof drill with intent, verdict, provenance, receipt hash, and 0G proof slots.</li>
           <li><strong>Threat case file:</strong> `/api/threat-case-file` is now the composed proof dossier for one risky agent request, with policy, signatures, reputation, alert quality, provenance, and 0G-ready receipt evidence.</li>
+          <li><strong>0G proof ladder:</strong> `/api/0g/proof-ladder` returns a mainnet-aware Chain, Storage, DA, Compute, and Alignment verifier packet without live uploads, inference, signing, broadcasts, or node operation.</li>
+          <li><strong>Open-source OSINT adapters:</strong> `/api/reputation/adapters` now exposes PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL as no-network normalization contracts.</li>
           <li><strong>Frontier lab:</strong> `/api/experiments/frontier` and `/api/experiments/run` show the next integrations as deterministic no-side-effect previews.</li>
           <li><strong>Cross-chain fabric:</strong> `/api/integrations/cross-chain` and `/api/integrations/virtuals-facilitator` prepare Virtuals/Base and x402 expansion without claiming live settlement or agent launch.</li>
           <li><strong>Telegram Mini App:</strong> `/telegram` is deployed on Cloud Run as a mobile wallet-alert preview surface with server-side Telegram `initData` validation support and no Telegram sends. The live bot is `t.me/Raris0guardBot`.</li>
