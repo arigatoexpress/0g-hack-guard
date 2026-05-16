@@ -24,6 +24,7 @@ def production_readiness() -> dict[str, Any]:
     summary = incident_summary()
     coverage = detection_coverage()
     shadow = build_reputation_shadow_cache()
+    telegram_store = _telegram_store_detail()
 
     checks = [
         _check(
@@ -90,12 +91,16 @@ def production_readiness() -> dict[str, Any]:
         ),
         _check(
             "telegram_state_store",
-            "review",
-            "Telegram opt-in state is in-memory until a persistent store is wired.",
+            "ok" if telegram_store["persistentStoreConfigured"] else "review",
+            "Telegram opt-in state can persist when TELEGRAM_OPT_IN_STORE_PATH is configured.",
             {
-                "persistentStoreConfigured": bool(os.getenv("TELEGRAM_OPT_IN_STORE_URL")),
+                **telegram_store,
                 "outboundSendsEnabled": False,
-                "operatorNextStep": "wire Firestore, SQLite, or Cloud SQL before claiming persistent alerts",
+                "operatorNextStep": (
+                    "set TELEGRAM_OPT_IN_STORE_PATH to a private JSON file or wire Firestore/Cloud SQL"
+                    if not telegram_store["persistentStoreConfigured"]
+                    else "promote this file-backed store only for low-volume previews; use Firestore/Cloud SQL for scale"
+                ),
             },
         ),
         _check(
@@ -162,6 +167,26 @@ def _load_mainnet_proof() -> dict[str, Any]:
         return json.loads(MAINNET_PROOF_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def _telegram_store_detail() -> dict[str, Any]:
+    raw_path = os.getenv("TELEGRAM_OPT_IN_STORE_PATH", "").strip()
+    raw_url = os.getenv("TELEGRAM_OPT_IN_STORE_URL", "").strip()
+    file_url_configured = raw_url.startswith("file://")
+    persistent = bool(raw_path or file_url_configured)
+    if persistent:
+        mode = "local_json"
+    elif raw_url:
+        mode = "external_adapter_pending"
+    else:
+        mode = "in_memory"
+    return {
+        "persistentStoreConfigured": persistent,
+        "storeMode": mode,
+        "externalStoreConfigured": bool(raw_url and not file_url_configured),
+        "secretDisplayEnabled": False,
+        "networkCalls": False,
+    }
 
 
 def _check(check_id: str, status: str, summary: str, detail: dict[str, Any]) -> dict[str, Any]:

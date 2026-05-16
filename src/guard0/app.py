@@ -14,8 +14,11 @@ Endpoints:
 
 from __future__ import annotations
 
+import json
 import os
 import secrets
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, jsonify, render_template, request
@@ -95,6 +98,7 @@ _EPHEMERAL_TELEGRAM_REGISTRATION_SECRET = secrets.token_urlsafe(32)
 _PENDING_TELEGRAM_CHALLENGES: dict[str, dict] = {}
 _CONSUMED_TELEGRAM_TOKEN_IDS: set[str] = set()
 _TELEGRAM_OPT_IN_RECORDS: dict[str, dict] = {}
+_TELEGRAM_STORE_LOADED_PATH: str | None = None
 
 FRONTEND_REQUIRED_SELECTORS = (
     "#nav-intent",
@@ -264,7 +268,108 @@ def _telegram_registration_secret() -> tuple[str, str]:
     return _EPHEMERAL_TELEGRAM_REGISTRATION_SECRET, "ephemeral_demo"
 
 
+def _telegram_store_path() -> Path | None:
+    raw_path = os.getenv("TELEGRAM_OPT_IN_STORE_PATH", "").strip()
+    raw_url = os.getenv("TELEGRAM_OPT_IN_STORE_URL", "").strip()
+    if not raw_path and raw_url.startswith("file://"):
+        raw_path = raw_url.removeprefix("file://")
+    if not raw_path:
+        return None
+    return Path(raw_path).expanduser()
+
+
+def _telegram_store_status() -> dict[str, Any]:
+    path = _telegram_store_path()
+    external_url = os.getenv("TELEGRAM_OPT_IN_STORE_URL", "").strip()
+    if path:
+        return {
+            "mode": "local_json",
+            "persistent": True,
+            "configured": True,
+            "recordCount": len(_TELEGRAM_OPT_IN_RECORDS),
+            "consumedTokenCount": len(_CONSUMED_TELEGRAM_TOKEN_IDS),
+            "network_calls": False,
+            "telegram_send": False,
+        }
+    if external_url:
+        return {
+            "mode": "external_adapter_pending",
+            "persistent": False,
+            "configured": True,
+            "recordCount": len(_TELEGRAM_OPT_IN_RECORDS),
+            "consumedTokenCount": len(_CONSUMED_TELEGRAM_TOKEN_IDS),
+            "network_calls": False,
+            "telegram_send": False,
+        }
+    return {
+        "mode": "in_memory",
+        "persistent": False,
+        "configured": False,
+        "recordCount": len(_TELEGRAM_OPT_IN_RECORDS),
+        "consumedTokenCount": len(_CONSUMED_TELEGRAM_TOKEN_IDS),
+        "network_calls": False,
+        "telegram_send": False,
+    }
+
+
+def _hydrate_telegram_store() -> None:
+    global _TELEGRAM_STORE_LOADED_PATH
+
+    path = _telegram_store_path()
+    if path is None:
+        _TELEGRAM_STORE_LOADED_PATH = None
+        return
+
+    path_key = str(path)
+    if _TELEGRAM_STORE_LOADED_PATH == path_key:
+        return
+    _TELEGRAM_STORE_LOADED_PATH = path_key
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return
+    except (OSError, json.JSONDecodeError):
+        return
+    if not isinstance(payload, dict):
+        return
+
+    records = payload.get("records")
+    if isinstance(records, dict):
+        for record_id, record in records.items():
+            if isinstance(record_id, str) and isinstance(record, dict):
+                _TELEGRAM_OPT_IN_RECORDS[record_id] = record
+
+    consumed = payload.get("consumed_token_ids")
+    if isinstance(consumed, list):
+        _CONSUMED_TELEGRAM_TOKEN_IDS.update(str(token_id) for token_id in consumed)
+
+
+def _persist_telegram_store() -> None:
+    path = _telegram_store_path()
+    if path is None:
+        return
+
+    payload = {
+        "schema": "0guard.telegram_opt_in_store.v1",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "records": _TELEGRAM_OPT_IN_RECORDS,
+        "consumed_token_ids": sorted(_CONSUMED_TELEGRAM_TOKEN_IDS),
+        "network_calls": False,
+        "telegram_send": False,
+    }
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_suffix(f"{path.suffix}.tmp")
+        tmp_path.write_text(json.dumps(payload, sort_keys=True, indent=2), encoding="utf-8")
+        os.chmod(tmp_path, 0o600)
+        tmp_path.replace(path)
+    except OSError:
+        return
+
+
 def _telegram_mira_status_payload() -> dict:
+    _hydrate_telegram_store()
     _, secret_source = _telegram_registration_secret()
     bot_username = os.getenv("TELEGRAM_BOT_USERNAME", "")
     return {
@@ -282,6 +387,7 @@ def _telegram_mira_status_payload() -> dict:
             "activeOptIns": sum(
                 1 for record in _TELEGRAM_OPT_IN_RECORDS.values() if record.get("status") == "opted_in"
             ),
+            "store": _telegram_store_status(),
             "defaultScopes": [DEFAULT_SCOPE],
             "walletAlertPolicy": wallet_alert_quality_policy(),
             "telegramBotUsernameConfigured": bool(bot_username),
@@ -396,6 +502,7 @@ def _telegram_user_from_message(message: dict) -> dict:
 
 
 def _active_telegram_record_for_user(telegram_user: dict) -> dict | None:
+    _hydrate_telegram_store()
     user_id = str(telegram_user.get("id", ""))
     chat_id = str(telegram_user.get("chat_id", ""))
     for record in _TELEGRAM_OPT_IN_RECORDS.values():
@@ -410,6 +517,7 @@ def _active_telegram_record_for_user(telegram_user: dict) -> dict | None:
 
 
 def _mark_telegram_user_opted_out(telegram_user: dict) -> int:
+    _hydrate_telegram_store()
     changed = 0
     user_id = str(telegram_user.get("id", ""))
     chat_id = str(telegram_user.get("chat_id", ""))
@@ -421,6 +529,8 @@ def _mark_telegram_user_opted_out(telegram_user: dict) -> int:
         elif chat_id and str(stored.get("chat_id", "")) == chat_id:
             record["status"] = "opted_out"
             changed += 1
+    if changed:
+        _persist_telegram_store()
     return changed
 
 
@@ -439,6 +549,7 @@ def _create_telegram_opt_in(
     telegram_user: dict,
     scopes: list[str] | None = None,
 ) -> dict:
+    _hydrate_telegram_store()
     secret, _secret_source = _telegram_registration_secret()
     pending = _PENDING_TELEGRAM_CHALLENGES.get(token_input)
     token = _pending_token_from_request(token_input)
@@ -452,6 +563,7 @@ def _create_telegram_opt_in(
     _CONSUMED_TELEGRAM_TOKEN_IDS.add(checked["token_id"])
     _PENDING_TELEGRAM_CHALLENGES.pop(checked["token_id"], None)
     _TELEGRAM_OPT_IN_RECORDS[record["record_id"]] = record
+    _persist_telegram_store()
     return record
 
 

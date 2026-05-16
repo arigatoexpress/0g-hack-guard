@@ -35,3 +35,14 @@ def test_production_readiness_detects_mainnet_runtime_env(monkeypatch):
     assert checks["mainnet_verifier_profile"]["status"] == "ok"
     assert checks["mainnet_verifier_profile"]["detail"]["receiptContractConfigured"] is True
     assert result["readiness"] == "production_review"
+
+
+def test_production_readiness_detects_file_backed_telegram_store(monkeypatch, tmp_path):
+    monkeypatch.setenv("TELEGRAM_OPT_IN_STORE_PATH", str(tmp_path / "telegram-opt-ins.json"))
+
+    result = production_readiness()
+    checks = {check["id"]: check for check in result["checks"]}
+
+    assert checks["telegram_state_store"]["status"] == "ok"
+    assert checks["telegram_state_store"]["detail"]["storeMode"] == "local_json"
+    assert checks["telegram_state_store"]["detail"]["persistentStoreConfigured"] is True

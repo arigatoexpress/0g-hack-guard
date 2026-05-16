@@ -24,6 +24,7 @@ def client():
     app_module._PENDING_TELEGRAM_CHALLENGES.clear()
     app_module._CONSUMED_TELEGRAM_TOKEN_IDS.clear()
     app_module._TELEGRAM_OPT_IN_RECORDS.clear()
+    app_module._TELEGRAM_STORE_LOADED_PATH = None
     with app.test_client() as c:
         yield c
 
@@ -1182,6 +1183,49 @@ def test_telegram_registration_and_mira_preview_are_local_and_redacted(monkeypat
     assert preview["telegram_send"] is False
     assert preview["network_calls"] is False
     assert preview["decision"]["decision"] == "deny"
+
+
+def test_telegram_opt_in_store_persists_records_without_sends(monkeypatch, tmp_path, client):
+    monkeypatch.setenv("TELEGRAM_REGISTRATION_SECRET", "test-secret-for-telegram-registration")
+    monkeypatch.setenv("TELEGRAM_OPT_IN_STORE_PATH", str(tmp_path / "telegram-opt-ins.json"))
+
+    challenge = client.post(
+        "/api/telegram/registrations",
+        json={"user_label": "persistent-preview", "scopes": ["mira_alerts"]},
+    ).get_json()["challenge"]
+    opt_in = client.post(
+        "/api/telegram/opt-ins",
+        json={"token_id": challenge["start_payload"], "telegram_user": {"id": 123456}},
+    ).get_json()
+    record_id = opt_in["record"]["record_id"]
+
+    store_payload = json.loads((tmp_path / "telegram-opt-ins.json").read_text())
+    assert store_payload["schema"] == "0guard.telegram_opt_in_store.v1"
+    assert store_payload["telegram_send"] is False
+    assert store_payload["network_calls"] is False
+    assert record_id in store_payload["records"]
+
+    app_module._TELEGRAM_OPT_IN_RECORDS.clear()
+    app_module._CONSUMED_TELEGRAM_TOKEN_IDS.clear()
+    app_module._TELEGRAM_STORE_LOADED_PATH = None
+
+    status = client.get("/api/telegram/status").get_json()
+    assert status["registration"]["store"]["mode"] == "local_json"
+    assert status["registration"]["store"]["persistent"] is True
+    assert status["registration"]["activeOptIns"] == 1
+
+    replay = client.post(
+        "/api/telegram/opt-ins",
+        json={"token_id": challenge["start_payload"], "telegram_user": {"id": 999}},
+    )
+    assert replay.status_code == 400
+
+    preview = client.post(
+        "/api/telegram/mira-preview",
+        json={"record_id": record_id, "intent": {"action": "approve", "mode": "preview"}},
+    )
+    assert preview.status_code == 200
+    assert preview.get_json()["telegram_send"] is False
 
 
 def test_telegram_webapp_verify_requires_bot_token(monkeypatch, client):

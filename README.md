@@ -323,6 +323,20 @@ News, SlowMist, CISA KEV, OFAC, URLhaus, Chainabuse, GoPlus, Scam Sniffer, and
 MetaMask phishing data. Sources with credential, license, or redistribution
 caveats stay catalog-only or disabled until explicitly reviewed.
 
+### Optional Runtime Persistence
+
+By default, Telegram opt-in records stay in process memory and never trigger
+outbound sends. For low-volume preview deployments that need consent state to
+survive restarts, point the service at a private JSON file:
+
+```bash
+export TELEGRAM_OPT_IN_STORE_PATH=/secure/local/0guard/telegram-opt-ins.json
+```
+
+`/api/readyz` reports whether this persistence mode is configured. This file
+mode is still preview-grade; use Firestore, Cloud SQL, or another reviewed
+store before claiming scaled production alerting.
+
 ### Telegram Mira Opt-In Preview
 
 Create a local registration challenge, complete a redacted opt-in record, and
@@ -406,7 +420,7 @@ gitleaks detect --no-git --source . --redact --verbose
 3. ✅ 0G Storage threat-intel payload/root-hash preparation
 4. ✅ Telegram Mira secure registration primitives and no-send preview
 5. ✅ Evolving threat-intel loop and no-spam wallet alert previews
-6. 🔄 Persistent Telegram opt-in registry behind admin auth
+6. ✅ Optional file-backed Telegram opt-in persistence for preview deployments
 7. 🔄 Real-time mempool monitoring via 0G DA subscription
 8. 🔄 TEE-sealed inference for private risk scoring
 9. 🔄 On-chain bounty program for community-submitted signatures
