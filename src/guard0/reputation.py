@@ -173,12 +173,14 @@ def build_reputation_probe(payload: dict[str, Any] | None = None) -> dict[str, A
             "signals": signals,
         }
     )
+    safety = _safety()
     return {
         "schema": REPUTATION_PROBE_SCHEMA,
         "generatedAt": _now(),
         "mode": "derived_reputation_no_raw_resale",
         "subject": subject,
         "decision": decision,
+        "rawPayloadsReturned": False,
         "signalCount": len(signals),
         "signals": signals,
         "receipt": {
@@ -196,7 +198,7 @@ def build_reputation_probe(payload: dict[str, Any] | None = None) -> dict[str, A
             "callerEvidenceTreatedAsUntrusted": True,
         },
         "recommendedNextStep": _next_step(decision["decision"]),
-        "safety": _safety(),
+        "safety": safety,
     }
 
 

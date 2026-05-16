@@ -414,6 +414,7 @@ def test_cross_chain_integration_routes_are_read_only(client):
     ika_preflight_body = ika_preflight.get_json()
     assert ika_preflight_body["schema"] == "0guard.ika_signing_preflight.v1"
     assert ika_preflight_body["decision"] == "deny"
+    assert ika_preflight_body["transactionSigningEnabled"] is False
     assert ika_preflight_body["safety"]["transactionSigningEnabled"] is False
 
     reputation = client.post(
@@ -430,6 +431,7 @@ def test_cross_chain_integration_routes_are_read_only(client):
     reputation_body = reputation.get_json()
     assert reputation_body["schema"] == "0guard.reputation_probe.v1"
     assert reputation_body["decision"]["decision"] == "deny"
+    assert reputation_body["rawPayloadsReturned"] is False
     assert reputation_body["rightsPolicy"]["rawPayloadsReturned"] is False
 
     connectors = client.post(
@@ -463,6 +465,8 @@ def test_cross_chain_integration_routes_are_read_only(client):
     native_body = native_preflight.get_json()
     assert native_body["schema"] == "0guard.native_preflight.v1"
     assert native_body["decision"] == "deny"
+    assert native_body["transactionSigningEnabled"] is False
+    assert native_body["zeroGStorageReady"] is True
     assert native_body["safety"]["transactionSigningEnabled"] is False
 
     native_with_reputation = client.post(
@@ -490,6 +494,7 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert developer_kit.status_code == 200
     developer_kit_body = developer_kit.get_json()
     assert developer_kit_body["schema"] == "0guard.developer_kit.v1"
+    assert developer_kit_body["transactionSigningEnabled"] is False
     assert developer_kit_body["safety"]["transactionSigningEnabled"] is False
     assert {recipe["id"] for recipe in developer_kit_body["adapterRecipes"]} >= {
         "agentkit_turnkey_safe_evm",

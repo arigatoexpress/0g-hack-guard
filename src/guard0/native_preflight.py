@@ -185,6 +185,7 @@ def build_native_preflight(payload: dict[str, Any] | None = None) -> dict[str, A
         "componentReceipts": _component_receipts(components),
     }
     receipt_hash = _hash_json(receipt_payload)
+    safety = _safety()
     return {
         "schema": NATIVE_PREFLIGHT_SCHEMA,
         "generatedAt": _now(),
@@ -193,6 +194,8 @@ def build_native_preflight(payload: dict[str, Any] | None = None) -> dict[str, A
         "chain": chain,
         "operation": operation,
         "decision": decision,
+        "transactionSigningEnabled": safety.get("transactionSigningEnabled", False),
+        "zeroGStorageReady": True,
         "componentCount": len(components),
         "components": components,
         "receipt": {
@@ -210,7 +213,7 @@ def build_native_preflight(payload: dict[str, Any] | None = None) -> dict[str, A
             "bridgeAsProductStory": False,
             "signerReachableFrom0guard": False,
         },
-        "safety": _safety(),
+        "safety": safety,
     }
 
 

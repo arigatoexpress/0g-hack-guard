@@ -219,11 +219,13 @@ def evaluate_ika_signing_request(payload: dict[str, Any] | None = None) -> dict[
         "policyReceipt": policy.get("receipt_hash"),
         "findingIds": [finding.id for finding in findings],
     }
+    safety = _safety()
     return {
         "schema": IKA_PREFLIGHT_SCHEMA,
         "generatedAt": _now(),
         "mode": "read_only_pre_signing",
         "decision": decision,
+        "transactionSigningEnabled": safety.get("transactionSigningEnabled", False),
         "chain": chain,
         "operation": operation,
         "sourceProject": source_project,
@@ -238,7 +240,7 @@ def evaluate_ika_signing_request(payload: dict[str, Any] | None = None) -> dict[
             "liveUploadPerformed": False,
         },
         "recommendedNextStep": _recommended_next_step(decision),
-        "safety": _safety(),
+        "safety": safety,
     }
 
 

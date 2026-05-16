@@ -14,6 +14,7 @@ def developer_kit_manifest() -> dict[str, Any]:
         "schema": DEVELOPER_KIT_SCHEMA,
         "generatedAt": _now(),
         "mode": "no_secret_native_preflight_sdk",
+        "transactionSigningEnabled": False,
         "positioning": {
             "headline": "One deterministic preflight call before any signer.",
             "whoItServes": [
