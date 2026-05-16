@@ -115,3 +115,19 @@ def test_threat_case_file_redacts_secret_like_content():
     assert "private key" not in encoded
     assert "walletSignaturesRequested".lower() in encoded.lower()
     assert case_file["safety"]["walletSignaturesRequested"] is False
+
+
+def test_threat_case_file_redacts_target_object_urls():
+    case_file = build_threat_case_file(
+        {
+            "intent": {
+                "action": "approve",
+                "mode": "live_transaction",
+                "requires_signature": True,
+            },
+            "target": {"kind": "url", "value": "https://chainabuse.example/report/123"},
+        }
+    )
+
+    encoded = json.dumps(case_file)
+    assert "chainabuse.example" not in encoded

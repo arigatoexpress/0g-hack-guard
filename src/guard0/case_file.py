@@ -160,17 +160,25 @@ def _default_intent() -> dict[str, Any]:
 
 
 def _subject(body: dict[str, Any], intent: dict[str, Any]) -> dict[str, Any]:
+    target = body.get("target")
+    if isinstance(target, dict):
+        target_value = target.get("value") or target.get("address") or target.get("to") or ""
+    else:
+        target_value = target or ""
+    url_value = body.get("url") or body.get("domain") or ""
+    if not url_value and isinstance(target, dict) and str(target.get("kind") or "").lower() == "url":
+        url_value = target_value
     return {
         "wallet": str(body.get("wallet") or body.get("walletAddress") or DEFAULT_WALLET),
         "counterparty": str(
             body.get("counterparty")
             or body.get("address")
-            or body.get("target")
+            or target_value
             or intent.get("target_contract")
             or intent.get("to")
             or DEFAULT_COUNTERPARTY
         ),
-        "url": str(body.get("url") or body.get("domain") or "https://docs.0g.ai.evil.example/claim"),
+        "url": str(url_value or "https://docs.0g.ai.evil.example/claim"),
         "chain": str(body.get("chain") or intent.get("chain") or "eip155:1"),
     }
 
