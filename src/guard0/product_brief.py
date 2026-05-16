@@ -14,10 +14,29 @@ def product_brief() -> dict[str, Any]:
     """Return a compact, honest map of what 0guard is and what is live."""
     summary = incident_summary()
     coverage = detection_coverage()
+    proof_routes = [
+        "/api/healthz",
+        "/api/product/brief",
+        "/api/native-preflight",
+        "/api/threat-case-file",
+        "/api/reputation/probe",
+        "/api/reputation/connectors",
+        "/api/reputation/adapters",
+        "/api/reputation/adapters/normalize",
+        "/api/wallet/alert-preview",
+        "/api/telegram/wallet-alert-preview",
+        "/api/telegram/miniapp/preview",
+        "/api/experiments/frontier",
+        "/api/experiments/run",
+        "/api/developer-kit",
+        "/api/0g/proof-ladder",
+    ]
     return {
         "schema": PRODUCT_BRIEF_SCHEMA,
         "generatedAt": _now(),
         "name": "0guard",
+        "socialPostingEnabled": False,
+        "proofRoutes": proof_routes,
         "oneLiner": (
             "0guard is a pre-wallet firewall for AI agents: it checks intent, "
             "calldata, domain/reputation context, and exploit intelligence before "
