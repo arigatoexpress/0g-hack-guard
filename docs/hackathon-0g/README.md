@@ -22,9 +22,10 @@ https://t.me/Raris0guardBot
 2. Use `submission-copy.md` for the project summary, track fit, and
    field-ready HackQuest copy.
 3. Use `final-demo-video-script.md` as the reproducible source script for the
-   generated public MP4, `assets/README.md` for public media inventory, and
-   `veo3-flow-production-prompt.md` if a later Veo/Gemini-enhanced cut is
-   desired.
+   generated public MP4, `assets/README.md` for public media inventory,
+   `flow-chained-storyboard-2026-05-16.md` for the current multi-scene Flow
+   plan, and `veo3-flow-production-prompt.md` if a later Veo/Gemini-enhanced
+   cut is desired.
 4. Use `demo-judge-walkthrough.md` while recording or presenting the live demo.
 5. Use `submission-form-fields.md` as the historical copy/paste packet for the
    submitted HackQuest form.
