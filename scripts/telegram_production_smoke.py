@@ -22,7 +22,11 @@ from urllib.parse import urlencode
 
 import requests
 
-DEFAULT_BASE_URL = "https://guard0-miniapp-s77j6bxyra-uc.a.run.app"
+DEFAULT_BASE_URL = "https://candidate-acdc011---guard0-miniapp-s77j6bxyra-uc.a.run.app"
+FALLBACK_BASE_URLS: tuple[str, ...] = (
+    "https://guard0-miniapp-s77j6bxyra-uc.a.run.app",
+    "https://candidate-6f07f89---guard0-miniapp-s77j6bxyra-uc.a.run.app",
+)
 DEFAULT_GCLOUD_PROJECT = "sapphire-479610"
 DEFAULT_BOT_SECRET = "guard0-telegram-bot-token"
 DEFAULT_WEBHOOK_SECRET = "guard0-telegram-webhook-secret-token"
@@ -54,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
 
     token = "" if args.skip_telegram_api else _load_secret(args.bot_token_env, args.bot_token_secret, args.gcloud_project)
     webhook_secret = "" if args.skip_telegram_api else _load_secret("", args.webhook_secret, args.gcloud_project)
-    base_url = args.base_url.rstrip("/")
+    base_url = _select_base_url(args.base_url.rstrip("/"))
 
     checks: list[Check] = []
     payload: dict[str, Any] = {"baseUrl": base_url, "tokenPrinted": False}
@@ -187,6 +191,27 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(_markdown(payload))
     return 0 if payload["ok"] else 1
+
+
+def _select_base_url(requested: str) -> str:
+    candidates: list[str] = []
+    for url in (requested, DEFAULT_BASE_URL, *FALLBACK_BASE_URLS):
+        normalized = url.rstrip("/")
+        if normalized and normalized not in candidates:
+            candidates.append(normalized)
+
+    last_error: Exception | None = None
+    for candidate in candidates:
+        try:
+            _load_health(candidate)
+        except requests.RequestException as exc:
+            last_error = exc
+            continue
+        return candidate
+
+    if last_error is not None:
+        raise last_error
+    return requested
 
 
 def _load_secret(env_name: str, secret_name: str, project: str) -> str:
