@@ -67,6 +67,8 @@ from guard0.wallet_alerts import build_wallet_alert_preview, wallet_alert_qualit
 
 app = Flask(__name__)
 
+# Stable demo address used for read-only previews. Keep this constant explicit
+# so GET endpoints remain usable without requiring query params.
 DEMO_EVM_ADDRESS = "0x000000000000000000000000000000000000dead"
 
 _EPHEMERAL_TELEGRAM_REGISTRATION_SECRET = secrets.token_urlsafe(32)
@@ -787,7 +789,8 @@ def api_roadmap():
 @app.route("/api/wallet/alert-preview", methods=["GET", "POST"])
 def api_wallet_alert_preview():
     body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
-    address = body.get("address") or request.args.get("address") or ""
+    supplied_address = body.get("address") or request.args.get("address")
+    address = supplied_address or ""
     if not address:
         address = DEMO_EVM_ADDRESS
     intent = body.get("intent")
@@ -809,12 +812,24 @@ def api_wallet_alert_preview():
     max_alerts_raw = _request_value(body, "max_alerts", 5)
     try:
         max_alerts = int(max_alerts_raw)
-        preview = build_wallet_alert_preview(
-            address,
-            intent=intent,
-            live=live,
-            max_alerts=max_alerts,
-        )
+        try:
+            preview = build_wallet_alert_preview(
+                address,
+                intent=intent,
+                live=live,
+                max_alerts=max_alerts,
+            )
+        except ValueError:
+            # If the caller did not supply an address, fall back to the stable demo
+            # address even if an older deployment had an invalid default.
+            if supplied_address:
+                raise
+            preview = build_wallet_alert_preview(
+                DEMO_EVM_ADDRESS,
+                intent=intent,
+                live=live,
+                max_alerts=max_alerts,
+            )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
     return jsonify(preview)
@@ -1268,7 +1283,8 @@ def api_telegram_wallet_alert_preview():
     if record_id and not record:
         return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
 
-    address = body.get("address") or request.args.get("address") or ""
+    supplied_address = body.get("address") or request.args.get("address")
+    address = supplied_address or ""
     if not address:
         address = DEMO_EVM_ADDRESS
     intent = body.get("intent")
@@ -1287,14 +1303,28 @@ def api_telegram_wallet_alert_preview():
                 "asset": asset,
             }
     try:
-        preview = build_wallet_alert_preview(
-            address,
-            intent=intent,
-            live=_truthy_value(body.get("live", False))
+        live = (
+            _truthy_value(body.get("live", False))
             if request.method == "POST"
-            else _truthy_query_arg("live"),
-            max_alerts=int(_request_value(body, "max_alerts", 5)),
+            else _truthy_query_arg("live")
         )
+        max_alerts = int(_request_value(body, "max_alerts", 5))
+        try:
+            preview = build_wallet_alert_preview(
+                address,
+                intent=intent,
+                live=live,
+                max_alerts=max_alerts,
+            )
+        except ValueError:
+            if supplied_address:
+                raise
+            preview = build_wallet_alert_preview(
+                DEMO_EVM_ADDRESS,
+                intent=intent,
+                live=live,
+                max_alerts=max_alerts,
+            )
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
     return jsonify(
