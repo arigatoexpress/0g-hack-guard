@@ -57,7 +57,7 @@
   ],
   "post_submit_public_updates": {
     "verified_at": "2026-05-16T15:30:01Z",
-    "latest_repo_commit": "112c7b7",
+    "production_source_commit": "112c7b7",
     "production_revision": "guard0-miniapp-112c7b7",
     "license": "Apache-2.0",
     "notice": "https://github.com/arigatoexpress/0guard/blob/main/NOTICE",
