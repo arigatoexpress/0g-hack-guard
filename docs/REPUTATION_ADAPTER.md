@@ -37,6 +37,33 @@ match, source negative vote, and intent policy context.
 - Caller-supplied source votes, converted into derived hashes and labels.
 - The existing policy engine for signer, calldata, and prompt-risk context.
 
+## Connector Activation Manifest
+
+`GET/POST /api/reputation/connectors` returns the next external connectors as a
+no-network, rights-aware manifest. This keeps the roadmap concrete without
+pretending that paid or keyed feeds are live.
+
+The manifest currently prioritizes GoPlus, Chainabuse, CryptoScamDB, Forta,
+TON Center, TONAPI, Tenderly, BlockSec Phalcon, LayerZero Scan, and
+Wormholescan. Each row includes the use case, docs URL, credential posture,
+whether it applies to the submitted subject, and the output/rights boundary.
+
+Example:
+
+```bash
+curl -X POST http://127.0.0.1:8109/api/reputation/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://docs.0g.ai.evil.example/claim",
+    "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+    "chain": "eip155:1"
+  }'
+```
+
+Expected result: schema `0guard.reputation_connectors.v1`, with `networkCalls`
+set to `false`, raw payload return disabled, and GoPlus/Chainabuse/Forta marked
+as relevant activation candidates for an EVM address/domain subject.
+
 ## Rights Boundary
 
 The adapter returns derived decisions, source IDs, labels, confidence, hashes,
@@ -47,6 +74,8 @@ feeds, custody credentials, or make network calls.
 
 - `/api/native-preflight` includes a `reputation_probe` component when the
   caller supplies a domain, counterparty, label, or source evidence.
+- `/api/reputation/connectors` shows which external streams should be enabled
+  next and under which rights/safety rules.
 - `/api/wallet/alert-preview`, `/api/telegram/wallet-alert-preview`, and
   `/api/telegram/miniapp/preview` can promote reputation `deny` or `review`
   into a concise no-send alert even when the base wallet intent is read-only.

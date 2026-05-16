@@ -1,6 +1,10 @@
 """Tests for the rights-aware reputation probe."""
 
-from guard0.reputation import build_reputation_probe, domain_decision
+from guard0.reputation import (
+    build_reputation_probe,
+    domain_decision,
+    reputation_connector_manifest,
+)
 
 
 def test_reputation_probe_allows_curated_domain_and_clean_evm_address():
@@ -65,3 +69,25 @@ def test_domain_decision_keeps_suffix_spoofs_out_of_allowlist():
     assert allowed["allowed"] is True
     assert allowed["matched"] == "docs.0g.ai"
     assert spoof["allowed"] is False
+
+
+def test_reputation_connector_manifest_is_no_network_and_activation_ready():
+    manifest = reputation_connector_manifest(
+        {
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            "chain": "eip155:1",
+        }
+    )
+
+    assert manifest["schema"] == "0guard.reputation_connectors.v1"
+    assert manifest["mode"] == "connector_manifest_no_network_calls"
+    assert manifest["safety"]["networkCalls"] is False
+    assert manifest["rightsPolicy"]["rawPayloadsReturned"] is False
+    by_id = {connector["id"]: connector for connector in manifest["connectors"]}
+    assert {"goplus_security", "chainabuse", "forta_graphql_api"} <= set(by_id)
+    assert by_id["goplus_security"]["credentialRequired"] is False
+    assert by_id["chainabuse"]["credentialRequired"] is True
+    assert by_id["goplus_security"]["appliesToSubject"] is True
+    assert by_id["tonapi_jettons"]["appliesToSubject"] is False
+    assert manifest["recommendedActivationOrder"][0] == "goplus_security"

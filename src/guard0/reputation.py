@@ -10,9 +10,115 @@ from typing import Any
 from urllib.parse import urlparse
 
 from guard0.crypto_hack_guard import KNOWN_MALICIOUS_ADDRESSES
+from guard0.osint import load_source_registry
 from guard0.policy import evaluate_intent
 
 REPUTATION_PROBE_SCHEMA = "0guard.reputation_probe.v1"
+REPUTATION_CONNECTORS_SCHEMA = "0guard.reputation_connectors.v1"
+
+REPUTATION_CONNECTOR_CANDIDATES = (
+    {
+        "sourceId": "goplus_security",
+        "priority": 1,
+        "stage": "first_external_connector",
+        "surfaces": ("evm_address", "evm_token", "domain"),
+        "useCases": (
+            "address and token risk enrichment",
+            "approval and dApp preflight context",
+            "phishing and malicious-site corroboration",
+        ),
+    },
+    {
+        "sourceId": "chainabuse",
+        "priority": 1,
+        "stage": "first_external_connector",
+        "surfaces": ("evm_address", "domain"),
+        "useCases": (
+            "reported scam and abuse corroboration",
+            "human-readable source links for wallet review",
+        ),
+    },
+    {
+        "sourceId": "cryptoscamdb",
+        "priority": 1,
+        "stage": "open_dataset_seed",
+        "surfaces": ("domain", "evm_address"),
+        "useCases": (
+            "open phishing-domain and address seeds",
+            "regression fixtures for reputation detector tests",
+        ),
+    },
+    {
+        "sourceId": "forta_graphql_api",
+        "priority": 2,
+        "stage": "detector_stream",
+        "surfaces": ("evm_address", "contract", "chain_activity"),
+        "useCases": (
+            "exploit-stage alerts and labels",
+            "direct wallet relevance checks before alert promotion",
+        ),
+    },
+    {
+        "sourceId": "toncenter_v3",
+        "priority": 3,
+        "stage": "telegram_ton_passport",
+        "surfaces": ("ton_account", "telegram_wallet"),
+        "useCases": (
+            "read-only TON account activity enrichment",
+            "TON passport context inside Telegram Mini Apps",
+        ),
+    },
+    {
+        "sourceId": "tonapi_jettons",
+        "priority": 3,
+        "stage": "telegram_ton_passport",
+        "surfaces": ("ton_account", "jetton", "telegram_wallet"),
+        "useCases": (
+            "Jetton and NFT exposure context",
+            "Telegram wallet alert quality gates",
+        ),
+    },
+    {
+        "sourceId": "tenderly_simulation",
+        "priority": 4,
+        "stage": "simulation_adapter",
+        "surfaces": ("evm_transaction", "contract_call"),
+        "useCases": (
+            "pre-signing state-delta summaries",
+            "approval, swap, and contract-call simulation evidence",
+        ),
+    },
+    {
+        "sourceId": "blocksec_phalcon_simulation",
+        "priority": 4,
+        "stage": "simulation_adapter",
+        "surfaces": ("evm_transaction", "contract_call"),
+        "useCases": (
+            "second-opinion simulation",
+            "incident-context enrichment without raw trace resale",
+        ),
+    },
+    {
+        "sourceId": "layerzeroscan_api",
+        "priority": 5,
+        "stage": "cross_chain_observability",
+        "surfaces": ("cross_chain_message", "layerzero"),
+        "useCases": (
+            "message-status and configuration posture",
+            "stuck-message or unsafe-routing context",
+        ),
+    },
+    {
+        "sourceId": "wormholescan_api",
+        "priority": 5,
+        "stage": "cross_chain_observability",
+        "surfaces": ("cross_chain_message", "wormhole"),
+        "useCases": (
+            "VAA and transfer-status context",
+            "read-only Wormhole guardrail evidence",
+        ),
+    },
+)
 
 CURATED_DOMAIN_ALLOWLIST = (
     "0g.ai",
@@ -90,6 +196,49 @@ def build_reputation_probe(payload: dict[str, Any] | None = None) -> dict[str, A
             "callerEvidenceTreatedAsUntrusted": True,
         },
         "recommendedNextStep": _next_step(decision["decision"]),
+        "safety": _safety(),
+    }
+
+
+def reputation_connector_manifest(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Return the planned external reputation connectors without fetching them."""
+    body = payload or {}
+    if not isinstance(body, dict):
+        raise ValueError("payload must be an object")
+
+    subject = _subject_from_payload(body)
+    registry = load_source_registry()
+    sources_by_id = {source["id"]: source for source in registry.get("sources", [])}
+    connectors = []
+    for spec in REPUTATION_CONNECTOR_CANDIDATES:
+        source = sources_by_id.get(spec["sourceId"])
+        if not source:
+            continue
+        connectors.append(_connector_row(source, spec, subject))
+
+    return {
+        "schema": REPUTATION_CONNECTORS_SCHEMA,
+        "generatedAt": _now(),
+        "mode": "connector_manifest_no_network_calls",
+        "subject": subject,
+        "connectorCount": len(connectors),
+        "recommendedActivationOrder": [
+            row["id"] for row in sorted(connectors, key=lambda item: item["priority"])
+        ],
+        "connectors": connectors,
+        "activationRules": [
+            "keep every external connector disabled until credentials, terms, and retention are reviewed",
+            "return derived verdicts, labels, confidence, source ids, links, hashes, and redacted addresses only",
+            "never return paid/raw payloads through public APIs",
+            "require direct wallet or source relevance before promoting a Telegram alert",
+            "route every external signal through /api/reputation/probe or /api/native-preflight before any signer surface",
+        ],
+        "rightsPolicy": {
+            "rawPayloadsReturned": False,
+            "rawPayloadResaleAllowed": False,
+            "sourceLinksOrHashesOnly": True,
+            "paymentIsNotPermission": True,
+        },
         "safety": _safety(),
     }
 
@@ -357,6 +506,59 @@ def _rollup(signals: list[dict[str, Any]]) -> dict[str, Any]:
         "riskScore": 8 if signals else 15,
         "reasons": ["No negative local reputation signals matched."],
     }
+
+
+def _connector_row(
+    source: dict[str, Any],
+    spec: dict[str, Any],
+    subject: dict[str, Any],
+) -> dict[str, Any]:
+    retrieval_mode = str(source.get("retrieval_mode") or "")
+    enabled_by_default = bool(source.get("enabled_by_default"))
+    return {
+        "id": source["id"],
+        "name": source.get("name"),
+        "owner": source.get("owner"),
+        "priority": spec["priority"],
+        "stage": spec["stage"],
+        "status": "catalog_enabled" if enabled_by_default else "planned_disabled",
+        "adapter": source.get("adapter"),
+        "retrievalMode": retrieval_mode,
+        "credentialRequired": retrieval_mode in ("api_key_required", "auth_required")
+        or "paid" in retrieval_mode,
+        "enabledByDefault": enabled_by_default,
+        "appliesToSubject": _connector_applies(spec["surfaces"], subject),
+        "surfaces": list(spec["surfaces"]),
+        "useCases": list(spec["useCases"]),
+        "docsUrl": source.get("url"),
+        "homepage": source.get("homepage"),
+        "freshnessTtlSeconds": source.get("freshness_ttl_seconds"),
+        "rightsBoundary": {
+            "licenseOrRights": source.get("license_or_rights"),
+            "outputPolicy": source.get("output_policy"),
+            "caveats": source.get("caveats"),
+            "rawPayloadsReturned": False,
+        },
+    }
+
+
+def _connector_applies(surfaces: tuple[str, ...], subject: dict[str, Any]) -> bool:
+    if not any((subject.get("domain"), subject.get("address"), subject.get("chain"), subject.get("surface"))):
+        return False
+    address = str(subject.get("address") or "")
+    chain = str(subject.get("chain") or "").lower()
+    surface = str(subject.get("surface") or "").lower()
+    if subject.get("domain") and "domain" in surfaces:
+        return True
+    if _EVM_ADDRESS_RE.match(address) and any(
+        item in surfaces for item in ("evm_address", "evm_transaction", "contract_call")
+    ):
+        return True
+    if chain.startswith("ton") or "ton" in surface or "telegram" in surface:
+        return any(item in surfaces for item in ("ton_account", "telegram_wallet", "jetton"))
+    if any(term in chain or term in surface for term in ("layerzero", "wormhole", "cross")):
+        return "cross_chain_message" in surfaces
+    return False
 
 
 def _signal(

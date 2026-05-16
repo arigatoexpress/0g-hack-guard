@@ -74,6 +74,11 @@ def developer_kit_manifest() -> dict[str, Any]:
                 "purpose": "Rights-aware domain, address, label, and source-evidence reputation probe.",
             },
             {
+                "method": "GET/POST",
+                "path": "/api/reputation/connectors",
+                "purpose": "No-network manifest for GoPlus, Chainabuse, Forta, TON, simulation, and cross-chain connector activation.",
+            },
+            {
                 "method": "POST",
                 "path": "/api/integrations/ika/evaluate",
                 "purpose": "dWallet/MPC signing preflight before Ika-adjacent projects sign.",

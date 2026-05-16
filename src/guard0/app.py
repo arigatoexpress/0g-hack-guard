@@ -51,6 +51,7 @@ from guard0.reputation import (
     CURATED_DOMAIN_ALLOWLIST,
     build_reputation_probe,
     domain_decision,
+    reputation_connector_manifest,
 )
 from guard0.ton import (
     build_ton_wallet_risk_preview,
@@ -615,6 +616,7 @@ def api_frontend_contract():
                 "/api/intelligence/data-streams",
                 "/api/roadmap",
                 "/api/wallet/alert-preview",
+                "/api/healthz",
                 "/api/ton/status",
                 "/api/ton/risk-rules",
                 "/api/ton/wallet-risk-preview",
@@ -625,6 +627,7 @@ def api_frontend_contract():
                 "/api/integrations/ika",
                 "/api/integrations/ika/evaluate",
                 "/api/reputation/probe",
+                "/api/reputation/connectors",
                 "/api/native-preflight",
                 "/api/hackathon/strategy",
                 "/api/developer-kit",
@@ -894,6 +897,23 @@ def api_reputation_probe():
         }
     try:
         return jsonify(build_reputation_probe(body))
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/reputation/connectors", methods=["GET", "POST"])
+def api_reputation_connectors():
+    if request.method == "POST":
+        body = request.get_json(silent=True) or {}
+    else:
+        body = {
+            "url": request.args.get("url") or request.args.get("domain") or "",
+            "address": request.args.get("address") or request.args.get("target") or "",
+            "chain": request.args.get("chain") or "",
+            "surface": request.args.get("surface") or "",
+        }
+    try:
+        return jsonify(reputation_connector_manifest(body))
     except (TypeError, ValueError) as exc:
         return jsonify({"error": str(exc)}), 400
 

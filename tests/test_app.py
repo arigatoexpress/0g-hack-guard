@@ -100,6 +100,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/intelligence/evolving" in data["apiRoutes"]
     assert "/api/intelligence/data-streams" in data["apiRoutes"]
+    assert "/api/healthz" in data["apiRoutes"]
     assert "/api/roadmap" in data["apiRoutes"]
     assert "/api/wallet/alert-preview" in data["apiRoutes"]
     assert "/api/ton/status" in data["apiRoutes"]
@@ -112,6 +113,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/integrations/ika" in data["apiRoutes"]
     assert "/api/integrations/ika/evaluate" in data["apiRoutes"]
     assert "/api/reputation/probe" in data["apiRoutes"]
+    assert "/api/reputation/connectors" in data["apiRoutes"]
     assert "/api/native-preflight" in data["apiRoutes"]
     assert "/api/hackathon/strategy" in data["apiRoutes"]
     assert "/api/developer-kit" in data["apiRoutes"]
@@ -430,6 +432,23 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert reputation_body["decision"]["decision"] == "deny"
     assert reputation_body["rightsPolicy"]["rawPayloadsReturned"] is False
 
+    connectors = client.post(
+        "/api/reputation/connectors",
+        json={
+            "url": "https://docs.0g.ai.evil.example/claim",
+            "address": "0x02228b0afcdbEdf8180D96Fc181Da3AF5DD1d1ab",
+            "chain": "eip155:1",
+        },
+    )
+    assert connectors.status_code == 200
+    connectors_body = connectors.get_json()
+    assert connectors_body["schema"] == "0guard.reputation_connectors.v1"
+    assert connectors_body["safety"]["networkCalls"] is False
+    assert connectors_body["rightsPolicy"]["rawPayloadsReturned"] is False
+    assert {"goplus_security", "chainabuse"} <= {
+        connector["id"] for connector in connectors_body["connectors"]
+    }
+
     native_preflight = client.post(
         "/api/native-preflight",
         json={
@@ -475,6 +494,9 @@ def test_cross_chain_integration_routes_are_read_only(client):
     assert {recipe["id"] for recipe in developer_kit_body["adapterRecipes"]} >= {
         "agentkit_turnkey_safe_evm",
         "ika_mpckit_odws",
+    }
+    assert "/api/reputation/connectors" in {
+        route["path"] for route in developer_kit_body["routes"]
     }
 
     guardrails = client.get("/api/integrations/external-guardrails")

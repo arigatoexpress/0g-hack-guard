@@ -34,3 +34,7 @@ incident dataset without pretending raw feeds are ours to resell.
 - `/api/reputation/probe` is the first live adapter contract. It accepts local
   or caller-supplied evidence and returns only derived signals, hashes,
   redactions, confidence, and receipt metadata.
+- `/api/reputation/connectors` turns the source registry into an activation
+  manifest for the subject being checked. It does not call external networks;
+  it tells an integrator which GoPlus, Chainabuse, Forta, TON, simulation, or
+  cross-chain connector applies and what rights boundary must be preserved.
