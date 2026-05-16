@@ -49,6 +49,20 @@ def test_phishdestroy_payload_normalizes_active_domain_without_raw_url_echo():
     assert "docs.0g.ai.evil.example/claim" not in str(result)
 
 
+def test_phishdestroy_active_domains_string_implies_active_and_denies():
+    result = normalize_reputation_adapter_payload(
+        {
+            "sourceId": "phishdestroy_destroylist",
+            "payload": {"active_domains": ["bad-example-phish-site.test"]},
+        }
+    )
+
+    assert result["sourceId"] == "phishdestroy_destroylist"
+    assert result["derivedEvidence"][0]["sourceId"] == "phishdestroy_destroylist"
+    assert result["derivedEvidence"][0]["verdict"] == "malicious"
+    assert result["reputationPreview"]["decision"]["decision"] == "deny"
+
+
 def test_cryptoscamdb_payload_normalizes_reported_rows_without_raw_url_echo():
     result = normalize_reputation_adapter_payload(
         {

@@ -563,6 +563,7 @@ def _flatten_records(payload: dict[str, Any]) -> list[dict[str, Any]]:
 def _domain_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for key in (
+        "domain_rows",
         "active_domains",
         "domains",
         "blocklist",
@@ -578,9 +579,15 @@ def _domain_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    rows.append(item)
+                    if key == "active_domains" and "active" not in item:
+                        rows.append({**item, "active": True})
+                    else:
+                        rows.append(item)
                 elif isinstance(item, str):
-                    rows.append({"domain": item})
+                    if key == "active_domains":
+                        rows.append({"domain": item, "active": True})
+                    else:
+                        rows.append({"domain": item})
     if not rows and any(key in payload for key in ("domain", "url", "target_brand", "site_status")):
         rows.append(payload)
     return rows
