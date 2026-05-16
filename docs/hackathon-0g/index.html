@@ -315,6 +315,18 @@
               The reputation adapter contract now normalizes PhishDestroy, CryptoScamDB, Forta labelled datasets, GoPlus, Chainabuse, and Forta GraphQL payload shapes into derived evidence only. No raw upstream feed is mirrored from public routes.
             </p>
           </div>
+          <div class="card">
+            <h3>Production readiness</h3>
+            <p>
+              The live service now exposes <code>/api/readyz</code>. It verifies the mainnet receipt contract config, public proof file, detector coverage, shadow cache, and blocked external actions, while honestly marking Telegram opt-in persistence as the remaining production review item.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Reputation shadow cache</h3>
+            <p>
+              <code>/api/reputation/shadow-cache</code> composes reviewed PhishDestroy, CryptoScamDB, and Forta-shaped evidence into a reusable derived snapshot with a 0G-ready cache receipt. It returns hashes, confidence, and verdicts, not raw source payloads.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -368,7 +380,7 @@
           <div class="card">
             <h3>Current product map</h3>
             <p>
-              The live API now exposes <code>/api/product/brief</code> for a plain-English system map, <code>/api/threat-case-file</code> for a composed proof dossier, and <code>/api/experiments/frontier</code> for safe next-integration previews. These routes preserve the same no-sign, no-send, no-upload, no-money-movement, no-raw-payload boundary.
+              The live API now exposes <code>/api/product/brief</code> for a plain-English system map, <code>/api/readyz</code> for production readiness, <code>/api/threat-case-file</code> for a composed proof dossier, <code>/api/reputation/shadow-cache</code> for derived reputation snapshots, and <code>/api/experiments/frontier</code> for safe next-integration previews. These routes preserve the same no-sign, no-send, no-upload, no-money-movement, no-raw-payload boundary.
             </p>
           </div>
         </div>

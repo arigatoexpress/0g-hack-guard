@@ -15,6 +15,8 @@ def test_public_pages_demo_examples_match_real_routes_and_assets():
     assert "/api/hackathon/threat-passport" in html
     assert "/api/threat-case-file" in html
     assert "/api/experiments/frontier" in html
+    assert "/api/readyz" in html
+    assert "/api/reputation/shadow-cache" in html
     assert "/api/integrations/cross-chain" in html
     assert "/api/integrations/virtuals-facilitator" in html
     assert (
@@ -41,6 +43,9 @@ def test_hackquest_proof_page_exposes_current_evidence_baseline():
     assert "signature and detection coverage ratio" in html
     assert "1.0" in html
     assert "EIP-7702" in html
+    assert "/api/readyz" in html
+    assert "/api/reputation/shadow-cache" in html
+    assert "Telegram opt-in persistence" in html
     assert "0xBaC59b1571b7c7195915c5B36D8A719Ed7182abc" in html
     assert "No signing. No broadcasts." in html
     assert ("Latest media refresh:" in html) or ("Last video/proof-page baseline:" in html)
