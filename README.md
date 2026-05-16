@@ -428,4 +428,6 @@ gitleaks detect --no-git --source . --redact --verbose
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Apache-2.0 — see [LICENSE](LICENSE). Source, data, and generated-media
+boundaries are documented in [NOTICE](NOTICE) and
+[docs/LEGAL_AND_ASSET_POLICY.md](docs/LEGAL_AND_ASSET_POLICY.md).

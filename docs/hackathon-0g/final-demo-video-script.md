@@ -12,6 +12,12 @@ Generated asset:
 https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4
 ```
 
+Professional replacement packet:
+
+```text
+docs/hackathon-0g/veo3-flow-production-prompt.md
+```
+
 Rebuild command:
 
 ```bash

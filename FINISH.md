@@ -8,7 +8,8 @@ current requirement is a 0G mainnet contract address plus a 0G Explorer link.
 
 - Final checklist: `docs/hackathon-0g/final-submission-checklist.md`
 - Copy/paste fields: `docs/hackathon-0g/submission-form-fields.md`
-- Demo script: `docs/DEMO_VIDEO_SCRIPT.md`
+- Current demo script: `docs/hackathon-0g/final-demo-video-script.md`
+- Professional remake packet: `docs/hackathon-0g/veo3-flow-production-prompt.md`
 - Machine packet: `/api/hackathon/submission-packet`
 - Readiness audit: `/api/hackathon/readiness`
 

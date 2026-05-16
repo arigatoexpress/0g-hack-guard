@@ -1,6 +1,6 @@
 # 0guard AI Submission Production Package
 
-Updated: May 14, 2026.
+Updated: May 16, 2026.
 
 This package is the working brief for using Gemini, Veo 3, Claude, ChatGPT, or
 Kimi to polish and produce the final HackQuest submission without weakening the
@@ -15,21 +15,25 @@ truth boundary.
   verifiable on-chain activity.
 - X post: include project name, screenshot or short clip, `#0GHackathon`,
   `#BuildOn0G`, and tags `@0G_labs @0g_CN @0g_Eco @HackQuest_`.
-- Veo/Gemini video clips are currently best used as short cinematic assets.
-  The current public MP4 is already assembled from real product screen capture;
-  use generated clips only for a later replacement cut if they improve clarity
-  without adding unsupported claims.
+- Veo/Gemini video clips are best used as short cinematic assets around real
+  product screen capture. The current public MP4 is already assembled from
+  product footage; use `veo3-flow-production-prompt.md` for a later replacement
+  cut that improves clarity without adding unsupported claims.
 
 Sources:
 
 - HackQuest 0G APAC Hackathon:
   `https://www.hackquest.io/hackathons/0G-APAC-Hackathon`
-- Gemini Apps video generation help:
-  `https://support.google.com/gemini/answer/16126339`
-- Gemini API Veo video generation docs:
-  `https://ai.google.dev/gemini-api/docs/video`
-- Google Developers Veo 3 launch notes:
-  `https://developers.googleblog.com/veo-3-now-available-gemini-api/`
+- Google Flow Help, create videos:
+  `https://support.google.com/flow/answer/16353334`
+- Google Flow Help, model features:
+  `https://support.google.com/flow/answer/16352836`
+- Google Flow Help, edit videos and Scenebuilder:
+  `https://support.google.com/flow/answer/16935718`
+- Google Blog, Veo 3.1 Flow updates:
+  `https://blog.google/innovation-and-ai/products/veo-updates-flow/`
+- Google Blog, Veo 3.1 high-fidelity/upscaling updates:
+  `https://blog.google/innovation-and-ai/technology/ai/veo-3-1-ingredients-to-video/`
 
 ## Final Positioning
 
@@ -59,8 +63,8 @@ Use `scripts/open_ai_submission_workspace.sh` to open the working tabs in Brave.
 Recommended order:
 
 1. Open this package and the final demo script.
-2. Open Gemini or Flow for Veo 3 clip generation.
-3. Use the Veo prompts below to generate optional 8-second clips.
+2. Open Gemini or Flow for Veo 3 / Veo 3.1 clip generation.
+3. Use `veo3-flow-production-prompt.md` as the current master prompt packet.
 4. Compare any generated inserts against the current public MP4.
 5. Replace the public MP4 only if the edited version remains under three
    minutes and stays grounded in real product footage.
@@ -83,6 +87,10 @@ Recommended order:
 | Close | 2:50-2:58 | Screen capture or optional Veo clip 4 |
 
 ## Veo 3 Prompt Pack
+
+The current higher-quality prompt and Flow configuration lives in
+`docs/hackathon-0g/veo3-flow-production-prompt.md`. Keep the older prompts
+below only as compact fallback clips.
 
 Use landscape `16:9`. Generate 8 seconds per clip. Avoid text-heavy prompts:
 AI video text can be unreliable, and the real submission text should come from
