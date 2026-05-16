@@ -14,11 +14,18 @@ COPY src/ ./src/
 RUN pip install --no-cache-dir -e .
 
 # Copy app code
+COPY NOTICE ./
 COPY scripts/ ./scripts/
 COPY data/ ./data/
 COPY content/ ./content/
 COPY contracts/ ./contracts/
+COPY foundry/src/ ./foundry/src/
+COPY docs/LEGAL_AND_ASSET_POLICY.md ./docs/LEGAL_AND_ASSET_POLICY.md
+COPY docs/hackathon-0g/README.md ./docs/hackathon-0g/README.md
+COPY docs/hackathon-0g/assets/README.md ./docs/hackathon-0g/assets/README.md
+COPY docs/hackathon-0g/hackquest-submission-proof.json ./docs/hackathon-0g/hackquest-submission-proof.json
 COPY docs/hackathon-0g/mainnet-proof.json ./docs/hackathon-0g/mainnet-proof.json
+COPY docs/hackathon-0g/veo3-flow-production-prompt.md ./docs/hackathon-0g/veo3-flow-production-prompt.md
 
 # Expose Flask port
 EXPOSE 8109

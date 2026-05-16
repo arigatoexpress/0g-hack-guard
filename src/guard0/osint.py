@@ -1897,6 +1897,14 @@ def _demo_video_url() -> str:
         return configured
     if DEFAULT_DEMO_VIDEO_PATH.exists():
         return PUBLIC_DEMO_VIDEO_URL
+    submission_proof = _load_hackquest_submission_proof()
+    submitted_video = (
+        (submission_proof or {}).get("submission", {}).get("demo_video", "")
+        if submission_proof
+        else ""
+    )
+    if str(submitted_video).startswith("https://"):
+        return str(submitted_video)
     return DEMO_VIDEO_PLACEHOLDER
 
 

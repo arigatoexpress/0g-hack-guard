@@ -59,6 +59,18 @@ def test_notice_and_policy_keep_source_rights_clear():
     assert "operator_controlled" in policy
 
 
+def test_docker_image_includes_repo_professionalization_artifacts():
+    dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")
+
+    assert "COPY NOTICE ./" in dockerfile
+    assert "COPY foundry/src/" in dockerfile
+    assert "COPY docs/LEGAL_AND_ASSET_POLICY.md" in dockerfile
+    assert "COPY docs/hackathon-0g/README.md" in dockerfile
+    assert "COPY docs/hackathon-0g/assets/README.md" in dockerfile
+    assert "COPY docs/hackathon-0g/hackquest-submission-proof.json" in dockerfile
+    assert "COPY docs/hackathon-0g/veo3-flow-production-prompt.md" in dockerfile
+
+
 def test_public_asset_registry_covers_tracked_media():
     registry = (
         REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "README.md"
