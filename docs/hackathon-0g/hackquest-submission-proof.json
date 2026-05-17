@@ -63,7 +63,7 @@
     "notice": "https://github.com/arigatoexpress/0guard/blob/main/NOTICE",
     "source_asset_policy": "https://github.com/arigatoexpress/0guard/blob/main/docs/LEGAL_AND_ASSET_POLICY.md",
     "asset_registry": "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md",
-    "veo3_flow_production_packet": "https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md",
+    "media_archive": "https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md",
     "readyz": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/api/readyz",
     "reputation_shadow_cache": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/api/reputation/shadow-cache",
     "osint_sources": "https://guard0-miniapp-s77j6bxyra-uc.a.run.app/api/osint/sources",

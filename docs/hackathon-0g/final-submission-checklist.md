@@ -45,8 +45,8 @@ Submission proof artifact: `docs/hackathon-0g/hackquest-submission-proof.json`
 - License/source policy: Apache-2.0, `NOTICE`, and
   `docs/LEGAL_AND_ASSET_POLICY.md`
 - Public asset registry: `docs/hackathon-0g/assets/README.md`
-- Professional Flow/Veo production packet:
-  `docs/hackathon-0g/veo3-flow-production-prompt.md`
+- Media archive: submitted MP4 retained for continuity; proof links and API
+  readbacks are the canonical public evidence.
 - Production revision: `guard0-miniapp-112c7b7`
 - Source catalog: 30 tracked sources at `/api/osint/sources`
 - Reputation connector manifest: 17 no-network connector candidates at
@@ -122,14 +122,14 @@ shows:
 - the signature map showing 28/28 detector coverage, including the promoted
   `Quant` EIP-7702 delegated batch access-control detector
 
-Professional replacement packet:
+Media archive:
 
 ```text
-https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md
+https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md
 ```
 
-Use it for a later polished cut only after reviewing every generated clip for
-no fake external actions, no private data, and readable proof overlays.
+Use archived media only as continuity. The canonical public proof is the 0G
+mainnet transaction, proof JSON, and API/readiness readbacks.
 
 ## Required X Post
 
@@ -201,7 +201,7 @@ Expected high-signal fields:
    production Telegram Mini App, proof packet, 100% fill progress, and current
    project-image assets.
 6. Refreshed the public proof packet with Apache-2.0 licensing, source/asset
-   policy, asset registry, and Flow/Veo production-packet links.
+   policy, asset registry, and proof-first media archive links.
 7. Promoted production revision `guard0-miniapp-112c7b7` with 30
    rights-aware OSINT source lanes and 17 no-network reputation connector
    candidates, including disabled-by-default ThreatFox, Chainalysis sanctions

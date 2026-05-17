@@ -359,8 +359,7 @@ def test_hackquest_readiness_audit_uses_mainnet_proof_file():
     assert requirements["hackquest_submission"]["status"] == "ready"
     assert audit["hackQuestSubmission"]["submitted"] is True
     assert audit["repoProfessionalization"]["license"] == "Apache-2.0"
-    assert audit["repoProfessionalization"]["veoPacketUrl"].endswith(
-        "veo3-flow-production-prompt.md"
-    )
+    assert audit["repoProfessionalization"]["assetRegistryUrl"].endswith("assets/README.md")
+    assert audit["repoProfessionalization"]["generatedMediaPubliclyPromoted"] is False
     assert audit["operatorOnlyActions"] == []
     assert audit["safety"]["rawPayloadsReturned"] is False

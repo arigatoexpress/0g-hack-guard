@@ -92,9 +92,12 @@ def test_public_asset_registry_covers_tracked_media():
     assert "unreviewed generation outputs" in registry
 
 
-def test_veo3_flow_packet_is_grounded_in_real_product_behavior():
+def test_archived_generated_media_packet_is_grounded_in_real_product_behavior():
     packet = (
         REPO_ROOT / "docs" / "hackathon-0g" / "veo3-flow-production-prompt.md"
+    ).read_text(encoding="utf-8")
+    registry = (
+        REPO_ROOT / "docs" / "hackathon-0g" / "assets" / "README.md"
     ).read_text(encoding="utf-8")
 
     assert "Veo 3.1 Quality" in packet
@@ -107,3 +110,5 @@ def test_veo3_flow_packet_is_grounded_in_real_product_behavior():
     assert "rawPayloadsReturned=false" in packet
     assert "fake wallet approvals" in packet
     assert "0G mainnet PolicyReceiptAnchor" in packet
+    assert "submitted-archive" in registry
+    assert "Mainnet proof links and API readbacks are canonical" in registry

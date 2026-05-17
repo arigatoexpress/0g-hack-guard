@@ -76,8 +76,8 @@ mistake that human teams already lost money to.
   asset registry, and explicit generated-media boundaries.
 - Demo video: ready at
   `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/0guard-hackquest-demo-final.mp4`.
-- Professional video remake packet: ready at
-  `https://arigatoexpress.github.io/0guard/hackathon-0g/veo3-flow-production-prompt.md`.
+- Media archive: ready at
+  `https://arigatoexpress.github.io/0guard/hackathon-0g/assets/README.md`.
 - Public X post: submitted proof URL is
   `https://x.com/rariwrldd/status/2054779961425461542`. Refreshed single-post
   and thread drafts remain available at `content/hackquest_x_post.json` and
@@ -177,7 +177,7 @@ anchored on 0G mainnet by the dedicated deployer.
   verifier config/readback, then productionize the compute scorer.
 - It now looks and reads like a serious open-source security project:
   Apache-2.0 licensing, public asset inventory, source-rights boundaries, and a
-  non-slop Flow/Veo video packet are all visible.
+  proof-first media archive are all visible.
 
 ## Mainnet Honesty Statement
 

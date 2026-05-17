@@ -684,7 +684,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
                 "required": False,
                 "status": "ready" if professionalization["ready"] else "needs_fix",
                 "license": professionalization["license"],
-                "publicVideoProductionPacket": professionalization["veoPacketUrl"],
+                "publicMediaRegistry": professionalization["assetRegistryUrl"],
                 "assetRegistry": professionalization["assetRegistryUrl"],
             },
         },
@@ -743,7 +743,7 @@ def hackathon_submission_brief() -> dict[str, Any]:
             "Submission brief API for judge/operator readback.",
             "0G mainnet PolicyReceiptAnchor deployment and one anchored threat receipt.",
             "Read-only cross-chain integration catalog and Virtuals/Base facilitator manifest.",
-            "Apache-2.0 repo posture with NOTICE, source/asset policy, asset registry, and a Flow/Veo production packet for the polished post-submit cut.",
+            "Apache-2.0 repo posture with NOTICE, source/asset policy, and an explicit public asset registry that keeps submitted media archived behind the proof surface.",
         ],
         "operatorRequired": _operator_required_steps(),
         "claimsToAvoid": [
@@ -804,7 +804,7 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "apache_2_license",
                 "notice_and_asset_policy",
                 "asset_registry",
-                "veo3_flow_production_packet",
+                "media_archive",
                 *(
                     [
                         "hackquest_project_submitted",
@@ -882,8 +882,8 @@ def hackquest_submission_packet() -> dict[str, Any]:
             "notice": "NOTICE",
             "sourceAndAssetPolicy": "docs/LEGAL_AND_ASSET_POLICY.md",
             "assetRegistry": "docs/hackathon-0g/assets/README.md",
-            "veo3FlowProductionPacket": "docs/hackathon-0g/veo3-flow-production-prompt.md",
-            "veo3FlowProductionPacketUrl": professionalization["veoPacketUrl"],
+            "mediaArchive": "docs/hackathon-0g/assets/README.md",
+            "mediaArchiveUrl": professionalization["assetRegistryUrl"],
         },
         "hackQuestSubmission": brief["hackQuestSubmission"],
         "repoProfessionalization": professionalization,
@@ -921,8 +921,8 @@ def hackquest_submission_packet() -> dict[str, Any]:
                 "label": "Professional repo and media posture",
                 "route": "docs/LEGAL_AND_ASSET_POLICY.md",
                 "claim": (
-                    "Repo license, source-rights policy, asset registry, and Flow/Veo "
-                    "production packet are explicit and public."
+                    "Repo license, source-rights policy, and public media archive are "
+                    "explicit; proof surfaces lead with mainnet and API readbacks."
                 ),
             },
         ],
@@ -1264,16 +1264,15 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         ),
         _requirement(
             "repo_professionalization",
-            "License, asset policy, and professional video packet",
+            "License, asset policy, and media archive",
             "ready" if professionalization["ready"] else "needs_fix",
             [
                 f"License: {professionalization['license']}",
                 "NOTICE",
                 "docs/LEGAL_AND_ASSET_POLICY.md",
                 "docs/hackathon-0g/assets/README.md",
-                "docs/hackathon-0g/veo3-flow-production-prompt.md",
             ],
-            "Keep Apache-2.0, NOTICE, source/asset policy, asset registry, and Flow/Veo packet public.",
+            "Keep Apache-2.0, NOTICE, source/asset policy, and asset registry public; keep generated media secondary to proof readbacks.",
         ),
         _requirement(
             "provenance_data",
@@ -1378,8 +1377,8 @@ def hackquest_readiness_audit() -> dict[str, Any]:
         "safeAutonomousWorkRemaining": [
             "Keep source/provenance docs current if official requirements change.",
             "Run the readiness audit, tests, browser smoke, and public readbacks during review.",
-            "Replace the generated video or X link only if Ari wants a later edited version.",
-            "Use the Flow/Veo production packet for a polished post-submit video replacement only after human review.",
+            "Replace the submitted video or X link only if Ari wants a later edited version.",
+            "Keep any future media replacement grounded in real product capture and mainnet proof readbacks.",
         ],
         "operatorOnlyActions": []
         if submission_ready
@@ -1958,7 +1957,6 @@ def _repo_professionalization_status() -> dict[str, Any]:
         REPO_ROOT / "NOTICE",
         DEFAULT_LEGAL_POLICY_PATH,
         DEFAULT_ASSET_REGISTRY_PATH,
-        DEFAULT_VEO_PACKET_PATH,
     ]
     apache_license = (
         "Apache License" in license_text
@@ -1982,14 +1980,15 @@ def _repo_professionalization_status() -> dict[str, Any]:
         "sourceAndAssetPolicyUrl": PUBLIC_LEGAL_POLICY_URL,
         "assetRegistryPath": "docs/hackathon-0g/assets/README.md",
         "assetRegistryUrl": PUBLIC_ASSET_REGISTRY_URL,
-        "veoPacketPath": "docs/hackathon-0g/veo3-flow-production-prompt.md",
-        "veoPacketUrl": PUBLIC_VEO_PACKET_URL,
+        "archivedGeneratedMediaPacketPath": "docs/hackathon-0g/veo3-flow-production-prompt.md",
+        "archivedGeneratedMediaPacketUrl": PUBLIC_VEO_PACKET_URL,
+        "generatedMediaPubliclyPromoted": False,
         "soliditySpdxAligned": solidity_spdx,
         "generatedResidueTracked": False,
-        "videoReplacementPolicy": (
-            "Use generated clips only as supporting visuals around real product footage; "
-            "replace the public MP4 only after manual review confirms no fake external "
-            "actions, no private data, and readable proof overlays."
+        "mediaReplacementPolicy": (
+            "Submitted and generated media stays archived behind proof links. Replace "
+            "public media only after manual review confirms real product capture, no "
+            "fake external actions, no private data, and readable proof overlays."
         ),
     }
 

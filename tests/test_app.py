@@ -413,9 +413,7 @@ def test_osint_and_hackathon_routes_are_read_only(client):
     packet_body = packet.get_json()
     assert packet_body["schema"] == "0guard.hackquest_submission_packet.v1"
     assert packet_body["formFields"]["demoVideoUrl"].endswith("0guard-hackquest-demo-final.mp4")
-    assert packet_body["formFields"]["veo3FlowProductionPacket"].endswith(
-        "veo3-flow-production-prompt.md"
-    )
+    assert packet_body["formFields"]["mediaArchive"].endswith("assets/README.md")
     assert packet_body["repoProfessionalization"]["assetRegistryUrl"].endswith(
         "assets/README.md"
     )

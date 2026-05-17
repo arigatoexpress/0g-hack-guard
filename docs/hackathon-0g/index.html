@@ -6,7 +6,7 @@
     <title>0guard HackQuest Proof Packet</title>
     <meta
       name="description"
-      content="0guard HackQuest proof packet: demo video, 0G mainnet anchor, source-linked exploit intelligence, and read-only safety boundaries."
+      content="0guard HackQuest proof packet: 0G mainnet anchor, source-linked exploit intelligence, API readbacks, and read-only safety boundaries."
     />
     <style>
       :root {
@@ -114,15 +114,27 @@
         box-shadow: 0 18px 56px rgba(0, 0, 0, 0.28);
       }
 
-      .video-frame {
+      .proof-frame {
         border: 1px solid var(--line);
         border-radius: 8px;
         overflow: hidden;
         background: #020409;
         box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
       }
-      video { width: 100%; display: block; aspect-ratio: 16 / 9; background: #020409; }
-      .video-meta {
+      .proof-frame img {
+        width: 100%;
+        display: block;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        background: #020409;
+      }
+      .proof-frame ul {
+        margin: 0;
+        padding: 14px 18px 16px 34px;
+        color: var(--muted);
+      }
+      .proof-frame li { margin: 7px 0; }
+      .proof-meta {
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -132,7 +144,7 @@
         font-size: 0.82rem;
         border-top: 1px solid var(--line);
       }
-      .video-meta span { min-width: max-content; }
+      .proof-meta span { min-width: max-content; }
 
       section { margin-top: 36px; }
       h2 { font-size: 1.5rem; margin: 0 0 12px; }
@@ -249,12 +261,15 @@
               <span>Project banner asset for X and launch posts</span>
             </a>
           </div>
-          <div class="video-frame" aria-label="0guard demo video">
-            <video controls preload="metadata" poster="assets/0guard-workbench-provenance.png">
-              <source src="assets/0guard-hackquest-demo-final.mp4" type="video/mp4" />
-            </video>
-            <div class="video-meta">
-              <span>Submitted demo archive; proof links are canonical</span>
+          <div class="proof-frame" aria-label="0guard mainnet proof summary">
+            <img src="assets/0guard-workbench-provenance.png" alt="0guard workbench and provenance proof preview" />
+            <ul>
+              <li>Mainnet contract and anchor tx are public on 0G Chain Scan.</li>
+              <li>Proof JSON includes deploy tx, anchor tx, receipt hash, and RPC readback.</li>
+              <li>Submitted media is archived; canonical evidence is proof and API readback.</li>
+            </ul>
+            <div class="proof-meta">
+              <span>0G mainnet proof first</span>
               <span>No signing. No broadcasts.</span>
             </div>
           </div>
@@ -335,9 +350,9 @@
             </p>
           </div>
           <div class="card">
-            <h3>Video remake packet</h3>
+            <h3>Media archive</h3>
             <p>
-              <code>veo3-flow-production-prompt.md</code> is the current Google Flow / Veo 3 production packet for a polished post-submit cut. It uses generated clips only around real product footage and forbids fake signing, bridge, payment, trading, or Telegram-send visuals.
+              Submitted media stays available for continuity, but the front-door proof is now the 0G mainnet transaction, the proof JSON, and the API/readiness readbacks.
             </p>
           </div>
         </div>
@@ -370,13 +385,9 @@
             <h3>Social execution status</h3>
             <p>Submitted-state readback, prepared post drafts, and X cleanup safety notes.</p>
           </a>
-          <a class="card" href="veo3-flow-production-prompt.md">
-            <h3>Veo production packet</h3>
-            <p>Scene prompts, Flow settings, voiceover, and final edit checklist for the professional cut.</p>
-          </a>
           <a class="card" href="assets/README.md">
             <h3>Asset registry</h3>
-            <p>Public media inventory and rules for replacement video/image assets.</p>
+            <p>Public media inventory, archive labels, and rules for any replacement assets.</p>
           </a>
           <a class="card" href="https://x.com/rariwrldd/status/2054779961425461542">
             <h3>Required X post</h3>
