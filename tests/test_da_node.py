@@ -151,6 +151,71 @@ def test_storage_node_live_status_uses_injected_reader():
     assert status["safety"]["networkCalls"] is True
 
 
+def test_storage_node_status_loads_rv_funded_soak_snapshot(tmp_path):
+    status_path = tmp_path / "rv-soak.json"
+    status_path.write_text(
+        json.dumps(
+            {
+                "schema": "0guard.rv_0g_storage_soak_snapshot.v1",
+                "generatedAt": "2026-05-17T12:41:00+00:00",
+                "storageRpc": {
+                    "status": "ok",
+                    "connectedPeers": 4,
+                    "logSyncHeight": 24345245,
+                    "logSyncBlock": "0xabc",
+                    "nextTxSeq": 46135,
+                    "networkIdentity": {
+                        "chainId": 16661,
+                        "flowAddress": "0x62d4144db0f0a6fbbaeb6296c785c71b3d57c526",
+                    },
+                },
+                "health": {
+                    "zgsRunning": True,
+                    "relayTcpOpen": True,
+                    "rpcOk": True,
+                    "expansionReady": False,
+                    "expansionBlockers": [
+                        "connected_peers_below_target_8",
+                        "storage_log_sync_gap_too_large",
+                    ],
+                },
+                "sync": {
+                    "latestMainnetBlock": 33518737,
+                    "logSyncHeight": 24345245,
+                    "syncGapBlocks": 9173492,
+                    "nextTxSeq": 46135,
+                },
+                "disk": {"dbSizeHuman": "7.7G"},
+                "config": {"minerKeyPresent": True, "privateKey": "must_strip"},
+                "funding": {
+                    "activeMinerAddress": "0xf5c1c3eb88c262adb451c1ce3b1c391f7d968ecd",
+                    "activeMinerBalanceOg": 0.25,
+                    "onlyPriorTestFundingObserved": True,
+                    "hundredOgTransferSent": False,
+                    "largeTransferDetected": False,
+                },
+                "publicRelay": {"tcp1234": {"ok": True}, "tcp34000": {"ok": False}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    status = build_storage_node_status(live=False, status_file=str(status_path))
+
+    assert status["mode"] == "rv_soak_snapshot_file"
+    assert status["storageRpc"]["source"] == "rv_soak_snapshot_file"
+    assert status["storageRpc"]["connectedPeers"] == 4
+    assert status["readiness"]["status"] == "funded_soak_syncing"
+    assert status["readiness"]["noKeyMode"] is False
+    assert status["funding"]["status"] == "funded_soak_monitoring_only"
+    assert status["funding"]["activeMinerBalanceOg"] == 0.25
+    assert status["funding"]["hundredOgTransferSent"] is False
+    assert status["fundedSoak"]["syncGapBlocks"] == 9173492
+    encoded = json.dumps(status)
+    assert "must_strip" not in encoded
+    assert status["safety"]["privateKeysReturned"] is False
+
+
 def test_telegram_storage_node_preview_is_no_send_digest():
     status = build_storage_node_status(
         live=True,

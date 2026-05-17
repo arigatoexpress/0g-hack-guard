@@ -278,6 +278,11 @@ async function loadDaNodeStatus(){
   const j = await r.json();
   writeJson('da-node-output', j);
 }
+async function loadStorageNodeStatus(){
+  const r = await fetch('/api/0g/storage-node/status?live=1&snapshot=1');
+  const j = await r.json();
+  writeJson('da-node-output', j);
+}
 async function runTelegramDaNodePreview(){
   const r = await fetch('/api/telegram/da-node-preview?live=1');
   const j = await r.json();
@@ -702,6 +707,7 @@ document.getElementById('run-hack-check').addEventListener('click', hackCheck);
 document.getElementById('run-domain-check').addEventListener('click', domainCheck);
 document.getElementById('verify-receipt').addEventListener('click', verifyReceipt);
 document.getElementById('load-da-node-status').addEventListener('click', loadDaNodeStatus);
+document.getElementById('load-storage-node-status').addEventListener('click', loadStorageNodeStatus);
 document.getElementById('run-telegram-da-node-preview').addEventListener('click', runTelegramDaNodePreview);
 document.getElementById('load-node-business').addEventListener('click', loadNodeBusiness);
 document.getElementById('load-alignment-node-status').addEventListener('click', loadAlignmentNodeStatus);

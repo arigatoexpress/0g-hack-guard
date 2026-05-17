@@ -29,6 +29,7 @@ DEFAULT_STORAGE_CHAIN_ID = 16661
 DEFAULT_STORAGE_FLOW_ADDRESS = "0x62d4144db0f0a6fbbaeb6296c785c71b3d57c526"
 DEFAULT_STORAGE_SOCKET = "35.254.123.37:1234"
 DEFAULT_STORAGE_MIN_PEERS = 1
+DEFAULT_STORAGE_STATUS_PATH = "content/rv_0g_storage_soak.local.json"
 
 EVM_ADDRESS_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
 SENSITIVE_KEY_RE = re.compile(r"(private|secret|mnemonic|token|password)", re.IGNORECASE)
@@ -125,12 +126,17 @@ def build_storage_node_status(
     if live:
         reader = status_reader or _read_storage_status
         rpc_status = reader(cfg["rpc"], timeout_seconds)
+        if rpc_status.get("status") == "degraded":
+            rpc_status = _storage_rpc_status_from_file(file_status, cfg) or rpc_status
+    else:
+        rpc_status = _storage_rpc_status_from_file(file_status, cfg) or rpc_status
 
     readiness = _storage_readiness(cfg, rpc_status, file_status)
+    funded_soak = _storage_funded_soak_summary(file_status)
     return {
         "schema": STORAGE_NODE_STATUS_SCHEMA,
         "generatedAt": _utc_now(),
-        "mode": "live_storage_rpc_read_only" if live else "configured_snapshot",
+        "mode": _storage_mode(live=live, rpc_status=rpc_status, file_status=file_status),
         "node": {
             "name": cfg["nodeName"],
             "host": cfg["host"],
@@ -146,19 +152,15 @@ def build_storage_node_status(
                 "expectedChainId": cfg["chainId"],
                 "expectedFlowAddress": cfg["flowAddress"],
                 "minimumConnectedPeers": cfg["minimumPeers"],
-                "noKeyMode": cfg["noKeyMode"],
+                "noKeyMode": readiness["noKeyMode"],
             },
         },
         "storageRpc": rpc_status,
         "fileStatus": file_status,
+        "fundedSoak": funded_soak,
         "readiness": readiness,
         "funding": {
-            "status": "not_ready_for_mainnet_funds" if cfg["noKeyMode"] else "operator_review_required",
-            "mainnetFundingRecommended": False,
-            "reason": (
-                "This storage node is intentionally staged in no-key mode until a soak, exact "
-                "recipient, exact amount, and explicit transaction confirmation are complete."
-            ),
+            **_storage_funding_status(cfg, readiness, funded_soak),
         },
         "yield": {
             "status": "not_inferred_without_official_reward_source",
@@ -342,7 +344,10 @@ def _da_node_config(*, status_file: str | None) -> dict[str, Any]:
 
 
 def _storage_node_config(*, status_file: str | None) -> dict[str, Any]:
-    explicit_status_file = status_file or os.getenv("ZG_STORAGE_NODE_STATUS_PATH", "").strip()
+    explicit_status_file = (
+        status_file
+        or os.getenv("ZG_STORAGE_NODE_STATUS_PATH", "").strip()
+    )
     public_socket = os.getenv("ZG_STORAGE_NODE_PUBLIC_SOCKET", DEFAULT_STORAGE_SOCKET).strip()
     relay_host, relay_port = _split_socket(public_socket, default_port=1234)
     return {
@@ -408,6 +413,9 @@ def _storage_readiness(
     file_status: dict[str, Any] | None,
 ) -> dict[str, Any]:
     blockers: list[str] = []
+    expansion_blockers = _file_expansion_blockers(file_status)
+    funded_soak = _storage_funded_soak_summary(file_status)
+    effective_no_key_mode = cfg["noKeyMode"] and not funded_soak.get("activeMinerKeyPresent")
     if not cfg["publicSocket"]:
         blockers.append("public_socket_missing")
     if rpc_status["status"] == "not_checked":
@@ -423,22 +431,31 @@ def _storage_readiness(
         and rpc_status["connectedPeers"] < cfg["minimumPeers"]
     ):
         blockers.append("insufficient_connected_peers")
+    if expansion_blockers:
+        blockers.extend(blocker for blocker in expansion_blockers if blocker not in blockers)
 
-    if file_status and file_status.get("processStatus") in {"running", "healthy"}:
+    if funded_soak.get("zgsRunning") is True:
+        process_status = "running"
+    elif file_status and file_status.get("processStatus") in {"running", "healthy"}:
         process_status = file_status["processStatus"]
     else:
         process_status = (file_status or {}).get("processStatus", "not_reported")
 
-    status = "ready_for_no_key_soak" if not blockers else "blocked"
+    if funded_soak.get("activeMinerKeyPresent"):
+        status = "funded_soak_expansion_ready" if not blockers else "funded_soak_syncing"
+    else:
+        status = "ready_for_no_key_soak" if not blockers else "blocked"
     return {
         "status": status,
         "blockedBy": blockers,
+        "expansionBlockers": expansion_blockers,
         "processStatus": process_status,
-        "relayReady": bool(cfg["publicSocket"]),
-        "peerReady": "insufficient_connected_peers" not in blockers,
-        "noKeyMode": cfg["noKeyMode"],
+        "relayReady": bool(cfg["publicSocket"]) and "public_storage_tcp_relay_unreachable" not in blockers,
+        "peerReady": not any("peer" in blocker for blocker in blockers),
+        "noKeyMode": effective_no_key_mode,
         "mainnetFundingReady": False,
         "liveFundingRecommended": False,
+        "largeFundingExpansionReady": not expansion_blockers,
     }
 
 
@@ -583,6 +600,127 @@ def _storage_rpc_status_unknown(cfg: dict[str, Any]) -> dict[str, Any]:
         "latencyMs": None,
         "error": None,
     }
+
+
+def _storage_rpc_status_from_file(
+    file_status: dict[str, Any] | None,
+    cfg: dict[str, Any],
+) -> dict[str, Any] | None:
+    if not isinstance(file_status, dict):
+        return None
+    storage_rpc = file_status.get("storageRpc")
+    if not isinstance(storage_rpc, dict):
+        return None
+    identity = storage_rpc.get("networkIdentity") or {}
+    status = storage_rpc.get("status") or "ok"
+    return {
+        "status": status,
+        "rpc": cfg["rpc"],
+        "expectedChainId": cfg["chainId"],
+        "expectedFlowAddress": cfg["flowAddress"],
+        "connectedPeers": storage_rpc.get("connectedPeers"),
+        "logSyncHeight": storage_rpc.get("logSyncHeight"),
+        "logSyncBlock": storage_rpc.get("logSyncBlock"),
+        "nextTxSeq": storage_rpc.get("nextTxSeq"),
+        "networkIdentity": identity,
+        "latencyMs": storage_rpc.get("latencyMs"),
+        "error": storage_rpc.get("error"),
+        "source": "rv_soak_snapshot_file",
+    }
+
+
+def _storage_funded_soak_summary(file_status: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(file_status, dict) or file_status.get("schema") != "0guard.rv_0g_storage_soak_snapshot.v1":
+        return {
+            "status": "not_loaded",
+            "activeMinerKeyPresent": False,
+            "onlyPriorTestFundingObserved": None,
+            "hundredOgTransferSent": None,
+        }
+    funding = file_status.get("funding") or {}
+    health = file_status.get("health") or {}
+    config = file_status.get("config") or {}
+    sync = file_status.get("sync") or {}
+    disk = file_status.get("disk") or {}
+    public_relay = file_status.get("publicRelay") or {}
+    return {
+        "status": "loaded",
+        "snapshotGeneratedAt": file_status.get("generatedAt"),
+        "zgsRunning": health.get("zgsRunning"),
+        "relayTcpOpen": health.get("relayTcpOpen"),
+        "rpcOk": health.get("rpcOk"),
+        "syncGapBlocks": sync.get("syncGapBlocks"),
+        "latestMainnetBlock": sync.get("latestMainnetBlock"),
+        "dbSizeHuman": disk.get("dbSizeHuman"),
+        "activeMinerAddress": funding.get("activeMinerAddress"),
+        "activeMinerBalanceOg": funding.get("activeMinerBalanceOg"),
+        "activeMinerKeyPresent": bool(config.get("minerKeyPresent")),
+        "onlyPriorTestFundingObserved": funding.get("onlyPriorTestFundingObserved"),
+        "hundredOgTransferSent": funding.get("hundredOgTransferSent"),
+        "largeTransferDetected": funding.get("largeTransferDetected"),
+        "expansionReady": health.get("expansionReady"),
+        "expansionBlockers": health.get("expansionBlockers", []),
+        "publicRelay": {
+            "tcp1234": public_relay.get("tcp1234"),
+            "tcp34000": public_relay.get("tcp34000"),
+            "tcp5678": public_relay.get("tcp5678"),
+        },
+    }
+
+
+def _file_expansion_blockers(file_status: dict[str, Any] | None) -> list[str]:
+    if not isinstance(file_status, dict):
+        return []
+    health = file_status.get("health") or {}
+    blockers = health.get("expansionBlockers")
+    return [str(blocker) for blocker in blockers] if isinstance(blockers, list) else []
+
+
+def _storage_funding_status(
+    cfg: dict[str, Any],
+    readiness: dict[str, Any],
+    funded_soak: dict[str, Any],
+) -> dict[str, Any]:
+    if funded_soak.get("status") == "loaded":
+        return {
+            "status": "funded_soak_monitoring_only",
+            "mainnetFundingRecommended": False,
+            "largeFundingExpansionReady": readiness["largeFundingExpansionReady"],
+            "activeMinerAddress": funded_soak.get("activeMinerAddress"),
+            "activeMinerBalanceOg": funded_soak.get("activeMinerBalanceOg"),
+            "onlyPriorTestFundingObserved": funded_soak.get("onlyPriorTestFundingObserved"),
+            "hundredOgTransferSent": funded_soak.get("hundredOgTransferSent"),
+            "reason": (
+                "The node is already in funded mainnet soak with the small test amount. "
+                "Do not add larger funds until sync gap, peer count, relay health, and exact "
+                "recipient review are green."
+            ),
+        }
+    return {
+        "status": "not_ready_for_mainnet_funds" if cfg["noKeyMode"] else "operator_review_required",
+        "mainnetFundingRecommended": False,
+        "largeFundingExpansionReady": False,
+        "reason": (
+            "This storage node stays gated until a soak, exact recipient, exact amount, "
+            "and explicit transaction confirmation are complete."
+        ),
+    }
+
+
+def _storage_mode(
+    *,
+    live: bool,
+    rpc_status: dict[str, Any],
+    file_status: dict[str, Any] | None,
+) -> str:
+    if rpc_status.get("source") == "rv_soak_snapshot_file":
+        return "rv_soak_snapshot_file" if not live else "live_fallback_to_rv_soak_snapshot_file"
+    return "live_storage_rpc_read_only" if live else "configured_snapshot"
+
+
+def _default_storage_status_file() -> str:
+    path = Path(DEFAULT_STORAGE_STATUS_PATH)
+    return str(path) if path.exists() else ""
 
 
 def _load_status_file(raw_path: str) -> dict[str, Any] | None:

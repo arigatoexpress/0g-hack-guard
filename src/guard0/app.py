@@ -29,6 +29,7 @@ from guard0.crosschain import (
     virtuals_facilitator_manifest,
 )
 from guard0.da_node import (
+    DEFAULT_STORAGE_STATUS_PATH,
     build_da_node_status,
     build_storage_node_status,
     build_telegram_da_node_preview,
@@ -204,6 +205,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#verify-receipt-hash",
     "#verify-receipt",
     "#load-da-node-status",
+    "#load-storage-node-status",
     "#run-telegram-da-node-preview",
     "#load-node-business",
     "#load-alignment-node-status",
@@ -944,6 +946,7 @@ def api_frontend_contract():
                 "run-wallet-alert-preview",
                 "run-telegram-wallet-alert-preview",
                 "load-da-node-status",
+                "load-storage-node-status",
                 "run-telegram-da-node-preview",
                 "load-node-business",
                 "load-alignment-node-status",
@@ -1978,7 +1981,11 @@ def api_0g_da_node_status():
 
 @app.route("/api/0g/storage-node/status", methods=["GET"])
 def api_0g_storage_node_status():
-    return jsonify(build_storage_node_status(live=_truthy_query_arg("live")))
+    status_file = DEFAULT_STORAGE_STATUS_PATH if _truthy_query_arg("snapshot") else None
+    live = _truthy_query_arg("live")
+    if status_file:
+        return jsonify(build_storage_node_status(live=live, status_file=status_file))
+    return jsonify(build_storage_node_status(live=live))
 
 
 @app.route("/api/0g/alignment-node/status", methods=["GET"])
