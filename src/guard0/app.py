@@ -68,6 +68,12 @@ from guard0.incident_data import detection_coverage, filter_incidents, incident_
 from guard0.ika import evaluate_ika_signing_request, ika_integration_manifest
 from guard0.intelligence_events import intelligence_events_snapshot
 from guard0.live_detector_candidates import live_detector_candidates
+from guard0.local_inference import (
+    build_historical_backfill_plan,
+    build_local_inference_mesh,
+    build_telegram_local_inference_preview,
+    build_x402_data_products,
+)
 from guard0.mira import build_mira_claim_preview, build_mira_security_preview
 from guard0.native_preflight import build_native_preflight, hackathon_strategy
 from guard0.osint import (
@@ -170,6 +176,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-live-provenance",
     "#load-detection-coverage",
     "#load-signature-map",
+    "#load-historical-backfill-plan",
     "#load-osint-sources",
     "#load-osint-readiness",
     "#load-osint-signals",
@@ -183,6 +190,7 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-submission-packet",
     "#load-submission-readiness",
     "#load-threat-passport",
+    "#load-x402-data-products",
     "#load-cross-chain-catalog",
     "#load-cross-chain-readiness",
     "#load-arbitrum-integration",
@@ -212,6 +220,8 @@ FRONTEND_REQUIRED_SELECTORS = (
     "#load-alignment-node-status",
     "#load-validator-capacity",
     "#load-private-computer",
+    "#load-local-inference",
+    "#run-telegram-local-inference-preview",
     "#load-hot-wallet-resources",
     "#load-peer-protection",
     "#run-peer-outreach-preview",
@@ -833,10 +843,13 @@ def api_frontend_contract():
                 "Domain Guard",
                 "0G Node Ops",
                 "0G AI Stack",
+                "Local Inference",
                 "Hot Wallet Plan",
                 "Peer Protection",
                 "Pi Mesh",
                 "Data Flow",
+                "Backfill plan",
+                "x402 products",
                 "Telegram Mira Opt-In",
                 "Mira Telegram Preview",
                 "Wallet Alert Preview",
@@ -857,6 +870,8 @@ def api_frontend_contract():
                 "/api/0g/validator-capacity",
                 "/api/0g/node-business",
                 "/api/0g/private-computer",
+                "/api/local-inference/status",
+                "/api/telegram/local-inference-preview",
                 "/api/0g/hot-wallet-resources",
                 "/api/0g/peer-protection",
                 "/api/0g/pi-mesh",
@@ -868,11 +883,13 @@ def api_frontend_contract():
                 "/api/data/provenance",
                 "/api/data/detection-coverage",
                 "/api/data/signature-map",
+                "/api/data/backfill-plan",
                 "/api/osint/sources",
                 "/api/osint/readiness",
                 "/api/osint/signals",
                 "/api/intelligence/evolving",
                 "/api/intelligence/data-streams",
+                "/api/x402/data-products",
                 "/api/intelligence/events",
                 "/api/intelligence/detector-candidates",
                 "/api/product/brief",
@@ -947,6 +964,7 @@ def api_frontend_contract():
                 "load-live-provenance",
                 "load-detection-coverage",
                 "load-signature-map",
+                "load-historical-backfill-plan",
                 "load-osint-sources",
                 "load-osint-readiness",
                 "load-osint-signals",
@@ -961,6 +979,7 @@ def api_frontend_contract():
                 "load-submission-packet",
                 "load-submission-readiness",
                 "load-threat-passport",
+                "load-x402-data-products",
                 "load-cross-chain-catalog",
                 "load-cross-chain-readiness",
                 "load-arbitrum-integration",
@@ -985,6 +1004,8 @@ def api_frontend_contract():
                 "load-alignment-node-status",
                 "load-validator-capacity",
                 "load-private-computer",
+                "load-local-inference",
+                "run-telegram-local-inference-preview",
                 "load-hot-wallet-resources",
                 "load-peer-protection",
                 "run-peer-outreach-preview",
@@ -1053,6 +1074,11 @@ def api_data_signature_map():
     return jsonify(signature_map())
 
 
+@app.route("/api/data/backfill-plan", methods=["GET"])
+def api_data_backfill_plan():
+    return jsonify(build_historical_backfill_plan())
+
+
 @app.route("/api/osint/sources", methods=["GET"])
 def api_osint_sources():
     return jsonify(source_registry_public())
@@ -1093,6 +1119,11 @@ def api_evolving_threat_intelligence():
 @app.route("/api/intelligence/data-streams", methods=["GET"])
 def api_intelligence_data_streams():
     return jsonify(intelligence_stream_plan())
+
+
+@app.route("/api/x402/data-products", methods=["GET"])
+def api_x402_data_products():
+    return jsonify(build_x402_data_products())
 
 
 @app.route("/api/intelligence/events", methods=["GET"])
@@ -1975,6 +2006,9 @@ def api_health():
             "0g_storage_node_status": build_storage_node_status(live=False),
             "0g_node_business": build_0g_node_business_plan(live=False),
             "0g_private_computer": build_0g_private_computer_integration(),
+            "local_inference_mesh": build_local_inference_mesh(live=False),
+            "x402_data_products": build_x402_data_products(),
+            "historical_backfill_plan": build_historical_backfill_plan(),
             "0g_hot_wallet_resources": build_0g_hot_wallet_resources(),
             "peer_protection": build_peer_protection_plan(live=False),
             "pi_mesh": build_pi_mesh_plan(),
@@ -2041,6 +2075,32 @@ def api_0g_node_business():
 @app.route("/api/0g/private-computer", methods=["GET"])
 def api_0g_private_computer():
     return jsonify(build_0g_private_computer_integration(live=_truthy_query_arg("live")))
+
+
+@app.route("/api/local-inference/status", methods=["GET"])
+def api_local_inference_status():
+    return jsonify(build_local_inference_mesh(live=_truthy_query_arg("live")))
+
+
+@app.route("/api/telegram/local-inference-preview", methods=["GET", "POST"])
+def api_telegram_local_inference_preview():
+    body = (request.get_json(silent=True) or {}) if request.method == "POST" else {}
+    record_id = body.get("record_id")
+    record = _TELEGRAM_OPT_IN_RECORDS.get(record_id) if record_id else None
+    if record_id and not record:
+        return jsonify({"error": "Unknown or inactive Telegram opt-in record"}), 403
+
+    live = (
+        _truthy_value(body.get("live", False))
+        if request.method == "POST"
+        else _truthy_query_arg("live")
+    )
+    mesh = (
+        body["mesh"]
+        if isinstance(body.get("mesh"), dict)
+        else build_local_inference_mesh(live=live)
+    )
+    return jsonify(build_telegram_local_inference_preview(mesh, opt_in_record=record))
 
 
 @app.route("/api/0g/hot-wallet-resources", methods=["GET"])

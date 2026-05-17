@@ -60,6 +60,29 @@ def intelligence_stream_plan() -> dict[str, Any]:
         },
         {
             "rank": 3,
+            "id": "x402_paid_defensive_artifacts",
+            "name": "x402 access for derived ZeroGuard data products",
+            "cost": "testnet_first_mainnet_later",
+            "sources": [
+                "https://docs.cdp.coinbase.com/x402/welcome",
+                "https://docs.cdp.coinbase.com/x402/network-support",
+                "https://docs.cdp.coinbase.com/x402/bazaar",
+                "https://www.x402.org/",
+            ],
+            "whyItMatters": (
+                "Turns ZeroGuard from a demo into a paid machine-readable safety layer for "
+                "agents, wallets, and Telegram bots without accounts or raw-feed resale."
+            ),
+            "integrationShape": (
+                "Expose wallet preflight verdicts, threat packets, node-health snapshots, "
+                "and historical incident features as x402-gated derived artifacts."
+            ),
+            "rightsEnvelope": "Payment unlocks derived ZeroGuard outputs only; raw upstream payload resale stays disabled.",
+            "status": "product_manifest_live_settlement_disabled",
+            "buildPhase": "phase_1",
+        },
+        {
+            "rank": 4,
             "id": "forta_attack_labels_digest",
             "name": "Forta attack detector and labelled datasets",
             "cost": "public_labels_plus_possible_subscription",
@@ -76,7 +99,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_1",
         },
         {
-            "rank": 4,
+            "rank": 5,
             "id": "evm_simulation_adapter",
             "name": "Tenderly or BlockSec transaction simulation",
             "cost": "free_tier_or_paid_developer_plan",
@@ -91,7 +114,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_2",
         },
         {
-            "rank": 5,
+            "rank": 6,
             "id": "ton_telegram_risk_passport",
             "name": "TON Center / TONAPI read-only activity for Telegram wallets",
             "cost": "free_or_affordable_keyed_infra",
@@ -109,7 +132,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_2",
         },
         {
-            "rank": 6,
+            "rank": 7,
             "id": "solana_read_only_risk",
             "name": "Helius enhanced transactions and webhooks",
             "cost": "free_tier_then_paid_if_usage_grows",
@@ -124,7 +147,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_2",
         },
         {
-            "rank": 7,
+            "rank": 8,
             "id": "cross_chain_message_monitors",
             "name": "LayerZero Scan and Wormholescan APIs",
             "cost": "public_api",
@@ -139,7 +162,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_2",
         },
         {
-            "rank": 8,
+            "rank": 9,
             "id": "hyperliquid_read_only_exposure",
             "name": "Hyperliquid Info/WebSocket API",
             "cost": "official_free_read_api",
@@ -154,7 +177,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "buildPhase": "phase_3",
         },
         {
-            "rank": 9,
+            "rank": 10,
             "id": "multi_chain_feature_store",
             "name": "Dune, Allium, or Bitquery",
             "cost": "trial_then_paid_subscription",
@@ -179,6 +202,7 @@ def intelligence_stream_plan() -> dict[str, Any]:
             "Stay on PhishDestroy, CryptoScamDB, and Forta labelled datasets until live freshness or coverage proves insufficient.",
             "GoPlus key or plan only after open-source feeds cannot cover token, approval, or dApp safety needs.",
             "Chainabuse API if human report counts materially improve alert quality.",
+            "x402 settlement only after dry-run route schemas, spend limits, and testnet facilitator proof are complete.",
             "Tenderly or BlockSec simulation once reputation adapters are feeding live product flows.",
         ],
         "rightsPolicy": {
