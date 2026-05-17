@@ -59,6 +59,7 @@ format accepted by 0G Chain Scan.
 | 0G Chain receipt anchor | Live on mainnet | `docs/hackathon-0g/mainnet-proof.json` |
 | 0G Storage receipts | Storage-ready, not auto-uploaded | `zero_g.storage_receipt.root_hash` from `/api/evaluate` |
 | 0G node telemetry | Live read-only routes, no funding action | `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business` |
+| RV funded storage soak | Local snapshot collector, funding expansion blocked | `scripts/rv_0g_storage_soak_snapshot.py`, `/api/0g/storage-node/status?snapshot=1` |
 | 0G Private Computer | Adapter-ready manifest, no paid inference | `/api/0g/private-computer` |
 | Peer protection and Pi mesh | Live no-send/no-broadcast previews | `/api/0g/peer-protection`, `/api/peer/outreach-preview`, `/api/0g/pi-mesh` |
 | 0G Compute | Router/direct setup path documented, not claimed live | Stated in `docs/hackathon-0g/mainnet-gap-register.md` |
@@ -237,6 +238,7 @@ python3 -m guard0.cli proof-ladder \
 | `docs/hackathon-0g/mainnet-gap-register.md` | Honest live-vs-planned status for Chain, Storage, Compute, Telegram, and mainnet operations. |
 | `docs/hackathon-0g/assets/README.md` | Public media registry. Submitted video assets are archived behind proof links, not used as the main proof. |
 | `docs/0G_PRIVATE_COMPUTE_AND_HOT_WALLET_RUNBOOK.md` | Operator-gated setup path for Router deposits, API keys, and hot-wallet roles; no spend or key exposure. |
+| `docs/RV_0G_STORAGE_SOAK_OPERATIONS.md` | Read-only RV storage soak collector and expansion blocker runbook; no signing, sends, or fund movement. |
 | `docs/LEGAL_AND_ASSET_POLICY.md` | Source rights, generated media, and raw-payload safety policy. |
 
 ## Telegram Mira Preview

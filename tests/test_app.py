@@ -223,6 +223,7 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#run-external-guardrail-check" in data["requiredSelectors"]
     assert "#cross-chain-output" in data["requiredSelectors"]
     assert "#load-da-node-status" in data["requiredSelectors"]
+    assert "#load-storage-node-status" in data["requiredSelectors"]
     assert "#run-telegram-da-node-preview" in data["requiredSelectors"]
     assert "#load-node-business" in data["requiredSelectors"]
     assert "#load-alignment-node-status" in data["requiredSelectors"]
