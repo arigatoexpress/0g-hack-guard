@@ -1122,6 +1122,31 @@ def test_telegram_mira_status_is_preview_only(client):
     assert data["telegramSendsEnabled"] is False
 
 
+def test_telegram_status_live_can_report_bot_identity_without_sends(monkeypatch, client):
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:fake")
+
+    monkeypatch.setattr(app_module, "_telegram_webhook_info", lambda: {"url_set": False})
+    monkeypatch.setattr(
+        app_module,
+        "_telegram_bot_identity",
+        lambda: {
+            "status": "ok",
+            "username": "zeroguard_bot",
+            "canJoinGroups": True,
+        },
+    )
+
+    r = client.get("/api/telegram/status?live=1")
+    data = r.get_json()
+
+    assert r.status_code == 200
+    assert data["liveReadback"] is True
+    assert data["botApiIdentity"]["status"] == "ok"
+    assert data["botApiIdentity"]["username"] == "zeroguard_bot"
+    assert data["telegramSendsEnabled"] is False
+    assert data["safety"]["telegramSendsEnabled"] is False
+
+
 def test_telegram_miniapp_session_allows_browser_preview_without_sends(client):
     r = client.post("/api/telegram/miniapp/session", json={})
     assert r.status_code == 200
@@ -2012,6 +2037,56 @@ def test_telegram_post_cli_text_dry_run_does_not_require_credentials():
     )
     assert result.returncode == 0
     assert "[DRY RUN] Would post 1 message to Telegram" in result.stdout
+
+
+def test_pi_mesh_route_can_ingest_snapshot(monkeypatch, tmp_path, client):
+    snapshot_path = tmp_path / "rv_pi_mesh.local.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "schema": "0guard.rv_pi_mesh_snapshot.v1",
+                "generatedAt": "2026-05-17T13:30:00+00:00",
+                "nodes": {
+                    "rvpi-a": {
+                        "status": "online",
+                        "wifiIpv4": "192.168.1.111",
+                        "ethernetIpv4": "10.77.4.11",
+                        "eth0": {"carrier": True},
+                    },
+                    "rvpi-b": {
+                        "status": "ethernet_ssh_reachable_identity_unverified",
+                        "ethernetIpv4": "10.77.4.12",
+                        "identityVerified": False,
+                    },
+                },
+                "cluster": {
+                    "primaryReachable": True,
+                    "ethernetCarrierReady": True,
+                    "peerEthernetReachable": True,
+                    "peerIdentityVerified": False,
+                    "edgeApiReady": True,
+                    "clusterReady": False,
+                    "blockers": ["rvpi_b_identity_unverified"],
+                },
+                "safety": {
+                    "readOnly": True,
+                    "privateKeysReturned": False,
+                    "telegramSendsEnabled": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(app_module, "DEFAULT_PI_MESH_STATUS_PATH", str(snapshot_path))
+
+    r = client.get("/api/0g/pi-mesh?snapshot=1")
+    data = r.get_json()
+
+    assert r.status_code == 200
+    assert data["mode"] == "rv_pi_mesh_snapshot_file"
+    assert data["readiness"]["peerEthernetReachable"] is True
+    assert data["readiness"]["peerIdentityVerified"] is False
+    assert data["safety"]["telegramSendsEnabled"] is False
 
 
 def test_x_auto_post_workflow_is_manual_and_dry_run_by_default():

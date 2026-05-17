@@ -347,7 +347,7 @@ async function runPeerOutreachPreview(){
   writeJson('da-node-output', j);
 }
 async function loadPiMesh(){
-  const r = await fetch('/api/0g/pi-mesh');
+  const r = await fetch('/api/0g/pi-mesh?snapshot=1');
   const j = await r.json();
   writeJson('da-node-output', j);
 }

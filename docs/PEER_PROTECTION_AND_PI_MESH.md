@@ -18,9 +18,10 @@ product is "we turn node operation into a proof-backed safety layer for peers."
 - Use 0GM-1.0 through 0G Private Computer once an API key and prompt-minimizing
   policy are configured.
 - Use `rvpi-a` as a lightweight watcher and evidence cache. It is reachable at
-  `rvpi-a.local` on Wi-Fi; `eth0` was still down before the Ethernet cable was
-  connected.
-- Keep `rvpi-b` as the paired cache/standby role once it is online.
+  `rvpi-a.local` on Wi-Fi and now has Ethernet carrier at `10.77.4.11/24`.
+- Keep `rvpi-b` as the paired cache/standby role once it proves identity. The
+  cable path currently reaches `10.77.4.12:22`, but the edge API is not running
+  and the Ari SSH key is not authorized there yet.
 
 ## Safety Boundary
 
@@ -60,8 +61,13 @@ Sources:
 
 Staged path on `rvpi-a`:
 
+- `./scripts/rv_pi_mesh_snapshot.py --out content/rv_pi_mesh.local.json`
 - `~/zeroguard-pi-sentinel/pi_sentinel.py`
 - `~/zeroguard-pi-sentinel/state/heartbeat.json`
+
+The workbench reads the local snapshot through:
+
+- `/api/0g/pi-mesh?snapshot=1`
 
 `rvpi-b` should become the proof cache:
 
@@ -83,3 +89,17 @@ the right job for them.
 These are designed as product surfaces first: they are useful to a dashboard,
 Telegram digest preview, future CLI sender, or external operator portal without
 opening live side effects.
+
+## Current Live Snapshot Contract
+
+`scripts/rv_pi_mesh_snapshot.py` performs only read-only checks:
+
+- local HTTP health check against `rvpi-a.local:8765`;
+- SSH readbacks from `rvpi-a` for `ip -j addr`, `ip -j link`, service state,
+  `ari-status`, and `ari-peer-check`;
+- TCP probes from `rvpi-a` to `rvpi-b` on `10.77.4.12`.
+
+It writes `content/rv_pi_mesh.local.json`, which is ignored by git. A partial
+cluster is still valuable: ZeroGuard can use `rvpi-a` for telemetry and evidence
+cache work now, while keeping `rvpi-b` blocked until identity and edge runtime
+are verified.

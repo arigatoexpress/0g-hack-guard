@@ -61,7 +61,7 @@ format accepted by 0G Chain Scan.
 | 0G node telemetry | Live read-only routes, no funding action | `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business` |
 | RV funded storage soak | Local snapshot collector, funding expansion blocked | `scripts/rv_0g_storage_soak_snapshot.py`, `/api/0g/storage-node/status?snapshot=1` |
 | 0G Private Computer | Adapter-ready manifest, no paid inference | `/api/0g/private-computer` |
-| Peer protection and Pi mesh | Live no-send/no-broadcast previews | `/api/0g/peer-protection`, `/api/peer/outreach-preview`, `/api/0g/pi-mesh` |
+| Peer protection and Pi mesh | Live no-send/no-broadcast previews plus RV Pi Ethernet snapshot ingest | `scripts/rv_pi_mesh_snapshot.py`, `/api/0g/pi-mesh?snapshot=1`, `/api/0g/peer-protection`, `/api/peer/outreach-preview` |
 | 0G Compute | Router/direct setup path documented, not claimed live | Stated in `docs/hackathon-0g/mainnet-gap-register.md` |
 | Reputation layer | Live derived normalizer and shadow cache | `/api/reputation/*` routes |
 | Telegram Mini App | Live preview, no outbound sends | `/telegram`, `/api/telegram/miniapp/preview` |
@@ -263,6 +263,34 @@ curl -s -X POST http://127.0.0.1:8109/api/telegram/wallet-alert-preview \
 curl -s 'http://127.0.0.1:8109/api/telegram/da-node-preview?live=1' \
   | python3 -m json.tool
 ```
+
+Telegram bot health is split from message delivery. The CLI dry-run path never
+needs credentials; the read-only health path calls Bot API `getMe` only after
+the exact live confirmation flag and does not require `TELEGRAM_CHAT_ID` because
+it sends nothing:
+
+```bash
+python scripts/telegram_post.py --text "ZeroGuard dry run" --dry-run
+python scripts/telegram_post.py --health \
+  --live-send-confirm SEND_TO_TELEGRAM_FROM_0GUARD
+curl -s 'http://127.0.0.1:8109/api/telegram/status?live=1' | python3 -m json.tool
+```
+
+## RV Pi Mesh Snapshot
+
+The two Raspberry Pis are treated as edge sentinels, not key holders. After the
+Ethernet cable is connected, refresh the public-safe snapshot:
+
+```bash
+./scripts/rv_pi_mesh_snapshot.py --out content/rv_pi_mesh.local.json
+curl -s 'http://127.0.0.1:8109/api/0g/pi-mesh?snapshot=1' | python3 -m json.tool
+```
+
+The current expected partial-ready state is:
+
+- `rvpi-a` online on Wi-Fi plus Ethernet, with `eth0` carrier and the edge API active.
+- `rvpi-b` reachable over Ethernet on `10.77.4.12:22`, but identity/runtime not yet verified.
+- no private keys, wallet signatures, Telegram sends, or service mutations from the workbench.
 
 For a real Telegram Mini App, send `window.Telegram.WebApp.initData` to
 `/api/telegram/webapp/verify`; the backend validates Telegram's signed init
