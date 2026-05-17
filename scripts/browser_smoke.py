@@ -139,6 +139,9 @@ def exercise_workbench(page: Page) -> None:
         '"telegramSendsEnabled": false'
     )
     expect(page.locator("body")).to_contain_text("Wallet Alert Preview")
+    expect(page.locator("body")).to_contain_text("Local Inference")
+    expect(page.locator("body")).to_contain_text("Backfill plan")
+    expect(page.locator("body")).to_contain_text("x402 products")
 
     page.locator("#load-deny-sample").click()
     page.locator("#run-evaluate").click()
@@ -189,6 +192,11 @@ def exercise_workbench(page: Page) -> None:
     page.locator("#load-signature-map").click()
     expect(page.locator("#data-flow-output")).to_contain_text("0guard.signature_map.v1")
     expect(page.locator("#data-flow-output")).to_contain_text('"gapCount"')
+    page.locator("#load-historical-backfill-plan").click()
+    expect(page.locator("#data-flow-output")).to_contain_text(
+        "0guard.historical_backfill_plan.v1"
+    )
+    expect(page.locator("#data-flow-output")).to_contain_text('"rawPayloadsReturned": false')
 
     page.locator("#load-osint-readiness").click()
     expect(page.locator("#osint-output")).to_contain_text("0guard.osint_readiness.v1")
@@ -198,6 +206,9 @@ def exercise_workbench(page: Page) -> None:
         "0guard.evolving_threat_intelligence.v1"
     )
     expect(page.locator("#osint-output")).to_contain_text("preview_no_send_read_only")
+    page.locator("#load-x402-data-products").click()
+    expect(page.locator("#osint-output")).to_contain_text("0guard.x402_data_products.v1")
+    expect(page.locator("#osint-output")).to_contain_text('"x402SettlementEnabled": false')
     page.locator("#load-product-brief").click()
     expect(page.locator("#osint-output")).to_contain_text("0guard.product_brief.v1")
     page.locator("#load-production-readiness").click()
@@ -324,6 +335,10 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/data/provenance" in frontend_body["apiRoutes"]
     assert "/api/osint/sources" in frontend_body["apiRoutes"]
     assert "/api/intelligence/evolving" in frontend_body["apiRoutes"]
+    assert "/api/local-inference/status" in frontend_body["apiRoutes"]
+    assert "/api/telegram/local-inference-preview" in frontend_body["apiRoutes"]
+    assert "/api/data/backfill-plan" in frontend_body["apiRoutes"]
+    assert "/api/x402/data-products" in frontend_body["apiRoutes"]
     assert "/api/product/brief" in frontend_body["apiRoutes"]
     assert "/api/readyz" in frontend_body["apiRoutes"]
     assert "/api/wallet/alert-preview" in frontend_body["apiRoutes"]
@@ -346,6 +361,10 @@ def exercise_workbench(page: Page) -> None:
     assert "/api/telegram/wallet-alert-preview" in frontend_body["apiRoutes"]
     assert "#provenance-summary" in frontend_body["requiredSelectors"]
     assert "#load-evolving-intel" in frontend_body["requiredSelectors"]
+    assert "#load-local-inference" in frontend_body["requiredSelectors"]
+    assert "#run-telegram-local-inference-preview" in frontend_body["requiredSelectors"]
+    assert "#load-historical-backfill-plan" in frontend_body["requiredSelectors"]
+    assert "#load-x402-data-products" in frontend_body["requiredSelectors"]
     assert "#load-live-provenance" in frontend_body["requiredSelectors"]
     assert "#load-product-brief" in frontend_body["requiredSelectors"]
     assert "#load-production-readiness" in frontend_body["requiredSelectors"]
@@ -421,6 +440,31 @@ def exercise_workbench(page: Page) -> None:
     assert readiness_body["schema"] == "0guard.osint_readiness.v1"
     assert readiness_body["live"] is False
     assert readiness_body["safety"]["readOnly"] is True
+
+    local_inference = page.request.get(f"{BASE_URL}/api/local-inference/status")
+    assert local_inference.ok
+    local_inference_body = local_inference.json()
+    assert local_inference_body["schema"] == "0guard.local_inference_mesh.v1"
+    assert local_inference_body["safety"]["promptExecutionEnabled"] is False
+    assert local_inference_body["safety"]["telegramSendsEnabled"] is False
+
+    local_digest = page.request.get(f"{BASE_URL}/api/telegram/local-inference-preview")
+    assert local_digest.ok
+    local_digest_body = local_digest.json()
+    assert local_digest_body["schema"] == "0guard.telegram_local_inference_preview.v1"
+    assert local_digest_body["telegram_send"] is False
+
+    backfill = page.request.get(f"{BASE_URL}/api/data/backfill-plan")
+    assert backfill.ok
+    backfill_body = backfill.json()
+    assert backfill_body["schema"] == "0guard.historical_backfill_plan.v1"
+    assert backfill_body["safety"]["rawPayloadsReturned"] is False
+
+    x402_products = page.request.get(f"{BASE_URL}/api/x402/data-products")
+    assert x402_products.ok
+    x402_body = x402_products.json()
+    assert x402_body["schema"] == "0guard.x402_data_products.v1"
+    assert x402_body["safety"]["x402SettlementEnabled"] is False
 
     frontier = page.request.get(f"{BASE_URL}/api/experiments/frontier")
     assert frontier.ok

@@ -308,6 +308,16 @@ async function loadPrivateComputer(){
   const j = await r.json();
   writeJson('da-node-output', j);
 }
+async function loadLocalInference(){
+  const r = await fetch('/api/local-inference/status?live=1');
+  const j = await r.json();
+  writeJson('da-node-output', j);
+}
+async function runTelegramLocalInferencePreview(){
+  const r = await fetch('/api/telegram/local-inference-preview?live=1');
+  const j = await r.json();
+  writeJson('da-node-output', j);
+}
 async function loadHotWalletResources(){
   const r = await fetch('/api/0g/hot-wallet-resources');
   const j = await r.json();
@@ -389,6 +399,11 @@ async function loadSignatureMap(){
   const j = await r.json();
   writeJson('data-flow-output', j);
 }
+async function loadHistoricalBackfillPlan(){
+  const r = await fetch('/api/data/backfill-plan');
+  const j = await r.json();
+  writeJson('data-flow-output', j);
+}
 async function loadOsintSources(){
   const r = await fetch('/api/osint/sources');
   const j = await r.json();
@@ -416,6 +431,11 @@ async function loadEvolvingIntel(){
 }
 async function loadIntelligenceStreamPlan(){
   const r = await fetch('/api/intelligence/data-streams');
+  const j = await r.json();
+  writeJson('osint-output', j);
+}
+async function loadX402DataProducts(){
+  const r = await fetch('/api/x402/data-products');
   const j = await r.json();
   writeJson('osint-output', j);
 }
@@ -713,6 +733,8 @@ document.getElementById('load-node-business').addEventListener('click', loadNode
 document.getElementById('load-alignment-node-status').addEventListener('click', loadAlignmentNodeStatus);
 document.getElementById('load-validator-capacity').addEventListener('click', loadValidatorCapacity);
 document.getElementById('load-private-computer').addEventListener('click', loadPrivateComputer);
+document.getElementById('load-local-inference').addEventListener('click', loadLocalInference);
+document.getElementById('run-telegram-local-inference-preview').addEventListener('click', runTelegramLocalInferencePreview);
 document.getElementById('load-hot-wallet-resources').addEventListener('click', loadHotWalletResources);
 document.getElementById('load-peer-protection').addEventListener('click', loadPeerProtection);
 document.getElementById('run-peer-outreach-preview').addEventListener('click', runPeerOutreachPreview);
@@ -723,6 +745,7 @@ document.getElementById('load-provenance-matrix').addEventListener('click', load
 document.getElementById('load-live-provenance').addEventListener('click', loadLiveProvenanceMatrix);
 document.getElementById('load-detection-coverage').addEventListener('click', loadDetectionCoverage);
 document.getElementById('load-signature-map').addEventListener('click', loadSignatureMap);
+document.getElementById('load-historical-backfill-plan').addEventListener('click', loadHistoricalBackfillPlan);
 document.getElementById('run-threat-case-file').addEventListener('click', runThreatCaseFile);
 document.getElementById('load-osint-sources').addEventListener('click', loadOsintSources);
 document.getElementById('load-osint-readiness').addEventListener('click', loadOsintReadiness);
@@ -730,6 +753,7 @@ document.getElementById('load-osint-signals').addEventListener('click', loadOsin
 document.getElementById('load-phishdestroy-worker').addEventListener('click', loadPhishDestroyWorker);
 document.getElementById('load-evolving-intel').addEventListener('click', loadEvolvingIntel);
 document.getElementById('load-intelligence-stream-plan').addEventListener('click', loadIntelligenceStreamPlan);
+document.getElementById('load-x402-data-products').addEventListener('click', loadX402DataProducts);
 document.getElementById('load-intelligence-events').addEventListener('click', loadIntelligenceEvents);
 document.getElementById('load-detector-candidates').addEventListener('click', loadDetectorCandidates);
 document.getElementById('load-product-brief').addEventListener('click', loadProductBrief);

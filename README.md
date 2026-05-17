@@ -61,7 +61,10 @@ format accepted by 0G Chain Scan.
 | 0G node telemetry | Live read-only routes, no funding action | `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business` |
 | RV funded storage soak | Local snapshot collector, funding expansion blocked | `scripts/rv_0g_storage_soak_snapshot.py`, `/api/0g/storage-node/status?snapshot=1` |
 | 0G Private Computer | Adapter-ready manifest, no paid inference | `/api/0g/private-computer` |
+| Local Windows/Pi inference mesh | Read-only live status, no prompt execution | `/api/local-inference/status?live=1`, `/api/telegram/local-inference-preview` |
 | Peer protection and Pi mesh | Live no-send/no-broadcast previews plus RV Pi Ethernet snapshot ingest | `scripts/rv_pi_mesh_snapshot.py`, `/api/0g/pi-mesh?snapshot=1`, `/api/0g/peer-protection`, `/api/peer/outreach-preview` |
+| x402 data products | Rights-cleared product manifest, no settlement | `/api/x402/data-products` |
+| Historical backfill | Durable data plan, no live fetch | `/api/data/backfill-plan` |
 | 0G Compute | Router/direct setup path documented, not claimed live | Stated in `docs/hackathon-0g/mainnet-gap-register.md` |
 | Reputation layer | Live derived normalizer and shadow cache | `/api/reputation/*` routes |
 | Telegram Mini App | Live preview, no outbound sends | `/telegram`, `/api/telegram/miniapp/preview` |
@@ -83,6 +86,7 @@ be formed before a human sees a wallet prompt.
 | **0G DA** | Read-only DA node telemetry for the dedicated Windows node: public relay socket, signer/miner balances, readiness blockers, and Telegram digest previews. | Agentic Infrastructure |
 | **0G Node Ops** | Alignment license readiness, validator capacity, storage economics, and operator business surfaces for node monitoring and proof receipts; no registration, staking, or funding from the workbench. | Agentic Infrastructure |
 | **0G Private Computer / 0GM-1.0** | OpenAI-compatible manifest for 0GM-1.0 sealed inference and TEE-aware risk explanations; ZeroGuard uses it for explanation/draft review only, not policy authority. | Agentic Infrastructure |
+| **Local edge inference** | Windows is the future local model host; Raspberry Pis are sentinels/proof caches that feed Telegram-safe digests without holding keys. | Agentic Infrastructure |
 | **0G Compute** (Inference) | Planned 0G Compute scoring adapter; current demo uses deterministic policy/signature checks and a no-call 0GM manifest. | Agentic Infrastructure |
 | **Agent ID** (ERC-7857) | Every evaluation is tagged with a persistent agent identity for accountability. | Agentic Economy |
 
@@ -179,11 +183,15 @@ curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/0g/da-node/status?live=1' | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/0g/storage-node/status?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/0g/private-computer | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/local-inference/status?live=1' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/telegram/local-inference-preview?live=1' | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/0g/node-business' | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000000000000000000000000000000000000000000000000' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
 curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/backfill-plan | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/x402/data-products | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/reputation/shadow-cache | python3 -m json.tool
@@ -218,8 +226,9 @@ python3 -m guard0.cli proof-ladder \
 | Runtime | `/api/health`, `/api/healthz`, `/api/readyz`, `/api/product/brief` |
 | Policy | `/api/evaluate`, `/api/hack-check`, `/api/native-preflight` |
 | 0G | `/api/0g/status`, `/api/0g/receipt`, `/api/0g/proof-ladder`, `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business`, `/api/0g/private-computer`, `/api/0g/hot-wallet-resources`, `/api/0g/peer-protection`, `/api/0g/pi-mesh` |
-| Data | `/api/data/summary`, `/api/data/incidents`, `/api/data/provenance`, `/api/data/detection-coverage`, `/api/data/signature-map` |
-| OSINT | `/api/osint/sources`, `/api/osint/readiness`, `/api/osint/signals`, `/api/intelligence/*` |
+| Local inference | `/api/local-inference/status`, `/api/telegram/local-inference-preview` |
+| Data | `/api/data/summary`, `/api/data/incidents`, `/api/data/provenance`, `/api/data/detection-coverage`, `/api/data/signature-map`, `/api/data/backfill-plan` |
+| OSINT and x402 | `/api/osint/sources`, `/api/osint/readiness`, `/api/osint/signals`, `/api/intelligence/*`, `/api/x402/data-products` |
 | Reputation | `/api/reputation/probe`, `/api/reputation/connectors`, `/api/reputation/adapters`, `/api/reputation/shadow-cache` |
 | Telegram/Mira | `/telegram`, `/api/telegram/*`, `/api/mira/claim-preview` |
 | Integrations | `/api/integrations/cross-chain`, `/api/integrations/metamask`, `/api/integrations/arbitrum`, `/api/integrations/ika`, `/api/integrations/external-guardrails` |
@@ -239,6 +248,7 @@ python3 -m guard0.cli proof-ladder \
 | `docs/hackathon-0g/assets/README.md` | Public media registry. Submitted video assets are archived behind proof links, not used as the main proof. |
 | `docs/0G_PRIVATE_COMPUTE_AND_HOT_WALLET_RUNBOOK.md` | Operator-gated setup path for Router deposits, API keys, and hot-wallet roles; no spend or key exposure. |
 | `docs/RV_0G_STORAGE_SOAK_OPERATIONS.md` | Read-only RV storage soak collector and expansion blocker runbook; no signing, sends, or fund movement. |
+| `docs/LOCAL_INFERENCE_X402_BACKFILL.md` | Windows/Pi inference bridge, Telegram preview, x402 product, and historical backfill plan. |
 | `docs/LEGAL_AND_ASSET_POLICY.md` | Source rights, generated media, and raw-payload safety policy. |
 
 ## Telegram Mira Preview
@@ -298,6 +308,7 @@ data with `TELEGRAM_BOT_TOKEN` before trusting user identity.
 
 See also:
 - `docs/DATA_FLOWS.md`
+- `docs/LOCAL_INFERENCE_X402_BACKFILL.md`
 - `docs/TELEGRAM_MIRA_INTEGRATION.md`
 - `docs/MARKET_POSITIONING.md`
 
@@ -318,6 +329,8 @@ See also:
 ## What Not To Claim
 
 - No live 0G Compute inference is enabled yet.
+- No local Windows/Pi model prompt execution is enabled by default; the live
+  route probes status only.
 - No live 0G Storage upload/readback is enabled by default.
 - No browser or Mini App path signs, broadcasts, swaps, bridges, settles, or
   places exchange orders.
@@ -325,6 +338,8 @@ See also:
   enabled from the judge workbench.
 - No 0G Private Computer API key, Router deposit, provider sub-account transfer,
   staking, delegation, or wallet signing is performed by this repo.
+- No x402 settlement route is enabled; x402 surfaces are product manifests and
+  dry-run planning until a testnet flow is reviewed.
 - No raw paid-feed or upstream OSINT payloads are resold or mirrored.
 - The submitted MP4 remains as archive continuity; the canonical public proof
   is the mainnet transaction, proof JSON, API/readiness readbacks, and source

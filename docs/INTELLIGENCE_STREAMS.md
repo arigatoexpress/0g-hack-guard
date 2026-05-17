@@ -8,6 +8,7 @@ incident dataset without pretending raw feeds are ours to resell.
 | Phase | Stream | Why | Integration | Rights posture |
 |---|---|---|---|---|
 | 1 | PhishDestroy + CryptoScamDB + Forta labels, then GoPlus / Chainabuse | Highest near-term value for domain, recipient, approval, dApp, and Telegram risk with open-source feeds first. | The live `/api/reputation/probe` contract now feeds `/api/native-preflight`, wallet alerts, and Telegram previews; `/api/reputation/adapters/normalize` converts reviewed upstream payloads into derived evidence. External live fetches stay disabled until keys/terms are reviewed. | Derived verdicts, links, hashes, source ids, and confidence only. |
+| 1 | x402 derived defensive artifacts | Gives agents and wallets a clean paid-access path for ZeroGuard verdicts, threat packets, node snapshots, and backfilled incident features. | `/api/x402/data-products` exposes the product manifest now; settlement stays disabled until a testnet facilitator flow and spend limits are reviewed. | Payment unlocks derived outputs only; no raw upstream payload resale. |
 | 1 | Forta labels and attack alerts | Emerging exploit-stage intelligence before it becomes a hard blocker. | Digest-only queue using Forta alert/label metadata; promote to wallet alert only with direct detector/source evidence. | Respect public label attribution and any premium feed terms. |
 | 2 | Tenderly or BlockSec simulation | Adds state-change previews for approvals, swaps, and contract calls. | Optional `simulate_intent` adapter returning asset deltas and dangerous calls. | Do not persist/resell full traces unless vendor terms allow it. |
 | 2 | TON Center / TONAPI | Makes Telegram wallet alerts native to TON instead of EVM-shaped. | TON account, transaction, Jetton, NFT, and message activity enrichment for risk passports. | Derived activity features only; no raw indexer dumps. |
@@ -23,15 +24,21 @@ incident dataset without pretending raw feeds are ours to resell.
    credentials.
 2. GoPlus or Chainabuse only after free/keyed access materially improves alert
    quality or the demo hits rate limits.
-3. Tenderly or BlockSec simulation once the reputation adapter is already used
+3. x402 only after route schemas, spend limits, testnet facilitator proof, and
+   MetaMask/1Shot permission boundaries are reviewed.
+4. Tenderly or BlockSec simulation once the reputation adapter is already used
    by real product flows.
-4. Dune, Allium, or Bitquery only when native adapters cannot cover a chain or
+5. Dune, Allium, or Bitquery only when native adapters cannot cover a chain or
    historical feature quickly enough.
 
 ## Current API Proof
 
 - `/api/intelligence/data-streams` exposes this as a source-rights-aware JSON
   roadmap.
+- `/api/x402/data-products` exposes the rights-cleared paid-data product shape
+  without enabling x402 settlement.
+- `/api/data/backfill-plan` defines how historical incident, reputation, node,
+  Telegram opt-in, and future x402 receipt metadata become durable feature data.
 - `/api/experiments/frontier` turns the roadmap into a ranked lab bench for 0G
   Storage/Compute, reputation, simulation, TON, and Mira.
 - `/api/experiments/run` previews one experiment at a time and always reports

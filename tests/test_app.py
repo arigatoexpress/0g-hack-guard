@@ -60,6 +60,11 @@ def test_health(client):
     assert data["0g_node_business"]["safety"]["moneyMovementEnabled"] is False
     assert data["0g_private_computer"]["schema"] == "0guard.0g_private_computer_integration.v1"
     assert data["0g_private_computer"]["safety"]["transactionBroadcastingEnabled"] is False
+    assert data["local_inference_mesh"]["schema"] == "0guard.local_inference_mesh.v1"
+    assert data["local_inference_mesh"]["safety"]["promptExecutionEnabled"] is False
+    assert data["x402_data_products"]["schema"] == "0guard.x402_data_products.v1"
+    assert data["x402_data_products"]["safety"]["x402SettlementEnabled"] is False
+    assert data["historical_backfill_plan"]["schema"] == "0guard.historical_backfill_plan.v1"
     assert data["0g_hot_wallet_resources"]["schema"] == "0guard.0g_hot_wallet_resources.v1"
     assert data["0g_hot_wallet_resources"]["safety"]["moneyMovementEnabled"] is False
     assert data["peer_protection"]["schema"] == "0guard.peer_protection_plan.v1"
@@ -120,6 +125,8 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/0g/validator-capacity" in data["apiRoutes"]
     assert "/api/0g/node-business" in data["apiRoutes"]
     assert "/api/0g/private-computer" in data["apiRoutes"]
+    assert "/api/local-inference/status" in data["apiRoutes"]
+    assert "/api/telegram/local-inference-preview" in data["apiRoutes"]
     assert "/api/0g/hot-wallet-resources" in data["apiRoutes"]
     assert "/api/0g/peer-protection" in data["apiRoutes"]
     assert "/api/0g/pi-mesh" in data["apiRoutes"]
@@ -131,11 +138,13 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "/api/data/provenance" in data["apiRoutes"]
     assert "/api/data/detection-coverage" in data["apiRoutes"]
     assert "/api/data/signature-map" in data["apiRoutes"]
+    assert "/api/data/backfill-plan" in data["apiRoutes"]
     assert "/api/osint/sources" in data["apiRoutes"]
     assert "/api/osint/readiness" in data["apiRoutes"]
     assert "/api/osint/signals" in data["apiRoutes"]
     assert "/api/intelligence/evolving" in data["apiRoutes"]
     assert "/api/intelligence/data-streams" in data["apiRoutes"]
+    assert "/api/x402/data-products" in data["apiRoutes"]
     assert "/api/intelligence/detector-candidates" in data["apiRoutes"]
     assert "/api/product/brief" in data["apiRoutes"]
     assert "/api/readyz" in data["apiRoutes"]
@@ -229,11 +238,15 @@ def test_frontend_contract_is_browser_smoke_ready_and_non_mutating(client):
     assert "#load-alignment-node-status" in data["requiredSelectors"]
     assert "#load-validator-capacity" in data["requiredSelectors"]
     assert "#load-private-computer" in data["requiredSelectors"]
+    assert "#load-local-inference" in data["requiredSelectors"]
+    assert "#run-telegram-local-inference-preview" in data["requiredSelectors"]
     assert "#load-hot-wallet-resources" in data["requiredSelectors"]
     assert "#load-peer-protection" in data["requiredSelectors"]
     assert "#run-peer-outreach-preview" in data["requiredSelectors"]
     assert "#load-pi-mesh" in data["requiredSelectors"]
     assert "#run-telegram-node-business-preview" in data["requiredSelectors"]
+    assert "#load-historical-backfill-plan" in data["requiredSelectors"]
+    assert "#load-x402-data-products" in data["requiredSelectors"]
     assert "#da-node-output" in data["requiredSelectors"]
     assert "#telegram-register-output" in data["requiredSelectors"]
     assert "#mira-output" in data["requiredSelectors"]
@@ -271,6 +284,8 @@ def test_frontend_uses_packaged_template_and_static_assets():
     assert "loadReputationAdapters" in (package_root / "static" / "app.js").read_text()
     assert "loadPeerProtection" in (package_root / "static" / "app.js").read_text()
     assert "loadHotWalletResources" in (package_root / "static" / "app.js").read_text()
+    assert "loadLocalInference" in (package_root / "static" / "app.js").read_text()
+    assert "loadX402DataProducts" in (package_root / "static" / "app.js").read_text()
     assert "runPeerOutreachPreview" in (package_root / "static" / "app.js").read_text()
     assert "miniappRunPreview" in (package_root / "static" / "telegram-miniapp.js").read_text()
     assert "miniapp-evidence-panel" in (
@@ -363,6 +378,35 @@ def test_peer_protection_routes_are_no_send_and_no_broadcast(client):
     assert preview_body["telegram_send"] is False
     assert preview_body["blockchain_broadcast"] is False
     assert preview_body["onchainEnvelope"]["calldata"] is None
+
+
+def test_local_inference_x402_and_backfill_routes_are_no_side_effect(client):
+    local = client.get("/api/local-inference/status")
+    assert local.status_code == 200
+    local_body = local.get_json()
+    assert local_body["schema"] == "0guard.local_inference_mesh.v1"
+    assert local_body["safety"]["promptExecutionEnabled"] is False
+    assert local_body["safety"]["telegramSendsEnabled"] is False
+
+    telegram_preview = client.get("/api/telegram/local-inference-preview")
+    assert telegram_preview.status_code == 200
+    preview_body = telegram_preview.get_json()
+    assert preview_body["schema"] == "0guard.telegram_local_inference_preview.v1"
+    assert preview_body["telegram_send"] is False
+    assert preview_body["safety"]["promptExecutionEnabled"] is False
+
+    x402 = client.get("/api/x402/data-products")
+    assert x402.status_code == 200
+    x402_body = x402.get_json()
+    assert x402_body["schema"] == "0guard.x402_data_products.v1"
+    assert x402_body["safety"]["x402SettlementEnabled"] is False
+    assert all(item["rawPayloadResaleAllowed"] is False for item in x402_body["products"])
+
+    backfill = client.get("/api/data/backfill-plan")
+    assert backfill.status_code == 200
+    backfill_body = backfill.get_json()
+    assert backfill_body["schema"] == "0guard.historical_backfill_plan.v1"
+    assert backfill_body["safety"]["rawPayloadsReturned"] is False
 
 
 def test_telegram_routes_do_not_import_live_send_helpers():
