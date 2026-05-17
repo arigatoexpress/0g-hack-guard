@@ -34,6 +34,15 @@ can verify now from what remains before a production/mainnet launch.
 - 0G Storage payload: Storage-ready receipts and deterministic root hashes are
   produced for matching threat intel. Evidence:
   `zero_g.storage_receipt.root_hash`.
+- 0G node telemetry: read-only DA/storage/alignment/validator/operator routes
+  expose balance, relay, peer, sync, yield-source, and readiness posture without
+  funding or signing. Evidence: `/api/0g/da-node/status`,
+  `/api/0g/storage-node/status`, `/api/0g/node-business`.
+- 0G Private Computer readiness: Router/model/API-key/hot-wallet resources are
+  manifest-ready and can read the Router model catalog without authentication.
+  Evidence: `/api/0g/private-computer`, `/api/0g/private-computer?live=1`,
+  `/api/0g/hot-wallet-resources`, and
+  `docs/0G_PRIVATE_COMPUTE_AND_HOT_WALLET_RUNBOOK.md`.
 - Telegram Mira preview: local opt-in and response preview exist without
   sending Telegram messages. Evidence: `/api/telegram/status` and
   `/api/telegram/mira-preview`.
@@ -49,8 +58,9 @@ can verify now from what remains before a production/mainnet launch.
   SDK/gateway upload behind explicit operator config and add readback by key or
   root hash.
 - 0G Compute scoring: current scoring is deterministic policy/signature logic,
-  not live 0G Compute inference. Next step: add a Compute-backed anomaly scorer
-  as an optional signal with clear provenance in the verdict.
+  not live paid 0G Compute inference. Next step: deposit a small Router budget
+  through `pc.0g.ai`, create one server-side API key, and add a tiny
+  operator-confirmed inference smoke before using 0GM explanations in previews.
 - Provenance completion: 28 of 28 April 2026 records now carry per-incident
   source URLs and reviewed derived source evidence. Detector coverage is 28 of
   28 incident-derived patterns after the `Quant` row was promoted from
@@ -59,6 +69,10 @@ can verify now from what remains before a production/mainnet launch.
   anchoring needs signer custody. Next step: use a dedicated deployer/signer
   path outside the browser workbench, with explicit confirmation and no custody
   in repo.
+- Hot wallet resources: wallet roles are identified, but no Router deposit,
+  Direct provider transfer, storage-miner funding, staking, or delegation is
+  executed by the app. Next step: fill the transaction manifest with exact
+  chain, recipient/contract, amount, max fee, and final confirmation.
 - Mainnet launch: mainnet requires real tokens, audit, monitoring, and rollback
   plans. Next step: complete testnet verification first, then prepare a
   reversible mainnet runbook.
@@ -66,6 +80,8 @@ can verify now from what remains before a production/mainnet launch.
 ## Claims to Avoid
 
 - Do not say 0guard has live 0G Compute inference today.
+- Do not say 0guard has funded Router balance, provider sub-accounts, staking,
+  delegation, or mainnet storage uploads unless a fresh proof route exists.
 - Do not say the workbench can deploy, sign, trade, bridge, or move funds.
 - Do not imply Telegram messages are sent during the judge demo.
 - Do not use "fully decentralized" until Storage upload, Chain anchoring, and
