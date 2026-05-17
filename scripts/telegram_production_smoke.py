@@ -37,6 +37,18 @@ APPROVAL_CALLDATA = (
     "ffffffffffffffffffffffffffffffff"
 )
 
+ROUTE_PROBES: tuple[tuple[str, str], ...] = (
+    ("intelligence_events", "/api/intelligence/events?live=1&limit=1"),
+    ("detector_candidates", "/api/intelligence/detector-candidates?live=1&limit=1"),
+    ("reputation_connectors_live", "/api/reputation/connectors/live?live=1&limit=1"),
+    ("integrations_arbitrum", "/api/integrations/arbitrum"),
+    ("integrations_metamask", "/api/integrations/metamask"),
+    ("hackathons_next", "/api/hackathons/next"),
+    ("native_preflight_get", "/api/native-preflight"),
+    ("external_guardrails_evaluate_get", "/api/integrations/external-guardrails/evaluate"),
+    ("ika_evaluate_get", "/api/integrations/ika/evaluate"),
+)
+
 
 @dataclass(frozen=True)
 class Check:
@@ -147,6 +159,8 @@ def main(argv: list[str] | None = None) -> int:
         ]
     )
 
+    payload["routeProbes"] = _route_probes(base_url)
+
     if token:
         bot = _telegram_readbacks(token)
         payload["telegramApi"] = bot
@@ -250,6 +264,20 @@ def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str] | None
     return response.json()
 
 
+def _route_probes(base_url: str) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for name, path in ROUTE_PROBES:
+        url = f"{base_url}{path}"
+        try:
+            start = time.monotonic()
+            resp = requests.get(url, timeout=25)
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            results.append({"name": name, "path": path, "status": resp.status_code, "elapsedMs": elapsed_ms})
+        except requests.RequestException as exc:
+            results.append({"name": name, "path": path, "status": None, "error": str(exc)})
+    return results
+
+
 def _load_health(base_url: str) -> tuple[str, dict[str, Any]]:
     try:
         return "/api/healthz", _get_json(f"{base_url}/api/healthz")
@@ -335,6 +363,18 @@ def _markdown(payload: dict[str, Any]) -> str:
     for check in payload["checks"]:
         mark = "ready" if check["ok"] else "blocked"
         lines.append(f"- `{mark}` {check['name']}: {check['detail']}")
+
+    probes = payload.get("routeProbes") or []
+    if probes:
+        lines.extend(["", "## Route Probes (diagnostic)"])
+        for probe in probes:
+            status = probe.get("status")
+            if status is None:
+                lines.append(f"- `warn` {probe['name']}: error={probe.get('error','unknown')} path={probe['path']}")
+            else:
+                elapsed = probe.get("elapsedMs")
+                elapsed_label = f" ({elapsed}ms)" if isinstance(elapsed, int) else ""
+                lines.append(f"- `info` {probe['name']}: {status}{elapsed_label} {probe['path']}")
     return "\n".join(lines)
 
 
