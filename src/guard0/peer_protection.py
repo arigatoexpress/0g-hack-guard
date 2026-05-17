@@ -17,6 +17,8 @@ HOT_WALLET_RESOURCES_SCHEMA = "0guard.0g_hot_wallet_resources.v1"
 PEER_PROTECTION_SCHEMA = "0guard.peer_protection_plan.v1"
 PEER_OUTREACH_PREVIEW_SCHEMA = "0guard.peer_outreach_preview.v1"
 PI_MESH_SCHEMA = "0guard.pi_mesh_plan.v1"
+PI_MESH_SNAPSHOT_SCHEMA = "0guard.rv_pi_mesh_snapshot.v1"
+DEFAULT_PI_MESH_STATUS_PATH = "content/rv_pi_mesh.local.json"
 
 MODEL_ID = "0GM-1.0-35B-A3B"
 MODEL_HF_REPO = "0G-AI/0GM-1.0-35B-A3B-0427"
@@ -456,34 +458,19 @@ def build_peer_outreach_preview(payload: dict[str, Any] | None = None) -> dict[s
     }
 
 
-def build_pi_mesh_plan() -> dict[str, Any]:
+def build_pi_mesh_plan(*, status_file: str | None = None) -> dict[str, Any]:
     """Return the Raspberry Pi edge-compute plan for ZeroGuard operations."""
 
+    snapshot = _load_pi_mesh_snapshot(status_file)
+    observed_nodes = _pi_observed_nodes(snapshot)
+    readiness = _pi_mesh_readiness(snapshot)
     return {
         "schema": PI_MESH_SCHEMA,
         "generatedAt": _now(),
-        "mode": "lan_snapshot_plus_bootstrap_plan",
-        "observedNodes": [
-            {
-                "id": "rvpi-a",
-                "host": "rvpi-a.local",
-                "lastObservedIpv4": "192.168.1.111",
-                "sshUser": "ari",
-                "status": "reachable_over_wifi",
-                "eth0": "down_until_cable_or_static_config",
-                "memoryGiB": 3.7,
-                "rootDiskGiB": 116,
-                "safeRole": "sentinel_probe_and_evidence_cache",
-                "sentinelScript": "~/zeroguard-pi-sentinel/pi_sentinel.py",
-                "heartbeatPath": "~/zeroguard-pi-sentinel/state/heartbeat.json",
-            },
-            {
-                "id": "rvpi-b",
-                "host": "rvpi-b.local",
-                "status": "not_reached_this_run",
-                "safeRole": "standby_evidence_cache_when_online",
-            },
-        ],
+        "mode": "rv_pi_mesh_snapshot_file" if snapshot.get("status") == "loaded" else "lan_snapshot_plus_bootstrap_plan",
+        "fileStatus": snapshot,
+        "observedNodes": observed_nodes,
+        "readiness": readiness,
         "distributedComputeRoles": [
             {
                 "id": "node_sentinel",
@@ -528,6 +515,7 @@ def build_pi_mesh_plan() -> dict[str, Any]:
             "Do not bridge the Pi Ethernet pair into the LAN until probes and firewall rules are tested.",
         ],
         "bootstrapCommands": [
+            "./scripts/rv_pi_mesh_snapshot.py --out content/rv_pi_mesh.local.json",
             "ssh ari@rvpi-a.local 'ip -br addr; python3 ~/zeroguard-pi-sentinel/pi_sentinel.py --once'",
             "ssh ari@rvpi-a.local 'cat ~/zeroguard-pi-sentinel/state/heartbeat.json'",
         ],
@@ -537,6 +525,112 @@ def build_pi_mesh_plan() -> dict[str, Any]:
             "The split is credible: Windows does heavy 0G node work; Pis do watchdog and proof-cache work.",
         ],
         "safety": _safety(live_network_calls=False),
+    }
+
+
+def _load_pi_mesh_snapshot(status_file: str | None) -> dict[str, Any]:
+    if not status_file:
+        return {"status": "not_requested", "safe": True}
+    try:
+        with open(status_file, encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except FileNotFoundError:
+        return {"status": "missing", "path": status_file, "safe": True}
+    except json.JSONDecodeError as exc:
+        return {"status": "invalid_json", "path": status_file, "error": str(exc), "safe": False}
+    if payload.get("schema") != PI_MESH_SNAPSHOT_SCHEMA:
+        return {
+            "status": "schema_mismatch",
+            "path": status_file,
+            "schema": payload.get("schema"),
+            "safe": False,
+        }
+    safety = payload.get("safety") or {}
+    safe = (
+        safety.get("readOnly") is True
+        and safety.get("privateKeysReturned") is False
+        and safety.get("telegramSendsEnabled") is False
+    )
+    return {"status": "loaded", "path": status_file, "safe": safe, **payload}
+
+
+def _pi_observed_nodes(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
+    if snapshot.get("status") == "loaded":
+        nodes = snapshot.get("nodes") or {}
+        rvpi_a = nodes.get("rvpi-a") or {}
+        rvpi_b = nodes.get("rvpi-b") or {}
+        return [
+            {
+                "id": "rvpi-a",
+                "host": "rvpi-a.local",
+                "lastObservedIpv4": rvpi_a.get("wifiIpv4") or "192.168.1.111",
+                "ethernetIpv4": rvpi_a.get("ethernetIpv4"),
+                "sshUser": "ari",
+                "status": rvpi_a.get("status", "unknown"),
+                "eth0": "carrier_ready" if (rvpi_a.get("eth0") or {}).get("carrier") else "carrier_missing",
+                "memoryGiB": rvpi_a.get("memoryGiB"),
+                "rootDisk": rvpi_a.get("rootDisk"),
+                "services": rvpi_a.get("services"),
+                "safeRole": rvpi_a.get("safeRole", "sentinel_probe_and_evidence_cache"),
+                "sentinelScript": "~/zeroguard-pi-sentinel/pi_sentinel.py",
+                "heartbeatPath": "~/zeroguard-pi-sentinel/state/heartbeat.json",
+            },
+            {
+                "id": "rvpi-b",
+                "host": "rvpi-b.local",
+                "lastObservedIpv4": rvpi_b.get("expectedWifiIpv4"),
+                "ethernetIpv4": rvpi_b.get("ethernetIpv4"),
+                "status": rvpi_b.get("status", "not_reached"),
+                "identityVerified": rvpi_b.get("identityVerified") is True,
+                "edgeApiReady": rvpi_b.get("edgeApiReady") is True,
+                "tcpFromRvpiA": rvpi_b.get("tcpFromRvpiA"),
+                "safeRole": rvpi_b.get("safeRole", "standby_evidence_cache_when_authorized"),
+            },
+        ]
+    return [
+        {
+            "id": "rvpi-a",
+            "host": "rvpi-a.local",
+            "lastObservedIpv4": "192.168.1.111",
+            "sshUser": "ari",
+            "status": "reachable_over_wifi",
+            "eth0": "down_until_cable_or_static_config",
+            "memoryGiB": 3.7,
+            "rootDiskGiB": 116,
+            "safeRole": "sentinel_probe_and_evidence_cache",
+            "sentinelScript": "~/zeroguard-pi-sentinel/pi_sentinel.py",
+            "heartbeatPath": "~/zeroguard-pi-sentinel/state/heartbeat.json",
+        },
+        {
+            "id": "rvpi-b",
+            "host": "rvpi-b.local",
+            "status": "not_reached_this_run",
+            "safeRole": "standby_evidence_cache_when_online",
+        },
+    ]
+
+
+def _pi_mesh_readiness(snapshot: dict[str, Any]) -> dict[str, Any]:
+    if snapshot.get("status") != "loaded":
+        return {
+            "status": "snapshot_not_loaded",
+            "clusterReady": False,
+            "blockers": ["run_rv_pi_mesh_snapshot"],
+            "telegramSendsEnabled": False,
+        }
+    cluster = snapshot.get("cluster") or {}
+    blockers = list(cluster.get("blockers") or [])
+    return {
+        "status": "cluster_ready" if cluster.get("clusterReady") else "cluster_partial",
+        "clusterReady": cluster.get("clusterReady") is True,
+        "primaryReachable": cluster.get("primaryReachable") is True,
+        "ethernetCarrierReady": cluster.get("ethernetCarrierReady") is True,
+        "peerEthernetReachable": cluster.get("peerEthernetReachable") is True,
+        "peerIdentityVerified": cluster.get("peerIdentityVerified") is True,
+        "edgeApiReady": cluster.get("edgeApiReady") is True,
+        "blockers": blockers,
+        "recommendedAction": cluster.get("recommendedAction"),
+        "telegramSendsEnabled": False,
     }
 
 

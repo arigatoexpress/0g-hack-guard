@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from guard0.peer_protection import (
     build_0g_hot_wallet_resources,
     build_0g_private_computer_integration,
@@ -100,3 +102,61 @@ def test_pi_mesh_plan_uses_pis_for_sentinel_work_not_keys():
     assert any("Do not attempt 0GM-35B inference" in task for role in plan["distributedComputeRoles"] for task in role["tasks"])
     assert plan["safety"]["privateKeysReturned"] is False
     assert plan["safety"]["walletSignaturesEnabled"] is False
+
+
+def test_pi_mesh_plan_loads_live_snapshot_without_enabling_sends(tmp_path):
+    snapshot_path = tmp_path / "rv_pi_mesh.local.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "schema": "0guard.rv_pi_mesh_snapshot.v1",
+                "generatedAt": "2026-05-17T13:30:00+00:00",
+                "nodes": {
+                    "rvpi-a": {
+                        "status": "online",
+                        "wifiIpv4": "192.168.1.111",
+                        "ethernetIpv4": "10.77.4.11",
+                        "memoryGiB": 3.7,
+                        "eth0": {"carrier": True},
+                        "services": {"ari-edge-api": "active"},
+                        "safeRole": "sentinel_probe_and_evidence_cache",
+                    },
+                    "rvpi-b": {
+                        "status": "ethernet_ssh_reachable_identity_unverified",
+                        "expectedWifiIpv4": "192.168.1.144",
+                        "ethernetIpv4": "10.77.4.12",
+                        "identityVerified": False,
+                        "edgeApiReady": False,
+                        "tcpFromRvpiA": {"22": {"ok": True}},
+                    },
+                },
+                "cluster": {
+                    "primaryReachable": True,
+                    "ethernetCarrierReady": True,
+                    "peerEthernetReachable": True,
+                    "peerIdentityVerified": False,
+                    "edgeApiReady": True,
+                    "clusterReady": False,
+                    "blockers": ["rvpi_b_identity_unverified", "rvpi_b_edge_api_not_ready"],
+                    "recommendedAction": "install_or_authorize_rvpi_b_runtime_over_eth",
+                },
+                "safety": {
+                    "readOnly": True,
+                    "privateKeysReturned": False,
+                    "telegramSendsEnabled": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    plan = build_pi_mesh_plan(status_file=str(snapshot_path))
+
+    assert plan["mode"] == "rv_pi_mesh_snapshot_file"
+    assert plan["fileStatus"]["status"] == "loaded"
+    assert plan["observedNodes"][0]["eth0"] == "carrier_ready"
+    assert plan["observedNodes"][1]["ethernetIpv4"] == "10.77.4.12"
+    assert plan["readiness"]["peerEthernetReachable"] is True
+    assert plan["readiness"]["peerIdentityVerified"] is False
+    assert "rvpi_b_identity_unverified" in plan["readiness"]["blockers"]
+    assert plan["readiness"]["telegramSendsEnabled"] is False

@@ -33,10 +33,10 @@ class TelegramConfig:
     disable_web_page_preview: bool = True
 
     @classmethod
-    def from_env(cls) -> "TelegramConfig":
+    def from_env(cls, *, require_chat: bool = True) -> "TelegramConfig":
         token = os.getenv("TELEGRAM_BOT_TOKEN", "")
         chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
-        if not token or not chat_id:
+        if not token or (require_chat and not chat_id):
             raise RuntimeError(
                 "Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID env vars. "
                 "Get a token from @BotFather on Telegram."
@@ -176,7 +176,7 @@ def send_photo(
 
 def get_me(config: TelegramConfig | None = None) -> dict[str, Any]:
     """Health check: get bot info."""
-    cfg = config or TelegramConfig.from_env()
+    cfg = config or TelegramConfig.from_env(require_chat=False)
     resp = requests.get(_api_url(cfg, "getMe"), timeout=10)
     resp.raise_for_status()
     return resp.json()

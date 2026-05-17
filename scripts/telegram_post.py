@@ -40,6 +40,8 @@ def cmd_post(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
             return 2
+        # getMe is read-only and does not require TELEGRAM_CHAT_ID because it
+        # never sends to a chat. Keep this as the safest live bot proof.
         info = get_me()
         print(json.dumps(info, indent=2))
         return 0

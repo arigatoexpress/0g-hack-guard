@@ -42,6 +42,7 @@ from guard0.node_business import (
     build_validator_capacity_status,
 )
 from guard0.peer_protection import (
+    DEFAULT_PI_MESH_STATUS_PATH,
     build_0g_hot_wallet_resources,
     build_0g_private_computer_integration,
     build_peer_outreach_preview,
@@ -525,6 +526,38 @@ def _telegram_webhook_info() -> dict | None:
         "url_set": bool(webhook_url),
         "pending_update_count": int(result.get("pending_update_count") or 0),
         "last_error_message": result.get("last_error_message"),
+    }
+
+
+def _telegram_bot_identity() -> dict | None:
+    """Read-only Telegram Bot API identity readback without sending a message."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    if not token:
+        return None
+
+    import json
+    import urllib.request
+
+    url = f"https://api.telegram.org/bot{token}/getMe"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        return {"status": "unreachable", "error": type(exc).__name__}
+
+    if not isinstance(payload, dict) or not payload.get("ok"):
+        return {"status": "error"}
+    result = payload.get("result") or {}
+    if not isinstance(result, dict):
+        return {"status": "malformed"}
+    return {
+        "status": "ok",
+        "id": result.get("id"),
+        "username": result.get("username"),
+        "firstName": result.get("first_name"),
+        "canJoinGroups": result.get("can_join_groups"),
+        "canReadAllGroupMessages": result.get("can_read_all_group_messages"),
+        "supportsInlineQueries": result.get("supports_inline_queries"),
     }
 
 
@@ -1388,6 +1421,7 @@ def api_telegram_status():
     payload["liveReadback"] = live_readback
     payload["safety"] = {**payload["safety"], "networkCalls": live_readback}
     webhook = _telegram_webhook_info() if live_readback else None
+    identity = _telegram_bot_identity() if live_readback else None
     compat = {
         "botTokenConfigured": (payload.get("miniAppAuth") or {}).get("botTokenConfigured"),
         "telegramBotUsernameConfigured": (payload.get("registration") or {}).get(
@@ -1399,6 +1433,7 @@ def api_telegram_status():
         ),
         "telegramSendsEnabled": (payload.get("safety") or {}).get("telegramSendsEnabled"),
         "telegramBotUsername": os.getenv("TELEGRAM_BOT_USERNAME") or None,
+        "botApiIdentity": identity,
     }
     if webhook:
         compat.update(
@@ -2020,7 +2055,8 @@ def api_0g_peer_protection():
 
 @app.route("/api/0g/pi-mesh", methods=["GET"])
 def api_0g_pi_mesh():
-    return jsonify(build_pi_mesh_plan())
+    status_file = DEFAULT_PI_MESH_STATUS_PATH if _truthy_query_arg("snapshot") else None
+    return jsonify(build_pi_mesh_plan(status_file=status_file))
 
 
 @app.route("/api/peer/outreach-preview", methods=["GET", "POST"])

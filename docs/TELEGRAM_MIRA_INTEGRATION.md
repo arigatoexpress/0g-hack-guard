@@ -158,6 +158,11 @@ does not pretend that a Telegram user has been verified.
 - No bot token, chat id, or other secret should be committed with this flow.
 - Live Telegram sends remain outside this flow and still require
   `scripts/telegram_post.py --live-send-confirm SEND_TO_TELEGRAM_FROM_0GUARD`.
+- Bot health is now separate from sending. `scripts/telegram_post.py --health`
+  calls Telegram `getMe` only after the same confirmation flag, never sends to a
+  chat, and therefore does not require `TELEGRAM_CHAT_ID`.
+- `/api/telegram/status?live=1` may read the bot identity and webhook metadata
+  without exposing tokens or enabling workbench sends.
 - Webhook handling requires `TELEGRAM_WEBHOOK_SECRET_TOKEN` and checks the
   `X-Telegram-Bot-Api-Secret-Token` header. The app does not call
   `setWebhook`; webhook registration remains an explicit operator action.
