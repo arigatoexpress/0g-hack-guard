@@ -8,7 +8,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![0G Mainnet Proof](https://img.shields.io/badge/0G-mainnet%20proof-111827)](https://chainscan.0g.ai/tx/0x64ff260ccd02aa69fc18d5727eb4530d8774003bc7df63ec7d5cda036fc438ed)
 
-![0guard proof surface](docs/hackathon-0g/assets/0guard-x-banner.png)
+![0guard proof architecture](docs/hackathon-0g/assets/0guard-proof-architecture.png)
 
 0guard is a security layer for autonomous agents and wallet-connected apps.
 Instead of waiting for a wallet prompt, it reviews the action first. The
@@ -58,7 +58,10 @@ format accepted by 0G Chain Scan.
 | Detector coverage | Live | 28 of 28 incident-derived seeds covered; `coverageRatio: 1.0` |
 | 0G Chain receipt anchor | Live on mainnet | `docs/hackathon-0g/mainnet-proof.json` |
 | 0G Storage receipts | Storage-ready, not auto-uploaded | `zero_g.storage_receipt.root_hash` from `/api/evaluate` |
-| 0G Compute | Planned adapter, not claimed live | Stated in `docs/hackathon-0g/mainnet-gap-register.md` |
+| 0G node telemetry | Live read-only routes, no funding action | `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business` |
+| 0G Private Computer | Adapter-ready manifest, no paid inference | `/api/0g/private-computer` |
+| Peer protection and Pi mesh | Live no-send/no-broadcast previews | `/api/0g/peer-protection`, `/api/peer/outreach-preview`, `/api/0g/pi-mesh` |
+| 0G Compute | Router/direct setup path documented, not claimed live | Stated in `docs/hackathon-0g/mainnet-gap-register.md` |
 | Reputation layer | Live derived normalizer and shadow cache | `/api/reputation/*` routes |
 | Telegram Mini App | Live preview, no outbound sends | `/telegram`, `/api/telegram/miniapp/preview` |
 | Cross-chain guardrails | Live read-only catalog | `/api/integrations/cross-chain`, `/api/integrations/external-guardrails` |
@@ -69,6 +72,18 @@ format accepted by 0G Chain Scan.
 AI agents are gaining wallet, bridge, payment, exchange, and social-channel
 tooling faster than their safety controls are maturing. A bad agent action can
 be formed before a human sees a wallet prompt.
+
+## 0G Stack Fit
+
+| 0G Component | How We Use It | Hackathon Track Fit |
+| --- | --- | --- |
+| **0G Chain** (EVM-compatible) | Public 0G mainnet `PolicyReceiptAnchor` with one anchored deny receipt; workbench path remains read-only/preflight. | Agentic Infrastructure |
+| **0G Storage** (KV + Log) | Deterministic threat-intel payload/root-hash preparation plus read-only mainnet storage-node peer/sync telemetry; external writes and node funding stay opt-in. | Privacy & Sovereign Infrastructure |
+| **0G DA** | Read-only DA node telemetry for the dedicated Windows node: public relay socket, signer/miner balances, readiness blockers, and Telegram digest previews. | Agentic Infrastructure |
+| **0G Node Ops** | Alignment license readiness, validator capacity, storage economics, and operator business surfaces for node monitoring and proof receipts; no registration, staking, or funding from the workbench. | Agentic Infrastructure |
+| **0G Private Computer / 0GM-1.0** | OpenAI-compatible manifest for 0GM-1.0 sealed inference and TEE-aware risk explanations; ZeroGuard uses it for explanation/draft review only, not policy authority. | Agentic Infrastructure |
+| **0G Compute** (Inference) | Planned 0G Compute scoring adapter; current demo uses deterministic policy/signature checks and a no-call 0GM manifest. | Agentic Infrastructure |
+| **Agent ID** (ERC-7857) | Every evaluation is tagged with a persistent agent identity for accountability. | Agentic Economy |
 
 0guard moves the checkpoint earlier:
 
@@ -159,10 +174,28 @@ Useful local readbacks:
 ```bash
 curl -s http://127.0.0.1:8109/api/readyz | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/product/brief | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/0g/status | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/da-node/status?live=1' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/storage-node/status?live=1' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/0g/private-computer | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/node-business' | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/0g/receipt?receipt_hash=0x0000000000000000000000000000000000000000000000000000000000000000' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/summary | python3 -m json.tool
+curl -s 'http://127.0.0.1:8109/api/data/provenance?live=1' | python3 -m json.tool
+curl -s http://127.0.0.1:8109/api/data/signature-map | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/hackathon/threat-passport | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/data/detection-coverage | python3 -m json.tool
 curl -s http://127.0.0.1:8109/api/reputation/shadow-cache | python3 -m json.tool
 ```
+
+### Incident Data Flow
+
+The incident dataset is loaded from `data/april_2026_incidents.json`, validated
+against a required schema, fingerprinted, summarized, and run through the
+signature engine as detection-coverage seeds. Canonical per-incident source
+evidence is embedded for all 28 records, while
+`data/incident_provenance_cache.json` remains a reviewed fallback so the judge
+demo remains useful offline.
 
 CLI equivalents:
 
@@ -183,7 +216,7 @@ python3 -m guard0.cli proof-ladder \
 | --- | --- |
 | Runtime | `/api/health`, `/api/healthz`, `/api/readyz`, `/api/product/brief` |
 | Policy | `/api/evaluate`, `/api/hack-check`, `/api/native-preflight` |
-| 0G | `/api/0g/status`, `/api/0g/receipt`, `/api/0g/proof-ladder` |
+| 0G | `/api/0g/status`, `/api/0g/receipt`, `/api/0g/proof-ladder`, `/api/0g/da-node/status`, `/api/0g/storage-node/status`, `/api/0g/node-business`, `/api/0g/private-computer`, `/api/0g/hot-wallet-resources`, `/api/0g/peer-protection`, `/api/0g/pi-mesh` |
 | Data | `/api/data/summary`, `/api/data/incidents`, `/api/data/provenance`, `/api/data/detection-coverage`, `/api/data/signature-map` |
 | OSINT | `/api/osint/sources`, `/api/osint/readiness`, `/api/osint/signals`, `/api/intelligence/*` |
 | Reputation | `/api/reputation/probe`, `/api/reputation/connectors`, `/api/reputation/adapters`, `/api/reputation/shadow-cache` |
@@ -203,7 +236,54 @@ python3 -m guard0.cli proof-ladder \
 | `docs/hackathon-0g/mainnet-proof.json` | Canonical 0G mainnet contract, deploy tx, anchor tx, and RPC readback proof. |
 | `docs/hackathon-0g/mainnet-gap-register.md` | Honest live-vs-planned status for Chain, Storage, Compute, Telegram, and mainnet operations. |
 | `docs/hackathon-0g/assets/README.md` | Public media registry. Submitted video assets are archived behind proof links, not used as the main proof. |
+| `docs/0G_PRIVATE_COMPUTE_AND_HOT_WALLET_RUNBOOK.md` | Operator-gated setup path for Router deposits, API keys, and hot-wallet roles; no spend or key exposure. |
 | `docs/LEGAL_AND_ASSET_POLICY.md` | Source rights, generated media, and raw-payload safety policy. |
+
+## Telegram Mira Preview
+
+Create a local registration challenge, complete a redacted opt-in record, and
+build a Mira response preview. These calls do not contact Telegram or send any
+message.
+
+```bash
+curl -s -X POST http://127.0.0.1:8109/api/telegram/registrations \
+  -H "Content-Type: application/json" \
+  -d '{"user_label":"demo-operator","scopes":["mira_alerts","security.digest"]}' \
+  | python3 -m json.tool
+
+curl -s http://127.0.0.1:8109/api/telegram/status | python3 -m json.tool
+
+curl -s -X POST http://127.0.0.1:8109/api/telegram/wallet-alert-preview \
+  -H "Content-Type: application/json" \
+  -d '{"address":"0x885b0892D241Cb5033C9995e09cA521d54f936b5","intent":{"action":"approve","mode":"live_transaction","requires_signature":true,"calldata":"0x095ea7b3ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}}' \
+  | python3 -m json.tool
+
+curl -s 'http://127.0.0.1:8109/api/telegram/da-node-preview?live=1' \
+  | python3 -m json.tool
+```
+
+For a real Telegram Mini App, send `window.Telegram.WebApp.initData` to
+`/api/telegram/webapp/verify`; the backend validates Telegram's signed init
+data with `TELEGRAM_BOT_TOKEN` before trusting user identity.
+
+See also:
+- `docs/DATA_FLOWS.md`
+- `docs/TELEGRAM_MIRA_INTEGRATION.md`
+- `docs/MARKET_POSITIONING.md`
+
+## Real-World Signatures Built In
+
+| April 2026 Incident | Signature in 0guard |
+| --- | --- |
+| **Drift Protocol** ($285M) — Durable nonce social engineering | `durable_nonce_admin_transfer` blocker |
+| **Kelp DAO** ($293M) — LayerZero 1-of-1 DVN bridge forgery | `single_dvn_bridge` warning |
+| **Wasabi Protocol** ($5M) — UUPS upgrade via compromised deployer | `sequence_grant_upgrade` blocker |
+| **Rhea Finance** ($18.4M) — Flash-loan + fake collateral | `sequence_flash_swap_withdraw` warning |
+| **Giddy Finance** ($1.3M) — EIP-712 signature replay | `critical_selector` on malformed `approve` |
+| **HyperBridge** ($2.5M) — MMR proof replay | `lzReceive` critical selector flag |
+| **Aftermath Perps** ($1.14M) — Signedness mismatch | `high_value` + `risk_pair` warnings |
+| **Sweat Foundation** ($3.5M) — Refund logic drain | `drain_language` blocker |
+| **Volo Protocol** ($3.5M) — Admin key leak | `grantRole`/`transferOwnership` critical flags |
 
 ## What Not To Claim
 
@@ -211,7 +291,10 @@ python3 -m guard0.cli proof-ladder \
 - No live 0G Storage upload/readback is enabled by default.
 - No browser or Mini App path signs, broadcasts, swaps, bridges, settles, or
   places exchange orders.
-- No outbound Telegram send is enabled from the judge workbench.
+- No outbound Telegram, email, X, LinkedIn, or blockchain message send is
+  enabled from the judge workbench.
+- No 0G Private Computer API key, Router deposit, provider sub-account transfer,
+  staking, delegation, or wallet signing is performed by this repo.
 - No raw paid-feed or upstream OSINT payloads are resold or mirrored.
 - The submitted MP4 remains as archive continuity; the canonical public proof
   is the mainnet transaction, proof JSON, API/readiness readbacks, and source
